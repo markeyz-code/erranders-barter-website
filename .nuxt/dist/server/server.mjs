@@ -592,8 +592,10 @@ function getRouteRules(arg) {
     return {};
   }
 }
-const __nuxt_page_meta$3 = { layout: false };
-const __nuxt_page_meta$2 = { layout: false };
+const __nuxt_page_meta$5 = { layout: false };
+const __nuxt_page_meta$4 = { layout: false };
+const __nuxt_page_meta$3 = { layout: "dashboard" };
+const __nuxt_page_meta$2 = { layout: "dashboard" };
 const __nuxt_page_meta$1 = { layout: "dashboard" };
 const __nuxt_page_meta = { layout: "dashboard" };
 const _routes = [
@@ -635,7 +637,7 @@ const _routes = [
   {
     name: "login",
     path: "/login",
-    meta: __nuxt_page_meta$3 || {},
+    meta: __nuxt_page_meta$5 || {},
     component: () => import("./_nuxt/login-6dBk-B5Y.js")
   },
   {
@@ -661,7 +663,7 @@ const _routes = [
   {
     name: "signup",
     path: "/signup",
-    meta: __nuxt_page_meta$2 || {},
+    meta: __nuxt_page_meta$4 || {},
     component: () => import("./_nuxt/signup-mdUc51_r.js")
   },
   {
@@ -707,13 +709,25 @@ const _routes = [
   {
     name: "dashboard",
     path: "/dashboard",
-    meta: __nuxt_page_meta$1 || {},
+    meta: __nuxt_page_meta$3 || {},
     component: () => import("./_nuxt/index-BIiIl2n4.js")
   },
   {
     name: "forgot-password",
     path: "/forgot-password",
     component: () => import("./_nuxt/forgot-password-Dd3iDqS4.js")
+  },
+  {
+    name: "dashboard-trades",
+    path: "/dashboard/trades",
+    meta: __nuxt_page_meta$2 || {},
+    component: () => import("./_nuxt/trades-CENR254j.js")
+  },
+  {
+    name: "dashboard-wallet",
+    path: "/dashboard/wallet",
+    meta: __nuxt_page_meta$1 || {},
+    component: () => import("./_nuxt/wallet-BQKhN5P7.js")
   },
   {
     name: "dashboard-settings",
