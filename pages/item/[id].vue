@@ -1,5 +1,5 @@
 <template>
-  <main class="min-h-screen bg-white pt-24 pb-20 relative">
+  <main class="min-h-screen bg-white pb-20 relative">
     
     <!-- 4D Zoom Lightbox (Teleported to body level effectively via fixed positioning) -->
     <div v-if="isZoomOpen && activeMedia.type === 'image'" class="fixed inset-0 z-[100] bg-black/95 flex items-center justify-center cursor-crosshair" @click="isZoomOpen = false">

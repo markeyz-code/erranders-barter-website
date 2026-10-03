@@ -1,5 +1,5 @@
 <template>
-  <main class="min-h-screen bg-slate-50 pt-24 pb-16">
+  <main class="min-h-screen bg-slate-50 pb-16">
     <div class="max-w-3xl mx-auto px-4 sm:px-4 sm:px-6 lg:px-4 sm:px-8">
       <div class="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden flex flex-col h-[75vh]">
         

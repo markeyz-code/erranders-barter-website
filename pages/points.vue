@@ -1,5 +1,5 @@
 <template>
-  <main class="min-h-screen bg-white pt-24 pb-16">
+  <main class="min-h-screen bg-white pb-16">
     <div class="max-w-3xl mx-auto px-4 sm:px-4 sm:px-6 lg:px-4 sm:px-8">
       <NuxtLink to="/" class="text-brand-600 font-bold mb-4 inline-block">← Back Home</NuxtLink>
       <h1 class="text-4xl font-extrabold text-slate-900 mb-4">Erranders Points</h1>
