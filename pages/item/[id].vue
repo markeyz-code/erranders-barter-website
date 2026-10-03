@@ -27,7 +27,7 @@
       </div>
     </div>
 
-    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="max-w-6xl mx-auto px-4 sm:px-4 sm:px-6 lg:px-4 sm:px-8">
       
       <NuxtLink to="/explore" class="inline-flex items-center gap-2 text-slate-500 hover:text-brand-600 font-bold mb-6 transition-colors">
         <ArrowLeft class="w-4 h-4" /> Back to Explore

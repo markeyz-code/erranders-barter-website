@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen bg-slate-50 py-16 px-4 sm:px-6 lg:px-8">
+  <div class="min-h-screen bg-slate-50 py-16 px-4 sm:px-4 sm:px-6 lg:px-4 sm:px-8">
     <div class="max-w-5xl mx-auto">
       
       <div class="mb-8">
@@ -17,7 +17,7 @@
         <div class="lg:col-span-5 flex flex-col gap-6">
           <h2 class="text-3xl font-black text-slate-900 tracking-tight">Order Summary</h2>
           
-          <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-200">
+          <div class="bg-white p-4 sm:p-6 rounded-3xl shadow-sm border border-slate-200">
             <div class="flex gap-4 items-start mb-6 pb-6 border-b border-slate-100">
               <div class="w-24 h-24 bg-slate-100 rounded-2xl overflow-hidden shrink-0 border border-slate-200">
                 <img v-if="item.images && item.images.length > 0" :src="item.images[0]" class="w-full h-full object-cover" />
@@ -70,7 +70,7 @@
         
         <!-- Right Side: Delivery & Payment Actions -->
         <div class="lg:col-span-7">
-          <div class="bg-white p-8 rounded-3xl shadow-xl shadow-slate-200/50 border border-slate-100">
+          <div class="bg-white p-4 sm:p-8 rounded-3xl shadow-xl shadow-slate-200/50 border border-slate-100">
             <h2 class="text-2xl font-black text-slate-900 mb-6">Delivery Details</h2>
             
             <div class="space-y-4 mb-8">
@@ -113,7 +113,7 @@
               </div>
             </div>
             
-            <div v-if="deliveryMethod === 'errander'" class="mb-8 p-6 bg-slate-50 border border-slate-200 rounded-2xl space-y-6 animate-in fade-in slide-in-from-top-4 duration-300">
+            <div v-if="deliveryMethod === 'errander'" class="mb-8 p-4 sm:p-6 bg-slate-50 border border-slate-200 rounded-2xl space-y-6 animate-in fade-in slide-in-from-top-4 duration-300">
               <div>
                 <label class="block text-xs font-bold text-slate-700 mb-2">Delivery Address (Hostel/Room)</label>
                 <div class="relative">

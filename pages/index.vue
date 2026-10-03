@@ -2,7 +2,7 @@
   <main class="min-h-screen bg-white font-sans">
     
     <!-- Hero Section -->
-    <div class="pt-16 pb-20 px-4 sm:px-6 lg:px-8 text-center bg-white relative overflow-hidden border-b border-slate-100">
+    <div class="pt-16 pb-20 px-4 sm:px-4 sm:px-6 lg:px-4 sm:px-8 text-center bg-white relative overflow-hidden border-b border-slate-100">
       
       <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-brand-50 text-brand-700 font-bold text-sm mb-8 border border-brand-100 shadow-sm">
         <span class="animate-pulse">🚀</span> Hostel movement just got easy
@@ -30,7 +30,7 @@
             placeholder="Search for fridges, textbooks, or services (e.g., hair styling)..." 
             class="w-full bg-white border border-slate-300 focus:border-brand-600 rounded-full py-4 pl-16 pr-32 transition-all outline-none font-bold text-lg text-slate-900 shadow-sm focus:shadow-xl" 
           />
-          <button type="submit" class="absolute inset-y-2 right-2 bg-brand-600 text-white font-bold px-6 rounded-full hover:bg-brand-700 transition-colors">
+          <button type="submit" class="absolute inset-y-2 right-2 bg-brand-600 text-white font-bold px-4 sm:px-6 rounded-full hover:bg-brand-700 transition-colors">
             Search
           </button>
         </form>
@@ -38,7 +38,7 @@
         <!-- Live Dropdown -->
         <div v-if="isDropdownOpen && searchQuery.length > 0" class="absolute top-full left-0 right-0 mt-4 bg-white rounded-3xl shadow-[0_20px_50px_rgba(0,0,0,0.1)] border border-slate-200 overflow-hidden flex flex-col max-h-[70vh]">
           
-          <div class="flex-1 overflow-y-auto p-4 sm:p-6">
+          <div class="flex-1 overflow-y-auto p-4 sm:p-4 sm:p-6">
             
             <!-- Room Completion AI -->
             <div class="mb-6 p-4 bg-gradient-to-br from-indigo-50 to-purple-50 rounded-2xl border border-indigo-100">
@@ -98,15 +98,15 @@
 
       <!-- Action Cards (Buy, Sell, Swap) -->
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-4xl mx-auto">
-        <NuxtLink to="/explore" class="bg-white border border-slate-200 rounded-3xl p-6 flex items-center gap-4 hover:-translate-y-1 hover:shadow-xl hover:border-brand-600 transition-all group">
+        <NuxtLink to="/explore" class="bg-white border border-slate-200 rounded-3xl p-4 sm:p-6 flex items-center gap-4 hover:-translate-y-1 hover:shadow-xl hover:border-brand-600 transition-all group">
           <div class="w-12 h-12 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform"><ShoppingCart class="w-6 h-6" /></div>
           <div class="text-left"><h3 class="font-black text-lg text-slate-900">Buy Items</h3><p class="text-sm text-slate-500 font-medium">Find what you need.</p></div>
         </NuxtLink>
-        <NuxtLink to="/sell" class="bg-white border border-slate-200 rounded-3xl p-6 flex items-center gap-4 hover:-translate-y-1 hover:shadow-xl hover:border-green-500 transition-all group">
+        <NuxtLink to="/sell" class="bg-white border border-slate-200 rounded-3xl p-4 sm:p-6 flex items-center gap-4 hover:-translate-y-1 hover:shadow-xl hover:border-green-500 transition-all group">
           <div class="w-12 h-12 bg-green-50 text-green-600 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform"><Tag class="w-6 h-6" /></div>
           <div class="text-left"><h3 class="font-black text-lg text-slate-900">Sell Items</h3><p class="text-sm text-slate-500 font-medium">Turn it into cash.</p></div>
         </NuxtLink>
-        <NuxtLink to="/swap" class="bg-white border border-slate-200 rounded-3xl p-6 flex items-center gap-4 hover:-translate-y-1 hover:shadow-xl hover:border-orange-500 transition-all group">
+        <NuxtLink to="/swap" class="bg-white border border-slate-200 rounded-3xl p-4 sm:p-6 flex items-center gap-4 hover:-translate-y-1 hover:shadow-xl hover:border-orange-500 transition-all group">
           <div class="w-12 h-12 bg-orange-50 text-orange-600 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform"><ArrowRightLeft class="w-6 h-6" /></div>
           <div class="text-left"><h3 class="font-black text-lg text-slate-900">Swap Items</h3><p class="text-sm text-slate-500 font-medium">Trade for something else.</p></div>
         </NuxtLink>
@@ -114,7 +114,7 @@
     </div>
 
     <!-- SECTION: The Problem We Solve -->
-    <section class="py-24 px-4 sm:px-6 lg:px-8 bg-white">
+    <section class="py-24 px-4 sm:px-4 sm:px-6 lg:px-4 sm:px-8 bg-white">
       <div class="max-w-6xl mx-auto">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-12 lg:gap-20 items-center">
           <div class="relative">
@@ -151,14 +151,14 @@
     </section>
 
     <!-- SECTION: How Barter Works -->
-    <section class="py-24 px-4 sm:px-6 lg:px-8 bg-slate-50">
+    <section class="py-24 px-4 sm:px-4 sm:px-6 lg:px-4 sm:px-8 bg-slate-50">
       <div class="max-w-6xl mx-auto text-center">
         <span class="text-xs font-black text-brand-600 uppercase tracking-widest mb-4 block">How It Works</span>
         <h2 class="text-3xl md:text-4xl font-black text-slate-900 mb-4">Three steps. Zero wahala.</h2>
         <p class="text-lg text-slate-500 font-medium max-w-xl mx-auto mb-16">No long talk. List it, sell it, get paid. Simple.</p>
         
         <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-          <div class="bg-white rounded-[2rem] p-8 border border-slate-200 text-left relative overflow-hidden group hover:-translate-y-1 transition-transform">
+          <div class="bg-white rounded-[2rem] p-4 sm:p-8 border border-slate-200 text-left relative overflow-hidden group hover:-translate-y-1 transition-transform">
             <div class="aspect-video rounded-2xl overflow-hidden mb-6 border border-slate-100">
               <img src="/img/nigerian_student_snapping_item_1790990467827.jpg" alt="Student taking photo of item" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
             </div>
@@ -167,7 +167,7 @@
             <p class="text-slate-600 font-medium">Take a photo or video of what you're selling. Add a price. Done in 30 seconds.</p>
           </div>
 
-          <div class="bg-white rounded-[2rem] p-8 border border-slate-200 text-left relative overflow-hidden group hover:-translate-y-1 transition-transform">
+          <div class="bg-white rounded-[2rem] p-4 sm:p-8 border border-slate-200 text-left relative overflow-hidden group hover:-translate-y-1 transition-transform">
             <div class="aspect-video rounded-2xl overflow-hidden mb-6 border border-slate-100">
               <img src="/img/nigerian_students_exchanging_1790990477525.jpg" alt="Students exchanging items" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
             </div>
@@ -176,7 +176,7 @@
             <p class="text-slate-600 font-medium">A buyer or swapper finds your item. Chat them directly inside Barter. No random DMs.</p>
           </div>
 
-          <div class="bg-white rounded-[2rem] p-8 border border-slate-200 text-left relative overflow-hidden group hover:-translate-y-1 transition-transform">
+          <div class="bg-white rounded-[2rem] p-4 sm:p-8 border border-slate-200 text-left relative overflow-hidden group hover:-translate-y-1 transition-transform">
             <div class="aspect-video rounded-2xl overflow-hidden mb-6 border border-slate-100">
               <img src="/img/nigerian_student_phone_payment_1790990486294.jpg" alt="Secure payment" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
             </div>
@@ -189,7 +189,7 @@
     </section>
 
     <!-- SECTION: Escrow Trust -->
-    <section class="py-24 px-4 sm:px-6 lg:px-8 bg-white">
+    <section class="py-24 px-4 sm:px-4 sm:px-6 lg:px-4 sm:px-8 bg-white">
       <div class="max-w-6xl mx-auto">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-12 lg:gap-20 items-center">
           <div class="order-2 md:order-1">
@@ -231,7 +231,7 @@
     </section>
 
     <!-- SECTION: Services Marketplace -->
-    <section class="py-24 px-4 sm:px-6 lg:px-8 bg-slate-50">
+    <section class="py-24 px-4 sm:px-4 sm:px-6 lg:px-4 sm:px-8 bg-slate-50">
       <div class="max-w-6xl mx-auto">
         <div class="text-center mb-16">
           <span class="text-xs font-black text-purple-600 uppercase tracking-widest mb-4 block">Not Just Items</span>
@@ -285,27 +285,27 @@
     </section>
 
     <!-- SECTION: Testimonials -->
-    <section class="py-24 px-4 sm:px-6 lg:px-8 bg-white">
+    <section class="py-24 px-4 sm:px-4 sm:px-6 lg:px-4 sm:px-8 bg-white">
       <div class="max-w-6xl mx-auto text-center">
         <span class="text-xs font-black text-brand-600 uppercase tracking-widest mb-4 block">Students Love It</span>
         <h2 class="text-3xl md:text-4xl font-black text-slate-900 mb-16">Don't take our word for it.</h2>
         
         <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-          <div class="bg-slate-50 rounded-[2rem] p-8 text-left border border-slate-200">
+          <div class="bg-slate-50 rounded-[2rem] p-4 sm:p-8 text-left border border-slate-200">
             <p class="text-slate-700 font-medium leading-relaxed mb-6">"I was about to throw my fan away during hostel clearance. Listed it on Barter, sold it in 2 hours. ₦8k straight to my account. Mad o!"</p>
             <div class="flex items-center gap-3">
               <div class="w-12 h-12 bg-brand-100 rounded-full flex items-center justify-center font-black text-brand-700 border border-brand-200">CF</div>
               <div><p class="font-black text-slate-900">Chioma F.</p><p class="text-xs text-slate-500">300L, Biochemistry</p></div>
             </div>
           </div>
-          <div class="bg-slate-50 rounded-[2rem] p-8 text-left border border-slate-200">
+          <div class="bg-slate-50 rounded-[2rem] p-4 sm:p-8 text-left border border-slate-200">
             <p class="text-slate-700 font-medium leading-relaxed mb-6">"I needed a fridge badly when I resumed. Found one on Barter for ₦15k instead of buying new for ₦50k. The escrow thing gave me confidence."</p>
             <div class="flex items-center gap-3">
               <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center font-black text-blue-700 border border-blue-200">DA</div>
               <div><p class="font-black text-slate-900">Damilare A.</p><p class="text-xs text-slate-500">100L, Medicine</p></div>
             </div>
           </div>
-          <div class="bg-slate-50 rounded-[2rem] p-8 text-left border border-slate-200">
+          <div class="bg-slate-50 rounded-[2rem] p-4 sm:p-8 text-left border border-slate-200">
             <p class="text-slate-700 font-medium leading-relaxed mb-6">"I do hair braiding on campus. Barter helped me get steady customers. The in-app chat is so smooth, I don't even need WhatsApp again."</p>
             <div class="flex items-center gap-3">
               <div class="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center font-black text-purple-700 border border-purple-200">AO</div>
@@ -317,7 +317,7 @@
     </section>
 
     <!-- SECTION: Final CTA -->
-    <section class="py-24 px-4 sm:px-6 lg:px-8 bg-slate-900 text-white relative overflow-hidden">
+    <section class="py-24 px-4 sm:px-4 sm:px-6 lg:px-4 sm:px-8 bg-slate-900 text-white relative overflow-hidden">
       <div class="absolute inset-0 opacity-10">
         <img src="/img/nigerian_students_campus_1790990496794.jpg" class="w-full h-full object-cover" />
       </div>
@@ -327,10 +327,10 @@
           Join thousands of students already buying, selling, and swapping on the Erranders Barter network. Your hostel movement starts here.
         </p>
         <div class="flex flex-col sm:flex-row gap-4 justify-center">
-          <NuxtLink to="/signup" class="bg-brand-600 text-white font-bold px-8 py-4 rounded-full hover:bg-brand-700 transition-colors text-lg">
+          <NuxtLink to="/signup" class="bg-brand-600 text-white font-bold px-4 sm:px-8 py-4 rounded-full hover:bg-brand-700 transition-colors text-lg">
             Start Trading Now
           </NuxtLink>
-          <NuxtLink to="/explore" class="bg-white/10 text-white font-bold px-8 py-4 rounded-full hover:bg-white/20 transition-colors text-lg backdrop-blur border border-white/10">
+          <NuxtLink to="/explore" class="bg-white/10 text-white font-bold px-4 sm:px-8 py-4 rounded-full hover:bg-white/20 transition-colors text-lg backdrop-blur border border-white/10">
             Explore Market
           </NuxtLink>
         </div>

@@ -1,6 +1,6 @@
 <template>
   <footer class="bg-white text-slate-500 py-10 mt-20 border-t-[6px] border-brand-600 relative overflow-hidden shadow-[0_-4px_20px_-10px_rgba(0,0,0,0.1)]">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+    <div class="max-w-7xl mx-auto px-4 sm:px-4 sm:px-6 lg:px-4 sm:px-8 relative z-10">
       
       <div class="flex flex-col lg:flex-row items-center justify-between gap-8 mb-8">
         

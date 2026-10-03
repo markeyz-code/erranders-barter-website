@@ -5,7 +5,7 @@
         <X class="w-5 h-5" />
       </button>
 
-      <div class="p-8">
+      <div class="p-4 sm:p-8">
         <h2 class="text-3xl font-black text-slate-900 mb-2">{{ isLogin ? 'Welcome Back' : 'Create Account' }}</h2>
         <p class="text-slate-500 font-medium mb-8">
           {{ isLogin ? 'Log in to securely checkout via Escrow.' : 'Join Barter to buy, sell and swap securely.' }}

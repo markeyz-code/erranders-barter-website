@@ -1,6 +1,6 @@
 <template>
   <main class="min-h-screen bg-white pt-24 pb-16">
-    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="max-w-4xl mx-auto px-4 sm:px-4 sm:px-6 lg:px-4 sm:px-8">
       <h1 class="text-4xl font-black text-slate-900 mb-6">Frequently Asked Questions</h1>
       <div class="space-y-6 mt-10">
         <div class="border-b border-slate-200 pb-6">

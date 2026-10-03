@@ -1,6 +1,6 @@
 <template>
   <main class="min-h-screen bg-white pt-24 pb-16">
-    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="max-w-4xl mx-auto px-4 sm:px-4 sm:px-6 lg:px-4 sm:px-8">
       <NuxtLink to="/" class="text-brand-600 font-bold mb-4 inline-block">← Back Home</NuxtLink>
       <h1 class="text-4xl font-extrabold text-slate-900 mb-4">My Escrow Transactions</h1>
       <p class="text-lg text-slate-600 mb-8 border-l-4 border-brand-600 pl-4">Manage your ongoing trades and payments.</p>
@@ -13,7 +13,7 @@
       </div>
 
       <div v-else class="space-y-4">
-        <div v-for="tx in transactions" :key="tx._id" class="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow">
+        <div v-for="tx in transactions" :key="tx._id" class="bg-white border border-slate-200 rounded-2xl p-4 sm:p-6 shadow-sm hover:shadow-md transition-shadow">
           <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-4">
             <div>
               <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Transaction ID: {{ tx._id }}</p>

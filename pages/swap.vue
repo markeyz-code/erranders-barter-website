@@ -1,6 +1,6 @@
 <template>
   <main class="min-h-screen bg-slate-50 pt-28 pb-20">
-    <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="max-w-5xl mx-auto px-4 sm:px-4 sm:px-6 lg:px-4 sm:px-8">
       
       <!-- Header -->
       <div class="flex items-center gap-4 mb-8">
@@ -16,8 +16,8 @@
       <div class="flex flex-col lg:flex-row gap-8">
         
         <!-- Form Section -->
-        <div class="flex-1 bg-white rounded-[2rem] border border-slate-200 shadow-sm p-6 sm:p-8">
-          <div v-if="success" class="mb-8 bg-green-50 text-green-700 p-6 rounded-2xl font-bold border border-green-200 flex items-center gap-4">
+        <div class="flex-1 bg-white rounded-[2rem] border border-slate-200 shadow-sm p-4 sm:p-6 sm:p-4 sm:p-8">
+          <div v-if="success" class="mb-8 bg-green-50 text-green-700 p-4 sm:p-6 rounded-2xl font-bold border border-green-200 flex items-center gap-4">
             <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0">
               <Check class="w-6 h-6 text-green-600" />
             </div>
@@ -88,7 +88,7 @@
 
         <!-- How It Works Sidebar Section -->
         <div class="w-full lg:w-1/3">
-          <div class="bg-brand-50 rounded-[2rem] p-8 text-slate-900 sticky top-28 border border-brand-100">
+          <div class="bg-brand-50 rounded-[2rem] p-4 sm:p-8 text-slate-900 sticky top-28 border border-brand-100">
             <h3 class="text-xl font-black mb-2 flex items-center gap-2 text-brand-900">
               <Sparkles class="w-5 h-5 text-brand-600" /> Swap Flow Explained
             </h3>

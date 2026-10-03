@@ -1,6 +1,6 @@
 <template>
   <main class="min-h-screen bg-white pt-24 pb-16">
-    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="max-w-4xl mx-auto px-4 sm:px-4 sm:px-6 lg:px-4 sm:px-8">
       <h1 class="text-4xl font-black text-slate-900 mb-6">Trust & Safety Guidelines</h1>
       <div class="prose prose-lg text-slate-600">
         <p>Your safety is our top priority. We've built Erranders Barter to be the safest place to trade on campus.</p>

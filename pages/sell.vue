@@ -1,6 +1,6 @@
 <template>
   <main class="min-h-screen bg-slate-50 pt-16 pb-20">
-    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="max-w-6xl mx-auto px-4 sm:px-4 sm:px-6 lg:px-4 sm:px-8">
       
       <!-- Back Link -->
       <div class="mb-8">
@@ -57,9 +57,9 @@
         <!-- Right Side: Form Card -->
         <div class="lg:col-span-3">
           <div class="bg-white rounded-3xl shadow-xl shadow-slate-200/40 border border-slate-100 overflow-hidden relative">
-            <div class="p-8 sm:p-10">
+            <div class="p-4 sm:p-8 sm:p-10">
               
-              <div v-if="success" class="mb-8 bg-green-50 border border-green-200 text-green-700 p-6 rounded-2xl flex items-center gap-4">
+              <div v-if="success" class="mb-8 bg-green-50 border border-green-200 text-green-700 p-4 sm:p-6 rounded-2xl flex items-center gap-4">
                 <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center shrink-0">
                   <Check class="w-6 h-6 text-green-600" />
                 </div>
@@ -194,7 +194,7 @@
               </div>
               <video ref="videoEl" autoplay playsinline muted class="flex-1 object-cover w-full h-full"></video>
               
-              <div class="absolute bottom-0 left-0 right-0 p-8 flex justify-center items-center bg-gradient-to-t from-black/80 to-transparent">
+              <div class="absolute bottom-0 left-0 right-0 p-4 sm:p-8 flex justify-center items-center bg-gradient-to-t from-black/80 to-transparent">
                 <button v-if="!isRecording" @click="startRecording" type="button" class="w-16 h-16 rounded-full border-4 border-white flex items-center justify-center bg-red-500/80 hover:bg-red-500 transition-colors">
                   <div class="w-6 h-6 bg-white rounded-full"></div>
                 </button>
@@ -211,12 +211,12 @@
 
     <!-- Auth Prompt Modal -->
     <div v-if="showAuthPrompt" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
-      <div class="bg-white w-full max-w-md rounded-3xl p-8 text-center shadow-2xl relative" @click.stop>
+      <div class="bg-white w-full max-w-md rounded-3xl p-4 sm:p-8 text-center shadow-2xl relative" @click.stop>
         <h3 class="text-2xl font-black text-slate-900 mb-4">Almost there!</h3>
         <p class="text-slate-600 font-medium mb-8">Please, we know you want to list your item to get it sold, but to help you track and easily manage your items, you need to sign up or log in first.</p>
         <div class="flex gap-4 justify-center">
-          <button @click="showAuthPrompt = false" class="px-6 py-3 font-bold text-slate-500 hover:text-slate-900 transition-colors">Cancel</button>
-          <button @click="showAuthPrompt = false; showAuthModal = true" class="px-6 py-3 bg-brand-600 text-white font-bold rounded-xl hover:bg-brand-700 shadow-lg transition-colors">Login / Sign up</button>
+          <button @click="showAuthPrompt = false" class="px-4 sm:px-6 py-3 font-bold text-slate-500 hover:text-slate-900 transition-colors">Cancel</button>
+          <button @click="showAuthPrompt = false; showAuthModal = true" class="px-4 sm:px-6 py-3 bg-brand-600 text-white font-bold rounded-xl hover:bg-brand-700 shadow-lg transition-colors">Login / Sign up</button>
         </div>
       </div>
     </div>

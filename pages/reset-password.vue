@@ -1,6 +1,6 @@
 <template>
   <div class="min-h-screen flex">
-    <div class="w-full lg:w-1/2 flex items-center justify-center p-8 bg-white">
+    <div class="w-full lg:w-1/2 flex items-center justify-center p-4 sm:p-8 bg-white">
       <div class="w-full max-w-md">
         <h1 class="text-4xl font-black text-slate-900 mb-2">Reset Password</h1>
         <p class="text-slate-500 font-medium mb-8">Enter your new secure password.</p>

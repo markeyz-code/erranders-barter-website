@@ -1,5 +1,5 @@
 <template>
-  <div class="p-4 md:p-8">
+  <div class="p-4 md:p-4 sm:p-8">
     <div class="max-w-3xl mx-auto">
       
       <div class="mb-10">
@@ -7,7 +7,7 @@
         <p class="text-slate-500 font-medium">Manage your profile details and preferences.</p>
       </div>
 
-      <div class="bg-white rounded-3xl border border-slate-100 shadow-sm p-8">
+      <div class="bg-white rounded-3xl border border-slate-100 shadow-sm p-4 sm:p-8">
         <form @submit.prevent="updateProfile" class="space-y-6">
           
           <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -59,7 +59,7 @@
           </div>
 
           <div class="pt-6 mt-6 border-t border-slate-100 flex justify-end">
-            <button type="submit" :disabled="loading" class="px-8 py-4 bg-slate-900 text-white font-black rounded-xl hover:bg-brand-600 transition-colors shadow-lg disabled:opacity-50">
+            <button type="submit" :disabled="loading" class="px-4 sm:px-8 py-4 bg-slate-900 text-white font-black rounded-xl hover:bg-brand-600 transition-colors shadow-lg disabled:opacity-50">
               {{ loading ? 'Saving...' : 'Save Changes' }}
             </button>
           </div>

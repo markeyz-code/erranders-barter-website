@@ -1,7 +1,7 @@
 <template>
   <div class="min-h-screen flex">
     <!-- Form Side -->
-    <div class="w-full lg:w-1/2 flex justify-center p-8 lg:p-12 bg-white min-h-screen">
+    <div class="w-full lg:w-1/2 flex justify-center p-4 sm:p-8 lg:p-12 bg-white min-h-screen">
       <div class="w-full max-w-md py-8 my-auto">
             <NuxtLink to="/" class="flex justify-center items-center gap-2">
         <img src="@/assets/img/logo.png" alt="Erranders Barter" class="h-14 w-auto" />

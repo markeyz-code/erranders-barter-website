@@ -13,7 +13,7 @@
         <NuxtLink v-else to="/dashboard" class="flex items-center justify-center w-10 h-10 rounded-full bg-slate-100 hover:bg-brand-100 text-slate-700 hover:text-brand-600 transition-colors mr-2">
           <User class="w-5 h-5" />
         </NuxtLink>
-        <NuxtLink to="/sell" class="bg-slate-900 text-white font-black px-6 py-2.5 rounded-full hover:bg-brand-600 transition-colors text-sm">Start Trading</NuxtLink>
+        <NuxtLink to="/sell" class="bg-slate-900 text-white font-black px-4 sm:px-6 py-2.5 rounded-full hover:bg-brand-600 transition-colors text-sm">Start Trading</NuxtLink>
       </div>
       
     </div>
