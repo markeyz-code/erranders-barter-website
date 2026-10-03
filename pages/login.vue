@@ -1,19 +1,22 @@
 <template>
   <div class="min-h-screen flex">
     <!-- Form Side -->
-    <div class="w-full lg:w-1/2 flex items-center justify-center p-8 bg-white">
-      <div class="w-full max-w-md">
-        <NuxtLink to="/" class="flex items-center gap-2 mb-12">
+    <div class="w-full lg:w-1/2 flex justify-center p-8 lg:p-12 bg-white min-h-screen">
+      <div class="w-full max-w-md py-8 my-auto">
+            <NuxtLink to="/" class="flex justify-center items-center gap-2">
+        <img src="@/assets/img/logo.png" alt="Erranders Barter" class="h-14 w-auto" />
+      </NuxtLink>
+        <!-- <NuxtLink to="/" class="flex items-center gap-2 mb-12">
           <div class="w-10 h-10 bg-brand-600 rounded-xl flex items-center justify-center text-white">
             <ArrowRightLeft class="w-6 h-6" />
           </div>
           <span class="text-2xl font-black tracking-tight text-slate-900">Barter.</span>
-        </NuxtLink>
+        </NuxtLink> -->
 
-        <h1 class="text-4xl font-black text-slate-900 mb-2">Welcome Back</h1>
-        <p class="text-slate-500 font-medium mb-8">Log in to your Erranders account to continue.</p>
+        <h1 class="text-4xl text-center font-black text-slate-900 mb-2">Welcome Back</h1>
+        <p class="text-slate-500 text-center font-medium mb-8">Log in to your Erranders account to continue.</p>
 
-        <button @click="googleLogin" class="w-full flex items-center justify-center gap-3 bg-white border border-slate-200 text-slate-700 font-bold py-3.5 rounded-xl hover:bg-slate-50 transition-colors mb-6 shadow-sm">
+        <button @click="googleLogin" class="w-full flex items-center justify-center gap-3 bg-white border border-slate-200 text-slate-700 font-bold py-3.5 rounded-xl hover:bg-slate-50 transition-colors mb-6">
           <img src="https://www.google.com/favicon.ico" class="w-5 h-5" />
           Continue with Google
         </button>
@@ -30,7 +33,7 @@
             <NuxtLink to="/forgot-password" class="text-sm font-bold text-brand-600 hover:underline">Forgot Password?</NuxtLink>
           </div>
           
-          <button type="submit" :disabled="loading" class="w-full bg-brand-600 text-white font-bold py-4 rounded-xl hover:bg-brand-700 transition-colors mt-4 disabled:opacity-50">
+          <button type="submit" :disabled="loading || !form.email || !form.password" class="w-full bg-brand-600 text-white font-bold py-4 rounded-xl hover:bg-brand-700 transition-colors mt-4 disabled:opacity-50 disabled:cursor-not-allowed">
             {{ loading ? 'Logging in...' : 'Log In' }}
           </button>
         </form>
@@ -45,11 +48,11 @@
 
     <!-- Image Side -->
     <div class="hidden lg:block lg:w-1/2 relative bg-slate-900">
-      <img src="https://images.unsplash.com/photo-1522204523234-8729aa6e3d5f?w=1200" class="absolute inset-0 w-full h-full object-cover opacity-80" />
-      <div class="absolute inset-0 bg-gradient-to-t from-slate-900/90 via-slate-900/20 to-transparent"></div>
+      <img src="~/assets/img/exchange.jpg" class="absolute inset-0 w-full h-full object-cover opacity-80 mix-blend-overlay" />
+      <div class="absolute inset-0 bg-gradient-to-t from-slate-900/90 via-slate-900/40 to-transparent"></div>
       <div class="absolute bottom-16 left-16 right-16">
         <h2 class="text-5xl font-black text-white mb-4 leading-tight">Trade smart.<br/>Move fast.</h2>
-        <p class="text-lg text-slate-300 font-medium">The Erranders Barter network connects thousands of students daily.</p>
+        <p class="text-lg text-slate-300 font-medium">The Erranders Barter network connects thousands of Nigerian students daily.</p>
       </div>
     </div>
   </div>
@@ -60,10 +63,12 @@ import { ArrowRightLeft } from 'lucide-vue-next'
 import CustomInput from '~/components/CustomInput.vue'
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { useAuth } from '~/composables/useAuth'
 
 definePageMeta({ layout: false })
 
 const router = useRouter()
+const { saveSession } = useAuth()
 const loading = ref(false)
 const error = ref('')
 const form = ref({ email: '', password: '' })
@@ -84,10 +89,8 @@ const handleLogin = async () => {
     const data = await res.json()
     if (!res.ok) throw new Error(data.message || 'Login failed')
     
-    // Save token
-    if (data.access_token) {
-      localStorage.setItem('barter_token', data.access_token)
-    }
+    // Save token and user
+    saveSession(data)
     
     // Success, route to explore
     router.push('/explore')

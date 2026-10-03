@@ -2,7 +2,7 @@
   <main class="min-h-screen bg-white font-sans">
     
     <!-- Hero Section -->
-    <div class="pt-32 pb-20 px-4 sm:px-6 lg:px-8 text-center bg-white relative overflow-hidden border-b border-slate-100">
+    <div class="pt-16 pb-20 px-4 sm:px-6 lg:px-8 text-center bg-white relative overflow-hidden border-b border-slate-100">
       
       <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-brand-50 text-brand-700 font-bold text-sm mb-8 border border-brand-100 shadow-sm">
         <span class="animate-pulse">🚀</span> Hostel movement just got easy
@@ -119,7 +119,7 @@
         <div class="grid grid-cols-1 md:grid-cols-2 gap-12 lg:gap-20 items-center">
           <div class="relative">
             <div class="aspect-[4/3] rounded-[2rem] overflow-hidden border border-slate-200">
-              <img src="https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=800" alt="Students packing up hostel room" class="w-full h-full object-cover" />
+              <img src="/img/nigerian_students_packing_hostel_1790990458873.jpg" alt="Students packing up hostel room" class="w-full h-full object-cover" />
             </div>
             <div class="absolute -bottom-4 -right-4 bg-brand-600 text-white px-5 py-3 rounded-2xl font-black text-sm shadow-lg">
               ₦2M+ wasted yearly 😱
@@ -160,7 +160,7 @@
         <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
           <div class="bg-white rounded-[2rem] p-8 border border-slate-200 text-left relative overflow-hidden group hover:-translate-y-1 transition-transform">
             <div class="aspect-video rounded-2xl overflow-hidden mb-6 border border-slate-100">
-              <img src="https://images.unsplash.com/photo-1517486808906-6ca8b3f04846?w=600" alt="Student taking photo of item" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+              <img src="/img/nigerian_student_snapping_item_1790990467827.jpg" alt="Student taking photo of item" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
             </div>
             <span class="text-6xl font-black text-slate-100 absolute top-6 right-8">01</span>
             <h3 class="text-xl font-black text-slate-900 mb-2">Snap & List</h3>
@@ -169,7 +169,7 @@
 
           <div class="bg-white rounded-[2rem] p-8 border border-slate-200 text-left relative overflow-hidden group hover:-translate-y-1 transition-transform">
             <div class="aspect-video rounded-2xl overflow-hidden mb-6 border border-slate-100">
-              <img src="https://images.unsplash.com/photo-1522204523234-8729aa6e3d5f?w=600" alt="Students exchanging items" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+              <img src="/img/nigerian_students_exchanging_1790990477525.jpg" alt="Students exchanging items" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
             </div>
             <span class="text-6xl font-black text-slate-100 absolute top-6 right-8">02</span>
             <h3 class="text-xl font-black text-slate-900 mb-2">Match & Chat</h3>
@@ -178,7 +178,7 @@
 
           <div class="bg-white rounded-[2rem] p-8 border border-slate-200 text-left relative overflow-hidden group hover:-translate-y-1 transition-transform">
             <div class="aspect-video rounded-2xl overflow-hidden mb-6 border border-slate-100">
-              <img src="https://images.unsplash.com/photo-1580894732444-8ecdaf6559d2?w=600" alt="Secure payment" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+              <img src="/img/nigerian_student_phone_payment_1790990486294.jpg" alt="Secure payment" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
             </div>
             <span class="text-6xl font-black text-slate-100 absolute top-6 right-8">03</span>
             <h3 class="text-xl font-black text-slate-900 mb-2">Pay & Deliver</h3>
@@ -223,7 +223,7 @@
           </div>
           <div class="order-1 md:order-2 relative">
             <div class="aspect-[4/3] rounded-[2rem] overflow-hidden border border-slate-200">
-              <img src="https://images.unsplash.com/photo-1600880292203-757bb62b4baf?w=800" alt="Nigerian students working together on campus" class="w-full h-full object-cover" />
+              <img src="/img/nigerian_students_campus_1790990496794.jpg" alt="Nigerian students working together on campus" class="w-full h-full object-cover" />
             </div>
           </div>
         </div>
@@ -242,7 +242,7 @@
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           <div class="bg-white rounded-[2rem] overflow-hidden border border-slate-200 group hover:-translate-y-1 transition-transform">
             <div class="aspect-square overflow-hidden">
-              <img src="https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=400" alt="Hair braiding service" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+              <img src="/img/nigerian_hair_braiding_1790990545939.jpg" alt="Hair braiding service" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
             </div>
             <div class="p-5">
               <span class="px-2 py-0.5 bg-purple-100 text-purple-700 text-[10px] font-black uppercase tracking-wider rounded-md border border-purple-200">Service</span>
@@ -252,7 +252,7 @@
           </div>
           <div class="bg-white rounded-[2rem] overflow-hidden border border-slate-200 group hover:-translate-y-1 transition-transform">
             <div class="aspect-square overflow-hidden">
-              <img src="https://images.unsplash.com/photo-1581092918056-0c4c3acd3789?w=400" alt="Laptop repair service" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+              <img src="/img/nigerian_laptop_repair_1790990557474.jpg" alt="Laptop repair service" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
             </div>
             <div class="p-5">
               <span class="px-2 py-0.5 bg-purple-100 text-purple-700 text-[10px] font-black uppercase tracking-wider rounded-md border border-purple-200">Service</span>
@@ -262,7 +262,7 @@
           </div>
           <div class="bg-white rounded-[2rem] overflow-hidden border border-slate-200 group hover:-translate-y-1 transition-transform">
             <div class="aspect-square overflow-hidden">
-              <img src="https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=400" alt="Tutoring service" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+              <img src="/img/nigerian_tutoring_1790990568804.jpg" alt="Tutoring service" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
             </div>
             <div class="p-5">
               <span class="px-2 py-0.5 bg-purple-100 text-purple-700 text-[10px] font-black uppercase tracking-wider rounded-md border border-purple-200">Service</span>
@@ -272,7 +272,7 @@
           </div>
           <div class="bg-white rounded-[2rem] overflow-hidden border border-slate-200 group hover:-translate-y-1 transition-transform">
             <div class="aspect-square overflow-hidden">
-              <img src="https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=400" alt="Room cleaning service" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+              <img src="/img/nigerian_room_cleaning_1790990576715.jpg" alt="Room cleaning service" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
             </div>
             <div class="p-5">
               <span class="px-2 py-0.5 bg-purple-100 text-purple-700 text-[10px] font-black uppercase tracking-wider rounded-md border border-purple-200">Service</span>
@@ -319,7 +319,7 @@
     <!-- SECTION: Final CTA -->
     <section class="py-24 px-4 sm:px-6 lg:px-8 bg-slate-900 text-white relative overflow-hidden">
       <div class="absolute inset-0 opacity-10">
-        <img src="https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=1600" class="w-full h-full object-cover" />
+        <img src="/img/nigerian_students_campus_1790990496794.jpg" class="w-full h-full object-cover" />
       </div>
       <div class="max-w-3xl mx-auto text-center relative z-10">
         <h2 class="text-4xl md:text-5xl font-black mb-6 leading-tight">Stop wasting. Start trading.</h2>
@@ -344,14 +344,25 @@
 import { ArrowRightLeft, Search, ShoppingCart, Tag, Truck, ShieldCheck, Camera, TrendingUp, MapPin, Sparkles, X, Check } from 'lucide-vue-next'
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
+import { itemsApi } from '~/composables/useApi'
+
+useSeoMeta({
+  title: 'Erranders Barter - The ultimate campus marketplace',
+  description: 'Buy, sell, and swap your items seamlessly on campus. Discover electronics, books, services and more.',
+  ogTitle: 'Erranders Barter',
+  ogDescription: 'Buy, sell, and swap your items seamlessly on campus.',
+})
 
 const router = useRouter()
 
 // Carousel Logic
 const phrases = [
-  "Buy, Sell & Swap.",
+  "Buy am, Sell am, Swap am! 🚀",
+  "Awoof dey here! 🇳🇬",
+  "Odogwu levels, no scam.",
+  "No dulling, list am now.",
+  "Berekete items for you.",
   "Ta, Ra, & Ṣepaṣipaaro.",
-  "Buy, Sell, & Swap am!",
   "Zụta, Ree, & Gbanwee.",
   "Saya, Sayar & Canza."
 ]
@@ -359,7 +370,18 @@ const currentPhrase = ref(phrases[0])
 let currentIndex = 0
 let intervalId
 
-onMounted(() => {
+const itemsList = ref([])
+
+onMounted(async () => {
+  try {
+    const { data, error } = await itemsApi.list({})
+    if (!error && data) {
+      itemsList.value = data
+    }
+  } catch (err) {
+    console.error(err)
+  }
+
   intervalId = setInterval(() => {
     currentIndex = (currentIndex + 1) % phrases.length
     currentPhrase.value = phrases[currentIndex]
@@ -398,24 +420,21 @@ const generateSuggestions = () => {
   aiSuggestions.value = suggestions.length > 0 ? suggestions : ['Laundry Service', 'Cleaning Service']
 }
 
-// Marketplace & Services Mock Data
-const dbItems = [
-  { id: 1, name: 'Mini Fridge (Haier)', price: 35000, priceText: '₦35k', category: 'Appliance', loc: 'Block C, Mellanby', img: 'https://images.unsplash.com/photo-1584568694244-14fbdf83bd30?w=200' },
-  { id: 2, name: 'Intro to Engineering Textbook', price: 5000, priceText: '₦5k', category: 'Books', loc: 'Zik Hall', img: 'https://images.unsplash.com/photo-1544457070-4cd773b4d71e?w=200' },
-  { id: 4, name: 'Reading Lamp', price: 2000, priceText: '₦2k', category: 'Appliance', loc: 'Kuti Hall', img: 'https://images.unsplash.com/photo-1507473885765-e6ed057f782c?w=200' },
-  { id: 5, name: 'Standing Fan (Century)', price: 12000, priceText: '₦12k', category: 'Appliance', loc: 'Awo Hall', img: 'https://images.unsplash.com/photo-1570776595562-ab16327b8761?w=200' },
-  { id: 101, name: 'Hair Braiding (Knotless)', price: 8000, priceText: '₦8k / style', category: 'Service', loc: 'Idia Hall (Will come to you)', img: 'https://images.unsplash.com/photo-1595959223746-81532f1cb7ed?w=200' },
-  { id: 102, name: 'Laptop Repair & Software', price: 5000, priceText: 'From ₦5k', category: 'Service', loc: 'Zik Hall (Tech Hub)', img: 'https://images.unsplash.com/photo-1597872200969-2b65d56bd16b?w=200' },
-  { id: 103, name: 'Hostel Cleaning Service', price: 3000, priceText: '₦3k / room', category: 'Service', loc: 'Any Hall', img: 'https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=200' }
-]
-
+// Dynamic search results from API items
 const filteredResults = computed(() => {
   if (!searchQuery.value) return []
   const q = searchQuery.value.toLowerCase()
-  return dbItems.filter(item => {
-    const matchesSearch = item.name.toLowerCase().includes(q) || item.category.toLowerCase().includes(q)
-    const matchesBudget = budget.value ? item.price <= budget.value : true
+  return itemsList.value.filter((item) => {
+    const matchesSearch = (item.title || '').toLowerCase().includes(q) || (item.category || '').toLowerCase().includes(q)
+    const matchesBudget = budget.value ? (item.price || 0) <= budget.value : true
     return matchesSearch && matchesBudget
-  })
+  }).map(item => ({
+    id: item._id,
+    name: item.title,
+    priceText: item.price ? `₦${item.price.toLocaleString()}` : 'Swap',
+    category: item.type === 'service' ? 'Service' : 'Item',
+    loc: item.location,
+    img: item.images?.[0] || 'https://via.placeholder.com/200'
+  }))
 })
 </script>

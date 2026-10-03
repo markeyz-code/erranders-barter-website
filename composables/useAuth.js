@@ -1,9 +1,9 @@
-import { ref } from 'vue'
+import { useState } from '#app'
 
 export function useAuth() {
-  const user = ref(null)
-  const token = ref(null)
-  const isLoggedIn = ref(false)
+  const user = useState('auth-user', () => null)
+  const token = useState('auth-token', () => null)
+  const isLoggedIn = useState('auth-is-logged-in', () => false)
 
   const loadSession = () => {
     if (!process.client) return
@@ -40,7 +40,10 @@ export function useAuth() {
     isLoggedIn.value = false
   }
 
-  loadSession()
+  // Load session only if it hasn't been loaded in this client
+  if (process.client && !token.value) {
+    loadSession()
+  }
 
   return { user, token, isLoggedIn, saveSession, logout, loadSession }
 }

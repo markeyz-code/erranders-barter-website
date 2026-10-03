@@ -69,19 +69,23 @@
               :class="activeMedia?.src === media.src ? 'border-brand-600 shadow-md' : 'border-transparent opacity-60 hover:opacity-100'"
             >
               <img v-if="media.type === 'image'" :src="media.src" class="w-full h-full object-cover" />
-              <div v-if="media.type === 'video'" class="w-full h-full bg-slate-800 relative">
-                <img :src="media.thumb || media.src" class="w-full h-full object-cover opacity-50" />
-                <PlayCircle class="absolute inset-0 m-auto w-6 h-6 text-white" />
+              <div v-if="media.type === 'video'" class="w-full h-full bg-slate-800 relative flex items-center justify-center">
+                <PlayCircle class="w-6 h-6 text-white" />
               </div>
             </button>
           </div>
+          
+          <!-- Play Video Button -->
+          <button v-if="hasVideo" @click="playFirstVideo" class="mt-2 w-full py-4 bg-slate-900 hover:bg-slate-800 text-white font-bold rounded-2xl flex items-center justify-center gap-2 transition-colors">
+            <PlayCircle class="w-5 h-5 text-brand-400" /> Play Product Video
+          </button>
         </div>
         
         <!-- Content Side (Unchanged) -->
         <div class="flex flex-col justify-center">
           
           <div class="mb-8">
-            <h1 class="text-3xl md:text-5xl font-black text-slate-900 mb-4 leading-tight">{{ item.title }}</h1>
+            <h1 class="text-2xl md:text-4xl font-black text-slate-900 mb-4 leading-tight">{{ item.title }}</h1>
             <div class="flex items-center gap-4">
               <span class="text-3xl md:text-4xl font-black text-brand-600">₦{{ item.price }}</span>
               <span v-if="item.swapPreference" class="px-3 py-1 bg-green-100 text-green-700 font-bold rounded-full text-sm">Swap: {{ item.swapPreference }}</span>
@@ -124,7 +128,7 @@
           </div>
           
           <div class="flex flex-col sm:flex-row gap-4 mt-auto">
-            <button class="flex-1 bg-white border border-slate-200 text-slate-700 font-black py-4 rounded-2xl flex items-center justify-center gap-2 hover:bg-slate-50 transition-colors">
+            <button @click="startChat" class="flex-1 bg-white border border-slate-200 text-slate-700 font-black py-4 rounded-2xl flex items-center justify-center gap-2 hover:bg-slate-50 transition-colors">
               <MessageCircle class="w-5 h-5" /> Chat Seller
             </button>
             <NuxtLink :to="'/checkout?itemId=' + item._id" class="flex-1 bg-brand-600 text-white font-black py-4 rounded-2xl flex items-center justify-center gap-2 shadow-sm hover:bg-brand-700 transition-colors">
@@ -144,16 +148,38 @@
 <script setup>
 import { ArrowLeft, MapPin, ShieldCheck, MessageCircle, ShoppingCart, Lock, Maximize, X, PlayCircle } from 'lucide-vue-next'
 import { ref, onMounted, computed } from 'vue'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { itemsApi } from '~/composables/useApi'
 
 const route = useRoute()
+const router = useRouter()
 const item = ref(null)
 const loading = ref(true)
+
+useSeoMeta({
+  title: computed(() => item.value ? `${item.value.title} | Erranders Barter` : 'Loading Item...'),
+  description: computed(() => item.value ? item.value.description : 'View item details on Erranders Barter.'),
+  ogTitle: computed(() => item.value ? item.value.title : 'Erranders Barter Item'),
+  ogDescription: computed(() => item.value ? item.value.description : 'View item details on Erranders Barter.'),
+  ogImage: computed(() => item.value && item.value.images?.[0] ? item.value.images[0] : ''),
+})
 
 const mediaGallery = ref([])
 const activeMedia = ref(null)
 const isZoomOpen = ref(false)
+
+const hasVideo = computed(() => item.value?.videos?.length > 0)
+
+const playFirstVideo = () => {
+  const videoMedia = mediaGallery.value.find(m => m.type === 'video')
+  if (videoMedia) {
+    activeMedia.value = videoMedia
+  }
+}
+
+const startChat = () => {
+  router.push('/chat?sellerId=' + item.value?.sellerId?._id)
+}
 
 const fetchItem = async () => {
   try {

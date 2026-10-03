@@ -1,16 +1,34 @@
 <template>
   <main class="min-h-screen bg-white pt-24 pb-16">
-    <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
-      <NuxtLink to="/" class="text-brand-600 font-bold mb-4 inline-block">← Back Home</NuxtLink>
-      <h1 class="text-4xl font-extrabold text-slate-900 mb-4">Contact Support</h1>
-      <p class="text-lg text-slate-600 mb-8 border-l-4 border-brand-600 pl-4">Reach out to our 24/7 support team.</p>
+    <div class="max-w-xl mx-auto px-4 sm:px-6 lg:px-8">
+      <h1 class="text-4xl font-black text-slate-900 mb-2">Contact Support</h1>
+      <p class="text-slate-500 mb-8">We usually respond within 24 hours.</p>
       
-      <div class="prose prose-slate max-w-none">
-        <p>This is a placeholder page for <strong>Contact Support</strong>. You can update this content later with the actual copy.</p>
-        <div class="h-64 bg-slate-50 border-2 border-slate-200 rounded-2xl mt-8 flex items-center justify-center">
-           <span class="text-slate-400 font-bold">Content goes here</span>
+      <form class="space-y-4" @submit.prevent="submit">
+        <div>
+          <label class="block text-sm font-bold text-slate-700 mb-1">Your Name</label>
+          <input required type="text" class="w-full border rounded-xl p-3 bg-slate-50" />
         </div>
-      </div>
+        <div>
+          <label class="block text-sm font-bold text-slate-700 mb-1">Email Address</label>
+          <input required type="email" class="w-full border rounded-xl p-3 bg-slate-50" />
+        </div>
+        <div>
+          <label class="block text-sm font-bold text-slate-700 mb-1">Message</label>
+          <textarea required rows="5" class="w-full border rounded-xl p-3 bg-slate-50"></textarea>
+        </div>
+        <button type="submit" class="w-full bg-brand-600 text-white font-bold py-4 rounded-xl hover:bg-brand-700 transition-colors">
+          Send Message
+        </button>
+      </form>
     </div>
   </main>
 </template>
+<script setup>
+const submit = () => {
+  alert('Support message sent successfully! We will get back to you soon.')
+}
+useSeoMeta({
+  title: 'Contact Support | Erranders Barter',
+})
+</script>

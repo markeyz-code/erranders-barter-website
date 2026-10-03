@@ -1,0 +1,1 @@
+import{G as s}from"./tlMptUeE.js";const a={initiate:e=>s.post("/escrow/initiate",e),release:e=>s.patch(`/escrow/${e}/release`),dispute:e=>s.patch(`/escrow/${e}/dispute`),myTransactions:()=>s.get("/escrow/my-transactions")};export{a as e};

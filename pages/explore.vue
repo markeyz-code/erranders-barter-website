@@ -57,12 +57,19 @@
 <script setup>
 import { MapPin } from 'lucide-vue-next'
 import CustomSelect from '~/components/CustomSelect.vue'
-import { useRoute } from 'vue-router'
-import { computed, ref, onMounted } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
+import { computed, ref, onMounted, watch } from 'vue'
 import { itemsApi } from '~/composables/useApi'
 
 const route = useRoute()
 const searchQuery = computed(() => route.query.q || '')
+
+useSeoMeta({
+  title: computed(() => searchQuery.value ? `Search Results for "${searchQuery.value}" | Erranders Barter` : 'Explore Items | Erranders Barter'),
+  description: 'Discover everything available on the Erranders network. Buy, sell, and swap electronics, textbooks, and more.',
+  ogTitle: 'Explore Erranders Barter',
+  ogDescription: 'Discover amazing deals from students around you on the Erranders network.',
+})
 
 const selectedCategory = ref('')
 const selectedSort = ref('newest')
@@ -89,7 +96,12 @@ const error = ref('')
 const fetchItems = async () => {
   loading.value = true
   try {
-    const { data, error: apiError } = await itemsApi.list(searchQuery.value ? { q: searchQuery.value } : {})
+    const params = {}
+    if (searchQuery.value) params.q = searchQuery.value
+    if (selectedCategory.value) params.category = selectedCategory.value
+    if (selectedSort.value && selectedSort.value !== 'newest') params.sort = selectedSort.value
+
+    const { data, error: apiError } = await itemsApi.list(params)
     if (apiError) {
       error.value = apiError
     } else {
@@ -102,27 +114,15 @@ const fetchItems = async () => {
   }
 }
 
+watch([searchQuery, selectedCategory, selectedSort], () => {
+  fetchItems()
+})
+
 onMounted(() => {
   fetchItems()
 })
 
 const filteredItems = computed(() => {
-  let result = [...items.value]
-
-  // Filter by category
-  if (selectedCategory.value) {
-    result = result.filter(item =>
-      (item.type || item.category || '').toLowerCase().includes(selectedCategory.value.toLowerCase())
-    )
-  }
-
-  // Sort
-  if (selectedSort.value === 'price_asc') {
-    result.sort((a, b) => (a.price || 0) - (b.price || 0))
-  } else if (selectedSort.value === 'price_desc') {
-    result.sort((a, b) => (b.price || 0) - (a.price || 0))
-  }
-
-  return result
+  return items.value
 })
 </script>

@@ -8,6 +8,7 @@ import { START_LOCATION, createMemoryHistory, createRouter, useRoute as useRoute
 import { defu } from "/Users/marquis/erranders/barter/website/node_modules/defu/dist/defu.mjs";
 import { hasProtocol, joinURL, withQuery, parseURL, encodePath, decodePath, isScriptProtocol } from "/Users/marquis/erranders/barter/website/node_modules/ufo/dist/index.mjs";
 import { ssrRenderAttrs, ssrRenderComponent, ssrRenderSuspense, ssrRenderVNode } from "vue/server-renderer";
+import { useSeoMeta as useSeoMeta$1, useHead as useHead$1, headSymbol } from "/Users/marquis/erranders/barter/website/node_modules/@unhead/vue/dist/index.mjs";
 if (!globalThis.$fetch) {
   globalThis.$fetch = $fetch.create({
     baseURL: baseURL()
@@ -461,6 +462,10 @@ function isChangingPage(to, from) {
   }
   return true;
 }
+const VALID_TAG_RE = /^[a-z][a-z0-9-]*$/i;
+function sanitizeTag(tag, fallback) {
+  return tag && VALID_TAG_RE.test(tag) ? tag : fallback;
+}
 function toArray(value) {
   return Array.isArray(value) ? value : [value];
 }
@@ -587,110 +592,134 @@ function getRouteRules(arg) {
     return {};
   }
 }
-const __nuxt_page_meta$1 = { layout: false };
-const __nuxt_page_meta = { layout: false };
+const __nuxt_page_meta$3 = { layout: false };
+const __nuxt_page_meta$2 = { layout: false };
+const __nuxt_page_meta$1 = { layout: "dashboard" };
+const __nuxt_page_meta = { layout: "dashboard" };
 const _routes = [
   {
     name: "faq",
     path: "/faq",
-    component: () => import("./_nuxt/faq-DHJEFvs4.js")
+    component: () => import("./_nuxt/faq-DWwkdwhY.js")
+  },
+  {
+    name: "chat",
+    path: "/chat",
+    component: () => import("./_nuxt/chat-DasRlmLa.js")
   },
   {
     name: "list",
     path: "/list",
-    component: () => import("./_nuxt/list-Fi8Wgfg5.js")
+    component: () => import("./_nuxt/list-DYaZHvu8.js")
   },
   {
     name: "sell",
     path: "/sell",
-    component: () => import("./_nuxt/sell-CG8nEPH4.js")
+    component: () => import("./_nuxt/sell-Bn6Z6kKR.js")
   },
   {
     name: "swap",
     path: "/swap",
-    component: () => import("./_nuxt/swap-3_Cd6VZD.js")
+    component: () => import("./_nuxt/swap-D21zLg1k.js")
   },
   {
     name: "about",
     path: "/about",
-    component: () => import("./_nuxt/about-DyYgUn57.js")
+    component: () => import("./_nuxt/about-B7WpXmlx.js")
   },
   {
     name: "index",
     path: "/",
-    component: () => import("./_nuxt/index-X21LyYT2.js")
+    component: () => import("./_nuxt/index-ChNIxaIo.js")
   },
   {
     name: "login",
     path: "/login",
-    meta: __nuxt_page_meta$1 || {},
-    component: () => import("./_nuxt/login-Bt_QF_k0.js")
+    meta: __nuxt_page_meta$3 || {},
+    component: () => import("./_nuxt/login-6dBk-B5Y.js")
   },
   {
     name: "terms",
     path: "/terms",
-    component: () => import("./_nuxt/terms-BuwG72xI.js")
+    component: () => import("./_nuxt/terms-CGXRnZ7I.js")
   },
   {
     name: "trust",
     path: "/trust",
-    component: () => import("./_nuxt/trust-wVgppUT8.js")
+    component: () => import("./_nuxt/trust-feXk80G6.js")
   },
   {
     name: "escrow",
     path: "/escrow",
-    component: () => import("./_nuxt/escrow-CVYfAxhy.js")
+    component: () => import("./_nuxt/escrow-DH69rXFU.js")
   },
   {
     name: "points",
     path: "/points",
-    component: () => import("./_nuxt/points-FrP0nkEI.js")
+    component: () => import("./_nuxt/points-mbmVqyxr.js")
   },
   {
     name: "signup",
     path: "/signup",
-    meta: __nuxt_page_meta || {},
-    component: () => import("./_nuxt/signup-CRDGmu3a.js")
+    meta: __nuxt_page_meta$2 || {},
+    component: () => import("./_nuxt/signup-mdUc51_r.js")
   },
   {
     name: "contact",
     path: "/contact",
-    component: () => import("./_nuxt/contact-Td5GhF7e.js")
+    component: () => import("./_nuxt/contact-DgJsj6Qt.js")
   },
   {
     name: "explore",
     path: "/explore",
-    component: () => import("./_nuxt/explore-CI1oSExb.js")
+    component: () => import("./_nuxt/explore-5Xh39WBE.js")
   },
   {
     name: "checkout",
     path: "/checkout",
-    component: () => import("./_nuxt/checkout-DI8KI1cz.js")
+    component: () => import("./_nuxt/checkout-BMr6PE0_.js")
   },
   {
     name: "messages",
     path: "/messages",
-    component: () => import("./_nuxt/messages-dRyvrMqg.js")
+    component: () => import("./_nuxt/messages-D9Cq0xlY.js")
   },
   {
     name: "item-id",
     path: "/item/:id()",
-    component: () => import("./_nuxt/_id_-DS21EsEo.js")
+    component: () => import("./_nuxt/_id_-C7LrSy-b.js")
+  },
+  {
+    name: "about-escrow",
+    path: "/about-escrow",
+    component: () => import("./_nuxt/about-escrow-CJm_3uiq.js")
   },
   {
     name: "category-id",
     path: "/category/:id()",
-    component: () => import("./_nuxt/_id_-C6aJnaGj.js")
+    component: () => import("./_nuxt/_id_-DCPgGPJ-.js")
   },
   {
     name: "reset-password",
     path: "/reset-password",
-    component: () => import("./_nuxt/reset-password-CC4kxqI1.js")
+    component: () => import("./_nuxt/reset-password-MEK9UYoM.js")
+  },
+  {
+    name: "dashboard",
+    path: "/dashboard",
+    meta: __nuxt_page_meta$1 || {},
+    component: () => import("./_nuxt/index-BIiIl2n4.js")
   },
   {
     name: "forgot-password",
     path: "/forgot-password",
-    component: () => import("./_nuxt/forgot-password-B0BXpaJz.js")
+    component: () => import("./_nuxt/forgot-password-Dd3iDqS4.js")
+  },
+  {
+    name: "dashboard-settings",
+    path: "/dashboard/settings",
+    meta: __nuxt_page_meta || {},
+    component: () => import("./_nuxt/settings-DdTss_ju.js")
   }
 ];
 const validate = /* @__PURE__ */ defineNuxtRouteMiddleware(async (to) => {
@@ -962,6 +991,26 @@ const plugin = /* @__PURE__ */ defineNuxtPlugin({
     return { provide: { router } };
   }
 });
+function injectHead(nuxtApp) {
+  const nuxt = nuxtApp || tryUseNuxtApp();
+  return nuxt?.ssrContext?.head || nuxt?.runWithContext(() => {
+    if (hasInjectionContext()) {
+      return inject(headSymbol);
+    }
+  });
+}
+function useHead(input, options = {}) {
+  const head = injectHead(options.nuxt);
+  if (head) {
+    return useHead$1(input, { head, ...options });
+  }
+}
+function useSeoMeta(input, options = {}) {
+  const head = injectHead(options.nuxt);
+  if (head) {
+    return useSeoMeta$1(input, { head, ...options });
+  }
+}
 function definePayloadReducer(name, reduce) {
   {
     useNuxtApp().ssrContext["~payloadReducers"][name] = reduce;
@@ -1041,7 +1090,8 @@ const plugins = [
   prerender_server_sqIxOBipVr4FbVMA9kqWL0wT8FPop6sKAXLVfifsJzk
 ];
 const layouts = {
-  default: defineAsyncComponent(() => import("./_nuxt/default-Baa5o0VY.js").then((m) => m.default || m))
+  dashboard: defineAsyncComponent(() => import("./_nuxt/dashboard-BCUov5wl.js").then((m) => m.default || m)),
+  default: defineAsyncComponent(() => import("./_nuxt/default-Cq3KR_sP.js").then((m) => m.default || m))
 };
 const routeRulesMatcher = _routeRulesMatcher;
 const LayoutLoader = defineComponent({
@@ -1294,39 +1344,41 @@ function normalizeSlot(slot, data) {
   const slotContent = slot(data);
   return slotContent.length === 1 ? h(slotContent[0]) : h(Fragment, void 0, slotContent);
 }
-const _export_sfc = (sfc, props) => {
-  const target = sfc.__vccOpts || sfc;
-  for (const [key, val] of props) {
-    target[key] = val;
+const _sfc_main$2 = {
+  __name: "app",
+  __ssrInlineRender: true,
+  setup(__props) {
+    useSeoMeta({
+      ogImage: "/logo.png",
+      twitterImage: "/logo.png",
+      twitterCard: "summary_large_image"
+    });
+    return (_ctx, _push, _parent, _attrs) => {
+      const _component_NuxtLayout = __nuxt_component_0;
+      const _component_NuxtPage = __nuxt_component_1;
+      _push(`<div${ssrRenderAttrs(mergeProps({ class: "flex flex-col min-h-screen bg-white text-slate-900" }, _attrs))}>`);
+      _push(ssrRenderComponent(_component_NuxtLayout, null, {
+        default: withCtx((_, _push2, _parent2, _scopeId) => {
+          if (_push2) {
+            _push2(ssrRenderComponent(_component_NuxtPage, null, null, _parent2, _scopeId));
+          } else {
+            return [
+              createVNode(_component_NuxtPage)
+            ];
+          }
+        }),
+        _: 1
+      }, _parent));
+      _push(`</div>`);
+    };
   }
-  return target;
 };
-const _sfc_main$2 = {};
-function _sfc_ssrRender(_ctx, _push, _parent, _attrs) {
-  const _component_NuxtLayout = __nuxt_component_0;
-  const _component_NuxtPage = __nuxt_component_1;
-  _push(`<div${ssrRenderAttrs(mergeProps({ class: "flex flex-col min-h-screen bg-white text-slate-900" }, _attrs))}>`);
-  _push(ssrRenderComponent(_component_NuxtLayout, null, {
-    default: withCtx((_, _push2, _parent2, _scopeId) => {
-      if (_push2) {
-        _push2(ssrRenderComponent(_component_NuxtPage, null, null, _parent2, _scopeId));
-      } else {
-        return [
-          createVNode(_component_NuxtPage)
-        ];
-      }
-    }),
-    _: 1
-  }, _parent));
-  _push(`</div>`);
-}
 const _sfc_setup$2 = _sfc_main$2.setup;
 _sfc_main$2.setup = (props, ctx) => {
   const ssrContext = useSSRContext();
   (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("app.vue");
   return _sfc_setup$2 ? _sfc_setup$2(props, ctx) : void 0;
 };
-const AppComponent = /* @__PURE__ */ _export_sfc(_sfc_main$2, [["ssrRender", _sfc_ssrRender]]);
 const _sfc_main$1 = {
   __name: "nuxt-error-page",
   __ssrInlineRender: true,
@@ -1341,8 +1393,8 @@ const _sfc_main$1 = {
     const statusText = _error.statusMessage ?? (is404 ? "Page Not Found" : "Internal Server Error");
     const description = _error.message || _error.toString();
     const stack = void 0;
-    const _Error404 = defineAsyncComponent(() => import("./_nuxt/error-404-B59QDEJO.js"));
-    const _Error = defineAsyncComponent(() => import("./_nuxt/error-500-BSFYu0_h.js"));
+    const _Error404 = defineAsyncComponent(() => import("./_nuxt/error-404-Q0ZWMB2H.js"));
+    const _Error = defineAsyncComponent(() => import("./_nuxt/error-500-CFA_2y7v.js"));
     const ErrorTemplate = is404 ? _Error404 : _Error;
     return (_ctx, _push, _parent, _attrs) => {
       _push(ssrRenderComponent(unref(ErrorTemplate), mergeProps({ status: unref(status), statusText: unref(statusText), statusCode: unref(status), statusMessage: unref(statusText), description: unref(description), stack: unref(stack) }, _attrs), null, _parent));
@@ -1400,7 +1452,7 @@ const _sfc_main = {
           } else if (unref(SingleRenderer)) {
             ssrRenderVNode(_push, createVNode(resolveDynamicComponent(unref(SingleRenderer)), null, null), _parent);
           } else {
-            _push(ssrRenderComponent(unref(AppComponent), null, null, _parent));
+            _push(ssrRenderComponent(unref(_sfc_main$2), null, null, _parent));
           }
         },
         _: 1
@@ -1434,15 +1486,16 @@ let entry;
 }
 const entry_default = ((ssrContext) => entry(ssrContext));
 export {
-  _export_sfc as _,
-  useNuxtApp as a,
-  useRuntimeConfig as b,
-  nuxtLinkDefaults as c,
+  useSeoMeta as a,
+  useRouter as b,
+  useNuxtApp as c,
+  useRuntimeConfig as d,
   entry_default as default,
   encodeRoutePath as e,
+  nuxtLinkDefaults as f,
   navigateTo as n,
   resolveRouteObject as r,
-  tryUseNuxtApp as t,
-  useRouter as u
+  sanitizeTag as s,
+  useHead as u
 };
 //# sourceMappingURL=server.mjs.map

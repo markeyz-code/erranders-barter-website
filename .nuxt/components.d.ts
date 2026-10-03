@@ -16,6 +16,8 @@ type LazyComponent<T> = DefineComponent<HydrationStrategies, {}, {}, {}, {}, {},
 
 export const AppFooter: typeof import("../components/AppFooter.vue")['default']
 export const AppNavbar: typeof import("../components/AppNavbar.vue")['default']
+export const AuthModal: typeof import("../components/AuthModal.vue")['default']
+export const CustomFormSelect: typeof import("../components/CustomFormSelect.vue")['default']
 export const CustomInput: typeof import("../components/CustomInput.vue")['default']
 export const CustomSelect: typeof import("../components/CustomSelect.vue")['default']
 export const NuxtWelcome: typeof import("../node_modules/nuxt/dist/app/components/welcome.vue")['default']
@@ -43,6 +45,8 @@ export const Body: typeof import("../node_modules/nuxt/dist/head/runtime/compone
 export const NuxtIsland: typeof import("../node_modules/nuxt/dist/app/components/nuxt-island")['default']
 export const LazyAppFooter: LazyComponent<typeof import("../components/AppFooter.vue")['default']>
 export const LazyAppNavbar: LazyComponent<typeof import("../components/AppNavbar.vue")['default']>
+export const LazyAuthModal: LazyComponent<typeof import("../components/AuthModal.vue")['default']>
+export const LazyCustomFormSelect: LazyComponent<typeof import("../components/CustomFormSelect.vue")['default']>
 export const LazyCustomInput: LazyComponent<typeof import("../components/CustomInput.vue")['default']>
 export const LazyCustomSelect: LazyComponent<typeof import("../components/CustomSelect.vue")['default']>
 export const LazyNuxtWelcome: LazyComponent<typeof import("../node_modules/nuxt/dist/app/components/welcome.vue")['default']>
