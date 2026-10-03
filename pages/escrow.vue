@@ -46,23 +46,25 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import { escrowApi } from '~/composables/useApi'
+import { useAuth } from '~/composables/useAuth'
 
 const router = useRouter()
+const { isLoggedIn } = useAuth()
 const transactions = ref([])
 const loading = ref(true)
 const actionLoading = ref(null)
 
 const fetchTransactions = async () => {
   try {
-    const token = localStorage.getItem('barter_token')
-    if (!token) {
+    if (!isLoggedIn.value) {
       router.push('/login')
       return
     }
-    const data = await $fetch('http://localhost:3005/api/v1/escrow/my-transactions', {
-      headers: { Authorization: `Bearer ${token}` }
-    })
-    transactions.value = data
+    const { data, error } = await escrowApi.myTransactions()
+    if (!error) {
+       transactions.value = data
+    }
   } catch (err) {
     console.error(err)
   } finally {
@@ -73,14 +75,14 @@ const fetchTransactions = async () => {
 const releaseFunds = async (id) => {
   actionLoading.value = id
   try {
-    const token = localStorage.getItem('barter_token')
-    await $fetch(`http://localhost:3005/api/v1/escrow/${id}/release`, {
-      method: 'PATCH',
-      headers: { Authorization: `Bearer ${token}` }
-    })
-    await fetchTransactions()
+    const { error } = await escrowApi.release(id)
+    if (error) {
+      alert(error)
+    } else {
+      await fetchTransactions()
+    }
   } catch (err) {
-    alert(err.data?.message || 'Failed to release funds.')
+    alert('Failed to release funds.')
   } finally {
     actionLoading.value = null
   }
@@ -89,14 +91,14 @@ const releaseFunds = async (id) => {
 const dispute = async (id) => {
   actionLoading.value = id
   try {
-    const token = localStorage.getItem('barter_token')
-    await $fetch(`http://localhost:3005/api/v1/escrow/${id}/dispute`, {
-      method: 'PATCH',
-      headers: { Authorization: `Bearer ${token}` }
-    })
-    await fetchTransactions()
+    const { error } = await escrowApi.dispute(id)
+    if (error) {
+      alert(error)
+    } else {
+      await fetchTransactions()
+    }
   } catch (err) {
-    alert(err.data?.message || 'Failed to raise dispute.')
+    alert('Failed to raise dispute.')
   } finally {
     actionLoading.value = null
   }

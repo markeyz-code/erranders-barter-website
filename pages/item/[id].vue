@@ -145,6 +145,7 @@
 import { ArrowLeft, MapPin, ShieldCheck, MessageCircle, ShoppingCart, Lock, Maximize, X, PlayCircle } from 'lucide-vue-next'
 import { ref, onMounted, computed } from 'vue'
 import { useRoute } from 'vue-router'
+import { itemsApi } from '~/composables/useApi'
 
 const route = useRoute()
 const item = ref(null)
@@ -156,7 +157,12 @@ const isZoomOpen = ref(false)
 
 const fetchItem = async () => {
   try {
-    const data = await $fetch(`http://localhost:3005/api/v1/items/${route.params.id}`)
+    const { data, error } = await itemsApi.getById(route.params.id)
+    if (error) {
+      console.error(error)
+      return
+    }
+    
     item.value = data
     
     // Construct media gallery

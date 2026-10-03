@@ -1,7 +1,7 @@
 <template>
   <main class="min-h-screen bg-white pt-24 pb-16">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="flex justify-between items-end mb-8">
+      <div class="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4 mb-8">
         <div>
           <h1 class="text-4xl font-black text-slate-900 mb-2">
             {{ searchQuery ? 'Search Results' : 'Explore' }}
@@ -10,20 +10,26 @@
             {{ searchQuery ? 'Found items matching "' + searchQuery + '"' : 'Discover everything available on the Erranders network.' }}
           </p>
         </div>
-        <div class="flex gap-2">
-          <select class="border border-slate-200 rounded-full px-4 py-2 bg-white font-bold text-sm outline-none focus:border-brand-600">
-            <option>All Categories</option>
-            <option>Electronics</option>
-            <option>Books</option>
-          </select>
-          <select class="border border-slate-200 rounded-full px-4 py-2 bg-white font-bold text-sm outline-none focus:border-brand-600">
-            <option>Newest First</option>
-            <option>Price: Low to High</option>
-          </select>
+        <div class="flex gap-3">
+          <CustomSelect
+            v-model="selectedCategory"
+            :options="categoryOptions"
+            placeholder="All Categories"
+          />
+          <CustomSelect
+            v-model="selectedSort"
+            :options="sortOptions"
+            placeholder="Sort By"
+          />
         </div>
       </div>
 
-      <div v-if="filteredItems.length === 0" class="py-20 text-center border border-slate-200 border-dashed rounded-3xl">
+      <div v-if="loading" class="py-20 flex flex-col items-center justify-center">
+        <div class="w-12 h-12 border-4 border-slate-200 border-t-brand-600 rounded-full animate-spin mb-4"></div>
+        <p class="text-slate-500 font-bold">Loading items...</p>
+      </div>
+
+      <div v-else-if="filteredItems.length === 0" class="py-20 text-center border border-slate-200 border-dashed rounded-3xl">
         <h2 class="text-2xl font-bold text-slate-400 mb-2">No items found for "{{ searchQuery }}"</h2>
         <NuxtLink to="/explore" class="text-brand-600 font-bold hover:underline">Clear Search</NuxtLink>
       </div>
@@ -50,11 +56,31 @@
 </template>
 <script setup>
 import { MapPin } from 'lucide-vue-next'
+import CustomSelect from '~/components/CustomSelect.vue'
 import { useRoute } from 'vue-router'
 import { computed, ref, onMounted } from 'vue'
+import { itemsApi } from '~/composables/useApi'
 
 const route = useRoute()
 const searchQuery = computed(() => route.query.q || '')
+
+const selectedCategory = ref('')
+const selectedSort = ref('newest')
+
+const categoryOptions = [
+  { value: '', label: 'All Categories' },
+  { value: 'electronics', label: 'Electronics' },
+  { value: 'books', label: 'Books' },
+  { value: 'appliances', label: 'Appliances' },
+  { value: 'fashion', label: 'Fashion' },
+  { value: 'services', label: 'Services' },
+]
+
+const sortOptions = [
+  { value: 'newest', label: 'Newest First' },
+  { value: 'price_asc', label: 'Price: Low to High' },
+  { value: 'price_desc', label: 'Price: High to Low' },
+]
 
 const items = ref([])
 const loading = ref(true)
@@ -63,8 +89,12 @@ const error = ref('')
 const fetchItems = async () => {
   loading.value = true
   try {
-    const data = await $fetch(`http://localhost:3005/api/v1/items${searchQuery.value ? '?q=' + searchQuery.value : ''}`)
-    items.value = data
+    const { data, error: apiError } = await itemsApi.list(searchQuery.value ? { q: searchQuery.value } : {})
+    if (apiError) {
+      error.value = apiError
+    } else {
+      items.value = data
+    }
   } catch (err) {
     error.value = 'Failed to load items.'
   } finally {
@@ -76,5 +106,23 @@ onMounted(() => {
   fetchItems()
 })
 
-const filteredItems = computed(() => items.value)
+const filteredItems = computed(() => {
+  let result = [...items.value]
+
+  // Filter by category
+  if (selectedCategory.value) {
+    result = result.filter(item =>
+      (item.type || item.category || '').toLowerCase().includes(selectedCategory.value.toLowerCase())
+    )
+  }
+
+  // Sort
+  if (selectedSort.value === 'price_asc') {
+    result.sort((a, b) => (a.price || 0) - (b.price || 0))
+  } else if (selectedSort.value === 'price_desc') {
+    result.sort((a, b) => (b.price || 0) - (a.price || 0))
+  }
+
+  return result
+})
 </script>

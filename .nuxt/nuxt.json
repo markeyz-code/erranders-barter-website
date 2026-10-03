@@ -1,7 +1,7 @@
 {
-  "_hash": "xqzpoT0HFcKktIwqAyQrox1gZ4YbxU-8bcWUxLawhrI",
+  "_hash": "ksVLS08ghfA4jM1q4U6O4cumxehANo5FJgdskSmmec0",
   "project": {
-    "rootDir": "/Users/marquis/erranders/barter-app/barter-website"
+    "rootDir": "/Users/marquis/erranders/barter/website"
   },
   "versions": {
     "nuxt": "3.21.11"

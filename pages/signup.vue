@@ -28,7 +28,7 @@
             <CustomInput v-model="form.firstName" label="First Name" placeholder="John" />
             <CustomInput v-model="form.lastName" label="Last Name" placeholder="Doe" />
           </div>
-          <CustomInput v-model="form.email" label="University Email" type="email" placeholder="you@student.edu.ng" icon="Mail" />
+          <CustomInput v-model="form.email" label="Email Address" type="email" placeholder="you@example.com" icon="Mail" />
           <CustomInput v-model="form.password" label="Create Password" type="password" placeholder="••••••••" icon="Lock" />
           
           <button type="submit" :disabled="loading" class="w-full bg-brand-600 text-white font-bold py-4 rounded-xl hover:bg-brand-700 transition-colors mt-2 disabled:opacity-50">

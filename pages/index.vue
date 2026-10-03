@@ -119,7 +119,7 @@
         <div class="grid grid-cols-1 md:grid-cols-2 gap-12 lg:gap-20 items-center">
           <div class="relative">
             <div class="aspect-[4/3] rounded-[2rem] overflow-hidden border border-slate-200">
-              <img src="https://images.unsplash.com/photo-1560807707-8cc77767d783?w=800" alt="Students packing up hostel room" class="w-full h-full object-cover" />
+              <img src="https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=800" alt="Students packing up hostel room" class="w-full h-full object-cover" />
             </div>
             <div class="absolute -bottom-4 -right-4 bg-brand-600 text-white px-5 py-3 rounded-2xl font-black text-sm shadow-lg">
               ₦2M+ wasted yearly 😱
@@ -160,7 +160,7 @@
         <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
           <div class="bg-white rounded-[2rem] p-8 border border-slate-200 text-left relative overflow-hidden group hover:-translate-y-1 transition-transform">
             <div class="aspect-video rounded-2xl overflow-hidden mb-6 border border-slate-100">
-              <img src="https://images.unsplash.com/photo-1531482615713-2afd69097998?w=600" alt="Student taking photo of item" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+              <img src="https://images.unsplash.com/photo-1517486808906-6ca8b3f04846?w=600" alt="Student taking photo of item" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
             </div>
             <span class="text-6xl font-black text-slate-100 absolute top-6 right-8">01</span>
             <h3 class="text-xl font-black text-slate-900 mb-2">Snap & List</h3>
@@ -169,7 +169,7 @@
 
           <div class="bg-white rounded-[2rem] p-8 border border-slate-200 text-left relative overflow-hidden group hover:-translate-y-1 transition-transform">
             <div class="aspect-video rounded-2xl overflow-hidden mb-6 border border-slate-100">
-              <img src="https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=600" alt="Students exchanging items" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+              <img src="https://images.unsplash.com/photo-1522204523234-8729aa6e3d5f?w=600" alt="Students exchanging items" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
             </div>
             <span class="text-6xl font-black text-slate-100 absolute top-6 right-8">02</span>
             <h3 class="text-xl font-black text-slate-900 mb-2">Match & Chat</h3>
@@ -178,7 +178,7 @@
 
           <div class="bg-white rounded-[2rem] p-8 border border-slate-200 text-left relative overflow-hidden group hover:-translate-y-1 transition-transform">
             <div class="aspect-video rounded-2xl overflow-hidden mb-6 border border-slate-100">
-              <img src="https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=600" alt="Secure payment" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+              <img src="https://images.unsplash.com/photo-1580894732444-8ecdaf6559d2?w=600" alt="Secure payment" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
             </div>
             <span class="text-6xl font-black text-slate-100 absolute top-6 right-8">03</span>
             <h3 class="text-xl font-black text-slate-900 mb-2">Pay & Deliver</h3>

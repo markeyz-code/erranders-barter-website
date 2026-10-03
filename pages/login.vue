@@ -24,8 +24,11 @@
         </div>
 
         <form @submit.prevent="handleLogin" class="space-y-5">
-          <CustomInput v-model="form.email" label="Email Address" type="email" placeholder="you@student.edu.ng" icon="Mail" />
+          <CustomInput v-model="form.email" label="Email Address" type="email" placeholder="you@example.com" icon="Mail" />
           <CustomInput v-model="form.password" label="Secure Password" type="password" placeholder="••••••••" icon="Lock" />
+          <div class="flex justify-end">
+            <NuxtLink to="/forgot-password" class="text-sm font-bold text-brand-600 hover:underline">Forgot Password?</NuxtLink>
+          </div>
           
           <button type="submit" :disabled="loading" class="w-full bg-brand-600 text-white font-bold py-4 rounded-xl hover:bg-brand-700 transition-colors mt-4 disabled:opacity-50">
             {{ loading ? 'Logging in...' : 'Log In' }}
@@ -42,7 +45,7 @@
 
     <!-- Image Side -->
     <div class="hidden lg:block lg:w-1/2 relative bg-slate-900">
-      <img src="https://images.unsplash.com/photo-1571260899304-425dea57a228?w=1200" class="absolute inset-0 w-full h-full object-cover opacity-80" />
+      <img src="https://images.unsplash.com/photo-1522204523234-8729aa6e3d5f?w=1200" class="absolute inset-0 w-full h-full object-cover opacity-80" />
       <div class="absolute inset-0 bg-gradient-to-t from-slate-900/90 via-slate-900/20 to-transparent"></div>
       <div class="absolute bottom-16 left-16 right-16">
         <h2 class="text-5xl font-black text-white mb-4 leading-tight">Trade smart.<br/>Move fast.</h2>

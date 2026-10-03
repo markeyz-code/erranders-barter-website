@@ -39,9 +39,12 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { itemsApi, escrowApi } from '~/composables/useApi'
+import { useAuth } from '~/composables/useAuth'
 
 const route = useRoute()
 const router = useRouter()
+const { isLoggedIn } = useAuth()
 const item = ref(null)
 const loading = ref(true)
 const initiating = ref(false)
@@ -55,8 +58,12 @@ const fetchItem = async () => {
   }
   
   try {
-    const data = await $fetch(`http://localhost:3005/api/v1/items/${route.query.itemId}`)
-    item.value = data
+    const { data, error: apiError } = await itemsApi.getById(route.query.itemId)
+    if (apiError) {
+       error.value = apiError
+    } else {
+       item.value = data
+    }
   } catch (err) {
     error.value = 'Failed to load item details.'
     console.error(err)
@@ -69,26 +76,24 @@ const initiateEscrow = async () => {
   initiating.value = true
   error.value = ''
   try {
-    const token = localStorage.getItem('barter_token')
-    if (!token) {
+    if (!isLoggedIn.value) {
       router.push('/login')
       return
     }
     
-    await $fetch('http://localhost:3005/api/v1/escrow/initiate', {
-      method: 'POST',
-      headers: { Authorization: `Bearer ${token}` },
-      body: {
+    const { data, error: apiError } = await escrowApi.initiate({
         sellerId: item.value.sellerId._id || item.value.sellerId,
         itemId: item.value._id,
         amount: item.value.price
-      }
     })
     
-    // Redirect to escrow dashboard or success page
-    router.push('/escrow')
+    if (apiError) {
+      error.value = apiError
+    } else {
+      router.push('/escrow')
+    }
   } catch (err) {
-    error.value = err.data?.message || 'Failed to initiate checkout.'
+    error.value = 'Failed to initiate checkout.'
     console.error(err)
   } finally {
     initiating.value = false

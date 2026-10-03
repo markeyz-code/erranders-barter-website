@@ -13,7 +13,7 @@
       <!-- Actions -->
       <div class="flex items-center gap-1 pr-1">
         <NuxtLink to="/login" class="px-5 py-2.5 text-sm font-bold text-slate-600 hover:text-brand-600 transition-colors rounded-full hover:bg-brand-50 hidden md:block">Log In</NuxtLink>
-        <NuxtLink to="/list" class="bg-slate-900 text-white font-black px-6 py-2.5 rounded-full hover:bg-brand-600 transition-colors text-sm">Start Trading</NuxtLink>
+        <NuxtLink to="/sell" class="bg-slate-900 text-white font-black px-6 py-2.5 rounded-full hover:bg-brand-600 transition-colors text-sm">Start Trading</NuxtLink>
       </div>
       
     </div>

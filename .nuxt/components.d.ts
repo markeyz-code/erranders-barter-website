@@ -17,6 +17,7 @@ type LazyComponent<T> = DefineComponent<HydrationStrategies, {}, {}, {}, {}, {},
 export const AppFooter: typeof import("../components/AppFooter.vue")['default']
 export const AppNavbar: typeof import("../components/AppNavbar.vue")['default']
 export const CustomInput: typeof import("../components/CustomInput.vue")['default']
+export const CustomSelect: typeof import("../components/CustomSelect.vue")['default']
 export const NuxtWelcome: typeof import("../node_modules/nuxt/dist/app/components/welcome.vue")['default']
 export const NuxtLayout: typeof import("../node_modules/nuxt/dist/app/components/nuxt-layout")['default']
 export const NuxtErrorBoundary: typeof import("../node_modules/nuxt/dist/app/components/nuxt-error-boundary.vue")['default']
@@ -43,6 +44,7 @@ export const NuxtIsland: typeof import("../node_modules/nuxt/dist/app/components
 export const LazyAppFooter: LazyComponent<typeof import("../components/AppFooter.vue")['default']>
 export const LazyAppNavbar: LazyComponent<typeof import("../components/AppNavbar.vue")['default']>
 export const LazyCustomInput: LazyComponent<typeof import("../components/CustomInput.vue")['default']>
+export const LazyCustomSelect: LazyComponent<typeof import("../components/CustomSelect.vue")['default']>
 export const LazyNuxtWelcome: LazyComponent<typeof import("../node_modules/nuxt/dist/app/components/welcome.vue")['default']>
 export const LazyNuxtLayout: LazyComponent<typeof import("../node_modules/nuxt/dist/app/components/nuxt-layout")['default']>
 export const LazyNuxtErrorBoundary: LazyComponent<typeof import("../node_modules/nuxt/dist/app/components/nuxt-error-boundary.vue")['default']>
