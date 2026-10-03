@@ -34,7 +34,7 @@
         <NuxtLink to="/explore" class="text-brand-600 font-bold hover:underline">Clear Search</NuxtLink>
       </div>
 
-      <div v-else class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+      <div v-else class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-6">
         <NuxtLink v-for="item in filteredItems" :key="item._id" :to="'/item/' + item._id" class="group block bg-white border border-slate-200 rounded-[2rem] p-4 hover:border-brand-600 transition-colors">
           <div class="aspect-square bg-slate-100 rounded-3xl mb-4 overflow-hidden relative">
             <img :src="item.images?.[0] || 'https://via.placeholder.com/600'" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />

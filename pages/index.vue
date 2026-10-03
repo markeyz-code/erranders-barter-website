@@ -239,7 +239,7 @@
           <p class="text-lg text-slate-500 font-medium max-w-xl mx-auto">Barter isn't just for physical items. Students can offer services like braiding, repairs, tutoring, and more.</p>
         </div>
         
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-6">
           <div class="bg-white rounded-[2rem] overflow-hidden border border-slate-200 group hover:-translate-y-1 transition-transform">
             <div class="aspect-square overflow-hidden">
               <img src="/img/nigerian_hair_braiding_1790990545939.jpg" alt="Hair braiding service" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
