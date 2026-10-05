@@ -1,6 +1,6 @@
 <template>
   <div class="relative group mb-5">
-    <label v-if="label" class="block text-xs font-black text-slate-400 mb-2 group-focus-within:text-brand-600 transition-colors">
+    <label v-if="label" class="block text-sm font-black text-slate-900 mb-2 group-focus-within:text-brand-600 transition-colors">
       {{ label }}
     </label>
     <div class="relative flex items-center">

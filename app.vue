@@ -1,5 +1,6 @@
 <template>
   <div class="flex flex-col min-h-screen bg-white text-slate-900">
+    <UiToast class="z-[9999999]" />
     <NuxtLayout>
       <NuxtPage />
     </NuxtLayout>

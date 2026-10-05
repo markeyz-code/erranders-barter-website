@@ -20,6 +20,7 @@ interface _GlobalComponents {
   CustomFormSelect: typeof import("../../components/CustomFormSelect.vue")['default']
   CustomInput: typeof import("../../components/CustomInput.vue")['default']
   CustomSelect: typeof import("../../components/CustomSelect.vue")['default']
+  UiToast: typeof import("../../components/ui/Toast.vue")['default']
   NuxtWelcome: typeof import("../../node_modules/nuxt/dist/app/components/welcome.vue")['default']
   NuxtLayout: typeof import("../../node_modules/nuxt/dist/app/components/nuxt-layout")['default']
   NuxtErrorBoundary: typeof import("../../node_modules/nuxt/dist/app/components/nuxt-error-boundary.vue")['default']
@@ -49,6 +50,7 @@ interface _GlobalComponents {
   LazyCustomFormSelect: LazyComponent<typeof import("../../components/CustomFormSelect.vue")['default']>
   LazyCustomInput: LazyComponent<typeof import("../../components/CustomInput.vue")['default']>
   LazyCustomSelect: LazyComponent<typeof import("../../components/CustomSelect.vue")['default']>
+  LazyUiToast: LazyComponent<typeof import("../../components/ui/Toast.vue")['default']>
   LazyNuxtWelcome: LazyComponent<typeof import("../../node_modules/nuxt/dist/app/components/welcome.vue")['default']>
   LazyNuxtLayout: LazyComponent<typeof import("../../node_modules/nuxt/dist/app/components/nuxt-layout")['default']>
   LazyNuxtErrorBoundary: LazyComponent<typeof import("../../node_modules/nuxt/dist/app/components/nuxt-error-boundary.vue")['default']>

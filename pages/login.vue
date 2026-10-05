@@ -27,7 +27,7 @@
         </div>
 
         <form @submit.prevent="handleLogin" class="space-y-5">
-          <CustomInput v-model="form.email" label="Email Address" type="email" placeholder="you@example.com" icon="Mail" />
+          <CustomInput v-model="form.email" label="Email Address" type="email" placeholder="" icon="Mail" />
           <CustomInput v-model="form.password" label="Secure Password" type="password" placeholder="••••••••" icon="Lock" />
           <div class="flex justify-end">
             <NuxtLink to="/forgot-password" class="text-sm font-bold text-brand-600 hover:underline">Forgot Password?</NuxtLink>
