@@ -1,1 +1,0 @@
-import{G as e}from"./tlMptUeE.js";const r={image:t=>{const a=new FormData;return a.append("file",t),e.post("/upload/image",a,{headers:{"Content-Type":"multipart/form-data"}})},video:t=>{const a=new FormData;return a.append("file",t),e.post("/upload/video",a,{headers:{"Content-Type":"multipart/form-data"}})}};export{r as u};

@@ -1,6 +1,6 @@
 import { ref, onMounted, getCurrentInstance } from 'vue'
-import { business_api } from "~/api_factory/modules/business"
-import type { Business } from "~/types/business"
+import { business_api } from "@/api_factory/modules/business"
+import type { Business } from "@/types/business"
 import { useStorage } from "@vueuse/core"
 
 export const useGetBusiness = () => {
