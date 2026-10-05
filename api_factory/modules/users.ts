@@ -1,4 +1,4 @@
-import { ERRANDERS_CORE_WITH_AUTH } from '../axios.config';
+import axios from 'axios'; const ERRANDERS_CORE_WITH_AUTH = axios.create({ baseURL: 'https://api.erranders.org' }); ERRANDERS_CORE_WITH_AUTH.interceptors.request.use((config) => { const token = typeof window !== 'undefined' ? localStorage.getItem('barter_token') || localStorage.getItem('token') : null; if (token) config.headers.Authorization = 'Bearer ' + token; return config; });
 
 export const users_api = {
   getRecentlyViewed: () => {

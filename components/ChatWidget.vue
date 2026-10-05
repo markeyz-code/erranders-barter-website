@@ -230,14 +230,14 @@
 <script setup lang="ts">
 import { X, ArrowRight, MessageSquare, Smile, ChevronDown, Lock, Paperclip } from 'lucide-vue-next'
 import { onMounted, ref, computed, watch, nextTick, onBeforeUnmount } from 'vue'
-import { useUser } from '@/composables/modules/auth/user'
-import { useChat } from '@/composables/modules/chat/useChat'
-import { useRealtimeSocket } from '@/composables/core/useRealtimeSocket'
-import type { ChatMessage } from '@/composables/modules/chat/useChat'
-import { upload_api } from '@/api_factory/modules/upload'
-import { useCustomToast } from '@/composables/core/useCustomToast'
+import { useUser } from '~/composables/modules/auth/user'
+import { useChat } from '~/composables/modules/chat/useChat'
+import { useRealtimeSocket } from '~/composables/core/useRealtimeSocket'
+import type { ChatMessage } from '~/composables/modules/chat/useChat'
+import { upload_api } from '~/api_factory/modules/upload'
+import { useCustomToast } from '~/composables/core/useCustomToast'
 
-import { users_api } from '@/api_factory/modules/users'
+import { users_api } from '~/api_factory/modules/users'
 
 function isMobile() {
   return window.innerWidth <= 640;

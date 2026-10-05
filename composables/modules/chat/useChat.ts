@@ -1,8 +1,8 @@
-import { chat_api } from '@/api_factory/modules/chat'
-import { useCustomToast } from '@/composables/core/useCustomToast'
-import { useRealtimeSocket } from '@/composables/core/useRealtimeSocket'
-import { useUser } from '@/composables/modules/auth/user'
-import { useGetBusiness } from '@/composables/modules/business/useGetBusiness'
+import { chat_api } from '~/api_factory/modules/chat'
+import { useCustomToast } from '~/composables/core/useCustomToast'
+import { useRealtimeSocket } from '~/composables/core/useRealtimeSocket'
+import { useUser } from '~/composables/modules/auth/user'
+import { useGetBusiness } from '~/composables/modules/business/useGetBusiness'
 import { useStorage } from '@vueuse/core'
 
 export interface ChatMessage {
