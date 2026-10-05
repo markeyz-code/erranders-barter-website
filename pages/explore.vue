@@ -1,7 +1,7 @@
 <template>
   <main class="min-h-screen bg-white pb-16">
     <div class="max-w-7xl mx-auto px-4 sm:px-4 sm:px-6 lg:px-4 sm:px-8">
-      <div class="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4 mb-8">
+      <div class="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4 mb-8 relative z-50">
         <div class="w-full sm:w-auto">
           <h1 class="text-4xl font-black text-slate-900 mb-2">
             {{ searchQuery ? 'Search Results' : 'Explore' }}
@@ -24,7 +24,7 @@
             </button>
           </form>
         </div>
-        <div class="flex gap-3 w-full sm:w-auto overflow-x-auto pb-2 sm:pb-0 relative z-20">
+        <div class="flex flex-wrap gap-3 w-full sm:w-auto relative z-20">
           <CustomSelect
             v-model="selectedCategory"
             :options="categoryOptions"

@@ -1,6 +1,6 @@
 <template>
   <div v-if="isOpen" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
-    <div class="bg-white w-full max-w-md rounded-3xl shadow-2xl overflow-hidden relative" @click.stop>
+    <div class="bg-white w-full max-w-md rounded-3xl shadow-2xl relative" @click.stop>
       <button @click="$emit('close')" class="absolute top-4 right-4 text-slate-400 hover:text-slate-900 bg-slate-100 hover:bg-slate-200 p-2 rounded-full transition-colors z-10">
         <X class="w-5 h-5" />
       </button>
