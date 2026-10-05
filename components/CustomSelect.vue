@@ -25,7 +25,8 @@
     >
       <div
         v-if="isOpen"
-        class="absolute z-50 top-full right-0 mt-2 w-full min-w-[200px] bg-white border border-slate-200 rounded-2xl shadow-[0_12px_40px_rgba(0,0,0,0.12)] overflow-hidden"
+        class="absolute z-50 top-full mt-2 w-full min-w-[200px] bg-white border border-slate-200 rounded-2xl shadow-[0_12px_40px_rgba(0,0,0,0.12)] overflow-hidden"
+        :class="align === 'right' ? 'right-0' : 'left-0'"
       >
         <ul class="py-2 max-h-60 overflow-y-auto">
           <li
@@ -68,7 +69,8 @@ const props = defineProps({
     required: true,
     // Each option: { value: string, label: string }
   },
-  placeholder: { type: String, default: 'Select...' }
+  placeholder: { type: String, default: 'Select...' },
+  align: { type: String, default: 'left' }
 })
 
 const emit = defineEmits(['update:modelValue'])

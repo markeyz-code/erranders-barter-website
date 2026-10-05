@@ -2,15 +2,29 @@
   <main class="min-h-screen bg-white pb-16">
     <div class="max-w-7xl mx-auto px-4 sm:px-4 sm:px-6 lg:px-4 sm:px-8">
       <div class="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4 mb-8">
-        <div>
+        <div class="w-full sm:w-auto">
           <h1 class="text-4xl font-black text-slate-900 mb-2">
             {{ searchQuery ? 'Search Results' : 'Explore' }}
           </h1>
-          <p class="text-slate-500 font-medium">
+          <p class="text-slate-500 font-medium mb-4">
             {{ searchQuery ? 'Found items matching "' + searchQuery + '"' : 'Discover everything available on the Erranders network.' }}
           </p>
+          <form @submit.prevent="executeSearch" class="flex items-center w-full max-w-md">
+            <div class="relative w-full">
+              <input
+                v-model="localSearchQuery"
+                type="text"
+                class="w-full bg-slate-50 border border-slate-200 rounded-full pl-11 pr-4 py-2.5 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all"
+                placeholder="Search items, books, electronics..."
+              />
+              <Search class="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+            </div>
+            <button type="submit" class="ml-2 bg-brand-600 text-white px-5 py-2.5 rounded-full text-sm font-bold hover:bg-brand-700 transition-colors">
+              Search
+            </button>
+          </form>
         </div>
-        <div class="flex gap-3">
+        <div class="flex gap-3 w-full sm:w-auto overflow-x-auto pb-2 sm:pb-0">
           <CustomSelect
             v-model="selectedCategory"
             :options="categoryOptions"
@@ -20,6 +34,7 @@
             v-model="selectedSort"
             :options="sortOptions"
             placeholder="Sort By"
+            align="right"
           />
         </div>
       </div>
@@ -55,14 +70,23 @@
   </main>
 </template>
 <script setup>
-import { MapPin } from 'lucide-vue-next'
+import { MapPin, Search } from 'lucide-vue-next'
 import CustomSelect from '~/components/CustomSelect.vue'
 import { useRoute, useRouter } from 'vue-router'
 import { computed, ref, onMounted, watch } from 'vue'
 import { itemsApi } from '~/composables/useApi'
 
 const route = useRoute()
+const router = useRouter()
 const searchQuery = computed(() => route.query.q || '')
+const localSearchQuery = ref(route.query.q || '')
+
+const executeSearch = () => {
+  router.push({
+    path: '/explore',
+    query: { ...route.query, q: localSearchQuery.value || undefined }
+  })
+}
 
 useSeoMeta({
   title: computed(() => searchQuery.value ? `Search Results for "${searchQuery.value}" | Erranders Barter` : 'Explore Items | Erranders Barter'),
