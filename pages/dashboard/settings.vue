@@ -108,7 +108,7 @@ const updateProfile = async () => {
   errorMsg.value = ''
   
   try {
-    const res = await fetch('http://localhost:3005/api/v1/users/me', {
+    const res = await fetch(`${useRuntimeConfig().public.apiBaseUrl}/users/me`, {
       method: 'PATCH',
       headers: {
         'Content-Type': 'application/json',

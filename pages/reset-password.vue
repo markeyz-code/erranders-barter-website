@@ -36,7 +36,7 @@ const handleReset = async () => {
   error.value = ''
   success.value = false
   try {
-    const res = await fetch('http://localhost:3005/api/v1/auth/reset-password', {
+    const res = await fetch(`${useRuntimeConfig().public.apiBaseUrl}/auth/reset-password`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ token: route.query.token || 'dummy', password: password.value })

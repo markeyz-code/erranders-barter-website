@@ -130,7 +130,7 @@ const handleSignup = async () => {
   loading.value = true
   error.value = ''
   try {
-    const res = await fetch('http://localhost:3005/api/v1/auth/signup', {
+    const res = await fetch(`${config.public.apiBaseUrl}/auth/signup`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(form.value)

@@ -135,7 +135,7 @@ const chatId = ref(route.query.chatId || 'test-chat-123') // Should come from AP
 
 onMounted(async () => {
   // Connect WebSocket
-  socket.value = io('http://localhost:3005', {
+  socket.value = io(useRuntimeConfig().public.apiBaseUrl.replace('/api/v1', ''), {
     auth: { token: `Bearer ${token.value}` }
   })
 

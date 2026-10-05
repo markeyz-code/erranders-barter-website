@@ -108,7 +108,7 @@ const initials = computed(() => {
 
 onMounted(async () => {
   try {
-    const res = await fetch('http://localhost:3005/api/v1/users/me/stats', {
+    const res = await fetch(`${useRuntimeConfig().public.apiBaseUrl}/users/me/stats`, {
       headers: { 'Authorization': `Bearer ${token.value}` }
     })
     const data = await res.json()

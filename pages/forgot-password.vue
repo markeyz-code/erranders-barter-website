@@ -38,7 +38,7 @@ const handleForgot = async () => {
   error.value = ''
   success.value = false
   try {
-    const res = await fetch('http://localhost:3005/api/v1/auth/forgot-password', {
+    const res = await fetch(`${useRuntimeConfig().public.apiBaseUrl}/auth/forgot-password`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email: email.value })
