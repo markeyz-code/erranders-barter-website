@@ -24,7 +24,7 @@
             </button>
           </form>
         </div>
-        <div class="flex gap-3 w-full sm:w-auto overflow-x-auto pb-2 sm:pb-0">
+        <div class="flex gap-3 w-full sm:w-auto overflow-x-auto pb-2 sm:pb-0 relative z-20">
           <CustomSelect
             v-model="selectedCategory"
             :options="categoryOptions"
@@ -60,7 +60,7 @@
           <div class="px-2 pb-2">
             <div class="flex justify-between items-start mb-1 gap-2">
               <h3 class="font-bold text-lg truncate text-slate-900">{{ item.title }}</h3>
-              <span class="font-black text-brand-600 text-lg flex-shrink-0">₦{{ item.price }}</span>
+              <span class="font-black text-brand-600 text-lg flex-shrink-0">₦{{ Number(item.price || 0).toLocaleString() }}</span>
             </div>
             <p class="text-sm text-slate-500 flex items-center gap-1"><MapPin class="w-3.5 h-3.5" /> {{ item.location }}</p>
           </div>

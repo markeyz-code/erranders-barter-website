@@ -87,7 +87,7 @@
           <div class="mb-8">
             <h1 class="text-2xl md:text-4xl font-black text-slate-900 mb-4 leading-tight">{{ item.title }}</h1>
             <div class="flex items-center gap-4">
-              <span class="text-3xl md:text-4xl font-black text-brand-600">₦{{ item.price }}</span>
+              <span class="text-3xl md:text-4xl font-black text-brand-600">₦{{ Number(item.price || 0).toLocaleString() }}</span>
               <span v-if="item.swapPreference" class="px-3 py-1 bg-green-100 text-green-700 font-bold rounded-full text-sm">Swap: {{ item.swapPreference }}</span>
             </div>
           </div>
