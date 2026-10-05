@@ -179,7 +179,12 @@ const handleSubmit = async () => {
   }
 }
 
+const config = useRuntimeConfig()
 const socialAuth = (provider) => {
-  alert(`${provider} authentication is coming soon!`)
+  if (provider === 'Google') {
+    window.location.href = `${config.public.apiBaseUrl}/auth/google`
+  } else {
+    alert(`${provider} authentication is coming soon!`)
+  }
 }
 </script>

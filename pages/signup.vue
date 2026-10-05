@@ -121,8 +121,9 @@ const uniOptions = [
   { value: 'Other', label: 'Other' },
 ]
 
+const config = useRuntimeConfig()
 const googleLogin = () => {
-  window.location.href = 'http://localhost:3005/api/v1/auth/google'
+  window.location.href = `${config.public.apiBaseUrl}/auth/google`
 }
 
 const handleSignup = async () => {

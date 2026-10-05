@@ -73,8 +73,9 @@ const loading = ref(false)
 const error = ref('')
 const form = ref({ email: '', password: '' })
 
+const config = useRuntimeConfig()
 const googleLogin = () => {
-  window.location.href = 'http://localhost:3005/api/v1/auth/google'
+  window.location.href = `${config.public.apiBaseUrl}/auth/google`
 }
 
 const handleLogin = async () => {
