@@ -141,7 +141,9 @@
           
         </div>
         
+        
       </div>
+      <AuthModal :isOpen="isAuthModalOpen" @close="isAuthModalOpen = false" @success="handleAuthSuccess" />
     </div>
   </main>
 </template>
@@ -150,9 +152,13 @@ import { ArrowLeft, MapPin, ShieldCheck, MessageCircle, ShoppingCart, Lock, Maxi
 import { ref, onMounted, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { itemsApi } from '~/composables/useApi'
+import { useAuth } from '~/composables/useAuth'
+import AuthModal from '~/components/AuthModal.vue'
 
 const route = useRoute()
 const router = useRouter()
+const { isLoggedIn } = useAuth()
+const isAuthModalOpen = ref(false)
 const item = ref(null)
 const loading = ref(true)
 
@@ -178,7 +184,16 @@ const playFirstVideo = () => {
 }
 
 const startChat = () => {
+  if (!isLoggedIn.value) {
+    isAuthModalOpen.value = true
+    return
+  }
   router.push('/chat?sellerId=' + item.value?.sellerId?._id)
+}
+
+const handleAuthSuccess = () => {
+  isAuthModalOpen.value = false
+  startChat()
 }
 
 const fetchItem = async () => {

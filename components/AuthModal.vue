@@ -112,7 +112,7 @@ const props = defineProps({
 
 const emit = defineEmits(['close', 'success'])
 
-const { setToken, setUser } = useAuth()
+const { saveSession } = useAuth()
 const isLogin = ref(true)
 const loading = ref(false)
 const error = ref('')
@@ -169,8 +169,7 @@ const handleSubmit = async () => {
       })
     }
 
-    setToken(res.data.access_token)
-    setUser(res.data.user)
+    saveSession(res.data)
     emit('success')
   } catch (err) {
     error.value = err.response?.data?.message || 'Authentication failed.'
