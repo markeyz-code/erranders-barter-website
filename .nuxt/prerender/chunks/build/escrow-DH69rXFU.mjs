@@ -66,7 +66,7 @@ const _sfc_main = {
       if (loading.value) {
         _push(`<div class="text-center py-20 text-slate-500 font-bold">Loading transactions...</div>`);
       } else if (transactions.value.length === 0) {
-        _push(`<div class="text-center py-20 border-2 border-dashed border-slate-200 rounded-3xl"><h2 class="text-2xl font-bold text-slate-400 mb-2">No active transactions</h2>`);
+        _push(`<div class="text-center py-20 border border-dashed border-slate-200 rounded-3xl"><h2 class="text-2xl font-bold text-slate-400 mb-2">No active transactions</h2>`);
         _push(ssrRenderComponent(_component_NuxtLink, {
           to: "/explore",
           class: "text-brand-600 font-bold hover:underline"

@@ -93,7 +93,7 @@ const _sfc_main = {
         }
         _push(`</div><div class="flex gap-4 overflow-x-auto pb-2 scrollbar-hide"><!--[-->`);
         ssrRenderList(mediaGallery.value, (media, idx) => {
-          _push(`<button class="${ssrRenderClass([activeMedia.value?.src === media.src ? "border-brand-600 shadow-md" : "border-transparent opacity-60 hover:opacity-100", "relative w-20 h-20 flex-shrink-0 rounded-xl overflow-hidden border-2 transition-all"])}">`);
+          _push(`<button class="${ssrRenderClass([activeMedia.value?.src === media.src ? "border-brand-600 shadow-md" : "border-transparent opacity-60 hover:opacity-100", "relative w-20 h-20 flex-shrink-0 rounded-xl overflow-hidden border transition-all"])}">`);
           if (media.type === "image") {
             _push(`<img${ssrRenderAttr("src", media.src)} class="w-full h-full object-cover">`);
           } else {

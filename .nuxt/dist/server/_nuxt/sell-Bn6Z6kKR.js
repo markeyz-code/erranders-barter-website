@@ -231,7 +231,7 @@ const _sfc_main = {
         _push(ssrRenderComponent(unref(MapPin), { class: "w-4 h-4" }, null, _parent));
         _push(`</span><input${ssrRenderAttr("value", form.value.location)} required type="text" placeholder="e.g. Mellanby Hall" class="w-full bg-slate-50 border border-slate-200 rounded-xl pl-10 pr-4 py-3 outline-none focus:border-brand-500 transition-colors font-medium text-slate-900"></div></div></div><div><label class="block text-xs font-bold text-slate-700 mb-2">Description</label><textarea rows="4" placeholder="Describe the item, any flaws, why you&#39;re selling..." class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 outline-none focus:border-brand-500 transition-colors font-medium text-slate-900 resize-none">${ssrInterpolate(form.value.description)}</textarea></div><div><label class="block text-xs font-bold text-slate-700 mb-2 flex justify-between"><span>Media (Photos/Videos)</span></label><div class="flex gap-4 flex-wrap"><!--[-->`);
         ssrRenderList(form.value.images, (media, idx) => {
-          _push(`<div class="relative w-24 h-24 rounded-xl overflow-hidden border-2 border-slate-200 group bg-slate-900 flex items-center justify-center">`);
+          _push(`<div class="relative w-24 h-24 rounded-xl overflow-hidden border border-slate-200 group bg-slate-900 flex items-center justify-center">`);
           if (!media.isVideo) {
             _push(`<img${ssrRenderAttr("src", media.url)} class="w-full h-full object-cover">`);
           } else {
@@ -241,14 +241,14 @@ const _sfc_main = {
           _push(ssrRenderComponent(unref(X), { class: "w-6 h-6" }, null, _parent));
           _push(`</button></div>`);
         });
-        _push(`<!--]--><label class="w-24 h-24 rounded-xl border-2 border-dashed border-slate-300 bg-slate-50 flex flex-col items-center justify-center cursor-pointer hover:border-brand-500 hover:bg-brand-50 transition-colors">`);
+        _push(`<!--]--><label class="w-24 h-24 rounded-xl border border-dashed border-slate-300 bg-slate-50 flex flex-col items-center justify-center cursor-pointer hover:border-brand-500 hover:bg-brand-50 transition-colors">`);
         _push(ssrRenderComponent(unref(ImagePlus), { class: "w-6 h-6 text-slate-400 mb-1" }, null, _parent));
         if (!uploading.value) {
           _push(`<span class="text-[10px] font-bold text-slate-500 uppercase tracking-widest text-center leading-tight">Upload<br>Files</span>`);
         } else {
           _push(`<span class="text-[10px] font-bold text-brand-500 uppercase tracking-widest animate-pulse">Wait...</span>`);
         }
-        _push(`<input type="file" accept="image/*,video/*" multiple class="hidden"${ssrIncludeBooleanAttr(uploading.value) ? " disabled" : ""}></label><button type="button" class="w-24 h-24 rounded-xl border-2 border-dashed border-slate-300 bg-slate-50 flex flex-col items-center justify-center cursor-pointer hover:border-brand-500 hover:bg-brand-50 transition-colors">`);
+        _push(`<input type="file" accept="image/*,video/*" multiple class="hidden"${ssrIncludeBooleanAttr(uploading.value) ? " disabled" : ""}></label><button type="button" class="w-24 h-24 rounded-xl border border-dashed border-slate-300 bg-slate-50 flex flex-col items-center justify-center cursor-pointer hover:border-brand-500 hover:bg-brand-50 transition-colors">`);
         _push(ssrRenderComponent(unref(Video), { class: "w-6 h-6 text-slate-400 mb-1" }, null, _parent));
         _push(`<span class="text-[10px] font-bold text-slate-500 uppercase tracking-widest text-center leading-tight">Record<br>Video</span></button></div></div><hr class="border-slate-100"><button type="submit"${ssrIncludeBooleanAttr(loading.value || uploading.value || !form.value.title || !form.value.location) ? " disabled" : ""} class="w-full py-4 rounded-xl text-white font-bold bg-brand-600 hover:bg-brand-700 disabled:opacity-50 disabled:bg-slate-400 transition-all shadow-lg shadow-brand-500/25 flex items-center justify-center text-lg">`);
         if (loading.value) {

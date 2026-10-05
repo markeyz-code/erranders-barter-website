@@ -58,7 +58,7 @@
             <div>
               <label class="block text-xs font-black text-slate-400 mb-2">Upload Clear Photos</label>
               <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-4">
-                <div v-for="(img, idx) in form.images" :key="idx" class="aspect-square rounded-2xl border-2 border-slate-200 overflow-hidden relative group">
+                <div v-for="(img, idx) in form.images" :key="idx" class="aspect-square rounded-2xl border border-slate-200 overflow-hidden relative group">
                   <img :src="img" class="w-full h-full object-cover" />
                   <div class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                     <button @click.prevent="form.images.splice(idx, 1)" class="w-8 h-8 bg-white/20 hover:bg-red-500 rounded-full flex items-center justify-center text-white backdrop-blur transition-colors">
@@ -67,7 +67,7 @@
                   </div>
                 </div>
                 
-                <label v-if="form.images.length < 4" class="aspect-square rounded-2xl border-2 border-dashed border-slate-300 hover:border-brand-500 bg-slate-50 hover:bg-brand-50 flex flex-col items-center justify-center gap-2 cursor-pointer transition-colors group">
+                <label v-if="form.images.length < 4" class="aspect-square rounded-2xl border border-dashed border-slate-300 hover:border-brand-500 bg-slate-50 hover:bg-brand-50 flex flex-col items-center justify-center gap-2 cursor-pointer transition-colors group">
                   <div class="w-10 h-10 rounded-full bg-slate-200 group-hover:bg-brand-100 flex items-center justify-center text-slate-500 group-hover:text-brand-600 transition-colors">
                     <Upload v-if="!uploading" class="w-5 h-5" />
                     <Loader2 v-else class="w-5 h-5 animate-spin" />

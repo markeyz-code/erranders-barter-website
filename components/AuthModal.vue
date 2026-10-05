@@ -69,7 +69,7 @@
 
           <p v-if="error" class="text-red-500 text-sm font-bold text-center mt-2">{{ error }}</p>
 
-          <button type="submit" :disabled="loading" class="w-full bg-brand-600 hover:bg-brand-700 text-white font-black py-4 rounded-xl mt-6 transition-colors shadow-lg shadow-brand-200 disabled:opacity-50">
+          <button type="submit" :disabled="loading" class="w-full bg-brand-600 hover:bg-brand-700 text-white font-black py-3 rounded-xl mt-6 transition-colors shadow-lg shadow-brand-200 disabled:opacity-50">
             {{ loading ? 'Processing...' : (isLogin ? 'Log In' : 'Sign Up') }}
           </button>
         </form>

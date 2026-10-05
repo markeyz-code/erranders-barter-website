@@ -65,7 +65,7 @@
               v-for="(media, idx) in mediaGallery" 
               :key="idx"
               @click="activeMedia = media"
-              class="relative w-20 h-20 flex-shrink-0 rounded-xl overflow-hidden border-2 transition-all"
+              class="relative w-20 h-20 flex-shrink-0 rounded-xl overflow-hidden border transition-all"
               :class="activeMedia?.src === media.src ? 'border-brand-600 shadow-md' : 'border-transparent opacity-60 hover:opacity-100'"
             >
               <img v-if="media.type === 'image'" :src="media.src" class="w-full h-full object-cover" />

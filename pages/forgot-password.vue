@@ -8,7 +8,7 @@
         <form @submit.prevent="handleForgot" class="space-y-5">
           <CustomInput v-model="email" label="Email Address" type="email" placeholder="you@example.com" icon="Mail" />
           
-          <button type="submit" :disabled="loading" class="w-full bg-brand-600 text-white font-bold py-4 rounded-xl hover:bg-brand-700 transition-colors mt-4 disabled:opacity-50">
+          <button type="submit" :disabled="loading" class="w-full bg-brand-600 text-white font-bold py-3 rounded-xl hover:bg-brand-700 transition-colors mt-4 disabled:opacity-50">
             {{ loading ? 'Sending...' : 'Send Reset Link' }}
           </button>
         </form>

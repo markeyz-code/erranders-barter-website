@@ -40,7 +40,7 @@
             "
           >
             <span
-              class="w-4 h-4 rounded-full border-2 flex items-center justify-center flex-shrink-0 transition-colors"
+              class="w-4 h-4 rounded-full border flex items-center justify-center flex-shrink-0 transition-colors"
               :class="
                 modelValue === option.value
                   ? 'border-brand-600 bg-brand-600'

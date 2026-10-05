@@ -7,7 +7,7 @@
       
       <div class="prose prose-slate max-w-none">
         <p>This is a placeholder page for <strong>About Us</strong>. You can update this content later with the actual copy.</p>
-        <div class="h-64 bg-slate-50 border-2 border-slate-200 rounded-2xl mt-8 flex items-center justify-center">
+        <div class="h-64 bg-slate-50 border border-slate-200 rounded-2xl mt-8 flex items-center justify-center">
            <span class="text-slate-400 font-bold">Content goes here</span>
         </div>
       </div>

@@ -118,8 +118,11 @@
       "#tailwind-config": [
         "./tailwind/expose"
       ],
+      "#tailwind-config/*": [
+        "./tailwind/expose/*"
+      ],
       "#app-manifest": [
-        "./manifest/meta/7f91908f-cae7-4edf-8215-0a7e30e6ee42.json"
+        "./manifest/meta/dev.json"
       ],
       "#components": [
         "./components"
@@ -173,6 +176,6 @@
     "../.data",
     "../node_modules/runtime/server",
     "../node_modules/dist/runtime/server",
-    "../.output"
+    "dev"
   ]
 }

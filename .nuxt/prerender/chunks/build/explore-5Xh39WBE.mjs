@@ -77,7 +77,7 @@ const _sfc_main$1 = {
             "flex items-center gap-3 px-4 py-2.5 cursor-pointer transition-colors text-sm font-semibold"
           ])}"><span class="${ssrRenderClass([
             __props.modelValue === option.value ? "border-brand-600 bg-brand-600" : "border-slate-300",
-            "w-4 h-4 rounded-full border-2 flex items-center justify-center flex-shrink-0 transition-colors"
+            "w-4 h-4 rounded-full border flex items-center justify-center flex-shrink-0 transition-colors"
           ])}">`);
           if (__props.modelValue === option.value) {
             _push(ssrRenderComponent(unref(Check), { class: "w-2.5 h-2.5 text-white" }, null, _parent));

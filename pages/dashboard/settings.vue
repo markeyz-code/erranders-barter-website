@@ -59,7 +59,7 @@
           </div>
 
           <div class="pt-6 mt-6 border-t border-slate-100 flex justify-end">
-            <button type="submit" :disabled="loading" class="px-4 sm:px-8 py-4 bg-slate-900 text-white font-black rounded-xl hover:bg-brand-600 transition-colors shadow-lg disabled:opacity-50">
+            <button type="submit" :disabled="loading" class="px-4 sm:px-8 py-3 bg-slate-900 text-white font-black rounded-xl hover:bg-brand-600 transition-colors shadow-lg disabled:opacity-50">
               {{ loading ? 'Saving...' : 'Save Changes' }}
             </button>
           </div>

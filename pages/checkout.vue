@@ -80,10 +80,10 @@
                 <!-- Self Pickup -->
                 <div 
                   @click="deliveryMethod = 'pickup'"
-                  class="flex items-start gap-3 p-4 border-2 rounded-2xl cursor-pointer transition-colors"
+                  class="flex items-start gap-3 p-4 border rounded-2xl cursor-pointer transition-colors"
                   :class="deliveryMethod === 'pickup' ? 'border-brand-600 bg-brand-50' : 'border-slate-100 hover:border-brand-300'"
                 >
-                  <div class="w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 mt-0.5"
+                  <div class="w-5 h-5 rounded-full border flex items-center justify-center shrink-0 mt-0.5"
                        :class="deliveryMethod === 'pickup' ? 'border-brand-600' : 'border-slate-300'">
                     <div v-if="deliveryMethod === 'pickup'" class="w-2.5 h-2.5 bg-brand-600 rounded-full"></div>
                   </div>
@@ -97,10 +97,10 @@
                 <!-- Errander Delivery -->
                 <div 
                   @click="deliveryMethod = 'errander'"
-                  class="flex items-start gap-3 p-4 border-2 rounded-2xl cursor-pointer transition-colors"
+                  class="flex items-start gap-3 p-4 border rounded-2xl cursor-pointer transition-colors"
                   :class="deliveryMethod === 'errander' ? 'border-brand-600 bg-brand-50' : 'border-slate-100 hover:border-brand-300'"
                 >
-                  <div class="w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 mt-0.5"
+                  <div class="w-5 h-5 rounded-full border flex items-center justify-center shrink-0 mt-0.5"
                        :class="deliveryMethod === 'errander' ? 'border-brand-600' : 'border-slate-300'">
                     <div v-if="deliveryMethod === 'errander'" class="w-2.5 h-2.5 bg-brand-600 rounded-full"></div>
                   </div>

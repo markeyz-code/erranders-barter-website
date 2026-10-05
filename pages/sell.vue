@@ -146,7 +146,7 @@
                   </label>
                   
                   <div class="flex gap-4 flex-wrap">
-                    <div v-for="(media, idx) in form.images" :key="idx" class="relative w-24 h-24 rounded-xl overflow-hidden border-2 border-slate-200 group bg-slate-900 flex items-center justify-center">
+                    <div v-for="(media, idx) in form.images" :key="idx" class="relative w-24 h-24 rounded-xl overflow-hidden border border-slate-200 group bg-slate-900 flex items-center justify-center">
                       <img v-if="!media.isVideo" :src="media.url" class="w-full h-full object-cover" />
                       <video v-else :src="media.url" class="w-full h-full object-cover" autoplay loop muted playsinline></video>
                       <button type="button" @click="form.images.splice(idx, 1)" class="absolute inset-0 bg-black/50 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
@@ -155,7 +155,7 @@
                     </div>
 
                     <!-- Upload Files Button -->
-                    <label class="w-24 h-24 rounded-xl border-2 border-dashed border-slate-300 bg-slate-50 flex flex-col items-center justify-center cursor-pointer hover:border-brand-500 hover:bg-brand-50 transition-colors">
+                    <label class="w-24 h-24 rounded-xl border border-dashed border-slate-300 bg-slate-50 flex flex-col items-center justify-center cursor-pointer hover:border-brand-500 hover:bg-brand-50 transition-colors">
                       <ImagePlus class="w-6 h-6 text-slate-400 mb-1" />
                       <span class="text-[10px] font-bold text-slate-500 uppercase tracking-widest text-center leading-tight" v-if="!uploading">Upload<br>Files</span>
                       <span class="text-[10px] font-bold text-brand-500 uppercase tracking-widest animate-pulse" v-else>Wait...</span>
@@ -163,7 +163,7 @@
                     </label>
 
                     <!-- Record Video Button -->
-                    <button type="button" @click="openCamera" class="w-24 h-24 rounded-xl border-2 border-dashed border-slate-300 bg-slate-50 flex flex-col items-center justify-center cursor-pointer hover:border-brand-500 hover:bg-brand-50 transition-colors">
+                    <button type="button" @click="openCamera" class="w-24 h-24 rounded-xl border border-dashed border-slate-300 bg-slate-50 flex flex-col items-center justify-center cursor-pointer hover:border-brand-500 hover:bg-brand-50 transition-colors">
                       <Video class="w-6 h-6 text-slate-400 mb-1" />
                       <span class="text-[10px] font-bold text-slate-500 uppercase tracking-widest text-center leading-tight">Record<br>Video</span>
                     </button>
