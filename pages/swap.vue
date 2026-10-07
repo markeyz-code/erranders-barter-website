@@ -31,32 +31,32 @@
             <!-- Basic Details -->
             <div class="space-y-4">
               <div class="relative group">
-                <label class="block text-xs font-black text-slate-400 mb-2 group-focus-within:text-brand-600 transition-colors">What do you have?</label>
+                <label class="block text-sm font-black text-slate-400 mb-2 group-focus-within:text-brand-600 transition-colors">What do you have?</label>
                 <input v-model="form.title" required type="text" placeholder="e.g. MacBook Air M1, 256GB" class="w-full bg-slate-50 border border-slate-200 rounded-2xl py-4 px-4 transition-all outline-none font-bold text-slate-900 focus:bg-white focus:border-brand-600 focus:" />
               </div>
 
               <div class="relative group">
-                <label class="block text-xs font-black text-slate-400 mb-2 group-focus-within:text-brand-600 transition-colors">What do you want in return?</label>
+                <label class="block text-sm font-black text-slate-400 mb-2 group-focus-within:text-brand-600 transition-colors">What do you want in return?</label>
                 <input v-model="form.swapPreference" required type="text" placeholder="e.g. Gaming PC, iPhone 13, or equivalent value" class="w-full bg-orange-50 border border-orange-200 rounded-2xl py-4 px-4 transition-all outline-none font-bold text-orange-900 focus:bg-white focus:border-orange-500 focus:placeholder:text-orange-300" />
-                <p class="text-xs font-medium text-slate-500 mt-2 ml-1">Be specific! The better you describe what you want, the faster you'll match.</p>
+                <p class="text-sm font-medium text-slate-500 mt-2 ml-1">Be specific! The better you describe what you want, the faster you'll match.</p>
               </div>
             </div>
 
             <!-- Description -->
             <div class="relative group">
-              <label class="block text-xs font-black text-slate-400 mb-2 group-focus-within:text-brand-600 transition-colors">Item Condition & Details</label>
+              <label class="block text-sm font-black text-slate-400 mb-2 group-focus-within:text-brand-600 transition-colors">Item Condition & Details</label>
               <textarea v-model="form.description" rows="4" placeholder="Describe any scratches, how long you've used it, and why you're swapping..." class="w-full bg-slate-50 border border-slate-200 rounded-2xl py-4 px-4 transition-all outline-none font-medium text-slate-700 focus:bg-white focus:border-brand-600 focus:resize-none"></textarea>
             </div>
 
             <!-- Location -->
             <div class="relative group">
-              <label class="block text-xs font-black text-slate-400 mb-2 group-focus-within:text-brand-600 transition-colors">Your Location</label>
+              <label class="block text-sm font-black text-slate-400 mb-2 group-focus-within:text-brand-600 transition-colors">Your Location</label>
               <input v-model="form.location" required type="text" placeholder="e.g. Moremi Hall, Room 102" class="w-full bg-slate-50 border border-slate-200 rounded-2xl py-4 px-4 transition-all outline-none font-bold text-slate-900 focus:bg-white focus:border-brand-600 focus:" />
             </div>
 
             <!-- Image Upload -->
             <div>
-              <label class="block text-xs font-black text-slate-400 mb-2">Upload Clear Photos</label>
+              <label class="block text-sm font-black text-slate-400 mb-2">Upload Clear Photos</label>
               <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-4">
                 <div v-for="(img, idx) in form.images" :key="idx" class="aspect-square rounded-2xl border border-slate-200 overflow-hidden relative group">
                   <img :src="img" class="w-full h-full object-cover" />
@@ -72,7 +72,7 @@
                     <Upload v-if="!uploading" class="w-5 h-5" />
                     <Loader2 v-else class="w-5 h-5 animate-spin" />
                   </div>
-                  <span class="text-xs font-bold text-slate-500 group-hover:text-brand-600">{{ uploading ? 'Uploading...' : 'Add Photos' }}</span>
+                  <span class="text-sm font-bold text-slate-500 group-hover:text-brand-600">{{ uploading ? 'Uploading...' : 'Add Photos' }}</span>
                   <input type="file" accept="image/*" multiple class="hidden" @change="uploadImage" :disabled="uploading" />
                 </label>
               </div>
@@ -125,7 +125,7 @@
             <div class="mt-8 p-4 bg-white rounded-2xl border border-brand-100 shadow-sm">
               <div class="flex items-start gap-3">
                 <ShieldCheck class="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" />
-                <p class="text-xs font-medium text-slate-600">Always meet in open, public places on campus (like faculty hubs or halls) when exchanging physical items.</p>
+                <p class="text-sm font-medium text-slate-600">Always meet in open, public places on campus (like faculty hubs or halls) when exchanging physical items.</p>
               </div>
             </div>
           </div>
@@ -141,7 +141,7 @@ import { ArrowLeft, ArrowRightLeft, Upload, X, Check, Loader2, Sparkles, ShieldC
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { uploadApi, itemsApi } from '~/composables/useApi'
-import { useAuth } from '~/composables/useAuth'
+
 
 const router = useRouter()
 const { user } = useAuth()

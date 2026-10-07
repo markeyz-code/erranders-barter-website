@@ -16,15 +16,15 @@
         <div v-for="tx in transactions" :key="tx._id" class="bg-white border border-slate-200 rounded-2xl p-4 sm:p-6 shadow-sm hover:shadow-md transition-shadow">
           <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-4">
             <div>
-              <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Transaction ID: {{ tx._id }}</p>
+              <p class="text-sm font-bold text-slate-400 uppercase tracking-wider mb-1">Transaction ID: {{ tx._id }}</p>
               <h3 class="font-bold text-slate-900 text-lg">Item ID: {{ tx.itemId }}</h3>
             </div>
             <div class="text-right">
-              <span class="font-black text-xl text-brand-600">₦{{ tx.amount }}</span>
+              <span class="font-black text-xl text-brand-600">₦{{ Number(tx.amount || 0).toLocaleString() }}</span>
               <div class="mt-1">
-                <span v-if="tx.status === 'held_in_escrow'" class="px-3 py-1 bg-yellow-100 text-yellow-700 font-bold rounded-full text-xs">Awaiting Delivery</span>
-                <span v-else-if="tx.status === 'released'" class="px-3 py-1 bg-green-100 text-green-700 font-bold rounded-full text-xs">Completed</span>
-                <span v-else-if="tx.status === 'disputed'" class="px-3 py-1 bg-red-100 text-red-700 font-bold rounded-full text-xs">Disputed</span>
+                <span v-if="tx.status === 'held_in_escrow'" class="px-3 py-1 bg-yellow-100 text-yellow-700 font-bold rounded-full text-sm">Awaiting Delivery</span>
+                <span v-else-if="tx.status === 'released'" class="px-3 py-1 bg-green-100 text-green-700 font-bold rounded-full text-sm">Completed</span>
+                <span v-else-if="tx.status === 'disputed'" class="px-3 py-1 bg-red-100 text-red-700 font-bold rounded-full text-sm">Disputed</span>
               </div>
             </div>
           </div>
@@ -47,7 +47,7 @@
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { escrowApi } from '~/composables/useApi'
-import { useAuth } from '~/composables/useAuth'
+
 
 const router = useRouter()
 const { isLoggedIn } = useAuth()

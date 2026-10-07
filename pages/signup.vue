@@ -17,7 +17,7 @@
 
         <div class="relative flex items-center justify-center mb-6">
           <div class="absolute inset-0 flex items-center"><div class="w-full border-t border-slate-100"></div></div>
-          <span class="relative bg-white px-4 text-xs font-black text-slate-300 uppercase tracking-widest">OR</span>
+          <span class="relative bg-white px-4 text-sm font-black text-slate-300 uppercase ">OR</span>
         </div>
 
         <form @submit.prevent="handleSignup" class="space-y-4">
@@ -25,7 +25,7 @@
           <CustomInput v-model="form.lastName" label="Last Name" placeholder="Doe" :required="true" />
 
           <div class="relative group mb-4">
-            <label class="block text-xs font-black text-slate-400 mb-2 group-focus-within:text-brand-600 transition-colors">WhatsApp Number</label>
+            <label class="block text-sm font-black text-slate-400 mb-2 group-focus-within:text-brand-600 transition-colors">WhatsApp Number</label>
             <input v-model="form.whatsappNumber" type="tel" placeholder="e.g. 08012345678" pattern="^0[789][01]\d{8}$" title="Valid 11-digit Nigerian WhatsApp number starting with 0" required class="w-full bg-slate-50 border border-slate-200 rounded-2xl py-4 px-4 transition-all outline-none font-bold text-slate-900 focus:bg-white focus:border-brand-600" />
           </div>
 
@@ -44,7 +44,7 @@
           />
           
           <div class="relative group mb-4">
-            <label class="block text-xs font-black text-slate-400 mb-2 group-focus-within:text-brand-600 transition-colors">Hostel/Residence</label>
+            <label class="block text-sm font-black text-slate-400 mb-2 group-focus-within:text-brand-600 transition-colors">Hostel/Residence</label>
             <input v-model="form.hostel" type="text" placeholder="e.g. Moremi Hall" required class="w-full bg-slate-50 border border-slate-200 rounded-2xl py-4 px-4 transition-all outline-none font-bold text-slate-900 focus:bg-white focus:border-brand-600" />
           </div>
 
@@ -81,12 +81,14 @@ import CustomInput from '~/components/CustomInput.vue'
 import CustomFormSelect from '~/components/CustomFormSelect.vue'
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { useAuth } from '~/composables/useAuth'
+
+import { useToast } from '~/composables/useToast'
 
 definePageMeta({ layout: false })
 
 const router = useRouter()
-const { saveSession } = useAuth()
+const { saveSession, firebaseLogin } = useAuth()
+const { showToast } = useToast()
 const loading = ref(false)
 const error = ref('')
 
@@ -122,8 +124,18 @@ const uniOptions = [
 ]
 
 const config = useRuntimeConfig()
-const googleLogin = () => {
-  window.location.href = `${config.public.apiBaseUrl}/auth/google`
+const googleLogin = async () => {
+  try {
+    loading.value = true
+    await firebaseLogin(true)
+    showToast('Account Created!', 'Successfully signed up with Google!', 'success')
+    router.push('/explore')
+  } catch (err) {
+    error.value = err.message
+    showToast('Signup Failed', err.message, 'error')
+  } finally {
+    loading.value = false
+  }
 }
 
 const handleSignup = async () => {
@@ -142,9 +154,11 @@ const handleSignup = async () => {
     saveSession(data)
     
     // Success, route to explore
+    showToast('Account Created!', `Welcome to Barter, ${data.user?.firstName || 'User'}!`, 'success')
     router.push('/explore')
   } catch (err) {
     error.value = err.message
+    showToast('Signup Failed', err.message, 'error')
   } finally {
     loading.value = false
   }

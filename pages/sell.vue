@@ -72,7 +72,7 @@
               <form v-else @submit.prevent="submitListing" class="space-y-6">
                 <!-- Title -->
                 <div>
-                  <label class="block text-xs font-bold text-slate-700 mb-2">Item Title</label>
+                  <label class="block text-sm font-bold text-slate-700 mb-2">Item Title</label>
                   <input v-model="form.title" required type="text" placeholder="e.g. Mini Fridge, barely used" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 outline-none focus:border-brand-500 transition-colors font-medium text-slate-900" />
                 </div>
                 
@@ -80,7 +80,7 @@
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 relative z-20">
                   <!-- Custom Category Dropdown -->
                   <div class="relative">
-                    <label class="block text-xs font-bold text-slate-700 mb-2">Category</label>
+                    <label class="block text-sm font-bold text-slate-700 mb-2">Category</label>
                     <div @click="catOpen = !catOpen; condOpen = false" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 cursor-pointer flex justify-between items-center transition-colors hover:border-brand-500">
                       <span class="font-medium text-slate-900">{{ form.category || 'Select Category...' }}</span>
                       <ChevronDown class="w-4 h-4 text-slate-400" />
@@ -95,7 +95,7 @@
                   
                   <!-- Condition Dropdown -->
                   <div class="relative">
-                    <label class="block text-xs font-bold text-slate-700 mb-2">Condition</label>
+                    <label class="block text-sm font-bold text-slate-700 mb-2">Condition</label>
                     <div @click="condOpen = !condOpen; catOpen = false" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 cursor-pointer flex justify-between items-center transition-colors hover:border-brand-500">
                       <span class="font-medium text-slate-900">{{ form.condition || 'Select Condition...' }}</span>
                       <ChevronDown class="w-4 h-4 text-slate-400" />
@@ -109,21 +109,21 @@
                 </div>
 
                 <div v-if="form.category === 'Other'" class="mt-4">
-                  <label class="block text-xs font-bold text-slate-700 mb-2">Custom Category</label>
+                  <label class="block text-sm font-bold text-slate-700 mb-2">Custom Category</label>
                   <input v-model="form.customCategory" required type="text" placeholder="e.g. Vintage Collectibles" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 outline-none focus:border-brand-500 transition-colors font-medium text-slate-900" />
                 </div>
 
                 <!-- Price & Location -->
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 relative z-10">
                   <div>
-                    <label class="block text-xs font-bold text-slate-700 mb-2">Price (₦)</label>
+                    <label class="block text-sm font-bold text-slate-700 mb-2">Price (₦)</label>
                     <div class="relative">
                       <span class="absolute left-4 top-1/2 -translate-y-1/2 font-bold text-slate-500">₦</span>
                       <input v-model.number="form.price" type="number" placeholder="Leave blank to swap" class="w-full bg-slate-50 border border-slate-200 rounded-xl pl-9 pr-4 py-3 outline-none focus:border-brand-500 transition-colors font-medium text-slate-900" />
                     </div>
                   </div>
                   <div>
-                    <label class="block text-xs font-bold text-slate-700 mb-2">Location</label>
+                    <label class="block text-sm font-bold text-slate-700 mb-2">Location</label>
                     <div class="relative">
                       <span class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">
                         <MapPin class="w-4 h-4" />
@@ -135,13 +135,13 @@
 
                 <!-- Description -->
                 <div>
-                  <label class="block text-xs font-bold text-slate-700 mb-2">Description</label>
+                  <label class="block text-sm font-bold text-slate-700 mb-2">Description</label>
                   <textarea v-model="form.description" rows="4" placeholder="Describe the item, any flaws, why you're selling..." class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 outline-none focus:border-brand-500 transition-colors font-medium text-slate-900 resize-none"></textarea>
                 </div>
                 
                 <!-- Images & Video -->
                 <div>
-                  <label class="block text-xs font-bold text-slate-700 mb-2 flex justify-between">
+                  <label class="block text-sm font-bold text-slate-700 mb-2 flex justify-between">
                     <span>Media (Photos/Videos)</span>
                   </label>
                   
@@ -157,15 +157,15 @@
                     <!-- Upload Files Button -->
                     <label class="w-24 h-24 rounded-xl border border-dashed border-slate-300 bg-slate-50 flex flex-col items-center justify-center cursor-pointer hover:border-brand-500 hover:bg-brand-50 transition-colors">
                       <ImagePlus class="w-6 h-6 text-slate-400 mb-1" />
-                      <span class="text-[10px] font-bold text-slate-500 uppercase tracking-widest text-center leading-tight" v-if="!uploading">Upload<br>Files</span>
-                      <span class="text-[10px] font-bold text-brand-500 uppercase tracking-widest animate-pulse" v-else>Wait...</span>
+                      <span class="text-[10px] font-bold text-slate-500 uppercase  text-center leading-tight" v-if="!uploading">Upload<br>Files</span>
+                      <span class="text-[10px] font-bold text-brand-500 uppercase  animate-pulse" v-else>Wait...</span>
                       <input type="file" accept="image/*,video/*" multiple @change="uploadMultiple" class="hidden" :disabled="uploading" />
                     </label>
 
                     <!-- Record Video Button -->
                     <button type="button" @click="openCamera" class="w-24 h-24 rounded-xl border border-dashed border-slate-300 bg-slate-50 flex flex-col items-center justify-center cursor-pointer hover:border-brand-500 hover:bg-brand-50 transition-colors">
                       <Video class="w-6 h-6 text-slate-400 mb-1" />
-                      <span class="text-[10px] font-bold text-slate-500 uppercase tracking-widest text-center leading-tight">Record<br>Video</span>
+                      <span class="text-[10px] font-bold text-slate-500 uppercase  text-center leading-tight">Record<br>Video</span>
                     </button>
                   </div>
                 </div>
@@ -178,7 +178,7 @@
                   <span v-if="loading">Securing Listing...</span>
                   <span v-else>Post Item Securely</span>
                 </button>
-                <p class="text-xs text-center text-slate-500 font-medium mt-4">By posting, you agree to our <NuxtLink to="/terms" class="text-brand-600 hover:underline">Terms of Service</NuxtLink></p>
+                <p class="text-sm text-center text-slate-500 font-medium mt-4">By posting, you agree to our <NuxtLink to="/terms" class="text-brand-600 hover:underline">Terms of Service</NuxtLink></p>
               </form>
             </div>
             
@@ -231,7 +231,7 @@ import { ref, onMounted, onBeforeUnmount } from 'vue'
 import { useRouter } from 'vue-router'
 import { ArrowLeft, ShieldCheck, Truck, Repeat, Check, MapPin, ImagePlus, Video, X, Loader2, ChevronDown, SwitchCamera } from 'lucide-vue-next'
 import { uploadApi, itemsApi, categoriesApi } from '~/composables/useApi'
-import { useAuth } from '~/composables/useAuth'
+
 import AuthModal from '~/components/AuthModal.vue'
 
 const router = useRouter()

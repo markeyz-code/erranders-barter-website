@@ -1,5 +1,5 @@
 <template>
-  <div v-if="isOpen" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
+  <div v-if="isOpen" class="fixed inset-0 z-[999999] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
     <div class="bg-white w-full max-w-md rounded-3xl shadow-2xl relative" @click.stop>
       <button @click="$emit('close')" class="absolute top-4 right-4 text-slate-400 hover:text-slate-900 bg-slate-100 hover:bg-slate-200 p-2 rounded-full transition-colors z-10">
         <X class="w-5 h-5" />
@@ -14,16 +14,16 @@
         <form @submit.prevent="handleSubmit" class="space-y-4">
           <div v-if="!isLogin" class="space-y-4">
             <div>
-              <label class="block text-xs font-bold text-slate-700 mb-1">First Name</label>
+              <label class="block text-sm font-bold text-slate-700 mb-1">First Name</label>
               <input v-model="form.firstName" type="text" :required="!isLogin" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 outline-none focus:border-brand-500 font-medium transition-colors" />
             </div>
             <div>
-              <label class="block text-xs font-bold text-slate-700 mb-1">Last Name</label>
+              <label class="block text-sm font-bold text-slate-700 mb-1">Last Name</label>
               <input v-model="form.lastName" type="text" :required="!isLogin" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 outline-none focus:border-brand-500 font-medium transition-colors" />
             </div>
             
             <div>
-              <label class="block text-xs font-bold text-slate-700 mb-1">WhatsApp Number</label>
+              <label class="block text-sm font-bold text-slate-700 mb-1">WhatsApp Number</label>
               <input v-model="form.whatsappNumber" type="tel" :required="!isLogin" placeholder="e.g. 08012345678" pattern="^0[789][01]\d{8}$" title="Please enter a valid 11-digit Nigerian WhatsApp number starting with 0" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 outline-none focus:border-brand-500 font-medium transition-colors" />
             </div>
 
@@ -46,18 +46,18 @@
             </div>
 
             <div>
-              <label class="block text-xs font-bold text-slate-700 mb-1">Hostel/Residence</label>
+              <label class="block text-sm font-bold text-slate-700 mb-1">Hostel/Residence</label>
               <input v-model="form.hostel" type="text" :required="!isLogin" placeholder="e.g. Moremi Hall" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 outline-none focus:border-brand-500 font-medium transition-colors" />
             </div>
           </div>
 
           <div>
-            <label class="block text-xs font-bold text-slate-700 mb-1">Email</label>
+            <label class="block text-sm font-bold text-slate-700 mb-1">Email</label>
             <input v-model="form.email" type="email" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 outline-none focus:border-brand-500 font-medium transition-colors" />
           </div>
 
           <div>
-            <label class="block text-xs font-bold text-slate-700 mb-1">Password</label>
+            <label class="block text-sm font-bold text-slate-700 mb-1">Password</label>
             <div class="relative">
               <input v-model="form.password" :type="showPassword ? 'text' : 'password'" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 outline-none focus:border-brand-500 font-medium transition-colors pr-12" />
               <button type="button" @click="showPassword = !showPassword" class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 focus:outline-none">
@@ -77,12 +77,13 @@
         <div class="mt-8">
           <div class="relative flex items-center justify-center">
             <div class="border-t border-slate-200 w-full absolute"></div>
-            <span class="bg-white px-4 text-xs font-bold text-slate-400 uppercase tracking-widest relative z-10">Or continue with</span>
+            <span class="bg-white px-4 text-sm font-bold text-slate-400 uppercase  relative z-10">Or continue with</span>
           </div>
           
           <div class="flex gap-4 mt-6">
-            <button @click="socialAuth('Google')" class="w-full border border-slate-200 py-3 rounded-xl flex items-center justify-center gap-2 hover:bg-slate-50 font-bold text-slate-700 transition-colors">
-              <Chrome class="w-5 h-5 text-red-500" /> Google
+            <button @click="socialAuth('Google')" class="w-full border border-slate-200 py-3.5 rounded-xl flex items-center justify-center gap-3 hover:bg-slate-50 font-bold text-slate-700 transition-colors shadow-sm">
+              <img src="https://www.google.com/favicon.ico" alt="Google" class="w-5 h-5" />
+              Continue with Google
             </button>
           </div>
         </div>
@@ -100,11 +101,12 @@
 </template>
 
 <script setup>
-import { X, Chrome, Eye, EyeOff } from 'lucide-vue-next'
+import { X, Eye, EyeOff } from 'lucide-vue-next'
 import CustomFormSelect from '~/components/CustomFormSelect.vue'
 import { ref } from 'vue'
 import { authApi } from '~/composables/useApi'
-import { useAuth } from '~/composables/useAuth'
+
+import { useToast } from '~/composables/useToast'
 
 const props = defineProps({
   isOpen: Boolean
@@ -112,7 +114,8 @@ const props = defineProps({
 
 const emit = defineEmits(['close', 'success'])
 
-const { saveSession } = useAuth()
+const { showToast } = useToast()
+const { saveSession, firebaseLogin } = useAuth()
 const isLogin = ref(true)
 const loading = ref(false)
 const error = ref('')
@@ -170,18 +173,32 @@ const handleSubmit = async () => {
     }
 
     saveSession(res.data)
+    showToast('Success!', `Welcome back, ${res.data.user?.firstName || 'User'}!`, 'success')
     emit('success')
   } catch (err) {
-    error.value = err.response?.data?.message || 'Authentication failed.'
+    const errMsg = err.response?.data?.message || 'Authentication failed.'
+    error.value = errMsg
+    showToast('Login Failed', errMsg, 'error')
   } finally {
     loading.value = false
   }
 }
 
 const config = useRuntimeConfig()
-const socialAuth = (provider) => {
+const socialAuth = async (provider) => {
   if (provider === 'Google') {
-    window.location.href = `${config.public.apiBaseUrl}/auth/google`
+    try {
+      loading.value = true
+      await firebaseLogin(!isLogin.value)
+      showToast('Success!', 'Successfully authenticated with Google!', 'success')
+      emit('success')
+      emit('close')
+    } catch (err) {
+      error.value = err.message
+      showToast('Authentication Failed', err.message, 'error')
+    } finally {
+      loading.value = false
+    }
   } else {
     alert(`${provider} authentication is coming soon!`)
   }

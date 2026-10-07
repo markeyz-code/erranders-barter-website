@@ -14,7 +14,7 @@
           </p>
           <div class="flex items-center bg-slate-50 rounded-lg p-1 border border-slate-200">
             <input type="email" placeholder="Enter email for updates..." class="bg-transparent border-none outline-none text-slate-900 text-sm px-4 py-2 w-full" />
-            <button class="bg-brand-600 hover:bg-brand-500 text-white font-bold text-xs px-4 py-2 rounded-md transition-colors">
+            <button class="bg-brand-600 hover:bg-brand-500 text-white font-bold text-sm px-4 py-2 rounded-md transition-colors">
               Subscribe
             </button>
           </div>
@@ -23,7 +23,7 @@
         <!-- Tight Grid Links -->
         <div class="flex-1 w-full grid grid-cols-1 sm:grid-cols-3 gap-8 lg:justify-end lg:gap-16">
           <div>
-            <h4 class="font-black text-slate-900 mb-4 uppercase tracking-wider text-xs flex items-center gap-2">
+            <h4 class="font-black text-slate-900 mb-4 uppercase tracking-wider text-sm flex items-center gap-2">
               <ShoppingBag class="w-4 h-4 text-brand-500" /> Market
             </h4>
             <ul class="space-y-2 text-sm font-medium">
@@ -33,7 +33,7 @@
             </ul>
           </div>
           <div>
-            <h4 class="font-black text-slate-900 mb-4 uppercase tracking-wider text-xs flex items-center gap-2">
+            <h4 class="font-black text-slate-900 mb-4 uppercase tracking-wider text-sm flex items-center gap-2">
               <ShieldCheck class="w-4 h-4 text-green-500" /> Trust
             </h4>
             <ul class="space-y-2 text-sm font-medium">
@@ -43,7 +43,7 @@
             </ul>
           </div>
           <div>
-            <h4 class="font-black text-slate-900 mb-4 uppercase tracking-wider text-xs flex items-center gap-2">
+            <h4 class="font-black text-slate-900 mb-4 uppercase tracking-wider text-sm flex items-center gap-2">
               <LifeBuoy class="w-4 h-4 text-blue-500" /> Help
             </h4>
             <ul class="space-y-2 text-sm font-medium">
@@ -55,7 +55,7 @@
       </div>
 
       <!-- Bottom Bar -->
-      <div class="flex flex-col sm:flex-row items-center justify-between pt-6 border-t border-slate-200 text-xs font-bold tracking-widest uppercase text-slate-500">
+      <div class="flex flex-col sm:flex-row items-center justify-between pt-6 border-t border-slate-200 text-sm font-bold  uppercase text-slate-500">
         <p>© 2026 Erranders Inc.</p>
         <div class="flex gap-4 mt-4 sm:mt-0">
           <a href="#" class="hover:text-brand-600 transition-colors">Twitter</a>

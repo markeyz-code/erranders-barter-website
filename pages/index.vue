@@ -49,7 +49,7 @@
                 <button @click="generateSuggestions" class="bg-indigo-600 text-white px-4 py-2 rounded-xl text-sm font-bold shadow-sm hover:bg-indigo-700">Suggest</button>
               </div>
               <div v-if="aiSuggestions.length > 0" class="mt-4 flex flex-wrap gap-2">
-                <span v-for="sug in aiSuggestions" :key="sug" @click="searchQuery = sug" class="px-3 py-1 bg-white text-indigo-700 text-xs font-bold rounded-full border border-indigo-200 cursor-pointer hover:bg-indigo-100 shadow-sm">
+                <span v-for="sug in aiSuggestions" :key="sug" @click="searchQuery = sug" class="px-3 py-1 bg-white text-indigo-700 text-sm font-bold rounded-full border border-indigo-200 cursor-pointer hover:bg-indigo-100 shadow-sm">
                   + {{ sug }}
                 </span>
               </div>
@@ -57,15 +57,15 @@
 
             <!-- Filters -->
             <div class="flex flex-wrap gap-2 mb-6 pb-6 border-b border-slate-100">
-              <span class="text-xs font-black text-slate-400 uppercase tracking-widest flex items-center mr-2">Budget:</span>
-              <button @click="budget = 10000" :class="budget === 10000 ? 'bg-brand-600 text-white border-brand-600' : 'bg-white text-slate-600 border-slate-200 hover:border-brand-600'" class="px-4 py-1.5 rounded-full text-xs font-bold border transition-colors">Under ₦10k</button>
-              <button @click="budget = 50000" :class="budget === 50000 ? 'bg-brand-600 text-white border-brand-600' : 'bg-white text-slate-600 border-slate-200 hover:border-brand-600'" class="px-4 py-1.5 rounded-full text-xs font-bold border transition-colors">Under ₦50k</button>
-              <button @click="budget = null" class="px-4 py-1.5 bg-slate-100 text-slate-600 rounded-full text-xs font-bold border border-transparent hover:bg-slate-200 transition-colors">Any Price</button>
+              <span class="text-sm font-black text-slate-400 uppercase  flex items-center mr-2">Budget:</span>
+              <button @click="budget = 10000" :class="budget === 10000 ? 'bg-brand-600 text-white border-brand-600' : 'bg-white text-slate-600 border-slate-200 hover:border-brand-600'" class="px-4 py-1.5 rounded-full text-sm font-bold border transition-colors">Under ₦10k</button>
+              <button @click="budget = 50000" :class="budget === 50000 ? 'bg-brand-600 text-white border-brand-600' : 'bg-white text-slate-600 border-slate-200 hover:border-brand-600'" class="px-4 py-1.5 rounded-full text-sm font-bold border transition-colors">Under ₦50k</button>
+              <button @click="budget = null" class="px-4 py-1.5 bg-slate-100 text-slate-600 rounded-full text-sm font-bold border border-transparent hover:bg-slate-200 transition-colors">Any Price</button>
             </div>
 
             <!-- Results List -->
             <div>
-              <h4 class="text-xs font-black text-slate-400 uppercase tracking-widest mb-4">Matching Items & Services</h4>
+              <h4 class="text-sm font-black text-slate-400 uppercase  mb-4">Matching Items & Services</h4>
               <div v-if="filteredResults.length === 0" class="py-8 text-center text-slate-500 font-medium text-sm">
                 No items or services found under ₦{{ budget ? budget.toLocaleString() : 'Any' }} matching "{{ searchQuery }}".
               </div>
@@ -81,7 +81,7 @@
                       <span :class="item.category === 'Service' ? 'bg-purple-100 text-purple-700 border-purple-200' : 'bg-slate-100 text-slate-600 border-slate-200'" class="px-2 py-0.5 rounded-md text-[10px] font-black uppercase tracking-wider border">
                         {{ item.category }}
                       </span>
-                      <span class="text-xs text-slate-500 truncate">{{ item.loc }}</span>
+                      <span class="text-sm text-slate-500 truncate">{{ item.loc }}</span>
                     </div>
                   </div>
                 </NuxtLink>
@@ -126,7 +126,7 @@
             </div>
           </div>
           <div>
-            <span class="text-xs font-black text-brand-600 uppercase tracking-widest mb-4 block">The Problem</span>
+            <span class="text-sm font-black text-brand-600 uppercase  mb-4 block">The Problem</span>
             <h2 class="text-3xl md:text-4xl font-black text-slate-900 mb-6 leading-tight">Every session, students throw away perfectly good stuff.</h2>
             <p class="text-lg text-slate-600 font-medium leading-relaxed mb-6">
               End of semester? Everybody is rushing out of the hostel. Fans, fridges, textbooks, extension boxes — all abandoned. Meanwhile, freshers resuming next session will buy these same things brand new at full price.
@@ -153,7 +153,7 @@
     <!-- SECTION: How Barter Works -->
     <section class="py-24 px-4 sm:px-4 sm:px-6 lg:px-4 sm:px-8 bg-slate-50">
       <div class="max-w-6xl mx-auto text-center">
-        <span class="text-xs font-black text-brand-600 uppercase tracking-widest mb-4 block">How It Works</span>
+        <span class="text-sm font-black text-brand-600 uppercase  mb-4 block">How It Works</span>
         <h2 class="text-3xl md:text-4xl font-black text-slate-900 mb-4">Three steps. Zero wahala.</h2>
         <p class="text-lg text-slate-500 font-medium max-w-xl mx-auto mb-16">No long talk. List it, sell it, get paid. Simple.</p>
         
@@ -193,7 +193,7 @@
       <div class="max-w-6xl mx-auto">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-12 lg:gap-20 items-center">
           <div class="order-2 md:order-1">
-            <span class="text-xs font-black text-green-600 uppercase tracking-widest mb-4 block">Built on Trust</span>
+            <span class="text-sm font-black text-green-600 uppercase  mb-4 block">Built on Trust</span>
             <h2 class="text-3xl md:text-4xl font-black text-slate-900 mb-6 leading-tight">Your money is safe. Always.</h2>
             <p class="text-lg text-slate-600 font-medium leading-relaxed mb-8">
               Every single transaction on Barter is protected by Erranders Escrow. The buyer's money is held securely until they confirm they received exactly what was listed. No "I don pay, abeg send am" stories.
@@ -234,7 +234,7 @@
     <section class="py-24 px-4 sm:px-4 sm:px-6 lg:px-4 sm:px-8 bg-slate-50">
       <div class="max-w-6xl mx-auto">
         <div class="text-center mb-16">
-          <span class="text-xs font-black text-purple-600 uppercase tracking-widest mb-4 block">Not Just Items</span>
+          <span class="text-sm font-black text-purple-600 uppercase  mb-4 block">Not Just Items</span>
           <h2 class="text-3xl md:text-4xl font-black text-slate-900 mb-4">Got skills? Sell them too.</h2>
           <p class="text-lg text-slate-500 font-medium max-w-xl mx-auto">Barter isn't just for physical items. Students can offer services like braiding, repairs, tutoring, and more.</p>
         </div>
@@ -287,7 +287,7 @@
     <!-- SECTION: Testimonials -->
     <section class="py-24 px-4 sm:px-4 sm:px-6 lg:px-4 sm:px-8 bg-white">
       <div class="max-w-6xl mx-auto text-center">
-        <span class="text-xs font-black text-brand-600 uppercase tracking-widest mb-4 block">Students Love It</span>
+        <span class="text-sm font-black text-brand-600 uppercase  mb-4 block">Students Love It</span>
         <h2 class="text-3xl md:text-4xl font-black text-slate-900 mb-16">Don't take our word for it.</h2>
         
         <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -295,21 +295,21 @@
             <p class="text-slate-700 font-medium leading-relaxed mb-6">"I was about to throw my fan away during hostel clearance. Listed it on Barter, sold it in 2 hours. ₦8k straight to my account. Mad o!"</p>
             <div class="flex items-center gap-3">
               <div class="w-12 h-12 bg-brand-100 rounded-full flex items-center justify-center font-black text-brand-700 border border-brand-200">CF</div>
-              <div><p class="font-black text-slate-900">Chioma F.</p><p class="text-xs text-slate-500">300L, Biochemistry</p></div>
+              <div><p class="font-black text-slate-900">Chioma F.</p><p class="text-sm text-slate-500">300L, Biochemistry</p></div>
             </div>
           </div>
           <div class="bg-slate-50 rounded-[2rem] p-4 sm:p-8 text-left border border-slate-200">
             <p class="text-slate-700 font-medium leading-relaxed mb-6">"I needed a fridge badly when I resumed. Found one on Barter for ₦15k instead of buying new for ₦50k. The escrow thing gave me confidence."</p>
             <div class="flex items-center gap-3">
               <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center font-black text-blue-700 border border-blue-200">DA</div>
-              <div><p class="font-black text-slate-900">Damilare A.</p><p class="text-xs text-slate-500">100L, Medicine</p></div>
+              <div><p class="font-black text-slate-900">Damilare A.</p><p class="text-sm text-slate-500">100L, Medicine</p></div>
             </div>
           </div>
           <div class="bg-slate-50 rounded-[2rem] p-4 sm:p-8 text-left border border-slate-200">
             <p class="text-slate-700 font-medium leading-relaxed mb-6">"I do hair braiding on campus. Barter helped me get steady customers. The in-app chat is so smooth, I don't even need WhatsApp again."</p>
             <div class="flex items-center gap-3">
               <div class="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center font-black text-purple-700 border border-purple-200">AO</div>
-              <div><p class="font-black text-slate-900">Amara O.</p><p class="text-xs text-slate-500">200L, Mass Comm</p></div>
+              <div><p class="font-black text-slate-900">Amara O.</p><p class="text-sm text-slate-500">200L, Mass Comm</p></div>
             </div>
           </div>
         </div>

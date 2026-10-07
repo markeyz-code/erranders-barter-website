@@ -13,7 +13,7 @@
         @input="$emit('update:modelValue', $event.target.value)"
         :placeholder="placeholder"
         :required="required"
-        class="w-full bg-slate-50 border border-slate-200 rounded-2xl py-4 transition-all outline-none font-bold text-slate-900 focus:bg-white focus:border-brand-600"
+        class="w-full bg-gray-25 border border-slate-200 rounded-xl py-3 transition-all outline-none font-bold text-slate-900 focus:bg-white focus:border-brand-600"
         :class="[
           $slots.icon ? 'pl-12' : 'pl-4',
           type === 'password' ? 'pr-12' : 'pr-4'

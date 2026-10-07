@@ -89,7 +89,6 @@
 import { LayoutDashboard, ArrowRightLeft, Wallet, Settings, LogOut, HeartCrack, Menu, X } from 'lucide-vue-next'
 import { ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { useAuth } from '~/composables/useAuth'
 
 const route = useRoute()
 const router = useRouter()

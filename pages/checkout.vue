@@ -28,7 +28,7 @@
               <div>
                 <h3 class="font-bold text-slate-900 text-lg leading-tight mb-1">{{ item.title }}</h3>
                 <p class="text-sm font-medium text-brand-600 mb-2">₦{{ item.price.toLocaleString() }}</p>
-                <div class="inline-flex items-center gap-1.5 px-2.5 py-1 bg-slate-100 rounded-md text-xs font-bold text-slate-600">
+                <div class="inline-flex items-center gap-1.5 px-2.5 py-1 bg-slate-100 rounded-md text-sm font-bold text-slate-600">
                   <User class="w-3.5 h-3.5" /> Seller: {{ item.sellerId?.firstName || 'Student' }}
                 </div>
               </div>
@@ -61,7 +61,7 @@
             </div>
             <div>
               <h4 class="font-bold text-green-900 mb-1">Secure Escrow Payment</h4>
-              <p class="text-xs text-green-800 font-medium leading-relaxed">
+              <p class="text-sm text-green-800 font-medium leading-relaxed">
                 Your money is held securely in Barter Escrow. The seller does not get paid until you receive the item and confirm you are satisfied.
               </p>
             </div>
@@ -74,7 +74,7 @@
             <h2 class="text-2xl font-black text-slate-900 mb-6">Delivery Details</h2>
             
             <div class="space-y-4 mb-8">
-              <label class="block text-xs font-bold text-slate-700 ">How do you want this?</label>
+              <label class="block text-sm font-bold text-slate-700 ">How do you want this?</label>
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 
                 <!-- Self Pickup -->
@@ -89,8 +89,8 @@
                   </div>
                   <div>
                     <h4 class="font-bold text-slate-900">Self Pickup</h4>
-                    <p class="text-xs text-slate-500 mt-1 font-medium leading-relaxed">Meet with the seller on campus to inspect and collect.</p>
-                    <span class="inline-block mt-3 px-2 py-1 bg-slate-200 text-slate-700 text-[10px] font-bold rounded uppercase tracking-widest">Free</span>
+                    <p class="text-sm text-slate-500 mt-1 font-medium leading-relaxed">Meet with the seller on campus to inspect and collect.</p>
+                    <span class="inline-block mt-3 px-2 py-1 bg-slate-200 text-slate-700 text-[10px] font-bold rounded uppercase ">Free</span>
                   </div>
                 </div>
                 
@@ -106,8 +106,8 @@
                   </div>
                   <div>
                     <h4 class="font-bold text-slate-900">Errander Delivery</h4>
-                    <p class="text-xs text-slate-500 mt-1 font-medium leading-relaxed">Get it delivered directly to your hostel by an Errander.</p>
-                    <span class="inline-block mt-3 px-2 py-1 bg-brand-100 text-brand-700 text-[10px] font-bold rounded uppercase tracking-widest">Negotiable</span>
+                    <p class="text-sm text-slate-500 mt-1 font-medium leading-relaxed">Get it delivered directly to your hostel by an Errander.</p>
+                    <span class="inline-block mt-3 px-2 py-1 bg-brand-100 text-brand-700 text-[10px] font-bold rounded uppercase ">Negotiable</span>
                   </div>
                 </div>
               </div>
@@ -115,7 +115,7 @@
             
             <div v-if="deliveryMethod === 'errander'" class="mb-8 p-4 sm:p-6 bg-slate-50 border border-slate-200 rounded-2xl space-y-6 animate-in fade-in slide-in-from-top-4 duration-300">
               <div>
-                <label class="block text-xs font-bold text-slate-700 mb-2">Delivery Address (Hostel/Room)</label>
+                <label class="block text-sm font-bold text-slate-700 mb-2">Delivery Address (Hostel/Room)</label>
                 <div class="relative">
                   <MapPin class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
                   <input v-model="deliveryAddress" type="text" placeholder="e.g. Zik Hall, Room C34" class="w-full bg-white border border-slate-200 rounded-xl pl-11 pr-4 py-3.5 outline-none focus:border-brand-500 transition-colors font-medium text-slate-900" />
@@ -123,11 +123,11 @@
               </div>
               
               <div>
-                <label class="block text-xs font-bold text-slate-700 mb-1 flex justify-between">
+                <label class="block text-sm font-bold text-slate-700 mb-1 flex justify-between">
                   <span>Your Errander Fee Offer</span>
                   <span class="text-brand-600 font-black">Base: ₦{{ baseErranderFee.toLocaleString() }}</span>
                 </label>
-                <p class="text-xs text-slate-500 mb-3 font-medium">Offer a fair amount to get a faster response from erranders.</p>
+                <p class="text-sm text-slate-500 mb-3 font-medium">Offer a fair amount to get a faster response from erranders.</p>
                 <div class="relative">
                   <span class="absolute left-4 top-1/2 -translate-y-1/2 font-black text-slate-400 text-lg">₦</span>
                   <input v-model.number="customErranderFee" type="number" :min="baseErranderFee" class="w-full bg-white border border-slate-200 rounded-xl pl-9 pr-4 py-3.5 outline-none focus:border-brand-500 transition-colors font-black text-slate-900 text-lg" />
@@ -148,8 +148,6 @@
         
       </div>
     </div>
-    
-    <AuthModal :isOpen="isAuthModalOpen" @close="isAuthModalOpen = false" @success="handleAuthSuccess" />
   </div>
 </template>
 
@@ -157,13 +155,12 @@
 import { ref, onMounted, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { itemsApi, escrowApi, settingsApi } from '~/composables/useApi'
-import { useAuth } from '~/composables/useAuth'
-import AuthModal from '~/components/AuthModal.vue'
+
 import { ArrowLeft, ShoppingBag, User, ShieldCheck, MapPin, Lock, Loader2 } from 'lucide-vue-next'
 
 const route = useRoute()
 const router = useRouter()
-const { isLoggedIn } = useAuth()
+const { isLoggedIn, isGlobalAuthModalOpen } = useAuth()
 const item = ref(null)
 
 useSeoMeta({
@@ -173,7 +170,6 @@ useSeoMeta({
 const loading = ref(true)
 const initiating = ref(false)
 const error = ref('')
-const isAuthModalOpen = ref(false)
 
 const deliveryMethod = ref('pickup')
 const deliveryAddress = ref('')
@@ -210,14 +206,9 @@ const fetchItem = async () => {
 
 const handleCheckoutAction = () => {
   if (!isLoggedIn.value) {
-    isAuthModalOpen.value = true
+    isGlobalAuthModalOpen.value = true
     return
   }
-  initiateEscrow()
-}
-
-const handleAuthSuccess = () => {
-  isAuthModalOpen.value = false
   initiateEscrow()
 }
 

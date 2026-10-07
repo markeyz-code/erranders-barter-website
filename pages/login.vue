@@ -23,7 +23,7 @@
 
         <div class="relative flex items-center justify-center mb-6">
           <div class="absolute inset-0 flex items-center"><div class="w-full border-t border-slate-100"></div></div>
-          <span class="relative bg-white px-4 text-xs font-black text-slate-300 uppercase tracking-widest">OR</span>
+          <span class="relative bg-white px-4 text-sm font-black text-slate-300 uppercase ">OR</span>
         </div>
 
         <form @submit.prevent="handleLogin" class="space-y-5">
@@ -33,7 +33,7 @@
             <NuxtLink to="/forgot-password" class="text-sm font-bold text-brand-600 hover:underline">Forgot Password?</NuxtLink>
           </div>
           
-          <button type="submit" :disabled="loading || !form.email || !form.password" class="w-full bg-brand-600 text-white font-bold py-4 rounded-xl hover:bg-brand-700 transition-colors mt-4 disabled:opacity-50 disabled:cursor-not-allowed">
+          <button type="submit" :disabled="loading || !form.email || !form.password" class="w-full bg-brand-600 text-white font-bold py-3 rounded-xl hover:bg-brand-700 transition-colors mt-4 disabled:opacity-50 disabled:cursor-not-allowed">
             {{ loading ? 'Logging in...' : 'Log In' }}
           </button>
         </form>
@@ -61,21 +61,32 @@
 <script setup>
 import { ArrowRightLeft } from 'lucide-vue-next'
 import CustomInput from '~/components/CustomInput.vue'
-import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuth } from '~/composables/useAuth'
+import { useToast } from '~/composables/useToast'
 
 definePageMeta({ layout: false })
 
 const router = useRouter()
-const { saveSession } = useAuth()
+const { saveSession, firebaseLogin } = useAuth()
+const { showToast } = useToast()
 const loading = ref(false)
 const error = ref('')
 const form = ref({ email: '', password: '' })
 
 const config = useRuntimeConfig()
-const googleLogin = () => {
-  window.location.href = `${config.public.apiBaseUrl}/auth/google`
+const googleLogin = async () => {
+  try {
+    loading.value = true
+    await firebaseLogin(false)
+    showToast('Success!', 'Successfully authenticated with Google!', 'success')
+    router.push('/explore')
+  } catch (err) {
+    error.value = err.message
+    showToast('Login Failed', err.message, 'error')
+  } finally {
+    loading.value = false
+  }
 }
 
 const handleLogin = async () => {
@@ -94,9 +105,11 @@ const handleLogin = async () => {
     saveSession(data)
     
     // Success, route to explore
+    showToast('Success!', `Welcome back, ${data.user?.firstName || 'User'}!`, 'success')
     router.push('/explore')
   } catch (err) {
     error.value = err.message
+    showToast('Login Failed', err.message, 'error')
   } finally {
     loading.value = false
   }

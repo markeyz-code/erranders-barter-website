@@ -5,7 +5,7 @@
       <!-- Header -->
       <div class="flex flex-col md:flex-row items-start md:items-end justify-between gap-6 mb-10">
         <div class="flex items-center gap-6">
-          <div class="w-24 h-24 bg-brand-600 rounded-3xl flex items-center justify-center text-white text-3xl font-black shadow-lg shadow-brand-200 shrink-0">
+          <div class="w-16 h-16 bg-brand-600 rounded-3xl flex items-center justify-center text-white text-2xl font-black shadow-lg shadow-brand-200 shrink-0">
             {{ initials }}
           </div>
           <div>
@@ -27,15 +27,15 @@
           <div class="w-12 h-12 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center mb-4">
             <Package class="w-6 h-6" />
           </div>
-          <p class="text-slate-500 font-bold text-xs uppercase tracking-widest mb-1">Active Listings</p>
+          <p class="text-slate-500 font-bold text-sm  mb-1">Active Listings</p>
           <p class="text-3xl font-black text-slate-900">{{ stats?.activeListings || 0 }}</p>
         </div>
         
         <div class="bg-white p-4 sm:p-6 rounded-3xl border border-slate-100 shadow-sm">
           <div class="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-2xl flex items-center justify-center mb-4">
-            <CheckCircle2 class="w-6 h-6" />
+            <CheckCircle class="w-6 h-6" />
           </div>
-          <p class="text-slate-500 font-bold text-xs uppercase tracking-widest mb-1">Completed Trades</p>
+          <p class="text-slate-500 font-bold text-sm  mb-1">Completed Trades</p>
           <p class="text-3xl font-black text-slate-900">{{ stats?.completedTrades || 0 }}</p>
         </div>
         
@@ -43,7 +43,7 @@
           <div class="w-12 h-12 bg-purple-50 text-purple-600 rounded-2xl flex items-center justify-center mb-4">
             <Wallet class="w-6 h-6" />
           </div>
-          <p class="text-slate-500 font-bold text-xs uppercase tracking-widest mb-1">Escrow Balance</p>
+          <p class="text-slate-500 font-bold text-sm  mb-1">Escrow Balance</p>
           <p class="text-3xl font-black text-slate-900">₦{{ (stats?.escrowBalance || 0).toLocaleString() }}</p>
         </div>
         
@@ -51,7 +51,7 @@
           <div class="w-12 h-12 bg-orange-50 text-orange-600 rounded-2xl flex items-center justify-center mb-4">
             <Star class="w-6 h-6" />
           </div>
-          <p class="text-slate-500 font-bold text-xs uppercase tracking-widest mb-1">Seller Rating</p>
+          <p class="text-slate-500 font-bold text-sm  mb-1">Seller Rating</p>
           <p class="text-3xl font-black text-slate-900">{{ stats?.sellerRating || '0.0' }}<span class="text-lg text-slate-400">/5</span></p>
         </div>
       </div>
@@ -65,7 +65,7 @@
               <Plus class="w-6 h-6 text-brand-600" />
             </div>
             <h3 class="font-bold text-slate-900 mb-1">List New Item</h3>
-            <p class="text-xs text-slate-500 font-medium">Sell or swap something fast.</p>
+            <p class="text-sm text-slate-500 font-medium">Sell or swap something fast.</p>
           </NuxtLink>
           
           <NuxtLink to="/dashboard/wallet" class="p-4 sm:p-6 bg-slate-50 rounded-2xl border border-slate-100 hover:border-brand-500 hover:bg-white transition-all group flex flex-col items-center text-center">
@@ -73,7 +73,7 @@
               <ArrowDownToLine class="w-6 h-6 text-emerald-600" />
             </div>
             <h3 class="font-bold text-slate-900 mb-1">Withdraw Funds</h3>
-            <p class="text-xs text-slate-500 font-medium">Move escrow balance to bank.</p>
+            <p class="text-sm text-slate-500 font-medium">Move escrow balance to bank.</p>
           </NuxtLink>
           
           <NuxtLink to="/explore" class="p-4 sm:p-6 bg-slate-50 rounded-2xl border border-slate-100 hover:border-brand-500 hover:bg-white transition-all group flex flex-col items-center text-center">
@@ -81,7 +81,7 @@
               <Search class="w-6 h-6 text-blue-600" />
             </div>
             <h3 class="font-bold text-slate-900 mb-1">Explore Deals</h3>
-            <p class="text-xs text-slate-500 font-medium">Find the best student trades.</p>
+            <p class="text-sm text-slate-500 font-medium">Find the best student trades.</p>
           </NuxtLink>
         </div>
       </div>
@@ -91,9 +91,8 @@
 </template>
 
 <script setup>
-import { MapPin, Package, CheckCircle2, Wallet, Star, Plus, ArrowDownToLine, Search } from 'lucide-vue-next'
+import { MapPin, Package, CheckCircle, Wallet, Star, Plus, ArrowDownToLine, Search } from 'lucide-vue-next'
 import { ref, computed, onMounted } from 'vue'
-import { useAuth } from '~/composables/useAuth'
 
 definePageMeta({ layout: 'dashboard' })
 

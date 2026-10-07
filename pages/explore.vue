@@ -26,6 +26,11 @@
         </div>
         <div class="flex flex-wrap gap-3 w-full sm:w-auto relative z-20">
           <CustomSelect
+            v-model="selectedType"
+            :options="typeOptions"
+            placeholder="All Types"
+          />
+          <CustomSelect
             v-model="selectedCategory"
             :options="categoryOptions"
             placeholder="All Categories"
@@ -74,7 +79,7 @@ import { MapPin, Search } from 'lucide-vue-next'
 import CustomSelect from '~/components/CustomSelect.vue'
 import { useRoute, useRouter } from 'vue-router'
 import { computed, ref, onMounted, watch } from 'vue'
-import { itemsApi } from '~/composables/useApi'
+import { itemsApi, categoriesApi } from '~/composables/useApi'
 
 const route = useRoute()
 const router = useRouter()
@@ -95,17 +100,20 @@ useSeoMeta({
   ogDescription: 'Discover amazing deals from students around you on the Erranders network.',
 })
 
+const selectedType = ref('')
 const selectedCategory = ref('')
 const selectedSort = ref('newest')
 
-const categoryOptions = [
-  { value: '', label: 'All Categories' },
-  { value: 'electronics', label: 'Electronics' },
-  { value: 'books', label: 'Books' },
-  { value: 'appliances', label: 'Appliances' },
-  { value: 'fashion', label: 'Fashion' },
-  { value: 'services', label: 'Services' },
+const typeOptions = [
+  { value: '', label: 'All Types' },
+  { value: 'sell', label: 'Buy/Sell' },
+  { value: 'swap', label: 'Swap' },
+  { value: 'service', label: 'Services' },
 ]
+
+const categoryOptions = ref([
+  { value: '', label: 'All Categories' }
+])
 
 const sortOptions = [
   { value: 'newest', label: 'Newest First' },
@@ -122,6 +130,7 @@ const fetchItems = async () => {
   try {
     const params = {}
     if (searchQuery.value) params.q = searchQuery.value
+    if (selectedType.value) params.type = selectedType.value
     if (selectedCategory.value) params.category = selectedCategory.value
     if (selectedSort.value && selectedSort.value !== 'newest') params.sort = selectedSort.value
 
@@ -138,11 +147,22 @@ const fetchItems = async () => {
   }
 }
 
-watch([searchQuery, selectedCategory, selectedSort], () => {
+watch([searchQuery, selectedType, selectedCategory, selectedSort], () => {
   fetchItems()
 })
 
-onMounted(() => {
+onMounted(async () => {
+  try {
+    const { data } = await categoriesApi.fetch()
+    if (data) {
+      categoryOptions.value = [
+        { value: '', label: 'All Categories' },
+        ...data.map(c => ({ value: c.name, label: c.name }))
+      ]
+    }
+  } catch (err) {
+    console.error('Failed to load categories', err)
+  }
   fetchItems()
 })
 

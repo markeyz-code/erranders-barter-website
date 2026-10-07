@@ -71,7 +71,7 @@
 <script setup>
 import { ref } from 'vue'
 import { ArrowRightLeft, User, Menu, X } from 'lucide-vue-next'
-import { useAuth } from '~/composables/useAuth'
+
 
 const { user } = useAuth()
 const isMobileMenuOpen = ref(false)

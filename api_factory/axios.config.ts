@@ -2,8 +2,8 @@ import axios, { type AxiosResponse } from "axios";
 import { useCustomToast } from '@/composables/core/useCustomToast'
 
 const isDev = import.meta.env.DEV;
-const envApiUrl = import.meta.env.VITE_API_BASE_URL;
-const rawBaseUrl = envApiUrl || (isDev ? "http://localhost:3005" : "https://api.erranders.org");
+const envApiUrl = import.meta.env.VITE_API_BASE_URL || import.meta.env.NUXT_PUBLIC_API_BASE_URL;
+const rawBaseUrl = envApiUrl || (isDev ? "http://localhost:3100" : "https://api.erranders.org");
 const cleanBaseUrl = rawBaseUrl.replace(/\/api\/v1\/?$/, '').replace(/\/$/, '');
 
 const $GATEWAY_ENDPOINT = `${cleanBaseUrl}/api/v1`;
@@ -75,7 +75,7 @@ instanceArray.forEach((instance) => {
       if (err.response.status === 401) {
         if (typeof window !== 'undefined') {
           localStorage.removeItem('barter_token');
-          window.location.href = '/login';
+          window.dispatchEvent(new Event('open-auth-modal'));
         }
         useCustomToast().showToast({
           title: "Session Expired",

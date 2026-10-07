@@ -1,7 +1,7 @@
 <template>
-  <main class="min-h-screen bg-slate-50 pb-16">
-    <div class="max-w-3xl mx-auto px-4 sm:px-4 sm:px-6 lg:px-4 sm:px-8">
-      <div class="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden flex flex-col h-[75vh]">
+  <main class="h-[calc(100vh-80px)] bg-white flex flex-col overflow-hidden">
+    <div class="flex flex-col h-full w-full">
+      <div class="bg-white overflow-hidden flex flex-col h-full w-full">
         
         <!-- Header -->
         <div class="p-4 border-b border-slate-100 flex items-center justify-between bg-white shadow-sm z-10 relative">
@@ -14,7 +14,7 @@
             </div>
             <div>
               <h2 class="font-bold text-slate-900 leading-tight">Secure Chat</h2>
-              <p class="text-xs text-green-500 font-bold flex items-center gap-1">
+              <p class="text-sm text-green-500 font-bold flex items-center gap-1">
                 <span class="w-2 h-2 rounded-full bg-green-500 block animate-pulse"></span> Online
               </p>
             </div>
@@ -33,7 +33,7 @@
             </div>
 
             <!-- Tagged Reply Context -->
-            <div v-if="msg.replyTo" class="mb-1 p-2 bg-black/5 border-l-4 border-brand-500 rounded text-xs text-slate-500 truncate" :class="isMine(msg) ? 'text-right' : 'text-left'">
+            <div v-if="msg.replyTo" class="mb-1 p-2 bg-black/5 border-l-4 border-brand-500 rounded text-sm text-slate-500 truncate" :class="isMine(msg) ? 'text-right' : 'text-left'">
               Reply to: "{{ msg.replyTo.content || 'Attachment' }}"
             </div>
 
@@ -54,7 +54,7 @@
                 <div class="w-24 h-1 bg-black/20 rounded-full overflow-hidden">
                    <div class="w-0 h-full bg-black/40"></div>
                 </div>
-                <span class="text-xs font-bold">{{ msg.content || 'Voice Note' }}</span>
+                <span class="text-sm font-bold">{{ msg.content || 'Voice Note' }}</span>
               </div>
 
             </div>
@@ -66,7 +66,7 @@
         
         <!-- Active Reply Banner -->
         <div v-if="replyingTo" class="bg-slate-100 p-3 border-t border-slate-200 flex items-center justify-between">
-          <div class="text-xs text-slate-600 truncate border-l-4 border-brand-500 pl-2">
+          <div class="text-sm text-slate-600 truncate border-l-4 border-brand-500 pl-2">
             <span class="font-bold text-brand-600 block">Replying to</span>
             {{ replyingTo.content || 'Attachment' }}
           </div>
@@ -79,7 +79,7 @@
             <div class="w-10 h-10 bg-slate-200 rounded flex items-center justify-center">
               <Image class="w-5 h-5 text-slate-500" />
             </div>
-            <span class="text-xs font-bold text-slate-600">Image Attached</span>
+            <span class="text-sm font-bold text-slate-600">Image Attached</span>
           </div>
           <button @click="pendingAsset = null" class="text-slate-400 hover:text-slate-600"><X class="w-4 h-4"/></button>
         </div>
@@ -115,8 +115,12 @@
 import { ArrowLeft, Send, Paperclip, Mic, Image, X, Reply, Play } from 'lucide-vue-next'
 import { ref, onMounted, onUnmounted, nextTick } from 'vue'
 import { useRoute } from 'vue-router'
-import { useAuth } from '~/composables/useAuth'
+
 import { io } from 'socket.io-client'
+
+definePageMeta({
+  layout: false
+})
 
 const route = useRoute()
 const { user, token } = useAuth()
@@ -131,9 +135,44 @@ const isRecording = ref(false)
 let mediaRecorder = null
 let audioChunks = []
 
-const chatId = ref(route.query.chatId || 'test-chat-123') // Should come from API
+const chatId = ref(route.query.chatId || '')
+const sellerId = ref(route.query.sellerId || '')
+const itemId = ref(route.query.itemId || '')
 
 onMounted(async () => {
+  // If sellerId is provided, init the chat via backend API
+  if (sellerId.value && !chatId.value) {
+    try {
+      const res = await $fetch('/chats/init', {
+        baseURL: useRuntimeConfig().public.apiBaseUrl,
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token.value}` },
+        body: { participantId: sellerId.value, itemId: itemId.value }
+      })
+      chatId.value = res._id
+    } catch (err) {
+      console.error('Failed to init chat', err)
+      return
+    }
+  }
+
+  // Fallback for safety
+  if (!chatId.value) {
+    chatId.value = 'test-chat-123'
+  }
+
+  // Fetch previous messages
+  try {
+    const prevMessages = await $fetch(`/chats/${chatId.value}/messages`, {
+      baseURL: useRuntimeConfig().public.apiBaseUrl,
+      headers: { Authorization: `Bearer ${token.value}` }
+    })
+    messages.value = prevMessages || []
+    scrollToBottom()
+  } catch (err) {
+    console.error('Failed to fetch messages', err)
+  }
+
   // Connect WebSocket
   socket.value = io(useRuntimeConfig().public.apiBaseUrl.replace('/api/v1', ''), {
     auth: { token: `Bearer ${token.value}` }

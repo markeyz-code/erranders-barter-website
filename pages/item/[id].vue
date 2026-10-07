@@ -6,7 +6,7 @@
       <button class="absolute top-6 right-6 text-white bg-white/10 hover:bg-white/20 p-2 rounded-full backdrop-blur-md transition-colors z-[101]">
         <X class="w-6 h-6" />
       </button>
-      <div class="absolute bottom-6 left-1/2 -translate-x-1/2 text-white/50 text-sm font-bold tracking-widest uppercase pointer-events-none">
+      <div class="absolute bottom-6 left-1/2 -translate-x-1/2 text-white/50 text-sm font-bold  uppercase pointer-events-none">
         Move mouse to inspect details
       </div>
       
@@ -51,10 +51,10 @@
             <video v-if="activeMedia?.type === 'video'" :src="activeMedia.src" controls autoplay muted loop class="w-full h-full object-cover"></video>
 
             <!-- Overlays -->
-            <div class="absolute top-4 left-4 bg-white/90 backdrop-blur px-4 py-1.5 rounded-full text-xs uppercase tracking-widest font-black border border-slate-200 shadow-sm z-10">
+            <div class="absolute top-4 left-4 bg-white/90 backdrop-blur px-4 py-1.5 rounded-full text-sm uppercase  font-black border border-slate-200 shadow-sm z-10">
               {{ item.type === 'sell' ? 'For Sale' : item.type === 'swap' ? 'For Swap' : 'Service' }}
             </div>
-            <div v-if="activeMedia?.type === 'image'" class="absolute bottom-4 right-4 bg-black/50 backdrop-blur px-3 py-1.5 rounded-full text-white text-xs font-bold flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity z-10">
+            <div v-if="activeMedia?.type === 'image'" class="absolute bottom-4 right-4 bg-black/50 backdrop-blur px-3 py-1.5 rounded-full text-white text-sm font-bold flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity z-10">
               <Maximize class="w-4 h-4" /> Click for 4D Zoom
             </div>
           </div>
@@ -122,20 +122,40 @@
               </div>
             </div>
             <div class="text-right">
-              <p class="text-xs font-bold text-slate-400 uppercase tracking-widest">Hostel</p>
+              <p class="text-sm font-bold text-slate-400 uppercase ">Hostel</p>
               <p class="font-bold text-slate-900">{{ item.sellerId.hostel || 'N/A' }}</p>
             </div>
           </div>
           
           <div class="flex flex-col sm:flex-row gap-4 mt-auto">
-            <button @click="startChat" class="flex-1 bg-white border border-slate-200 text-slate-700 font-black py-4 rounded-2xl flex items-center justify-center gap-2 hover:bg-slate-50 transition-colors">
-              <MessageCircle class="w-5 h-5" /> Chat Seller
-            </button>
-            <NuxtLink :to="'/checkout?itemId=' + item._id" class="flex-1 bg-brand-600 text-white font-black py-4 rounded-2xl flex items-center justify-center gap-2 shadow-sm hover:bg-brand-700 transition-colors">
-              <ShoppingCart class="w-5 h-5" /> Buy via Escrow
-            </NuxtLink>
+            <!-- Sell Type (Buy Flow) -->
+            <template v-if="item.type === 'sell'">
+              <button @click="startChat" class="flex-1 bg-white border border-slate-200 text-slate-700 font-black py-4 rounded-2xl flex items-center justify-center gap-2 hover:bg-slate-50 transition-colors">
+                <MessageCircle class="w-5 h-5" /> Chat Seller
+              </button>
+              <NuxtLink :to="'/checkout?itemId=' + item._id" class="flex-1 bg-brand-600 text-white font-black py-4 rounded-2xl flex items-center justify-center gap-2 shadow-sm hover:bg-brand-700 transition-colors">
+                <ShoppingCart class="w-5 h-5" /> Buy via Escrow
+              </NuxtLink>
+            </template>
+
+            <!-- Swap Type -->
+            <template v-else-if="item.type === 'swap'">
+              <button @click="startChat" class="flex-1 bg-brand-600 text-white font-black py-4 rounded-2xl flex items-center justify-center gap-2 shadow-sm hover:bg-brand-700 transition-colors">
+                <Repeat class="w-5 h-5" /> Propose Swap
+              </button>
+            </template>
+
+            <!-- Service Type -->
+            <template v-else-if="item.type === 'service'">
+              <button @click="startChat" class="flex-1 bg-white border border-slate-200 text-slate-700 font-black py-4 rounded-2xl flex items-center justify-center gap-2 hover:bg-slate-50 transition-colors">
+                <MessageCircle class="w-5 h-5" /> Message Provider
+              </button>
+              <NuxtLink :to="'/checkout?itemId=' + item._id" class="flex-1 bg-brand-600 text-white font-black py-4 rounded-2xl flex items-center justify-center gap-2 shadow-sm hover:bg-brand-700 transition-colors">
+                <Briefcase class="w-5 h-5" /> Book via Escrow
+              </NuxtLink>
+            </template>
           </div>
-          <p class="text-center mt-4 text-xs font-bold text-slate-400 flex items-center justify-center gap-1">
+          <p v-if="item.type !== 'swap'" class="text-center mt-4 text-sm font-bold text-slate-400 flex items-center justify-center gap-1">
             <Lock class="w-3 h-3" /> Payments secured by Erranders Escrow
           </p>
           
@@ -148,11 +168,11 @@
   </main>
 </template>
 <script setup>
-import { ArrowLeft, MapPin, ShieldCheck, MessageCircle, ShoppingCart, Lock, Maximize, X, PlayCircle } from 'lucide-vue-next'
+import { ArrowLeft, MapPin, ShieldCheck, MessageCircle, ShoppingCart, Lock, Maximize, X, PlayCircle, Repeat, Briefcase } from 'lucide-vue-next'
 import { ref, onMounted, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { itemsApi } from '~/composables/useApi'
-import { useAuth } from '~/composables/useAuth'
+
 import AuthModal from '~/components/AuthModal.vue'
 
 const route = useRoute()
@@ -188,7 +208,7 @@ const startChat = () => {
     isAuthModalOpen.value = true
     return
   }
-  router.push('/chat?sellerId=' + item.value?.sellerId?._id)
+  router.push('/chat?sellerId=' + item.value?.sellerId?._id + '&itemId=' + item.value?._id)
 }
 
 const handleAuthSuccess = () => {

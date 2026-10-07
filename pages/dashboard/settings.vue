@@ -12,29 +12,29 @@
           
           <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <label class="block text-xs font-black text-slate-400 mb-2">First Name</label>
+              <label class="block text-sm font-black text-slate-400 mb-2">First Name</label>
               <input v-model="form.firstName" required class="w-full bg-slate-50 border border-slate-200 rounded-2xl py-4 px-4 font-bold text-slate-900 focus:bg-white focus:border-brand-600 outline-none transition-colors" />
             </div>
             <div>
-              <label class="block text-xs font-black text-slate-400 mb-2">Last Name</label>
+              <label class="block text-sm font-black text-slate-400 mb-2">Last Name</label>
               <input v-model="form.lastName" required class="w-full bg-slate-50 border border-slate-200 rounded-2xl py-4 px-4 font-bold text-slate-900 focus:bg-white focus:border-brand-600 outline-none transition-colors" />
             </div>
           </div>
 
           <div>
-            <label class="block text-xs font-black text-slate-400 mb-2">Email Address</label>
+            <label class="block text-sm font-black text-slate-400 mb-2">Email Address</label>
             <input :value="user?.email" disabled class="w-full bg-slate-100 border border-slate-200 rounded-2xl py-4 px-4 font-bold text-slate-500 cursor-not-allowed" />
-            <p class="text-xs text-slate-400 mt-2 font-medium">Email address cannot be changed.</p>
+            <p class="text-sm text-slate-400 mt-2 font-medium">Email address cannot be changed.</p>
           </div>
 
           <div>
-            <label class="block text-xs font-black text-slate-400 mb-2">WhatsApp Number</label>
+            <label class="block text-sm font-black text-slate-400 mb-2">WhatsApp Number</label>
             <input v-model="form.whatsappNumber" type="tel" pattern="^0[789][01]\d{8}$" title="Valid 11-digit Nigerian WhatsApp number" class="w-full bg-slate-50 border border-slate-200 rounded-2xl py-4 px-4 font-bold text-slate-900 focus:bg-white focus:border-brand-600 outline-none transition-colors" />
           </div>
           
           <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <label class="block text-xs font-black text-slate-400 mb-2">University</label>
+              <label class="block text-sm font-black text-slate-400 mb-2">University</label>
               <select v-model="form.university" class="w-full bg-slate-50 border border-slate-200 rounded-2xl py-4 px-4 font-bold text-slate-900 focus:bg-white focus:border-brand-600 outline-none transition-colors appearance-none">
                 <option value="UNILAG">UNILAG</option>
                 <option value="CMUL">CMUL</option>
@@ -46,7 +46,7 @@
               </select>
             </div>
             <div>
-              <label class="block text-xs font-black text-slate-400 mb-2">Hostel / Residence</label>
+              <label class="block text-sm font-black text-slate-400 mb-2">Hostel / Residence</label>
               <input v-model="form.hostel" class="w-full bg-slate-50 border border-slate-200 rounded-2xl py-4 px-4 font-bold text-slate-900 focus:bg-white focus:border-brand-600 outline-none transition-colors" />
             </div>
           </div>
@@ -72,15 +72,15 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
-import { useAuth } from '~/composables/useAuth'
+
+import { useToast } from '~/composables/useToast'
 
 definePageMeta({ layout: 'dashboard' })
 
 const { user, token, saveSession } = useAuth()
+const { showToast } = useToast()
 
 const loading = ref(false)
-const successMsg = ref('')
-const errorMsg = ref('')
 
 const form = ref({
   firstName: '',
@@ -90,7 +90,7 @@ const form = ref({
   hostel: ''
 })
 
-onMounted(() => {
+onMounted(async () => {
   if (user.value) {
     form.value = {
       firstName: user.value.firstName || '',
@@ -99,6 +99,24 @@ onMounted(() => {
       university: user.value.university || 'UNILAG',
       hostel: user.value.hostel || ''
     }
+  }
+
+  try {
+    const res = await fetch(`${useRuntimeConfig().public.apiBaseUrl}/users/me`, {
+      headers: { 'Authorization': `Bearer ${token.value}` }
+    })
+    const data = await res.json()
+    if (res.ok && data) {
+      form.value = {
+        firstName: data.firstName || form.value.firstName,
+        lastName: data.lastName || form.value.lastName,
+        whatsappNumber: data.whatsappNumber || form.value.whatsappNumber,
+        university: data.university || form.value.university,
+        hostel: data.hostel || form.value.hostel
+      }
+    }
+  } catch (err) {
+    console.error('Failed to fetch user settings:', err)
   }
 })
 
@@ -122,11 +140,9 @@ const updateProfile = async () => {
     
     // Update local user state
     saveSession({ access_token: token.value, user: data })
-    successMsg.value = 'Profile updated successfully!'
-    
-    setTimeout(() => successMsg.value = '', 3000)
+    showToast('Profile Updated', 'Your profile details have been saved successfully.', 'success')
   } catch (err) {
-    errorMsg.value = err.message
+    showToast('Update Failed', err.message, 'error')
   } finally {
     loading.value = false
   }
