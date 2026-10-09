@@ -14,10 +14,10 @@
         <div class="lg:col-span-2 space-y-8">
           <div>
             <h1 class="text-4xl sm:text-5xl font-black text-slate-900 tracking-tight leading-tight mb-4">
-              List an Item
+              {{ form.type === 'service' ? 'Offer a Service' : 'List an Item' }}
             </h1>
             <p class="text-lg text-slate-600 font-medium leading-relaxed">
-              Join thousands of students trading safely on campus. Sell for cash or swap for something you need.
+              {{ form.type === 'service' ? 'Offer your skills to students on campus. Get paid for tutoring, repairs, styling, and more.' : 'Join thousands of students trading safely on campus. Sell for cash or swap for something you need.' }}
             </p>
           </div>
           
@@ -64,7 +64,7 @@
                   <Check class="w-6 h-6 text-green-600" />
                 </div>
                 <div>
-                  <h3 class="font-bold text-lg mb-1">Item Listed Successfully!</h3>
+                  <h3 class="font-bold text-lg mb-1">{{ form.type === 'service' ? 'Service Posted Successfully!' : 'Item Listed Successfully!' }}</h3>
                   <p class="text-sm font-medium">Taking you to the marketplace...</p>
                 </div>
               </div>
@@ -105,15 +105,15 @@
                       <ChevronDown class="w-4 h-4 text-slate-400" />
                     </div>
                     <div v-if="catOpen" class="absolute left-0 right-0 mt-2 bg-white border border-slate-200 rounded-xl shadow-xl max-h-60 overflow-y-auto z-30">
-                      <div v-for="c in categories" :key="c.name" @click="form.category = c.name; catOpen = false" class="px-4 py-3 hover:bg-slate-50 cursor-pointer text-slate-700 font-medium border-b last:border-b-0 border-slate-100 flex items-center gap-3">
-                        <span>{{ c.name }}</span>
+                      <div v-for="c in filteredCategories" :key="c.name || c" @click="form.category = c.name || c; catOpen = false" class="px-4 py-3 hover:bg-slate-50 cursor-pointer text-slate-700 font-medium border-b last:border-b-0 border-slate-100 flex items-center gap-3">
+                        <span>{{ c.name || c }}</span>
                       </div>
                       <div @click="form.category = 'Other'; catOpen = false" class="px-4 py-3 hover:bg-slate-50 cursor-pointer text-slate-700 font-medium">Other</div>
                     </div>
                   </div>
                   
-                  <!-- Condition Dropdown -->
-                  <div class="relative">
+                  <!-- Condition Dropdown (Hidden for Services) -->
+                  <div v-if="form.type !== 'service'" class="relative">
                     <label class="block text-sm font-bold text-slate-700 mb-2">Condition</label>
                     <div @click="condOpen = !condOpen; catOpen = false" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 cursor-pointer flex justify-between items-center transition-colors hover:border-brand-500">
                       <span class="font-medium text-slate-900">{{ form.condition || 'Select Condition...' }}</span>
@@ -155,7 +155,7 @@
                 <!-- Description -->
                 <div>
                   <label class="block text-sm font-bold text-slate-700 mb-2">Description</label>
-                  <textarea v-model="form.description" rows="4" placeholder="Describe the item, any flaws, why you're selling..." class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 outline-none focus:border-brand-500 transition-colors font-medium text-slate-900 resize-none"></textarea>
+                  <textarea v-model="form.description" rows="4" :placeholder="form.type === 'service' ? 'Describe your service, what is included, your experience, and availability...' : 'Describe the item, any flaws, why you\'re selling...'" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 outline-none focus:border-brand-500 transition-colors font-medium text-slate-900 resize-none"></textarea>
                 </div>
                 
                 <!-- Images & Video -->
@@ -200,9 +200,9 @@
                   </div>
                   <div>
                     <h4 class="font-bold text-amber-900 flex items-center gap-2">
-                      Promote Listing <span class="bg-amber-200 text-amber-800 text-xs px-2 py-0.5 rounded-full">Optional</span>
+                      Promote {{ form.type === 'service' ? 'Service' : 'Listing' }} <span class="bg-amber-200 text-amber-800 text-xs px-2 py-0.5 rounded-full">Optional</span>
                     </h4>
-                    <p class="text-sm text-amber-800 font-medium mt-1">Keep your item at the top of the Explore page for faster sales. Fee: ₦{{ promotedFee }}</p>
+                    <p class="text-sm text-amber-800 font-medium mt-1">Keep your {{ form.type === 'service' ? 'service' : 'item' }} at the top of the Explore page for faster sales. Fee: ₦{{ promotedFee }}</p>
                   </div>
                 </div>
 
@@ -210,7 +210,7 @@
                 <button type="submit" :disabled="loading || uploading || !form.title || !form.location" class="w-full py-4 rounded-xl text-white font-bold bg-brand-600 hover:bg-brand-700 disabled:opacity-50 disabled:bg-slate-400 transition-all shadow-lg shadow-brand-500/25 flex items-center justify-center text-lg">
                   <Loader2 v-if="loading" class="w-6 h-6 animate-spin mr-2" />
                   <span v-if="loading">Processing...</span>
-                  <span v-else>Post Item Securely {{ form.promote ? `(Pay ₦${promotedFee})` : '' }}</span>
+                  <span v-else>Post {{ form.type === 'service' ? 'Service' : 'Item' }} Securely {{ form.promote ? `(Pay ₦${promotedFee})` : '' }}</span>
                 </button>
                 <p class="text-sm text-center text-slate-500 font-medium mt-4">By posting, you agree to our <NuxtLink to="/terms" class="text-brand-600 hover:underline">Terms of Service</NuxtLink></p>
               </form>
@@ -262,7 +262,7 @@
 
 <script setup>
 import { useCustomToast } from '@/composables/core/useCustomToast';
-import { ref, onMounted, onBeforeUnmount } from 'vue'
+import { ref, onMounted, onBeforeUnmount, computed, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { ArrowLeft, ShieldCheck, Truck, Repeat, Check, MapPin, ImagePlus, Video, X, Loader2, ChevronDown, SwitchCamera } from 'lucide-vue-next'
 import { upload_api, itemsApi, categoriesApi, settingsApi } from '~/composables/useApi'
@@ -297,6 +297,18 @@ const handleAuthSuccess = () => {
 }
 
 const categories = ref([])
+const serviceCategories = ['Hair Styling & Braiding', 'Laundry & Cleaning', 'Gadget Repairs', 'Tutoring', 'Graphic Design', 'Photography', 'Moving & Logistics']
+const filteredCategories = computed(() => {
+  if (form.value.type === 'service') {
+    return serviceCategories
+  }
+  return categories.value
+})
+
+watch(() => form.value.type, () => {
+  form.value.category = ''
+})
+
 const catOpen = ref(false)
 const condOpen = ref(false)
 const conditions = ['Brand New', 'Like New', 'Good', 'Fair']
