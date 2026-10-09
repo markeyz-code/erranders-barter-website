@@ -25,12 +25,12 @@
               ₦{{ (stats?.escrowBalance || 0).toLocaleString() }}
             </h2>
             <div class="flex gap-4">
-              <button class="bg-white text-brand-600 font-bold py-3 px-8 rounded-xl hover:bg-brand-50 transition-colors shadow-sm">
+              <button @click="handleWithdraw" class="bg-white text-brand-600 font-bold py-3 px-8 rounded-xl hover:bg-brand-50 transition-colors shadow-sm">
                 Withdraw
               </button>
-              <button class="bg-brand-700 text-white font-bold py-3 px-8 rounded-xl hover:bg-brand-800 transition-colors border border-brand-500">
+              <NuxtLink to="/escrow" class="inline-block bg-brand-700 text-white font-bold py-3 px-8 rounded-xl hover:bg-brand-800 transition-colors border border-brand-500">
                 History
-              </button>
+              </NuxtLink>
             </div>
           </div>
           <!-- Decorative Background -->
@@ -63,21 +63,94 @@
       </div>
 
     </div>
+
+    <!-- Withdraw Modal -->
+    <div v-if="isWithdrawModalOpen" class="fixed inset-0 z-[100] flex items-center justify-center p-4">
+      <div class="absolute inset-0 bg-slate-900/40 backdrop-blur-sm" @click="isWithdrawModalOpen = false"></div>
+      <div class="relative bg-white w-full max-w-md rounded-3xl p-6 sm:p-8 shadow-2xl flex flex-col items-center text-center">
+        <div class="w-16 h-16 bg-brand-50 text-brand-600 rounded-full flex items-center justify-center mb-6">
+          <ArrowDownToLine class="w-8 h-8" />
+        </div>
+        <h2 class="text-2xl font-black text-slate-900 mb-2">Withdraw Funds</h2>
+        <p class="text-slate-500 mb-6">Enter the amount you wish to withdraw to your bank account.</p>
+        
+        <div class="w-full text-left mb-6 relative">
+          <label class="block text-sm font-bold text-slate-700 mb-2">Amount (₦)</label>
+          <span class="absolute left-4 top-[38px] font-black text-slate-400">₦</span>
+          <input 
+            v-model="withdrawAmount" 
+            type="number" 
+            class="w-full pl-8 pr-4 py-3 border border-slate-200 rounded-xl font-bold text-slate-900 outline-none focus:border-brand-500" 
+            placeholder="0"
+          />
+          <p class="text-xs text-slate-400 mt-2 font-medium flex justify-between">
+            <span>Available: ₦{{ (stats?.walletBalance || 0).toLocaleString() }}</span>
+            <button @click="withdrawAmount = stats?.walletBalance || 0" class="text-brand-600 font-bold hover:underline">Max</button>
+          </p>
+        </div>
+        
+        <div class="w-full flex gap-3">
+          <button @click="isWithdrawModalOpen = false" class="flex-1 font-bold text-slate-500 py-3 rounded-xl hover:bg-slate-50 transition-colors">
+            Cancel
+          </button>
+          <button @click="submitWithdrawal" :disabled="isWithdrawing || !withdrawAmount || withdrawAmount <= 0 || withdrawAmount > (stats?.walletBalance || 0)" class="flex-1 bg-brand-600 text-white font-bold py-3 rounded-xl hover:bg-brand-700 transition-colors disabled:opacity-50">
+            {{ isWithdrawing ? 'Processing...' : 'Withdraw' }}
+          </button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
 <script setup>
-import { Wallet, ShieldCheck, Clock } from 'lucide-vue-next'
+import { Wallet, ShieldCheck, Clock, ArrowDownToLine } from 'lucide-vue-next'
 import { ref, onMounted } from 'vue'
-
+import { useToast } from '~/composables/useToast'
 
 definePageMeta({ layout: 'dashboard' })
 
 const { token } = useAuth()
 const stats = ref(null)
 const loading = ref(true)
+const { showToast } = useToast()
 
-onMounted(async () => {
+const isWithdrawModalOpen = ref(false)
+const withdrawAmount = ref('')
+const isWithdrawing = ref(false)
+
+const handleWithdraw = () => {
+  isWithdrawModalOpen.value = true
+}
+
+const submitWithdrawal = async () => {
+  if (withdrawAmount.value <= 0 || withdrawAmount.value > (stats.value?.walletBalance || 0)) return
+  
+  isWithdrawing.value = true
+  try {
+    const res = await fetch(`${useRuntimeConfig().public.apiBaseUrl}/users/me/withdraw`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token.value}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ amount: Number(withdrawAmount.value) })
+    })
+    
+    const data = await res.json()
+    if (!res.ok) throw new Error(data.message || 'Withdrawal failed')
+    
+    showToast('Success', `Successfully withdrew ₦${Number(withdrawAmount.value).toLocaleString()}`, 'success')
+    isWithdrawModalOpen.value = false
+    withdrawAmount.value = ''
+    await fetchStats() // Refresh stats
+  } catch (e) {
+    showToast('Error', e.message, 'error')
+  } finally {
+    isWithdrawing.value = false
+  }
+}
+
+const fetchStats = async () => {
   try {
     const res = await fetch(`${useRuntimeConfig().public.apiBaseUrl}/users/me/stats`, {
       headers: { 'Authorization': `Bearer ${token.value}` }
@@ -91,5 +164,9 @@ onMounted(async () => {
   } finally {
     loading.value = false
   }
+}
+
+onMounted(() => {
+  fetchStats()
 })
 </script>

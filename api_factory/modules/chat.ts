@@ -1,16 +1,5 @@
-import axios from 'axios'
+import { GATEWAY_ENDPOINT, GATEWAY_ENDPOINT_WITH_AUTH } from '../axios.config';
 
-const ERRANDERS_CORE = axios.create({ baseURL: 'https://api.erranders.org' })
-const ERRANDERS_CORE_WITH_AUTH = axios.create({ baseURL: 'https://api.erranders.org' })
-
-// Add interceptor to ERRANDERS_CORE_WITH_AUTH
-ERRANDERS_CORE_WITH_AUTH.interceptors.request.use((config) => {
-  const token = typeof window !== 'undefined' ? localStorage.getItem('barter_token') || localStorage.getItem('token') : null;
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
-  }
-  return config;
-});
 export const chat_api = {
   createRoom: (payload: {
     userId: string
@@ -23,7 +12,7 @@ export const chat_api = {
     guestInfo?: any
   }) => {
     const url = '/chat/rooms/create'
-    return ERRANDERS_CORE.post(url, payload)
+    return GATEWAY_ENDPOINT.post(url, payload)
   },
 
   getRoomMessages: (roomId: string, params: {
@@ -33,7 +22,7 @@ export const chat_api = {
     beforeMessageId?: string
   }) => {
     const url = `/chat/rooms/${roomId}/messages`
-    return ERRANDERS_CORE.get(url, { params })
+    return GATEWAY_ENDPOINT.get(url, { params })
   },
 
   sendMessage: (roomId: string, payload: {
@@ -46,12 +35,12 @@ export const chat_api = {
     replyToMessageId?: string
   }) => {
     const url = `/chat/rooms/${roomId}/messages`
-    return ERRANDERS_CORE.post(url, payload)
+    return GATEWAY_ENDPOINT.post(url, payload)
   },
 
   markMessagesAsRead: (roomId: string, userId: string) => {
     const url = `/chat/rooms/${roomId}/messages/read`
-    return ERRANDERS_CORE.put(url, { userId })
+    return GATEWAY_ENDPOINT.put(url, { userId })
   },
 
   getBusinessRooms: (params?: {
@@ -62,16 +51,16 @@ export const chat_api = {
     limit?: number
   }) => {
     const url = '/chat/rooms'
-    return ERRANDERS_CORE_WITH_AUTH.get(url, { params })
+    return GATEWAY_ENDPOINT_WITH_AUTH.get(url, { params })
   },
 
   getFaqs: (businessId: string) => {
     const url = '/chat/faqs'
-    return ERRANDERS_CORE.get(url, { params: { businessId } })
+    return GATEWAY_ENDPOINT.get(url, { params: { businessId } })
   },
 
   getAutoResponses: (businessId: string) => {
     const url = '/chat/auto-responses'
-    return ERRANDERS_CORE.get(url, { params: { businessId } })
+    return GATEWAY_ENDPOINT.get(url, { params: { businessId } })
   },
 }

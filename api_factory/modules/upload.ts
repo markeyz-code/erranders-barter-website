@@ -1,4 +1,4 @@
-import axios from 'axios'; const ERRANDERS_CORE_WITH_AUTH_FORM_DATA = axios.create({ baseURL: 'https://api.erranders.org', headers: { 'Content-Type': 'multipart/form-data' } }); ERRANDERS_CORE_WITH_AUTH_FORM_DATA.interceptors.request.use((config) => { const token = typeof window !== 'undefined' ? localStorage.getItem('barter_token') || localStorage.getItem('token') : null; if (token) config.headers.Authorization = 'Bearer ' + token; return config; });;
+import { GATEWAY_ENDPOINT_WITH_AUTH_FORM_DATA } from '../axios.config';
 
 export const upload_api = {
   uploadFile: (file: File | Blob, resourceType: 'image' | 'video' | 'raw' | 'audio' = 'image') => {
@@ -13,8 +13,8 @@ export const upload_api = {
     
     // Some backends have specific endpoints for image vs others
     if (resourceType === 'image') {
-      return ERRANDERS_CORE_WITH_AUTH_FORM_DATA.post('/upload/image', formData);
+      return GATEWAY_ENDPOINT_WITH_AUTH_FORM_DATA.post('/upload/image', formData);
     }
-    return ERRANDERS_CORE_WITH_AUTH_FORM_DATA.post(`/upload?resourceType=${resourceType}`, formData);
+    return GATEWAY_ENDPOINT_WITH_AUTH_FORM_DATA.post(`/upload?resourceType=${resourceType}`, formData);
   }
 };

@@ -21,7 +21,7 @@ export const useRealtimeSocket = () => {
     if (!process.client) return
     if (socket.value && (socket.value.connected || isConnecting.value)) return
 
-    let rawUrl = 'https://api.erranders.org'
+    let rawUrl = 'http://localhost:3100'
     try {
       const config = useRuntimeConfig()
       rawUrl = (config.public.wsBase as string) || rawUrl

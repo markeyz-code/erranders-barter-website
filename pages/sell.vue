@@ -172,11 +172,26 @@
                 
                 <hr class="border-slate-100" />
                 
+                <!-- Promoted Listing -->
+                <div v-if="promotedFee > 0" class="bg-amber-50 border border-amber-200 rounded-xl p-4 flex items-start gap-3 cursor-pointer hover:bg-amber-100 transition-colors" @click="form.promote = !form.promote">
+                  <div class="mt-1">
+                    <div class="w-5 h-5 rounded border border-amber-400 flex items-center justify-center bg-white">
+                      <Check v-if="form.promote" class="w-4 h-4 text-amber-600" />
+                    </div>
+                  </div>
+                  <div>
+                    <h4 class="font-bold text-amber-900 flex items-center gap-2">
+                      Promote Listing <span class="bg-amber-200 text-amber-800 text-xs px-2 py-0.5 rounded-full">Optional</span>
+                    </h4>
+                    <p class="text-sm text-amber-800 font-medium mt-1">Keep your item at the top of the Explore page for faster sales. Fee: ₦{{ promotedFee }}</p>
+                  </div>
+                </div>
+
                 <!-- Submit -->
                 <button type="submit" :disabled="loading || uploading || !form.title || !form.location" class="w-full py-4 rounded-xl text-white font-bold bg-brand-600 hover:bg-brand-700 disabled:opacity-50 disabled:bg-slate-400 transition-all shadow-lg shadow-brand-500/25 flex items-center justify-center text-lg">
                   <Loader2 v-if="loading" class="w-6 h-6 animate-spin mr-2" />
-                  <span v-if="loading">Securing Listing...</span>
-                  <span v-else>Post Item Securely</span>
+                  <span v-if="loading">Processing...</span>
+                  <span v-else>Post Item Securely {{ form.promote ? `(Pay ₦${promotedFee})` : '' }}</span>
                 </button>
                 <p class="text-sm text-center text-slate-500 font-medium mt-4">By posting, you agree to our <NuxtLink to="/terms" class="text-brand-600 hover:underline">Terms of Service</NuxtLink></p>
               </form>
@@ -227,15 +242,16 @@
 </template>
 
 <script setup>
+import { useCustomToast } from '@/composables/core/useCustomToast';
 import { ref, onMounted, onBeforeUnmount } from 'vue'
 import { useRouter } from 'vue-router'
 import { ArrowLeft, ShieldCheck, Truck, Repeat, Check, MapPin, ImagePlus, Video, X, Loader2, ChevronDown, SwitchCamera } from 'lucide-vue-next'
-import { uploadApi, itemsApi, categoriesApi } from '~/composables/useApi'
+import { upload_api, itemsApi, categoriesApi, settingsApi } from '~/composables/useApi'
 
 import AuthModal from '~/components/AuthModal.vue'
 
 const router = useRouter()
-const { isLoggedIn } = useAuth()
+const { isLoggedIn, user } = useAuth()
 
 const showAuthPrompt = ref(false)
 const showAuthModal = ref(false)
@@ -265,6 +281,7 @@ const categories = ref([])
 const catOpen = ref(false)
 const condOpen = ref(false)
 const conditions = ['Brand New', 'Like New', 'Good', 'Fair']
+const promotedFee = ref(0)
 
 const form = ref({ 
   title: '', 
@@ -275,7 +292,8 @@ const form = ref({
   customCategory: '',
   condition: 'Good',
   type: 'sell', 
-  images: [] 
+  images: [],
+  promote: false
 })
 
 useSeoMeta({
@@ -289,9 +307,22 @@ const uploading = ref(false)
 const success = ref(false)
 
 onMounted(async () => {
-  const { data } = await categoriesApi.fetch()
-  if (data) {
-    categories.value = data
+  // Load paystack script for promoted listings
+  if (!window.PaystackPop) {
+    const script = document.createElement('script')
+    script.src = 'https://js.paystack.co/v1/inline.js'
+    document.head.appendChild(script)
+  }
+
+  try {
+    const [catRes, promoRes] = await Promise.all([
+      categoriesApi.fetch(),
+      settingsApi.get('promoted_listing_fee')
+    ])
+    if (catRes.data) categories.value = catRes.data
+    if (promoRes.data && promoRes.data.value) promotedFee.value = Number(promoRes.data.value)
+  } catch(e) {
+    console.error(e)
   }
 })
 
@@ -302,7 +333,7 @@ const uploadMultiple = async (e) => {
   
   uploading.value = true
   try {
-    const promises = files.map(file => uploadApi.image(file))
+    const promises = files.map(file => upload_api.uploadFile(file, file.type.startsWith('video/') ? 'video' : 'image'))
     const results = await Promise.all(promises)
     
     results.forEach((res, i) => {
@@ -314,7 +345,7 @@ const uploadMultiple = async (e) => {
       }
     })
   } catch (err) {
-    alert('Failed to upload some files')
+    useCustomToast().showToast({ title: 'Notice', message: 'Failed to upload some files', toastType: "error" })
   } finally {
     uploading.value = false
     e.target.value = ''
@@ -349,7 +380,7 @@ const initCamera = async () => {
       videoEl.value.srcObject = currentStream
     }
   } catch (err) {
-    alert('Could not access camera/microphone. Please allow permissions.')
+    useCustomToast().showToast({ title: 'Notice', message: 'Could not access camera/microphone. Please allow permissions.', toastType: "error" })
     cameraOpen.value = false
   }
 }
@@ -383,14 +414,14 @@ const startRecording = () => {
     closeCamera()
     
     try {
-      const { data, error } = await uploadApi.image(file) // Reusing the same upload endpoint
+      const { data, error } = await upload_api.uploadFile(file, 'video') 
       if (data && data.url) {
         form.value.images.push({ url: data.url, isVideo: true })
       } else {
-        alert(error || 'Video upload failed')
+        useCustomToast().showToast({ title: 'Notice', message: error || 'Video upload failed', toastType: "error" })
       }
     } catch (err) {
-      alert('Error uploading video')
+      useCustomToast().showToast({ title: 'Notice', message: 'Error uploading video', toastType: "error" })
     } finally {
       uploading.value = false
     }
@@ -415,10 +446,7 @@ onBeforeUnmount(() => {
   closeCamera()
 })
 
-const submitListing = async () => {
-  if (!checkAuth('submit')) return
-
-  loading.value = true
+const createItemOnBackend = async () => {
   try {
     if (!form.value.price) {
       form.value.type = 'swap'
@@ -431,19 +459,52 @@ const submitListing = async () => {
     const { data, error } = await itemsApi.create({
       ...form.value,
       category: finalCategory,
-      images: form.value.images.map(m => m.url) // Just send urls to backend
+      images: form.value.images.map(m => m.url), // Just send urls to backend
+      isPromoted: form.value.promote
     })
     
     if (error) {
-      alert(error)
+      useCustomToast().showToast({ title: 'Notice', message: error, toastType: "error" })
+      loading.value = false
     } else {
       success.value = true
       setTimeout(() => router.push('/explore'), 2000)
     }
   } catch (err) {
-    alert('Failed to list item. Please try again.')
-  } finally {
+    useCustomToast().showToast({ title: 'Notice', message: 'Failed to list item. Please try again.', toastType: "error" })
     loading.value = false
+  }
+}
+
+const submitListing = async () => {
+  if (!checkAuth('submit')) return
+
+  loading.value = true
+
+  if (form.value.promote && promotedFee.value > 0) {
+    if (!window.PaystackPop) {
+      useCustomToast().showToast({ title: 'Notice', message: 'Payment system is still loading. Please try again in a few seconds.', toastType: "error" })
+      loading.value = false
+      return
+    }
+
+    const handler = window.PaystackPop.setup({
+      key: 'pk_test_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx', // In real app use env variable
+      email: user.value?.email || 'user@example.com',
+      amount: promotedFee.value * 100, // Kobo
+      currency: 'NGN',
+      callback: function(response) {
+        // Payment successful
+        createItemOnBackend()
+      },
+      onClose: function() {
+        useCustomToast().showToast({ title: 'Notice', message: 'Payment cancelled. Your item was not listed.', toastType: "error" })
+        loading.value = false
+      }
+    })
+    handler.openIframe()
+  } else {
+    await createItemOnBackend()
   }
 }
 </script>

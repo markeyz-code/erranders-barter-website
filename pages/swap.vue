@@ -78,10 +78,25 @@
               </div>
             </div>
 
+            <!-- Promoted Listing -->
+            <div v-if="promotedFee > 0" class="bg-amber-50 border border-amber-200 rounded-2xl p-4 flex items-start gap-3 cursor-pointer hover:bg-amber-100 transition-colors" @click="form.promote = !form.promote">
+              <div class="mt-1">
+                <div class="w-5 h-5 rounded border border-amber-400 flex items-center justify-center bg-white">
+                  <Check v-if="form.promote" class="w-4 h-4 text-amber-600" />
+                </div>
+              </div>
+              <div>
+                <h4 class="font-bold text-amber-900 flex items-center gap-2">
+                  Promote Listing <span class="bg-amber-200 text-amber-800 text-xs px-2 py-0.5 rounded-full">Optional</span>
+                </h4>
+                <p class="text-sm text-amber-800 font-medium mt-1">Keep your item at the top of the Explore page for faster matches. Fee: ₦{{ promotedFee }}</p>
+              </div>
+            </div>
+
             <button type="submit" :disabled="loading || uploading || !form.title || !form.swapPreference" class="w-full bg-slate-900 text-white font-black py-4 rounded-xl hover:bg-brand-600 transition-colors shadow-lg shadow-brand-200/50 disabled:opacity-50 flex justify-center items-center gap-2">
               <Loader2 v-if="loading" class="w-5 h-5 animate-spin" />
               <ArrowRightLeft v-else class="w-5 h-5" />
-              {{ loading ? 'Listing Item...' : 'List Item for Swap' }}
+              {{ loading ? 'Processing...' : `List Item for Swap ${form.promote ? '(Pay ₦' + promotedFee + ')' : ''}` }}
             </button>
           </form>
         </div>
@@ -137,15 +152,15 @@
 </template>
 
 <script setup>
+import { useCustomToast } from '@/composables/core/useCustomToast';
 import { ArrowLeft, ArrowRightLeft, Upload, X, Check, Loader2, Sparkles, ShieldCheck } from 'lucide-vue-next'
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { uploadApi, itemsApi } from '~/composables/useApi'
-
+import { upload_api, itemsApi, settingsApi } from '~/composables/useApi'
 
 const router = useRouter()
 const { user } = useAuth()
-const form = ref({ title: '', description: '', swapPreference: '', price: 0, location: '', type: 'swap', images: [] })
+const form = ref({ title: '', description: '', swapPreference: '', price: 0, location: '', type: 'swap', images: [], promote: false })
 
 useSeoMeta({
   title: 'Swap an Item | Erranders Barter',
@@ -156,6 +171,22 @@ useSeoMeta({
 const loading = ref(false)
 const uploading = ref(false)
 const success = ref(false)
+const promotedFee = ref(0)
+
+onMounted(async () => {
+  if (!window.PaystackPop) {
+    const script = document.createElement('script')
+    script.src = 'https://js.paystack.co/v1/inline.js'
+    document.head.appendChild(script)
+  }
+
+  try {
+    const { data } = await settingsApi.get('promoted_listing_fee')
+    if (data && data.value) promotedFee.value = Number(data.value)
+  } catch(e) {
+    console.error(e)
+  }
+})
 
 const uploadImage = async (e) => {
   const files = Array.from(e.target.files)
@@ -165,18 +196,38 @@ const uploadImage = async (e) => {
   try {
     for (const file of files) {
       if (form.value.images.length >= 4) break
-      const { data, error } = await uploadApi.image(file)
+      const { data, error } = await upload_api.uploadFile(file, 'image')
       if (error) {
-        alert(error)
+        useCustomToast().showToast({ title: 'Notice', message: error, toastType: "error" })
       } else if (data && data.url) {
         form.value.images.push(data.url)
       }
     }
   } catch (err) {
-    alert('Failed to upload image')
+    useCustomToast().showToast({ title: 'Notice', message: 'Failed to upload image', toastType: "error" })
   } finally {
     uploading.value = false
     e.target.value = ''
+  }
+}
+
+const createItemOnBackend = async () => {
+  try {
+    const { data, error } = await itemsApi.create({
+      ...form.value,
+      isPromoted: form.value.promote
+    })
+    
+    if (error) {
+      useCustomToast().showToast({ title: 'Notice', message: error, toastType: "error" })
+      loading.value = false
+    } else {
+      success.value = true
+      setTimeout(() => router.push('/explore'), 1500)
+    }
+  } catch (err) {
+    useCustomToast().showToast({ title: 'Notice', message: 'Failed to list item for swap.', toastType: "error" })
+    loading.value = false
   }
 }
 
@@ -187,19 +238,30 @@ const submitListing = async () => {
   }
 
   loading.value = true
-  try {
-    const { data, error } = await itemsApi.create(form.value)
-    
-    if (error) {
-      alert(error)
-    } else {
-      success.value = true
-      setTimeout(() => router.push('/explore'), 1500)
+
+  if (form.value.promote && promotedFee.value > 0) {
+    if (!window.PaystackPop) {
+      useCustomToast().showToast({ title: 'Notice', message: 'Payment system is still loading. Please try again in a few seconds.', toastType: "error" })
+      loading.value = false
+      return
     }
-  } catch (err) {
-    alert('Failed to list item for swap.')
-  } finally {
-    loading.value = false
+
+    const handler = window.PaystackPop.setup({
+      key: 'pk_test_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx', // In real app use env variable
+      email: user.value?.email || 'user@example.com',
+      amount: promotedFee.value * 100, // Kobo
+      currency: 'NGN',
+      callback: function(response) {
+        createItemOnBackend()
+      },
+      onClose: function() {
+        useCustomToast().showToast({ title: 'Notice', message: 'Payment cancelled. Your item was not listed.', toastType: "error" })
+        loading.value = false
+      }
+    })
+    handler.openIframe()
+  } else {
+    await createItemOnBackend()
   }
 }
 </script>

@@ -9,7 +9,7 @@
             {{ initials }}
           </div>
           <div>
-            <h1 class="text-3xl md:text-4xl font-black text-slate-900 mb-1">Welcome, {{ user?.firstName || 'Trader' }}!</h1>
+            <h1 class="text-2xl md:text-3xl font-black text-slate-900 mb-1">Welcome, {{ user?.firstName || 'Trader' }}!</h1>
             <p class="text-slate-500 font-medium flex items-center gap-2">
               <MapPin class="w-4 h-4" /> {{ user?.university || 'University' }} • {{ user?.hostel || 'Hostel' }}
             </p>

@@ -1,13 +1,13 @@
-import axios from 'axios'; const ERRANDERS_CORE = axios.create({ baseURL: 'https://api.erranders.org' });
+import { GATEWAY_ENDPOINT } from '../axios.config';
 
 export const business_api = {
     getBySubdomain: (subdomain: string) => {
         const url = `/businesses/subdomain/${subdomain}`
-        return ERRANDERS_CORE.get(url)
+        return GATEWAY_ENDPOINT.get(url)
     },
     
     getStorefront: (subdomain: string) => {
         const url = `/businesses/storefront/${subdomain}`
-        return ERRANDERS_CORE.get(url)
+        return GATEWAY_ENDPOINT.get(url)
     }
 }

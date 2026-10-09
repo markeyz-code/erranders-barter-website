@@ -46,9 +46,9 @@
               <h4 class="font-black text-lg text-slate-900 mb-1">Trade #{{ trade._id.slice(-6).toUpperCase() }}</h4>
               <p class="text-sm font-medium text-slate-500">Amount: ₦{{ trade.amount.toLocaleString() }}</p>
             </div>
-            <button class="text-brand-600 font-bold hover:text-brand-700 bg-brand-50 hover:bg-brand-100 py-2 px-4 rounded-xl transition-colors">
+            <NuxtLink to="/escrow" class="text-brand-600 font-bold hover:text-brand-700 bg-brand-50 hover:bg-brand-100 py-2 px-4 rounded-xl transition-colors">
               View Details
-            </button>
+            </NuxtLink>
           </div>
         </div>
       </div>

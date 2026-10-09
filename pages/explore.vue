@@ -1,6 +1,6 @@
 <template>
   <main class="min-h-screen bg-white pb-16">
-    <div class="max-w-7xl mx-auto px-4 sm:px-4 sm:px-6 lg:px-4 sm:px-8">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4 mb-8 relative z-50">
         <div class="w-full sm:w-auto">
           <h1 class="text-4xl font-black text-slate-900 mb-2">
@@ -55,19 +55,91 @@
       </div>
 
       <div v-else class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-6">
-        <NuxtLink v-for="item in filteredItems" :key="item._id" :to="'/item/' + item._id" class="group block bg-white border border-slate-200 rounded-[2rem] p-4 hover:border-brand-600 transition-colors">
-          <div class="aspect-square bg-slate-100 rounded-3xl mb-4 overflow-hidden relative">
-            <img :src="item.images?.[0] || 'https://via.placeholder.com/600'" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-            <div class="absolute top-3 left-3 bg-white/90 backdrop-blur px-3 py-1 rounded-full text-[10px] uppercase tracking-wider font-black border border-slate-200">
+        <NuxtLink 
+          v-for="item in filteredItems" 
+          :key="item._id" 
+          :to="'/item/' + item._id" 
+          class="group block bg-white border border-slate-200 rounded-2xl overflow-hidden hover:border-brand-500 transition-all duration-300"
+        >
+          <!-- Image Section with Auto-Carousel -->
+          <div class="aspect-[4/3] w-full bg-slate-100 overflow-hidden relative" style="container-type: inline-size;">
+            <!-- Single image -->
+            <img 
+              v-if="!item.images || item.images.length <= 1"
+              :src="item.images?.[0] || '/no-image.png'" 
+              :alt="item.title"
+              class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
+            />
+            <!-- Multi-image auto-scrolling carousel -->
+            <div 
+              v-else 
+              class="item-carousel w-full h-full"
+            >
+              <div 
+                class="item-carousel-track flex h-full w-max" 
+                :style="{ 
+                  animation: `scroll-carousel ${item.images.length * 3}s linear infinite`
+                }"
+              >
+                <div 
+                  v-for="(img, idx) in [...item.images, ...item.images]" 
+                  :key="idx" 
+                  class="h-full flex-shrink-0 w-[100cqw]"
+                >
+                  <img :src="img" :alt="`${item.title} - ${idx + 1}`" class="w-full h-full object-cover" />
+                </div>
+              </div>
+              <!-- Dot indicators -->
+              <div class="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1">
+                <span 
+                  v-for="(_, idx) in item.images" 
+                  :key="idx" 
+                  class="w-1.5 h-1.5 rounded-full bg-white/70 shadow-sm"
+                ></span>
+              </div>
+            </div>
+            <!-- Type badge -->
+            <div 
+              class="absolute top-3 left-3 px-3 py-1 rounded-full text-[10px] uppercase tracking-wider font-black border"
+              :class="item.type === 'swap' 
+                ? 'bg-amber-50/90 backdrop-blur text-amber-700 border-amber-200' 
+                : 'bg-white/90 backdrop-blur text-slate-700 border-slate-200'"
+            >
               {{ item.type }}
             </div>
-          </div>
-          <div class="px-2 pb-2">
-            <div class="flex justify-between items-start mb-1 gap-2">
-              <h3 class="font-bold text-lg truncate text-slate-900">{{ item.title }}</h3>
-              <span class="font-black text-brand-600 text-lg flex-shrink-0">₦{{ Number(item.price || 0).toLocaleString() }}</span>
+            <!-- Image count badge for multi-image -->
+            <div 
+              v-if="item.images && item.images.length > 1" 
+              class="absolute top-3 right-3 bg-black/50 backdrop-blur text-white px-2 py-0.5 rounded-full text-[10px] font-bold flex items-center gap-1"
+            >
+              <ImageIcon class="w-3 h-3" />
+              {{ item.images.length }}
             </div>
-            <p class="text-sm text-slate-500 flex items-center gap-1"><MapPin class="w-3.5 h-3.5" /> {{ item.location }}</p>
+          </div>
+
+          <!-- Content Section -->
+          <div class="p-3 sm:p-4">
+            <div class="flex justify-between items-start gap-2 mb-1">
+              <h3 class="font-bold text-sm sm:text-base truncate text-slate-900">{{ item.title }}</h3>
+              <!-- Show price only for non-swap items -->
+              <span v-if="item.type !== 'swap' && item.price" class="font-black text-brand-600 text-sm sm:text-base flex-shrink-0">
+                ₦{{ Number(item.price).toLocaleString() }}
+              </span>
+            </div>
+            <!-- Swap preference tag -->
+            <div v-if="item.type === 'swap' && item.swapPreference" class="mb-2">
+              <span class="inline-flex items-center gap-1 text-[11px] font-bold text-amber-700 bg-amber-50 border border-amber-100 px-2 py-0.5 rounded-full">
+                <ArrowRightLeft class="w-3 h-3" />
+                Wants: {{ item.swapPreference.length > 30 ? item.swapPreference.slice(0, 30) + '...' : item.swapPreference }}
+              </span>
+            </div>
+            <!-- Description snippet -->
+            <p v-if="item.description" class="text-xs text-slate-400 line-clamp-2 mb-2 leading-relaxed">
+              {{ item.description }}
+            </p>
+            <p class="text-xs text-slate-500 flex items-center gap-1">
+              <MapPin class="w-3 h-3 flex-shrink-0" /> {{ item.location }}
+            </p>
           </div>
         </NuxtLink>
       </div>
@@ -75,7 +147,7 @@
   </main>
 </template>
 <script setup>
-import { MapPin, Search } from 'lucide-vue-next'
+import { MapPin, Search, ArrowRightLeft, ImageIcon } from 'lucide-vue-next'
 import CustomSelect from '~/components/CustomSelect.vue'
 import { useRoute, useRouter } from 'vue-router'
 import { computed, ref, onMounted, watch } from 'vue'
@@ -170,3 +242,22 @@ const filteredItems = computed(() => {
   return items.value
 })
 </script>
+
+<style scoped>
+.item-carousel {
+  overflow: hidden;
+}
+.item-carousel:hover .item-carousel-track {
+  animation-play-state: paused !important;
+}
+@keyframes scroll-carousel {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+</style>

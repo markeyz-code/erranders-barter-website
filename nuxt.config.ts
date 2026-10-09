@@ -27,7 +27,7 @@ export default defineNuxtConfig({
       firebaseMessagingSenderId: process.env.NUXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID || '1022790982621',
       firebaseAppId: process.env.NUXT_PUBLIC_FIREBASE_APP_ID || '1:1022790982621:web:771af2aab7a6e7a200b434',
       firebaseVapidKey: process.env.NUXT_PUBLIC_FIREBASE_VAPID_KEY || 'BJJs2JX_V36p-9sfug38GwMMGDWSQMObywAkys73EXlJgLEsiQaF6nRMDzVVjdgDb-MHJyw3Q_atT6KaluQN41I',
-      paystackPublicKey: process.env.PAYSTACK_PUBLIC_KEY || '',
+      paystackPublicKey: 'pk_test_e3bcb144aaf2804f21581969dffaa563ae467ed4',
       mapboxToken: process.env.NUXT_PUBLIC_MAPBOX_TOKEN || ('pk.eyJ1IjoibWFycXVpczE5OTktIiwiYSI6I' + 'mNtcmFxbnQzdTI0bHIyd3FyMmJhczRud3YifQ.KBM0rYFC41_pWZNPCs3YkA')
     }
   },

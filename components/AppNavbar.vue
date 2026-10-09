@@ -16,6 +16,13 @@
 
       <!-- Actions -->
       <div class="flex items-center gap-2 pr-1">
+        
+        <!-- Chat Notification Icon -->
+        <a v-if="user" href="/messages" class="relative hidden md:flex items-center justify-center w-10 h-10 rounded-full bg-slate-100 hover:bg-[#FF5C1A]/10 text-slate-700 hover:text-[#FF5C1A] transition-colors">
+          <MessageCircle class="w-5 h-5" />
+          <span v-if="unreadChats.length > 0" class="absolute top-1 right-1 w-2.5 h-2.5 bg-red-500 rounded-full animate-pulse"></span>
+        </a>
+
         <!-- Desktop Auth -->
         <div v-if="!user" class="hidden md:flex items-center gap-1">
            <a href="/login" class="px-5 py-2.5 text-sm font-bold text-slate-600 hover:text-[#FF5C1A] transition-colors rounded-full hover:bg-[#FF5C1A]/10">Log In</a>
@@ -55,6 +62,10 @@
              <a @click="isMobileMenuOpen = false" href="/signup" class="px-4 py-3.5 text-base font-bold text-white bg-slate-900 rounded-2xl text-center mt-2 hover:bg-slate-800 transition-colors">Sign Up</a>
           </template>
           <template v-else>
+             <a @click="isMobileMenuOpen = false" href="/messages" class="px-4 py-3.5 text-base font-bold text-slate-700 hover:bg-slate-50 rounded-2xl transition-colors flex items-center justify-between">
+              <div class="flex items-center gap-3"><MessageCircle class="w-5 h-5"/> Messages</div>
+              <span v-if="unreadChats.length > 0" class="bg-red-500 text-white text-xs px-2 py-0.5 rounded-full">{{ unreadChats.length }}</span>
+            </a>
              <a @click="isMobileMenuOpen = false" href="/dashboard" class="px-4 py-3.5 text-base font-bold text-slate-700 hover:bg-slate-50 rounded-2xl transition-colors flex items-center gap-3">
               <User class="w-5 h-5"/> Dashboard
             </a>
@@ -65,14 +76,78 @@
       </Transition>
       
     </div>
+    
+    <!-- Chat Toast Notification -->
+    <Transition
+      enter-active-class="transition duration-300 ease-out"
+      enter-from-class="transform translate-y-[-20px] opacity-0"
+      enter-to-class="transform translate-y-0 opacity-100"
+      leave-active-class="transition duration-200 ease-in"
+      leave-from-class="transform translate-y-0 opacity-100"
+      leave-to-class="transform translate-y-[-20px] opacity-0"
+    >
+      <div v-if="showChatToast && latestMessage" class="pointer-events-auto absolute top-20 right-4 max-w-sm w-full bg-white rounded-2xl shadow-xl border border-slate-200 p-4 flex gap-4 cursor-pointer hover:bg-slate-50 transition-colors" @click="navigateToChat">
+        <div class="w-10 h-10 rounded-full bg-brand-100 flex items-center justify-center shrink-0">
+          <MessageCircle class="w-5 h-5 text-brand-600" />
+        </div>
+        <div class="flex-1 min-w-0">
+          <p class="text-sm font-bold text-slate-900 truncate">New Message</p>
+          <p class="text-sm text-slate-600 truncate mt-0.5">
+            {{ latestMessage.message?.content || 'Sent an attachment' }}
+          </p>
+        </div>
+        <button @click.stop="showChatToast = false" class="text-slate-400 hover:text-slate-600 shrink-0">
+          <X class="w-5 h-5" />
+        </button>
+      </div>
+    </Transition>
   </div>
 </template>
 
 <script setup>
-import { ref } from 'vue'
-import { ArrowRightLeft, User, Menu, X } from 'lucide-vue-next'
+import { ref, onMounted, onUnmounted } from 'vue'
+import { ArrowRightLeft, User, Menu, X, MessageCircle } from 'lucide-vue-next'
+import { io } from 'socket.io-client'
+import { useRouter } from 'vue-router'
 
-
-const { user } = useAuth()
+const { user, token } = useAuth()
+const router = useRouter()
 const isMobileMenuOpen = ref(false)
+const unreadChats = ref([])
+const showChatToast = ref(false)
+const latestMessage = ref(null)
+
+let socket = null
+
+const navigateToChat = () => {
+  if (latestMessage.value) {
+    router.push(`/chat?chatId=${latestMessage.value.chatId}`)
+    showChatToast.value = false
+    unreadChats.value = unreadChats.value.filter(c => c.chatId !== latestMessage.value.chatId)
+  }
+}
+
+onMounted(() => {
+  if (token.value) {
+    socket = io(useRuntimeConfig().public.apiBaseUrl.replace('/api/v1', ''), {
+      auth: { token: `Bearer ${token.value}` }
+    })
+    
+    socket.on('chatNotification', (data) => {
+      if (window.location.pathname.includes('/chat') && window.location.search.includes(data.chatId)) return;
+      
+      latestMessage.value = data
+      showChatToast.value = true
+      unreadChats.value.push(data)
+      
+      setTimeout(() => {
+        showChatToast.value = false
+      }, 5000)
+    })
+  }
+})
+
+onUnmounted(() => {
+  if (socket) socket.disconnect()
+})
 </script>

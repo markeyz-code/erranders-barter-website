@@ -25,8 +25,9 @@
   </main>
 </template>
 <script setup>
+import { useCustomToast } from '@/composables/core/useCustomToast';
 const submit = () => {
-  alert('Support message sent successfully! We will get back to you soon.')
+  useCustomToast().showToast({ title: 'Notice', message: 'Support message sent successfully! We will get back to you soon.', toastType: "success" })
 }
 useSeoMeta({
   title: 'Contact Support | Erranders Barter',

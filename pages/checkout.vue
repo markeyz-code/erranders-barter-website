@@ -44,8 +44,10 @@
                 <span class="text-slate-900 font-bold">{{ deliveryMethod === 'errander' ? `₦${customErranderFee.toLocaleString()}` : 'Free' }}</span>
               </div>
               <div class="flex justify-between">
-                <span>Escrow Fee</span>
-                <span class="text-slate-900 font-bold">Free</span>
+                <span>Escrow Fee <span v-if="escrowFeePercentage > 0" class="text-xs font-bold text-brand-600 bg-brand-50 px-1.5 py-0.5 rounded">({{ escrowFeePercentage }}%)</span></span>
+                <span class="text-slate-900 font-bold">
+                  {{ escrowFeePercentage > 0 ? '₦' + escrowFeeAmount.toLocaleString() : 'Free' }}
+                </span>
               </div>
             </div>
             
@@ -75,7 +77,7 @@
             
             <div class="space-y-4 mb-8">
               <label class="block text-sm font-bold text-slate-700 ">How do you want this?</label>
-              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div class="flex flex-col gap-4">
                 
                 <!-- Self Pickup -->
                 <div 
@@ -130,7 +132,7 @@
                 <p class="text-sm text-slate-500 mb-3 font-medium">Offer a fair amount to get a faster response from erranders.</p>
                 <div class="relative">
                   <span class="absolute left-4 top-1/2 -translate-y-1/2 font-black text-slate-400 text-lg">₦</span>
-                  <input v-model.number="customErranderFee" type="number" :min="baseErranderFee" class="w-full bg-white border border-slate-200 rounded-xl pl-9 pr-4 py-3.5 outline-none focus:border-brand-500 transition-colors font-black text-slate-900 text-lg" />
+                  <input v-model="formattedErranderFee" type="text" inputmode="numeric" class="w-full bg-white border border-slate-200 rounded-xl pl-9 pr-4 py-3.5 outline-none focus:border-brand-500 transition-colors font-black text-slate-900 text-lg" />
                 </div>
               </div>
             </div>
@@ -160,8 +162,14 @@ import { ArrowLeft, ShoppingBag, User, ShieldCheck, MapPin, Lock, Loader2 } from
 
 const route = useRoute()
 const router = useRouter()
-const { isLoggedIn, isGlobalAuthModalOpen } = useAuth()
+const { user, isLoggedIn, isGlobalAuthModalOpen } = useAuth()
 const item = ref(null)
+
+useHead({
+  script: [
+    { src: 'https://js.paystack.co/v1/inline.js', async: true }
+  ]
+})
 
 useSeoMeta({
   title: computed(() => item.value ? `Checkout: ${item.value.title} | Erranders` : 'Checkout | Erranders'),
@@ -175,11 +183,33 @@ const deliveryMethod = ref('pickup')
 const deliveryAddress = ref('')
 const baseErranderFee = ref(500)
 const customErranderFee = ref(500)
+const escrowFeePercentage = ref(0) // dynamic from settings
+
+const formattedErranderFee = computed({
+  get: () => {
+    if (!customErranderFee.value) return ''
+    const num = Number(String(customErranderFee.value).replace(/,/g, ''))
+    return isNaN(num) ? '' : num.toLocaleString('en-US')
+  },
+  set: (val) => {
+    const stripped = String(val).replace(/[^0-9]/g, '')
+    customErranderFee.value = stripped ? Number(stripped) : ''
+  }
+})
 
 const totalAmount = computed(() => {
   if (!item.value) return 0
   const deliveryFee = deliveryMethod.value === 'errander' ? customErranderFee.value : 0
-  return item.value.price + deliveryFee
+  const baseTotal = item.value.price + deliveryFee
+  const escrowFee = (baseTotal * escrowFeePercentage.value) / 100
+  return baseTotal + escrowFee
+})
+
+const escrowFeeAmount = computed(() => {
+  if (!item.value) return 0
+  const deliveryFee = deliveryMethod.value === 'errander' ? customErranderFee.value : 0
+  const baseTotal = item.value.price + deliveryFee
+  return (baseTotal * escrowFeePercentage.value) / 100
 })
 
 const fetchItem = async () => {
@@ -209,47 +239,75 @@ const handleCheckoutAction = () => {
     isGlobalAuthModalOpen.value = true
     return
   }
-  initiateEscrow()
-}
-
-const initiateEscrow = async () => {
+  
   if (deliveryMethod.value === 'errander' && !deliveryAddress.value) {
     error.value = 'Please provide a delivery address for the Errander.'
     return
   }
-
+  
   initiating.value = true
   error.value = ''
+  
+  const handler = window.PaystackPop.setup({
+    key: useRuntimeConfig().public.paystackPublicKey || 'pk_test_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx', 
+    email: user.value?.email || 'user@example.com',
+    amount: totalAmount.value * 100, // Paystack uses kobo
+    currency: 'NGN',
+    ref: 'ESCROW_' + Math.floor((Math.random() * 1000000000) + 1),
+    callback: function(response) {
+      // Payment successful, now initiate escrow
+      initiateEscrow(response.reference)
+    },
+    onClose: function(){
+      // User closed the modal
+      initiating.value = false
+    }
+  });
+  
+  handler.openIframe();
+}
+
+const initiateEscrow = async (paymentRef) => {
   try {
     const payload = {
         sellerId: item.value.sellerId._id || item.value.sellerId,
         itemId: item.value._id,
         amount: totalAmount.value,
         deliveryMethod: deliveryMethod.value,
-        deliveryAddress: deliveryAddress.value
+        deliveryAddress: deliveryAddress.value,
+        deliveryFee: deliveryMethod.value === 'errander' ? customErranderFee.value : 0,
+        paymentReference: paymentRef
     }
     
     const { data, error: apiError } = await escrowApi.initiate(payload)
     
     if (apiError) {
       error.value = apiError
+      initiating.value = false
     } else {
       router.push('/escrow')
     }
   } catch (err) {
     error.value = 'Failed to initiate checkout.'
     console.error(err)
-  } finally {
     initiating.value = false
   }
 }
 
 const fetchSettings = async () => {
   try {
-    const { data, error } = await settingsApi.get('base_errander_fee')
-    if (!error && data && data.value) {
-      baseErranderFee.value = Number(data.value)
-      customErranderFee.value = Number(data.value)
+    const [baseErranderRes, escrowFeeRes] = await Promise.all([
+      settingsApi.get('base_errander_fee'),
+      settingsApi.get('escrow_fee_percentage')
+    ])
+    
+    if (baseErranderRes.data && baseErranderRes.data.value) {
+      baseErranderFee.value = Number(baseErranderRes.data.value)
+      customErranderFee.value = Number(baseErranderRes.data.value)
+    }
+    
+    if (escrowFeeRes.data && escrowFeeRes.data.value) {
+      escrowFeePercentage.value = Number(escrowFeeRes.data.value)
     }
   } catch (err) {
     console.error('Failed to fetch settings', err)

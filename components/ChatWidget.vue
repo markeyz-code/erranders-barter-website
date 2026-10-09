@@ -192,13 +192,44 @@
                 <div v-if="uploadingMedia" class="w-5 h-5 border border-gray-400 border-t-transparent rounded-full animate-spin"></div>
                 <Paperclip v-else class="w-5 h-5" />
               </button>
+              <button 
+                @click="startCamera" 
+                :disabled="isGuest && needsGuestInfo || uploadingMedia"
+                class="text-gray-400 hover:text-gray-600 transition-colors p-2 disabled:opacity-50" 
+                title="Take Photo"
+              >
+                <Camera class="w-5 h-5" />
+              </button>
               <button
                 v-if="newMessage.trim()"
                 @click="handleSend"
                 :disabled="sending || !newMessage.trim() || (isGuest && needsGuestInfo)"
-                class="w-10 h-10 rounded-full bg-[brand-600] hover:bg-[brand-700] text-white flex items-center justify-center disabled:opacity-50 transition-all shadow-sm border border-gray-50 shadow-orange-500/20 animate-in zoom-in"
+                class="w-10 h-10 rounded-full bg-brand-600 hover:bg-brand-700 text-white flex items-center justify-center disabled:opacity-50 transition-all shadow-sm border border-gray-50 shadow-orange-500/20 animate-in zoom-in"
               >
                 <ArrowRight class="w-5 h-5" />
+              </button>
+            </div>
+            </div>
+          </div>
+
+          <!-- Camera Overlay -->
+          <div v-if="showCamera" class="absolute inset-0 bg-black z-50 flex flex-col">
+            <div class="flex items-center justify-between p-4 bg-gradient-to-b from-black/60 to-transparent absolute top-0 w-full z-10">
+              <button @click="stopCamera" class="text-white p-2 rounded-full bg-black/40 hover:bg-black/60 backdrop-blur">
+                <X class="w-6 h-6" />
+              </button>
+              <button @click="switchCamera" class="text-white p-2 rounded-full bg-black/40 hover:bg-black/60 backdrop-blur">
+                <RefreshCw class="w-6 h-6" />
+              </button>
+            </div>
+            
+            <video ref="videoElement" class="w-full h-full object-cover flex-1" autoplay playsinline></video>
+            <canvas ref="canvasElement" class="hidden"></canvas>
+            
+            <div class="absolute bottom-0 w-full p-8 bg-gradient-to-t from-black/80 to-transparent flex justify-center items-center">
+              <button @click="capturePhoto" :disabled="uploadingMedia" class="w-20 h-20 rounded-full border-4 border-white/80 flex items-center justify-center p-1 active:scale-95 transition-transform disabled:opacity-50">
+                <div v-if="uploadingMedia" class="w-10 h-10 border-4 border-white border-t-transparent rounded-full animate-spin"></div>
+                <div v-else class="w-full h-full bg-white rounded-full"></div>
               </button>
             </div>
           </div>
@@ -215,7 +246,7 @@
         </Transition>
         <button
           @click="toggleChat"
-          class="group relative w-14 h-14 rounded-full bg-gradient-to-tr from-[brand-500] to-[brand-600] text-white shadow-sm border border-gray-50 shadow-[brand-600]/40 flex items-center justify-center hover:scale-105 hover:-translate-y-1 transition-all duration-300"
+          class="group relative w-14 h-14 rounded-full bg-gradient-to-tr from-brand-500 to-brand-600 text-white shadow-sm border border-gray-50 shadow-brand-600/40 flex items-center justify-center hover:scale-105 hover:-translate-y-1 transition-all duration-300"
           aria-label="Open chat"
         >
           <div v-if="unreadCount > 0 && !isOpen" class="absolute -top-1 -right-1 w-4 h-4 bg-red-500 rounded-full shadow-sm animate-pulse"></div>
@@ -228,7 +259,7 @@
 </template>
 
 <script setup lang="ts">
-import { X, ArrowRight, MessageSquare, Smile, ChevronDown, Lock, Paperclip } from 'lucide-vue-next'
+import { X, ArrowRight, MessageSquare, Smile, ChevronDown, Lock, Paperclip, Camera, RefreshCw } from 'lucide-vue-next'
 import { onMounted, ref, computed, watch, nextTick, onBeforeUnmount } from 'vue'
 import { useUser } from '@/composables/modules/auth/user'
 import { useChat } from '@/composables/modules/chat/useChat'
@@ -466,8 +497,97 @@ onMounted(() => {
   }
 })
 
+// --- Camera Logic ---
+const showCamera = ref(false)
+const videoElement = ref<HTMLVideoElement | null>(null)
+const canvasElement = ref<HTMLCanvasElement | null>(null)
+const cameraStream = ref<MediaStream | null>(null)
+const facingMode = ref<'environment' | 'user'>('environment')
+
+const startCamera = async () => {
+  if (isGuest.value && needsGuestInfo.value) return;
+  showCamera.value = true;
+  try {
+    if (cameraStream.value) {
+      cameraStream.value.getTracks().forEach(track => track.stop());
+    }
+    const stream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: facingMode.value }
+    });
+    cameraStream.value = stream;
+    nextTick(() => {
+      if (videoElement.value) {
+        videoElement.value.srcObject = stream;
+      }
+    });
+  } catch (error) {
+    console.error('Error accessing camera:', error);
+    showToast({ title: 'Camera Error', message: 'Could not access the camera.', toastType: 'error' });
+    showCamera.value = false;
+  }
+}
+
+const stopCamera = () => {
+  if (cameraStream.value) {
+    cameraStream.value.getTracks().forEach(track => track.stop());
+    cameraStream.value = null;
+  }
+  showCamera.value = false;
+}
+
+const switchCamera = () => {
+  facingMode.value = facingMode.value === 'environment' ? 'user' : 'environment';
+  startCamera(); // Restart with new facing mode
+}
+
+const capturePhoto = async () => {
+  if (!videoElement.value || !canvasElement.value) return;
+  
+  const video = videoElement.value;
+  const canvas = canvasElement.value;
+  
+  canvas.width = video.videoWidth;
+  canvas.height = video.videoHeight;
+  
+  const ctx = canvas.getContext('2d');
+  if (!ctx) return;
+  
+  ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+  
+  canvas.toBlob(async (blob) => {
+    if (!blob) return;
+    
+    // Stop camera immediately after capture to show we're processing
+    stopCamera();
+    
+    const file = new File([blob], `photo_${Date.now()}.jpg`, { type: 'image/jpeg' });
+    
+    uploadingMedia.value = true;
+    try {
+      const form = new FormData();
+      form.append('file', file);
+      
+      const res = await upload_api.uploadSingle(form);
+      if (res?.data?.url || res?.url) {
+        const url = res.data?.url || res.url;
+        await sendMessage({
+          message: '📷 Photo sent',
+          messageType: 'image',
+          attachments: [url]
+        });
+      }
+    } catch (err) {
+      console.error('Failed to upload captured photo', err);
+      showToast({ title: 'Upload Failed', message: 'Failed to upload photo. Please try again.', toastType: 'error' });
+    } finally {
+      uploadingMedia.value = false;
+    }
+  }, 'image/jpeg', 0.8);
+}
+
 onBeforeUnmount(() => {
   detachSocketListeners()
+  stopCamera()
   if (socket.value) {
     socket.value.off('chat:user-typing')
   }

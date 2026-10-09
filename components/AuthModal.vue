@@ -101,6 +101,7 @@
 </template>
 
 <script setup>
+import { useCustomToast } from '@/composables/core/useCustomToast';
 import { X, Eye, EyeOff } from 'lucide-vue-next'
 import CustomFormSelect from '~/components/CustomFormSelect.vue'
 import { ref } from 'vue'
@@ -200,7 +201,7 @@ const socialAuth = async (provider) => {
       loading.value = false
     }
   } else {
-    alert(`${provider} authentication is coming soon!`)
+    useCustomToast().showToast({ title: 'Notice', message: `${provider} authentication is coming soon!`, toastType: "info" })
   }
 }
 </script>
