@@ -145,6 +145,9 @@
             <button type="button" @click="$refs.fileInput.click()" class="p-3 text-slate-400 hover:text-brand-600 bg-slate-50 hover:bg-brand-50 rounded-full transition-colors shrink-0 mb-0.5">
               <Paperclip class="w-5 h-5" />
             </button>
+            <button type="button" @click="startCamera" class="p-3 text-slate-400 hover:text-brand-600 bg-slate-50 hover:bg-brand-50 rounded-full transition-colors shrink-0 mb-0.5" :disabled="isUploading">
+              <Camera class="w-5 h-5" />
+            </button>
             <input type="file" ref="fileInput" @change="handleFile" accept="image/*,video/*" class="hidden" />
 
             <div class="flex-1 bg-slate-50 border border-slate-200 rounded-2xl flex items-center min-h-[48px] focus-within:border-brand-500 transition-colors">
@@ -172,6 +175,28 @@
           </form>
         </div>
 
+        <!-- Camera Overlay -->
+        <div v-if="showCamera" class="absolute inset-0 bg-black z-50 flex flex-col">
+          <div class="flex items-center justify-between p-4 bg-gradient-to-b from-black/60 to-transparent absolute top-0 w-full z-10">
+            <button @click="stopCamera" class="text-white p-2 rounded-full bg-black/40 hover:bg-black/60 backdrop-blur">
+              <X class="w-6 h-6" />
+            </button>
+            <button @click="switchCamera" class="text-white p-2 rounded-full bg-black/40 hover:bg-black/60 backdrop-blur">
+              <RefreshCw class="w-6 h-6" />
+            </button>
+          </div>
+          
+          <video ref="videoElement" class="w-full h-full object-cover flex-1" autoplay playsinline></video>
+          <canvas ref="canvasElement" class="hidden"></canvas>
+          
+          <div class="absolute bottom-0 w-full p-8 bg-gradient-to-t from-black/80 to-transparent flex justify-center items-center">
+            <button @click="capturePhoto" :disabled="isUploading" class="w-20 h-20 rounded-full border-4 border-white/80 flex items-center justify-center p-1 active:scale-95 transition-transform disabled:opacity-50">
+              <div v-if="isUploading" class="w-10 h-10 border-4 border-white border-t-transparent rounded-full animate-spin"></div>
+              <div v-else class="w-full h-full bg-white rounded-full"></div>
+            </button>
+          </div>
+        </div>
+
       </div>
     </div>
   </main>
@@ -179,7 +204,7 @@
 
 <script setup>
 import { useCustomToast } from '@/composables/core/useCustomToast';
-import { ArrowLeft, Send, Paperclip, Mic, Image, X, Reply, Play, Phone, Video, Smile, Loader2, MicOff, PhoneOff } from 'lucide-vue-next'
+import { ArrowLeft, Send, Paperclip, Mic, Image, X, Reply, Play, Phone, Video, Smile, Loader2, MicOff, PhoneOff, Camera, RefreshCw } from 'lucide-vue-next'
 import { ref, onMounted, onUnmounted, nextTick } from 'vue'
 import { useRoute } from 'vue-router'
 
@@ -321,6 +346,7 @@ onMounted(async () => {
 })
 
 onUnmounted(() => {
+  stopCamera()
   if (socket.value) socket.value.disconnect()
 })
 
@@ -538,5 +564,97 @@ const cleanupCall = () => {
   localStream.value = null
   remoteStream.value = null
   peerConnection.value = null
+}
+// --- Camera Logic ---
+const showCamera = ref(false)
+const videoElement = ref(null)
+const canvasElement = ref(null)
+const cameraStream = ref(null)
+const facingMode = ref('environment')
+
+const startCamera = async () => {
+  showCamera.value = true;
+  try {
+    if (cameraStream.value) {
+      cameraStream.value.getTracks().forEach(track => track.stop());
+    }
+    const stream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: facingMode.value }
+    });
+    cameraStream.value = stream;
+    nextTick(() => {
+      if (videoElement.value) {
+        videoElement.value.srcObject = stream;
+      }
+    });
+  } catch (error) {
+    console.error('Error accessing camera:', error);
+    useCustomToast().showToast({ title: 'Camera Error', message: 'Could not access the camera.', toastType: 'error' });
+    showCamera.value = false;
+  }
+}
+
+const stopCamera = () => {
+  if (cameraStream.value) {
+    cameraStream.value.getTracks().forEach(track => track.stop());
+    cameraStream.value = null;
+  }
+  showCamera.value = false;
+}
+
+const switchCamera = () => {
+  facingMode.value = facingMode.value === 'environment' ? 'user' : 'environment';
+  startCamera(); // Restart with new facing mode
+}
+
+const capturePhoto = async () => {
+  if (!videoElement.value || !canvasElement.value) return;
+  
+  const video = videoElement.value;
+  const canvas = canvasElement.value;
+  
+  canvas.width = video.videoWidth;
+  canvas.height = video.videoHeight;
+  
+  const ctx = canvas.getContext('2d');
+  if (!ctx) return;
+  
+  ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+  
+  canvas.toBlob(async (blob) => {
+    if (!blob) return;
+    
+    // Stop camera immediately after capture to show we're processing
+    stopCamera();
+    
+    const file = new File([blob], `photo_${Date.now()}.jpg`, { type: 'image/jpeg' });
+    
+    isUploading.value = true;
+    try {
+      const form = new FormData();
+      form.append('file', file);
+      
+      const res = await $fetch('/upload/image', {
+        baseURL: useRuntimeConfig().public.apiBaseUrl,
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token.value}` },
+        body: form
+      });
+      
+      if (res?.url) {
+        socket.value.emit('sendMessage', {
+          chatId: chatId.value,
+          content: '📷 Photo sent',
+          type: 'image',
+          assetUrl: res.url
+        });
+      }
+    } catch (err) {
+      console.error('Failed to upload captured photo', err);
+      useCustomToast().showToast({ title: 'Upload Failed', message: 'Failed to upload photo. Please try again.', toastType: 'error' });
+    } finally {
+      isUploading.value = false;
+    }
+  }, 'image/jpeg', 0.8);
 }
 </script>
