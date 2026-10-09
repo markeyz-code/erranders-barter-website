@@ -72,8 +72,27 @@
               <form v-else @submit.prevent="submitListing" class="space-y-6">
                 <!-- Title -->
                 <div>
-                  <label class="block text-sm font-bold text-slate-700 mb-2">Item Title</label>
-                  <input v-model="form.title" required type="text" placeholder="e.g. Mini Fridge, barely used" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 outline-none focus:border-brand-500 transition-colors font-medium text-slate-900" />
+                  <label class="block text-sm font-bold text-slate-700 mb-2">Title</label>
+                  <input v-model="form.title" required type="text" placeholder="e.g. Mini Fridge, barely used OR Room Cleaning Service" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 outline-none focus:border-brand-500 transition-colors font-medium text-slate-900" />
+                </div>
+                
+                <!-- Listing Type -->
+                <div class="relative z-30">
+                  <label class="block text-sm font-bold text-slate-700 mb-2">Listing Type</label>
+                  <div class="flex gap-4">
+                    <label class="flex items-center gap-2 cursor-pointer">
+                      <input type="radio" v-model="form.type" value="sell" class="text-brand-600 focus:ring-brand-500" />
+                      <span class="font-medium text-slate-700">Sell Item</span>
+                    </label>
+                    <label class="flex items-center gap-2 cursor-pointer">
+                      <input type="radio" v-model="form.type" value="swap" class="text-brand-600 focus:ring-brand-500" />
+                      <span class="font-medium text-slate-700">Swap Item</span>
+                    </label>
+                    <label class="flex items-center gap-2 cursor-pointer">
+                      <input type="radio" v-model="form.type" value="service" class="text-brand-600 focus:ring-brand-500" />
+                      <span class="font-medium text-slate-700">Offer Service</span>
+                    </label>
+                  </div>
                 </div>
                 
                 <!-- Category & Condition Custom Dropdowns -->
@@ -119,7 +138,7 @@
                     <label class="block text-sm font-bold text-slate-700 mb-2">Price (₦)</label>
                     <div class="relative">
                       <span class="absolute left-4 top-1/2 -translate-y-1/2 font-bold text-slate-500">₦</span>
-                      <input v-model.number="form.price" type="number" placeholder="Leave blank to swap" class="w-full bg-slate-50 border border-slate-200 rounded-xl pl-9 pr-4 py-3 outline-none focus:border-brand-500 transition-colors font-medium text-slate-900" />
+                      <input v-model.number="form.price" type="number" :disabled="form.type === 'swap'" :placeholder="form.type === 'swap' ? 'Swaps have no price' : 'e.g. 5000'" class="w-full bg-slate-50 border border-slate-200 rounded-xl pl-9 pr-4 py-3 outline-none focus:border-brand-500 transition-colors font-medium text-slate-900 disabled:opacity-50" />
                     </div>
                   </div>
                   <div>
@@ -448,10 +467,8 @@ onBeforeUnmount(() => {
 
 const createItemOnBackend = async () => {
   try {
-    if (!form.value.price) {
-      form.value.type = 'swap'
-    } else {
-      form.value.type = 'sell'
+    if (form.value.type === 'swap') {
+      form.value.price = null
     }
     
     const finalCategory = form.value.category === 'Other' ? form.value.customCategory : form.value.category
