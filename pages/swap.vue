@@ -1,44 +1,44 @@
 <template>
-  <main class="min-h-screen bg-slate-50 pb-20">
-    <div class="max-w-5xl mx-auto px-4 sm:px-4 sm:px-6 lg:px-4 sm:px-8">
+  <main class="min-h-screen bg-slate-50 pb-16">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
       
       <!-- Header -->
-      <div class="flex items-center gap-4 mb-8">
-        <NuxtLink to="/" class="w-10 h-10 rounded-full bg-white border border-slate-200 flex items-center justify-center text-slate-500 hover:text-brand-600 hover:bg-brand-50 hover:border-brand-200 transition-all shadow-sm">
-          <ArrowLeft class="w-5 h-5" />
+      <div class="flex items-center gap-3.5 mb-6">
+        <NuxtLink to="/" class="w-9 h-9 rounded-lg bg-white border border-slate-200 flex items-center justify-center text-slate-500 hover:text-brand-600 hover:bg-brand-50 transition-colors">
+          <ArrowLeft class="w-4 h-4" />
         </NuxtLink>
         <div>
-          <h1 class="text-3xl font-black text-slate-900 tracking-tight">List Item for Swap</h1>
-          <p class="text-slate-500 font-medium">Trade what you have for what you need. No cash required.</p>
+          <h1 class="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">List Item for Swap</h1>
+          <p class="text-xs sm:text-sm text-slate-500 font-medium">Trade what you have for what you need. No cash required.</p>
         </div>
       </div>
 
-      <div class="flex flex-col lg:flex-row gap-8">
+      <div class="flex flex-col lg:flex-row gap-6">
         
         <!-- Form Section -->
-        <div class="flex-1 bg-white rounded-[2rem] border border-slate-200 shadow-sm p-4 sm:p-6 sm:p-4 sm:p-8">
-          <div v-if="success" class="mb-8 bg-green-50 text-green-700 p-4 sm:p-6 rounded-2xl font-bold border border-green-200 flex items-center gap-4">
-            <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0">
-              <Check class="w-6 h-6 text-green-600" />
+        <div class="flex-1 bg-white rounded-xl border border-slate-200 p-4 sm:p-6">
+          <div v-if="success" class="mb-6 bg-green-50 text-green-700 p-4 rounded-xl font-bold border border-green-200 flex items-center gap-3">
+            <div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0">
+              <Check class="w-5 h-5 text-green-600" />
             </div>
             <div>
-              <p class="text-lg">Item listed successfully!</p>
-              <p class="text-sm font-medium opacity-80">Taking you to the explore page to find matches...</p>
+              <p class="text-base">Item listed successfully!</p>
+              <p class="text-xs font-medium opacity-80">Taking you to explore to find matches...</p>
             </div>
           </div>
 
-          <form v-else @submit.prevent="submitListing" class="space-y-6">
+          <form v-else @submit.prevent="submitListing" class="space-y-4">
             <!-- Basic Details -->
-            <div class="space-y-4">
+            <div class="space-y-3">
               <div class="relative group">
-                <label class="block text-sm font-black text-slate-400 mb-2 group-focus-within:text-brand-600 transition-colors">What do you have?</label>
-                <input v-model="form.title" required type="text" placeholder="e.g. MacBook Air M1, 256GB" class="w-full bg-slate-50 border border-slate-200 rounded-2xl py-4 px-4 transition-all outline-none font-bold text-slate-900 focus:bg-white focus:border-brand-600 focus:" />
+                <label class="block text-xs font-bold text-slate-600 mb-1.5">What do you have?</label>
+                <input v-model="form.title" required type="text" placeholder="e.g. MacBook Air M1, 256GB" class="w-full bg-slate-50 border border-slate-200 rounded-lg py-2.5 px-3.5 text-sm transition-colors outline-none font-semibold text-slate-900 focus:bg-white focus:border-brand-600" />
               </div>
 
               <div class="relative group">
-                <label class="block text-sm font-black text-slate-400 mb-2 group-focus-within:text-brand-600 transition-colors">What do you want in return?</label>
-                <input v-model="form.swapPreference" required type="text" placeholder="e.g. Gaming PC, iPhone 13, or equivalent value" class="w-full bg-orange-50 border border-orange-200 rounded-2xl py-4 px-4 transition-all outline-none font-bold text-orange-900 focus:bg-white focus:border-orange-500 focus:placeholder:text-orange-300" />
-                <p class="text-sm font-medium text-slate-500 mt-2 ml-1">Be specific! The better you describe what you want, the faster you'll match.</p>
+                <label class="block text-xs font-bold text-slate-600 mb-1.5">What do you want in return?</label>
+                <input v-model="form.swapPreference" required type="text" placeholder="e.g. Gaming PC, iPhone 13, or equivalent value" class="w-full bg-orange-50/50 border border-orange-200 rounded-lg py-2.5 px-3.5 text-sm transition-colors outline-none font-semibold text-orange-950 focus:bg-white focus:border-orange-500" />
+                <p class="text-xs text-slate-400 mt-1">Be specific! The better you describe what you want, the faster you'll match.</p>
               </div>
             </div>
 

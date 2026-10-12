@@ -1,13 +1,13 @@
 <template>
-  <footer class="bg-white text-slate-500 py-10 mt-20 border-t-[6px] border-brand-600 relative overflow-hidden shadow-[0_-4px_20px_-10px_rgba(0,0,0,0.1)]">
-    <div class="max-w-7xl mx-auto px-4 sm:px-4 sm:px-6 lg:px-4 sm:px-8 relative z-10">
+  <footer class="bg-white text-slate-500 py-10 mt-14 border-t border-slate-200 relative overflow-hidden">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
       
       <div class="flex flex-col lg:flex-row items-center justify-between gap-8 mb-8">
         
         <!-- Brand & Newsletter -->
         <div class="flex-1 w-full lg:max-w-md">
-          <NuxtLink to="/" class="flex items-center gap-2 mb-4">
-            <img src="@/assets/img/logo.png" alt="Erranders Barter" class="h-14 w-auto" />
+          <NuxtLink to="/" class="flex items-center gap-2 mb-3">
+            <img src="@/assets/img/logo.png" alt="Erranders Barter" class="h-9 w-auto object-contain" />
           </NuxtLink>
           <p class="text-sm font-medium leading-relaxed mb-4">
             The smartest way to trade, sell, and swap on campus. Backed by Erranders logistics.

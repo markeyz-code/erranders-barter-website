@@ -1,10 +1,10 @@
 <template>
   <div class="fixed top-6 left-0 w-full z-[100] px-4 pointer-events-none">
-    <div class="max-w-5xl mx-auto bg-white/80 backdrop-blur-xl border border-slate-200 rounded-full h-16 flex items-center justify-between px-2 shadow-sm pointer-events-auto relative">
+    <div class="max-w-5xl mx-auto bg-white/90 backdrop-blur-md border border-slate-200 rounded-full h-14 flex items-center justify-between px-3 pointer-events-auto relative">
       
       <!-- Logo -->
-       <a href="/" class="flex items-center gap-2 pl-3">
-        <img src="@/assets/img/logo.png" alt="Erranders Barter" class="h-14 w-auto" />
+       <a href="/" class="flex items-center gap-2 pl-1">
+        <img src="@/assets/img/logo.png" alt="Erranders Barter" class="h-8 sm:h-9 w-auto object-contain" />
       </a>
 
       <!-- Desktop Nav -->
@@ -50,10 +50,10 @@
         leave-from-class="transform scale-100 opacity-100"
         leave-to-class="transform scale-95 opacity-0"
       >
-        <div v-if="isMobileMenuOpen" class="absolute top-[120%] left-0 w-full bg-white border border-slate-200 rounded-3xl shadow-xl overflow-hidden md:hidden flex flex-col p-3 gap-1 pointer-events-auto">
-           <a @click="isMobileMenuOpen = false" href="/explore" class="px-4 py-3.5 text-base font-bold text-slate-700 hover:bg-slate-50 rounded-2xl transition-colors">Buy Items</a>
-           <a @click="isMobileMenuOpen = false" href="/sell" class="px-4 py-3.5 text-base font-bold text-slate-700 hover:bg-slate-50 rounded-2xl transition-colors">Sell Items</a>
-           <a @click="isMobileMenuOpen = false" href="/swap" class="px-4 py-3.5 text-base font-bold text-slate-700 hover:bg-slate-50 rounded-2xl transition-colors">Swap Items</a>
+        <div v-if="isMobileMenuOpen" class="absolute top-[120%] left-0 w-full bg-white border border-slate-200 rounded-2xl overflow-hidden md:hidden flex flex-col p-2.5 gap-1 pointer-events-auto">
+           <a @click="isMobileMenuOpen = false" href="/explore" class="px-3.5 py-2.5 text-sm font-bold text-slate-700 hover:bg-slate-50 rounded-xl transition-colors">Buy Items</a>
+           <a @click="isMobileMenuOpen = false" href="/sell" class="px-3.5 py-2.5 text-sm font-bold text-slate-700 hover:bg-slate-50 rounded-xl transition-colors">Sell Items</a>
+           <a @click="isMobileMenuOpen = false" href="/swap" class="px-3.5 py-2.5 text-sm font-bold text-slate-700 hover:bg-slate-50 rounded-xl transition-colors">Swap Items</a>
           
           <div class="h-px bg-slate-100 my-2 mx-2"></div>
           
@@ -86,8 +86,8 @@
       leave-from-class="transform translate-y-0 opacity-100"
       leave-to-class="transform translate-y-[-20px] opacity-0"
     >
-      <div v-if="showChatToast && latestMessage" class="pointer-events-auto absolute top-20 right-4 max-w-sm w-full bg-white rounded-2xl shadow-xl border border-slate-200 p-4 flex gap-4 cursor-pointer hover:bg-slate-50 transition-colors" @click="navigateToChat">
-        <div class="w-10 h-10 rounded-full bg-brand-100 flex items-center justify-center shrink-0">
+      <div v-if="showChatToast && latestMessage" class="pointer-events-auto absolute top-20 right-4 max-w-sm w-full bg-white rounded-xl border border-slate-200 p-3.5 flex gap-3 cursor-pointer hover:bg-slate-50 transition-colors" @click="navigateToChat">
+        <div class="w-9 h-9 rounded-full bg-brand-100 flex items-center justify-center shrink-0">
           <MessageCircle class="w-5 h-5 text-brand-600" />
         </div>
         <div class="flex-1 min-w-0">

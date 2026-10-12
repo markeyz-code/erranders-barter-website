@@ -27,74 +27,74 @@
       </div>
     </div>
 
-    <div class="max-w-6xl mx-auto px-4 sm:px-4 sm:px-6 lg:px-4 sm:px-8">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
       
-      <NuxtLink to="/explore" class="inline-flex items-center gap-2 text-slate-500 hover:text-brand-600 font-bold mb-6 transition-colors">
-        <ArrowLeft class="w-4 h-4" /> Back to Explore
+      <NuxtLink to="/explore" class="inline-flex items-center gap-1.5 text-xs text-slate-500 hover:text-brand-600 font-bold mb-4 transition-colors">
+        <ArrowLeft class="w-3.5 h-3.5" /> Back to Explore
       </NuxtLink>
 
-      <div v-if="loading" class="text-center py-20 text-slate-500 font-bold">Loading item...</div>
-      <div v-else-if="!item" class="text-center py-20 text-red-500 font-bold">Item not found.</div>
-      <div v-else class="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12">
+      <div v-if="loading" class="text-center py-16 text-slate-500 font-bold">Loading item...</div>
+      <div v-else-if="!item" class="text-center py-16 text-red-500 font-bold">Item not found.</div>
+      <div v-else class="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8">
         
-        <!-- Sophisticated Media Gallery -->
-        <div class="w-full flex flex-col gap-4">
+        <!-- Media Gallery -->
+        <div class="w-full flex flex-col gap-3">
           <!-- Main Display -->
           <div 
-            class="aspect-square bg-slate-100 rounded-[2rem] overflow-hidden border border-slate-200 relative group cursor-pointer"
+            class="aspect-square bg-slate-100 rounded-2xl overflow-hidden border border-slate-200 relative group cursor-pointer"
             @click="activeMedia?.type === 'image' ? isZoomOpen = true : null"
           >
             <!-- Image View -->
-            <img v-if="activeMedia?.type === 'image'" :src="activeMedia.src" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
+            <img v-if="activeMedia?.type === 'image'" :src="activeMedia.src" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
             
             <!-- Video View -->
             <video v-if="activeMedia?.type === 'video'" :src="activeMedia.src" controls autoplay muted loop class="w-full h-full object-cover"></video>
 
             <!-- Overlays -->
-            <div class="absolute top-4 left-4 bg-white/90 backdrop-blur px-4 py-1.5 rounded-full text-sm uppercase  font-black border border-slate-200 z-10">
+            <div class="absolute top-3 left-3 bg-white/90 backdrop-blur px-2.5 py-1 rounded-md text-xs uppercase font-bold border border-slate-200 z-10">
               {{ item.type === 'sell' ? 'For Sale' : item.type === 'swap' ? 'For Swap' : 'Service' }}
             </div>
-            <div v-if="activeMedia?.type === 'image'" class="absolute bottom-4 right-4 bg-black/50 backdrop-blur px-3 py-1.5 rounded-full text-white text-sm font-bold flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity z-10">
-              <Maximize class="w-4 h-4" /> Click for 4D Zoom
+            <div v-if="activeMedia?.type === 'image'" class="absolute bottom-3 right-3 bg-black/50 backdrop-blur px-2.5 py-1 rounded-md text-white text-xs font-semibold flex items-center gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity z-10">
+              <Maximize class="w-3.5 h-3.5" /> 4D Zoom
             </div>
           </div>
 
           <!-- Thumbnails -->
-          <div class="flex gap-4 overflow-x-auto pb-2 scrollbar-hide">
+          <div class="flex gap-2.5 overflow-x-auto pb-1 scrollbar-hide">
             <button 
               v-for="(media, idx) in mediaGallery" 
-              :key="idx"
+              :key="idx" 
               @click="activeMedia = media"
-              class="relative w-20 h-20 flex-shrink-0 rounded-xl overflow-hidden border transition-all"
+              class="relative w-16 h-16 flex-shrink-0 rounded-lg overflow-hidden border transition-all"
               :class="activeMedia?.src === media.src ? 'border-brand-600' : 'border-transparent opacity-60 hover:opacity-100'"
             >
               <img v-if="media.type === 'image'" :src="media.src" class="w-full h-full object-cover" />
               <div v-if="media.type === 'video'" class="w-full h-full bg-slate-800 relative flex items-center justify-center">
-                <PlayCircle class="w-6 h-6 text-white" />
+                <PlayCircle class="w-5 h-5 text-white" />
               </div>
             </button>
           </div>
           
           <!-- Play Video Button -->
-          <button v-if="hasVideo" @click="playFirstVideo" class="mt-2 w-full py-4 bg-slate-900 hover:bg-slate-800 text-white font-bold rounded-2xl flex items-center justify-center gap-2 transition-colors">
-            <PlayCircle class="w-5 h-5 text-brand-400" /> Play Product Video
+          <button v-if="hasVideo" @click="playFirstVideo" class="mt-1 w-full py-2.5 bg-slate-900 hover:bg-slate-800 text-white font-bold text-sm rounded-xl flex items-center justify-center gap-2 transition-colors">
+            <PlayCircle class="w-4 h-4 text-brand-400" /> Play Product Video
           </button>
         </div>
         
-        <!-- Content Side (Unchanged) -->
+        <!-- Content Side -->
         <div class="flex flex-col justify-center">
           
-          <div class="mb-8">
-            <h1 class="text-2xl md:text-4xl font-black text-slate-900 mb-4 leading-tight">{{ item.title }}</h1>
-            <div class="flex items-center gap-4">
-              <span v-if="item.type !== 'swap'" class="text-3xl md:text-4xl font-black text-brand-600">₦{{ Number(item.price || 0).toLocaleString() }}</span>
-              <span v-if="item.type === 'swap' && item.swapPreference" class="px-3 py-1 bg-green-100 text-green-700 font-bold rounded-full text-sm">Swap: {{ item.swapPreference }}</span>
+          <div class="mb-5">
+            <h1 class="text-xl md:text-2xl font-extrabold text-slate-900 mb-2 leading-tight">{{ item.title }}</h1>
+            <div class="flex items-center gap-3">
+              <span v-if="item.type !== 'swap'" class="text-2xl md:text-3xl font-black text-brand-600">₦{{ Number(item.price || 0).toLocaleString() }}</span>
+              <span v-if="item.type === 'swap' && item.swapPreference" class="px-2.5 py-0.5 bg-green-100 text-green-700 font-bold rounded-md text-xs">Swap: {{ item.swapPreference }}</span>
             </div>
           </div>
           
-          <div class="space-y-6 mb-8">
-            <div class="flex items-center gap-3 text-slate-600 font-medium bg-slate-50 p-4 rounded-2xl border border-slate-200">
-              <MapPin class="w-5 h-5 text-brand-500 flex-shrink-0" />
+          <div class="space-y-4 mb-6">
+            <div class="flex items-center gap-2.5 text-slate-600 font-medium text-sm bg-slate-50 p-3 rounded-xl border border-slate-200">
+              <MapPin class="w-4 h-4 text-brand-500 flex-shrink-0" />
               <span>Location: <strong>{{ item.location }}</strong></span>
             </div>
             

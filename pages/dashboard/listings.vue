@@ -1,38 +1,38 @@
 <template>
-  <div class="p-4 md:p-8">
+  <div class="p-4 md:p-6">
     <div class="max-w-5xl mx-auto">
       
       <!-- Header -->
-      <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-6 mb-8">
+      <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 mb-6">
         <div>
-          <h1 class="text-2xl md:text-3xl font-black text-slate-900 mb-2">My Active Listings</h1>
-          <p class="text-slate-500 font-medium">Manage all the items you've posted for sale or swap.</p>
+          <h1 class="text-xl md:text-2xl font-bold text-slate-900 mb-1">My Active Listings</h1>
+          <p class="text-slate-500 font-medium text-xs sm:text-sm">Manage all the items you've posted for sale or swap.</p>
         </div>
-        <NuxtLink to="/sell" class="bg-brand-600 hover:bg-brand-700 text-white px-6 py-3 rounded-xl font-bold transition-all shadow-lg shadow-brand-200 flex items-center gap-2">
-          <Plus class="w-5 h-5" /> Post New Item
+        <NuxtLink to="/sell" class="bg-brand-600 hover:bg-brand-700 text-white px-4 py-2.5 rounded-lg font-bold text-sm transition-colors flex items-center gap-2">
+          <Plus class="w-4 h-4" /> Post New Item
         </NuxtLink>
       </div>
 
       <!-- Loading State -->
-      <div v-if="loading" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
-        <div v-for="i in 8" :key="i" class="bg-slate-100 rounded-3xl h-64 animate-pulse"></div>
+      <div v-if="loading" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
+        <div v-for="i in 8" :key="i" class="bg-slate-100 rounded-xl h-52 animate-pulse"></div>
       </div>
 
       <!-- Empty State -->
-      <div v-else-if="!loading && items.length === 0" class="bg-white rounded-3xl border border-slate-100 p-12 text-center shadow-sm">
-        <div class="w-20 h-20 bg-brand-50 rounded-full flex items-center justify-center mx-auto mb-6">
-          <PackageX class="w-10 h-10 text-brand-600" />
+      <div v-else-if="!loading && items.length === 0" class="bg-white rounded-xl border border-slate-200 p-8 text-center">
+        <div class="w-14 h-14 bg-brand-50 rounded-full flex items-center justify-center mx-auto mb-4">
+          <PackageX class="w-7 h-7 text-brand-600" />
         </div>
-        <h2 class="text-xl font-black text-slate-900 mb-2">No active listings</h2>
-        <p class="text-slate-500 mb-6 max-w-sm mx-auto">You haven't posted any items yet. Start selling or swapping to make some cash!</p>
-        <NuxtLink to="/sell" class="inline-flex bg-brand-600 hover:bg-brand-700 text-white px-6 py-3 rounded-xl font-bold transition-all shadow-lg shadow-brand-200 items-center gap-2">
-          <Plus class="w-5 h-5" /> Post Your First Item
+        <h2 class="text-lg font-bold text-slate-900 mb-1">No active listings</h2>
+        <p class="text-slate-500 text-sm mb-5 max-w-xs mx-auto">You haven't posted any items yet. Start selling or swapping to make some cash!</p>
+        <NuxtLink to="/sell" class="inline-flex bg-brand-600 hover:bg-brand-700 text-white px-5 py-2.5 rounded-lg font-bold text-sm transition-colors items-center gap-2">
+          <Plus class="w-4 h-4" /> Post Your First Item
         </NuxtLink>
       </div>
 
       <!-- Items Grid -->
-      <div v-else class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
-        <NuxtLink v-for="item in items" :key="item._id" :to="`/item/${item._id}`" class="group flex flex-col bg-white rounded-3xl border border-slate-100 overflow-hidden hover:border-brand-500 hover:shadow-xl hover:shadow-brand-500/10 transition-all duration-300">
+      <div v-else class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
+        <NuxtLink v-for="item in items" :key="item._id" :to="`/item/${item._id}`" class="group flex flex-col bg-white rounded-xl border border-slate-200 overflow-hidden hover:border-brand-500 transition-colors">
           
           <!-- Image Container -->
           <div class="relative aspect-square bg-slate-100 overflow-hidden container-query-wrap">

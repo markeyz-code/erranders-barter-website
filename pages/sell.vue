@@ -9,46 +9,46 @@
         </NuxtLink>
       </div>
 
-      <div class="grid grid-cols-1 lg:grid-cols-5 gap-12">
+      <div class="grid grid-cols-1 lg:grid-cols-5 gap-8">
         <!-- Left Side: Context / Instructions -->
-        <div class="lg:col-span-2 space-y-8">
+        <div class="lg:col-span-2 space-y-6">
           <div>
-            <h1 class="text-4xl sm:text-5xl font-black text-slate-900 tracking-tight leading-tight mb-4">
+            <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight leading-tight mb-2">
               {{ form.type === 'service' ? 'Offer a Service' : 'List an Item' }}
             </h1>
-            <p class="text-lg text-slate-600 font-medium leading-relaxed">
+            <p class="text-sm text-slate-600 font-medium leading-relaxed">
               {{ form.type === 'service' ? 'Offer your skills to students on campus. Get paid for tutoring, repairs, styling, and more.' : 'Join thousands of students trading safely on campus. Sell for cash or swap for something you need.' }}
             </p>
           </div>
           
-          <div class="space-y-6">
-            <div class="flex gap-4 items-start">
-              <div class="w-10 h-10 rounded-full bg-brand-100 flex items-center justify-center shrink-0">
-                <ShieldCheck class="w-5 h-5 text-brand-600" />
+          <div class="space-y-4">
+            <div class="flex gap-3 items-start">
+              <div class="w-8 h-8 rounded-lg bg-brand-50 flex items-center justify-center shrink-0">
+                <ShieldCheck class="w-4 h-4 text-brand-600" />
               </div>
               <div>
-                <h3 class="font-bold text-slate-900 mb-1">Escrow Protected</h3>
-                <p class="text-sm text-slate-500 font-medium">Your funds are held securely until both parties are satisfied. No scams, no worries.</p>
+                <h3 class="font-bold text-sm text-slate-900 mb-0.5">Escrow Protected</h3>
+                <p class="text-xs text-slate-500 font-medium leading-relaxed">Your funds are held securely until both parties are satisfied. No scams, no worries.</p>
               </div>
             </div>
             
-            <div class="flex gap-4 items-start">
-              <div class="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center shrink-0">
-                <Truck class="w-5 h-5 text-green-600" />
+            <div class="flex gap-3 items-start">
+              <div class="w-8 h-8 rounded-lg bg-green-50 flex items-center justify-center shrink-0">
+                <Truck class="w-4 h-4 text-green-600" />
               </div>
               <div>
-                <h3 class="font-bold text-slate-900 mb-1">Optional Errander Delivery</h3>
-                <p class="text-sm text-slate-500 font-medium">Buyers can opt to use an Errander to pick up and deliver the item directly to their hostel.</p>
+                <h3 class="font-bold text-sm text-slate-900 mb-0.5">Optional Errander Delivery</h3>
+                <p class="text-xs text-slate-500 font-medium leading-relaxed">Buyers can opt to use an Errander to pick up and deliver the item directly to their hostel.</p>
               </div>
             </div>
 
-            <div class="flex gap-4 items-start">
-              <div class="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center shrink-0">
-                <Repeat class="w-5 h-5 text-purple-600" />
+            <div class="flex gap-3 items-start">
+              <div class="w-8 h-8 rounded-lg bg-purple-50 flex items-center justify-center shrink-0">
+                <Repeat class="w-4 h-4 text-purple-600" />
               </div>
               <div>
-                <h3 class="font-bold text-slate-900 mb-1">Sell or Swap</h3>
-                <p class="text-sm text-slate-500 font-medium">Leave the price blank if you're open to swapping for something else of equal value.</p>
+                <h3 class="font-bold text-sm text-slate-900 mb-0.5">Sell or Swap</h3>
+                <p class="text-xs text-slate-500 font-medium leading-relaxed">Leave the price blank if you're open to swapping for something else of equal value.</p>
               </div>
             </div>
           </div>
@@ -56,10 +56,10 @@
 
         <!-- Right Side: Form Card -->
         <div class="lg:col-span-3">
-          <div class="bg-white rounded-3xl shadow-xl shadow-slate-200/40 border border-slate-100 overflow-hidden relative">
-            <div class="p-4 sm:p-8 sm:p-10">
+          <div class="bg-white rounded-xl border border-slate-200 overflow-hidden relative">
+            <div class="p-4 sm:p-6">
               
-              <div v-if="success" class="mb-8 bg-green-50 border border-green-200 text-green-700 p-4 sm:p-6 rounded-2xl flex items-center gap-4">
+              <div v-if="success" class="mb-6 bg-green-50 border border-green-200 text-green-700 p-4 rounded-xl flex items-center gap-3">
                 <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center shrink-0">
                   <Check class="w-6 h-6 text-green-600" />
                 </div>

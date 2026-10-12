@@ -18,3 +18,24 @@
     font-family: 'Outfit', sans-serif !important;
   }
 }
+
+/* Neutralize excessive shadows across Barter for a clean, professional flat aesthetic */
+.shadow-2xl,
+.shadow-xl,
+.shadow-lg,
+.shadow-md {
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.04), 0 1px 2px -1px rgba(0, 0, 0, 0.04) !important;
+}
+
+.shadow-sm,
+.shadow {
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.03) !important;
+}
+
+.hover\:shadow-xl:hover,
+.hover\:shadow-2xl:hover,
+.hover\:shadow-lg:hover,
+.group:hover .group-hover\:shadow-xl {
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05) !important;
+}
+

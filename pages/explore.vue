@@ -1,30 +1,30 @@
 <template>
   <main class="min-h-screen bg-white pb-16">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4 mb-8 relative z-50">
+      <div class="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-3 mb-6 relative z-50">
         <div class="w-full sm:w-auto">
-          <h1 class="text-4xl font-black text-slate-900 mb-2">
+          <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900 mb-1">
             {{ searchQuery ? 'Search Results' : 'Explore' }}
           </h1>
-          <p class="text-slate-500 font-medium mb-4">
-            {{ searchQuery ? 'Found items matching "' + searchQuery + '"' : 'Discover everything available on the Erranders network.' }}
+          <p class="text-xs sm:text-sm text-slate-500 font-medium mb-3">
+            {{ searchQuery ? 'Found items matching "' + searchQuery + '"' : 'Discover pre-loved student gear and services.' }}
           </p>
           <form @submit.prevent="executeSearch" class="flex items-center w-full max-w-md">
             <div class="relative w-full">
               <input
                 v-model="localSearchQuery"
                 type="text"
-                class="w-full bg-slate-50 border border-slate-200 rounded-full pl-11 pr-4 py-2.5 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all"
+                class="w-full bg-slate-50 border border-slate-200 rounded-lg pl-9 pr-3 py-2 text-sm font-medium focus:outline-none focus:border-brand-500 transition-colors"
                 placeholder="Search items, books, electronics..."
               />
-              <Search class="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+              <Search class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
             </div>
-            <button type="submit" class="ml-2 bg-brand-600 text-white px-5 py-2.5 rounded-full text-sm font-bold hover:bg-brand-700 transition-colors">
+            <button type="submit" class="ml-2 bg-brand-600 text-white px-4 py-2 rounded-lg text-sm font-bold hover:bg-brand-700 transition-colors">
               Search
             </button>
           </form>
         </div>
-        <div class="flex flex-wrap gap-3 w-full sm:w-auto relative z-20">
+        <div class="flex flex-wrap gap-2 w-full sm:w-auto relative z-20">
           <CustomSelect
             v-model="selectedType"
             :options="typeOptions"

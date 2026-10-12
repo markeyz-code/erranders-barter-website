@@ -1,39 +1,39 @@
 <template>
   <div class="min-h-screen bg-slate-50 flex flex-col md:flex-row">
     <!-- Sidebar -->
-    <aside class="w-full md:w-64 bg-white border-r border-slate-100 flex flex-col hidden md:flex sticky top-0 h-screen shrink-0">
-      <div class="p-6 border-b border-slate-100 flex items-center justify-between">
+    <aside class="w-full md:w-60 bg-white border-r border-slate-200 flex flex-col hidden md:flex sticky top-0 h-screen shrink-0">
+      <div class="p-5 border-b border-slate-100 flex items-center justify-between">
         <NuxtLink to="/" class="flex items-center gap-2">
-          <img src="@/assets/img/logo.png" alt="Erranders Barter" class="h-10 w-auto" />
+          <img src="@/assets/img/logo.png" alt="Erranders Barter" class="h-8 w-auto object-contain" />
         </NuxtLink>
       </div>
-      <nav class="p-4 flex-1 space-y-2">
-        <NuxtLink to="/dashboard" class="flex items-center gap-3 px-4 py-3 rounded-xl font-bold transition-colors" exact-active-class="bg-brand-50 text-brand-600" :class="isActive('/dashboard') ? 'bg-brand-50 text-brand-600' : 'text-slate-500 hover:bg-slate-50'">
-          <LayoutDashboard class="w-5 h-5" /> Overview
+      <nav class="p-3 flex-1 space-y-1">
+        <NuxtLink to="/dashboard" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-semibold transition-colors" exact-active-class="bg-brand-50 text-brand-600" :class="isActive('/dashboard') ? 'bg-brand-50 text-brand-600' : 'text-slate-600 hover:bg-slate-50'">
+          <LayoutDashboard class="w-4 h-4" /> Overview
         </NuxtLink>
-        <NuxtLink to="/dashboard/listings" class="flex items-center gap-3 px-4 py-3 rounded-xl font-bold transition-colors" exact-active-class="bg-brand-50 text-brand-600" :class="isActive('/dashboard/listings') ? 'bg-brand-50 text-brand-600' : 'text-slate-500 hover:bg-slate-50'">
-          <Package class="w-5 h-5" /> My Listings
+        <NuxtLink to="/dashboard/listings" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-semibold transition-colors" exact-active-class="bg-brand-50 text-brand-600" :class="isActive('/dashboard/listings') ? 'bg-brand-50 text-brand-600' : 'text-slate-600 hover:bg-slate-50'">
+          <Package class="w-4 h-4" /> My Listings
         </NuxtLink>
-        <NuxtLink to="/dashboard/trades" class="flex items-center gap-3 px-4 py-3 rounded-xl font-bold transition-colors" exact-active-class="bg-brand-50 text-brand-600" :class="isActive('/dashboard/trades') ? 'bg-brand-50 text-brand-600' : 'text-slate-500 hover:bg-slate-50'">
-          <ArrowRightLeft class="w-5 h-5" /> Escrow Trades
+        <NuxtLink to="/dashboard/trades" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-semibold transition-colors" exact-active-class="bg-brand-50 text-brand-600" :class="isActive('/dashboard/trades') ? 'bg-brand-50 text-brand-600' : 'text-slate-600 hover:bg-slate-50'">
+          <ArrowRightLeft class="w-4 h-4" /> Escrow Trades
         </NuxtLink>
-        <NuxtLink to="/dashboard/offers" class="flex items-center gap-3 px-4 py-3 rounded-xl font-bold transition-colors" exact-active-class="bg-brand-50 text-brand-600" :class="isActive('/dashboard/offers') ? 'bg-brand-50 text-brand-600' : 'text-slate-500 hover:bg-slate-50'">
-          <Repeat class="w-5 h-5" /> Trade Hub
+        <NuxtLink to="/dashboard/offers" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-semibold transition-colors" exact-active-class="bg-brand-50 text-brand-600" :class="isActive('/dashboard/offers') ? 'bg-brand-50 text-brand-600' : 'text-slate-600 hover:bg-slate-50'">
+          <Repeat class="w-4 h-4" /> Trade Hub
         </NuxtLink>
-        <NuxtLink to="/dashboard/wallet" class="flex items-center gap-3 px-4 py-3 rounded-xl font-bold transition-colors" exact-active-class="bg-brand-50 text-brand-600" :class="isActive('/dashboard/wallet') ? 'bg-brand-50 text-brand-600' : 'text-slate-500 hover:bg-slate-50'">
-          <Wallet class="w-5 h-5" /> Escrow Wallet
+        <NuxtLink to="/dashboard/wallet" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-semibold transition-colors" exact-active-class="bg-brand-50 text-brand-600" :class="isActive('/dashboard/wallet') ? 'bg-brand-50 text-brand-600' : 'text-slate-600 hover:bg-slate-50'">
+          <Wallet class="w-4 h-4" /> Escrow Wallet
         </NuxtLink>
-        <NuxtLink to="/dashboard/settings" class="flex items-center gap-3 px-4 py-3 rounded-xl font-bold transition-colors" exact-active-class="bg-brand-50 text-brand-600" :class="isActive('/dashboard/settings') ? 'bg-brand-50 text-brand-600' : 'text-slate-500 hover:bg-slate-50'">
-          <Settings class="w-5 h-5" /> Settings
+        <NuxtLink to="/dashboard/settings" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-semibold transition-colors" exact-active-class="bg-brand-50 text-brand-600" :class="isActive('/dashboard/settings') ? 'bg-brand-50 text-brand-600' : 'text-slate-600 hover:bg-slate-50'">
+          <Settings class="w-4 h-4" /> Settings
         </NuxtLink>
-        <NuxtLink to="/messages" class="flex items-center justify-between px-4 py-3 rounded-xl font-bold transition-colors" exact-active-class="bg-brand-50 text-brand-600" :class="isActive('/messages') ? 'bg-brand-50 text-brand-600' : 'text-slate-500 hover:bg-slate-50'">
-          <div class="flex items-center gap-3"><MessageCircle class="w-5 h-5" /> Messages</div>
-          <span v-if="unreadChats.length > 0" class="bg-red-500 text-white text-xs px-2 py-0.5 rounded-full">{{ unreadChats.length }}</span>
+        <NuxtLink to="/messages" class="flex items-center justify-between px-3 py-2 rounded-lg text-sm font-semibold transition-colors" exact-active-class="bg-brand-50 text-brand-600" :class="isActive('/messages') ? 'bg-brand-50 text-brand-600' : 'text-slate-600 hover:bg-slate-50'">
+          <div class="flex items-center gap-2.5"><MessageCircle class="w-4 h-4" /> Messages</div>
+          <span v-if="unreadChats.length > 0" class="bg-red-500 text-white text-xs px-1.5 py-0.2 rounded-full font-bold">{{ unreadChats.length }}</span>
         </NuxtLink>
       </nav>
-      <div class="p-4 border-t border-slate-100">
-        <button @click="showLogoutModal = true" class="flex items-center gap-3 px-4 py-3 w-full rounded-xl font-bold text-red-500 hover:bg-red-50 transition-colors">
-          <LogOut class="w-5 h-5" /> Sign Out
+      <div class="p-3 border-t border-slate-100">
+        <button @click="showLogoutModal = true" class="flex items-center gap-2.5 px-3 py-2 w-full rounded-lg text-sm font-semibold text-red-500 hover:bg-red-50 transition-colors">
+          <LogOut class="w-4 h-4" /> Sign Out
         </button>
       </div>
     </aside>
@@ -94,16 +94,16 @@
     </main>
 
     <!-- Logout Modal -->
-    <div v-if="showLogoutModal" class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
-      <div class="bg-white max-w-sm w-full rounded-3xl p-8 text-center shadow-2xl relative">
-        <div class="w-16 h-16 bg-red-100 text-red-500 rounded-full flex items-center justify-center mx-auto mb-6">
-          <HeartCrack class="w-8 h-8" />
+    <div v-if="showLogoutModal" class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm">
+      <div class="bg-white max-w-sm w-full rounded-2xl p-6 text-center border border-slate-200 relative">
+        <div class="w-12 h-12 bg-red-50 text-red-500 rounded-full flex items-center justify-center mx-auto mb-4">
+          <HeartCrack class="w-6 h-6" />
         </div>
-        <h3 class="text-2xl font-black text-slate-900 mb-2">Leaving so soon?</h3>
-        <p class="text-slate-500 font-medium mb-8">We'll keep your listings safe while you're away. Come back soon!</p>
+        <h3 class="text-xl font-bold text-slate-900 mb-1">Leaving so soon?</h3>
+        <p class="text-slate-500 text-sm mb-6">We'll keep your listings safe while you're away.</p>
         <div class="flex gap-3">
-          <button @click="showLogoutModal = false" class="flex-1 py-3 bg-slate-100 text-slate-600 font-bold rounded-xl hover:bg-slate-200 transition-colors">Cancel</button>
-          <button @click="handleLogout" class="flex-1 py-3 bg-red-500 text-white font-bold rounded-xl hover:bg-red-600 transition-colors shadow-lg shadow-red-200">Sign Out</button>
+          <button @click="showLogoutModal = false" class="flex-1 py-2.5 bg-slate-100 text-slate-700 font-bold rounded-xl hover:bg-slate-200 text-sm transition-colors">Cancel</button>
+          <button @click="handleLogout" class="flex-1 py-2.5 bg-red-500 text-white font-bold rounded-xl hover:bg-red-600 text-sm transition-colors">Sign Out</button>
         </div>
       </div>
     </div>
@@ -117,8 +117,8 @@
       leave-from-class="transform translate-y-0 opacity-100"
       leave-to-class="transform translate-y-[-20px] opacity-0"
     >
-      <div v-if="showChatToast && latestMessage" class="z-[200] pointer-events-auto fixed top-20 right-4 max-w-sm w-full bg-white rounded-2xl shadow-xl border border-slate-200 p-4 flex gap-4 cursor-pointer hover:bg-slate-50 transition-colors" @click="navigateToChat">
-        <div class="w-10 h-10 rounded-full bg-brand-100 flex items-center justify-center shrink-0">
+      <div v-if="showChatToast && latestMessage" class="z-[200] pointer-events-auto fixed top-20 right-4 max-w-sm w-full bg-white rounded-xl border border-slate-200 p-3.5 flex gap-3 cursor-pointer hover:bg-slate-50 transition-colors" @click="navigateToChat">
+        <div class="w-9 h-9 rounded-full bg-brand-100 flex items-center justify-center shrink-0">
           <MessageCircle class="w-5 h-5 text-brand-600" />
         </div>
         <div class="flex-1 min-w-0">

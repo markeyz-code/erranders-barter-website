@@ -1,49 +1,49 @@
 <template>
-  <div class="p-4 md:p-4 sm:p-8">
+  <div class="p-4 md:p-6">
     <div class="max-w-5xl mx-auto">
-      <div class="flex flex-col md:flex-row items-start md:items-center justify-between mb-6 gap-4">
+      <div class="flex flex-col md:flex-row items-start md:items-center justify-between mb-4 gap-3">
         <div>
-          <h1 class="text-2xl font-black text-slate-900 mb-1">Trade Hub</h1>
-          <p class="text-sm text-slate-500 font-medium">Manage your incoming and outgoing swap offers here.</p>
+          <h1 class="text-xl md:text-2xl font-bold text-slate-900 mb-0.5">Trade Hub</h1>
+          <p class="text-xs sm:text-sm text-slate-500 font-medium">Manage your incoming and outgoing swap offers here.</p>
         </div>
       </div>
 
       <!-- Tabs -->
-      <div class="flex gap-4 mb-6 border-b border-slate-200">
+      <div class="flex gap-4 mb-4 border-b border-slate-200">
         <button 
           @click="activeTab = 'received'"
-          class="pb-3 px-2 font-bold text-sm transition-colors border-b-2"
+          class="pb-2.5 px-1 font-bold text-sm transition-colors border-b-2"
           :class="activeTab === 'received' ? 'border-brand-600 text-brand-600' : 'border-transparent text-slate-500 hover:text-slate-800'"
         >
           Received Offers
         </button>
         <button 
           @click="activeTab = 'sent'"
-          class="pb-3 px-2 font-bold text-sm transition-colors border-b-2"
+          class="pb-2.5 px-1 font-bold text-sm transition-colors border-b-2"
           :class="activeTab === 'sent' ? 'border-brand-600 text-brand-600' : 'border-transparent text-slate-500 hover:text-slate-800'"
         >
           Sent Offers
         </button>
       </div>
 
-      <div v-if="loading" class="space-y-4">
-        <div v-for="i in 3" :key="i" class="bg-slate-100 p-6 rounded-3xl animate-pulse h-32"></div>
+      <div v-if="loading" class="space-y-3">
+        <div v-for="i in 3" :key="i" class="bg-slate-100 p-5 rounded-xl animate-pulse h-24"></div>
       </div>
 
-      <div v-else-if="currentOffers.length === 0" class="bg-white rounded-3xl border border-slate-200 overflow-hidden">
-        <div class="flex flex-col items-center justify-center p-12 text-center">
-          <div class="w-24 h-24 bg-slate-50 rounded-full flex items-center justify-center mb-6">
-            <Repeat class="w-10 h-10 text-slate-300" />
+      <div v-else-if="currentOffers.length === 0" class="bg-white rounded-xl border border-slate-200 overflow-hidden">
+        <div class="flex flex-col items-center justify-center p-8 sm:p-10 text-center">
+          <div class="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mb-4">
+            <Repeat class="w-8 h-8 text-slate-300" />
           </div>
-          <h3 class="text-xl font-black text-slate-900 mb-2">No Offers Found</h3>
-          <p class="text-slate-500 font-medium max-w-md mb-8">
+          <h3 class="text-lg font-bold text-slate-900 mb-1">No Offers Found</h3>
+          <p class="text-slate-500 text-sm max-w-sm mb-4">
             You don't have any {{ activeTab }} offers right now. Keep exploring to find great deals!
           </p>
         </div>
       </div>
 
-      <div v-else class="space-y-4">
-        <div v-for="offer in currentOffers" :key="offer._id" class="bg-white rounded-3xl border border-slate-200 p-6 hover:border-brand-300 transition-colors relative overflow-hidden">
+      <div v-else class="space-y-3">
+        <div v-for="offer in currentOffers" :key="offer._id" class="bg-white rounded-xl border border-slate-200 p-4 hover:border-brand-300 transition-colors relative overflow-hidden">
           
           <!-- Confetti Effect Layer (Shown only right after accepting) -->
           <div v-if="justAcceptedId === offer._id" class="absolute inset-0 pointer-events-none z-10 flex items-center justify-center bg-white/80 backdrop-blur-sm animate-out fade-out duration-1000 delay-2000 fill-mode-forwards">
