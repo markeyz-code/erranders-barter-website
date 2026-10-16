@@ -18,7 +18,7 @@
       </p>
 
       <!-- Multilingual Student Chips -->
-      <div class="flex flex-wrap items-center justify-center gap-2 max-w-2xl mx-auto mb-8 text-[11px] sm:text-xs font-bold">
+      <!-- <div class="flex flex-wrap items-center justify-center gap-2 max-w-2xl mx-auto mb-8 text-[11px] sm:text-xs font-bold">
         <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-slate-50 text-slate-700 border border-slate-200">
           <span>🇳🇬</span> <strong class="text-slate-900">Pidgin:</strong> Barter am sharp-sharp!
         </span>
@@ -31,7 +31,7 @@
         <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-blue-50 text-blue-800 border border-blue-200">
           <span>🚀</span> <strong class="text-blue-900">Hausa:</strong> Babu wahala, yi Barter!
         </span>
-      </div>
+      </div> -->
 
       <!-- Smart Omnibox Search -->
       <div class="max-w-2xl mx-auto w-full mb-8 relative group z-50 text-left">
