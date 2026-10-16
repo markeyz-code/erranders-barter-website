@@ -4,18 +4,34 @@
     <!-- Hero Section -->
     <div class="pt-10 pb-12 px-4 sm:px-6 lg:px-8 text-center bg-white relative overflow-hidden border-b border-slate-100">
       
-      <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-brand-50 text-brand-700 font-bold text-xs mb-5 border border-brand-100">
-        <span class="animate-pulse">🚀</span> Hostel movement just got easy
+      <div class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-brand-50 text-brand-700 font-bold text-xs mb-5 border border-brand-200 shadow-sm">
+        <span class="animate-pulse">📦</span> Stress-Free Hostel Movement
       </div>
 
       <h1 class="text-3xl md:text-5xl font-black tracking-tight text-slate-900 leading-[1.15] mb-4">
-        Don't throw it away. <br/>
+        Automate Your Hostel Movement. <br/>
         <span class="text-brand-600 transition-all duration-300">{{ currentPhrase }}</span>
       </h1>
       
-      <p class="text-sm md:text-base text-slate-600 font-medium max-w-xl mx-auto mb-8 leading-relaxed">
-        Turn your old fan, textbooks, or fridge into cash instead of leaving them behind! Or offer your skills as a service.
+      <p class="text-sm md:text-base text-slate-600 font-medium max-w-xl mx-auto mb-6 leading-relaxed">
+        Why stress with heavy loads? Automate your <strong>hostel movement</strong> on <strong>Barter</strong> — turn your room items into instant cash or swap with verified students.
       </p>
+
+      <!-- Multilingual Student Chips -->
+      <div class="flex flex-wrap items-center justify-center gap-2 max-w-2xl mx-auto mb-8 text-[11px] sm:text-xs font-bold">
+        <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-slate-50 text-slate-700 border border-slate-200">
+          <span>🇳🇬</span> <strong class="text-slate-900">Pidgin:</strong> Barter am sharp-sharp!
+        </span>
+        <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-amber-50 text-amber-800 border border-amber-200">
+          <span>⚡</span> <strong class="text-amber-900">Yorùbá:</strong> Kò sí wàhálà, ṣe Barter!
+        </span>
+        <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200">
+          <span>🎒</span> <strong class="text-emerald-900">Igbo:</strong> Gbanwee ya na Barter!
+        </span>
+        <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-blue-50 text-blue-800 border border-blue-200">
+          <span>🚀</span> <strong class="text-blue-900">Hausa:</strong> Babu wahala, yi Barter!
+        </span>
+      </div>
 
       <!-- Smart Omnibox Search -->
       <div class="max-w-2xl mx-auto w-full mb-8 relative group z-50 text-left">
@@ -347,24 +363,25 @@ import { useRouter } from 'vue-router'
 import { itemsApi } from '~/composables/useApi'
 
 useSeoMeta({
-  title: 'Erranders Barter - The ultimate campus marketplace',
-  description: 'Buy, sell, and swap your items seamlessly on campus. Discover electronics, books, services and more.',
-  ogTitle: 'Erranders Barter',
-  ogDescription: 'Buy, sell, and swap your items seamlessly on campus.',
+  title: 'Erranders Barter - Stress-Free Campus Hostel Movement',
+  description: 'Automate your hostel movement. Buy, sell, and swap room items seamlessly on campus with zero stress.',
+  ogTitle: 'Erranders Barter - Automate Your Hostel Movement',
+  ogDescription: 'Simplify your hostel movement. Sell off room items or swap on Barter with verified campus students.',
 })
 
 const router = useRouter()
 
-// Carousel Logic
+// Carousel Logic - Multilingual hostel movement phrases
 const phrases = [
-  "Buy am, Sell am, Swap am! 🚀",
-  "Awoof dey here! 🇳🇬",
-  "Odogwu levels, no scam.",
-  "No dulling, list am now.",
-  "Berekete items for you.",
-  "Ta, Ra, & Ṣepaṣipaaro.",
-  "Zụta, Ree, & Gbanwee.",
-  "Saya, Sayar & Canza."
+  "Hostel movement without wahala! 📦",
+  "Barter am sharp-sharp, cash out! ⚡",
+  "Kò sí wàhálà — Ṣe Barter kọ́rọ̀! 🎒",
+  "Zụta, Ree, Gbanwee na Barter! ✨",
+  "Babu wahala — Yi Barter yanzu! 🚀",
+  "Pack light, move easy, no stress! 🛋️",
+  "Ta á, Rà á, Ṣe pàṣípààrọ̀! 🤝",
+  "Kwaga hostel n'udo — Barter am! 💸",
+  "Sauƙaƙa ƙaura da Barter! 🎓"
 ]
 const currentPhrase = ref(phrases[0])
 let currentIndex = 0
