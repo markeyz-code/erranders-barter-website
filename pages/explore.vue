@@ -49,9 +49,21 @@
         <p class="text-slate-500 font-bold">Loading items...</p>
       </div>
 
+      <div v-else-if="error" class="py-20 text-center border border-red-200 bg-red-50 rounded-3xl px-4">
+        <h2 class="text-2xl font-bold text-red-700 mb-2">Could not load listings</h2>
+        <p class="text-red-600 font-medium mb-5">{{ error }}</p>
+        <button @click="fetchItems" class="bg-brand-600 text-white font-bold px-5 py-2.5 rounded-lg hover:bg-brand-700 transition-colors">
+          Try again
+        </button>
+      </div>
+
       <div v-else-if="filteredItems.length === 0" class="py-20 text-center border border-slate-200 border-dashed rounded-3xl">
-        <h2 class="text-2xl font-bold text-slate-400 mb-2">No items found for "{{ searchQuery }}"</h2>
-        <NuxtLink to="/explore" class="text-brand-600 font-bold hover:underline">Clear Search</NuxtLink>
+        <h2 class="text-2xl font-bold text-slate-400 mb-2">
+          {{ searchQuery ? `No items found for "${searchQuery}"` : 'No listings available yet' }}
+        </h2>
+        <p v-if="!searchQuery" class="text-slate-500 font-medium mb-4">Be the first to list something for your campus.</p>
+        <NuxtLink v-if="searchQuery" to="/explore" class="text-brand-600 font-bold hover:underline">Clear Search</NuxtLink>
+        <NuxtLink v-else to="/sell" class="text-brand-600 font-bold hover:underline">List an item</NuxtLink>
       </div>
 
       <div v-else class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-6">
@@ -199,6 +211,7 @@ const error = ref('')
 
 const fetchItems = async () => {
   loading.value = true
+  error.value = ''
   try {
     const params = {}
     if (searchQuery.value) params.q = searchQuery.value

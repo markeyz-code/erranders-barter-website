@@ -10,8 +10,8 @@
           </div>
           <div>
             <h1 class="text-xl md:text-2xl font-bold text-slate-900 leading-tight">Welcome, {{ user?.firstName || 'Trader' }}!</h1>
-            <p class="text-slate-500 font-medium text-xs sm:text-sm flex items-center gap-1.5 mt-0.5">
-              <MapPin class="w-3.5 h-3.5 text-brand-600" /> {{ user?.university || 'University' }} • {{ user?.hostel || 'Hostel' }}
+            <p v-if="user?.university || user?.hostel" class="text-slate-500 font-medium text-xs sm:text-sm flex items-center gap-1.5 mt-0.5">
+              <MapPin class="w-3.5 h-3.5 text-brand-600" /> {{ [user?.university, user?.hostel].filter(Boolean).join(' • ') }}
             </p>
           </div>
         </div>
@@ -20,6 +20,16 @@
       <!-- Stats Grid (Pulled from Backend) -->
       <div v-if="loading" class="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-6">
         <div v-for="i in 4" :key="i" class="bg-slate-100 p-4 rounded-xl animate-pulse h-24"></div>
+      </div>
+
+      <div v-else-if="error" class="bg-red-50 border border-red-200 text-red-700 rounded-xl p-4 mb-6 flex items-center justify-between gap-4">
+        <div>
+          <p class="font-bold">Could not load your dashboard</p>
+          <p class="text-sm mt-0.5">{{ error }}</p>
+        </div>
+        <button @click="fetchStats" class="shrink-0 bg-white border border-red-200 rounded-lg px-4 py-2 text-sm font-bold hover:bg-red-100 transition-colors">
+          Try again
+        </button>
       </div>
       
       <div v-else class="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-6">
@@ -52,7 +62,7 @@
             <Star class="w-4 h-4" />
           </div>
           <p class="text-slate-500 font-semibold text-xs mb-0.5">Seller Rating</p>
-          <p class="text-2xl font-black text-slate-900">{{ stats?.sellerRating || '0.0' }}<span class="text-xs text-slate-400">/5</span></p>
+          <p class="text-2xl font-black text-slate-900">{{ Number(stats?.sellerRating || 0).toFixed(1) }}<span class="text-xs text-slate-400">/5</span></p>
         </div>
       </div>
 
@@ -99,31 +109,34 @@
 <script setup>
 import { MapPin, Package, CheckCircle, Wallet, Star, Plus, ArrowDownToLine, Search } from 'lucide-vue-next'
 import { ref, computed, onMounted } from 'vue'
+import { usersApi } from '~/composables/useApi'
 
 definePageMeta({ layout: 'dashboard' })
 
-const { user, token } = useAuth()
+const { user } = useAuth()
 const stats = ref(null)
 const loading = ref(true)
+const error = ref('')
 
 const initials = computed(() => {
   if (!user.value) return 'U'
   return `${user.value.firstName?.[0] || ''}${user.value.lastName?.[0] || ''}`.toUpperCase() || 'U'
 })
 
-onMounted(async () => {
+const fetchStats = async () => {
+  loading.value = true
+  error.value = ''
   try {
-    const res = await fetch(`${useRuntimeConfig().public.apiBaseUrl}/users/me/stats`, {
-      headers: { 'Authorization': `Bearer ${token.value}` }
-    })
-    const data = await res.json()
-    if (res.ok) {
-      stats.value = data
-    }
+    const { data } = await usersApi.getMyStats()
+    stats.value = data
   } catch (err) {
-    console.error(err)
+    error.value =
+      err?.response?.data?.message || 'The stats API did not respond. No numbers were assumed.'
+    stats.value = null
   } finally {
     loading.value = false
   }
-})
+}
+
+onMounted(fetchStats)
 </script>

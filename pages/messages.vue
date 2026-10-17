@@ -35,9 +35,9 @@
           <div class="flex-1 min-w-0">
             <div class="flex items-center justify-between mb-1">
               <h3 class="font-bold text-slate-900 truncate">
-                {{ getOtherParticipant(chat)?.firstName }} {{ getOtherParticipant(chat)?.lastName }}
+                {{ chatTitle(chat) }}
               </h3>
-              <span v-if="chat.lastMessage" class="text-xs font-bold text-slate-400 shrink-0">
+              <span v-if="chat.lastMessage?.createdAt" class="text-xs font-bold text-slate-400 shrink-0">
                 {{ new Date(chat.lastMessage.createdAt).toLocaleDateString([], { month: 'short', day: 'numeric' }) }}
               </span>
             </div>
@@ -57,32 +57,29 @@
 
 <script setup>
 import { ArrowLeft, MessageCircle, ChevronRight } from 'lucide-vue-next'
-import { ref, onMounted } from 'vue'
+import { onMounted } from 'vue'
+import { useChat } from '@/composables/modules/chat/useChat'
 
-const { user, token } = useAuth()
-const chats = ref([])
-const loading = ref(true)
+const {
+  chats,
+  loadingChats: loading,
+  connectSocket,
+  loadChats,
+  ensureMyUserId,
+  otherParticipant,
+  chatTitle,
+} = useChat()
 
 definePageMeta({
   layout: false
 })
 
 onMounted(async () => {
-  try {
-    const res = await $fetch('/chats', {
-      baseURL: useRuntimeConfig().public.apiBaseUrl,
-      headers: { Authorization: `Bearer ${token.value}` }
-    })
-    chats.value = res || []
-  } catch (err) {
-    console.error('Failed to fetch chats', err)
-  } finally {
-    loading.value = false
-  }
+  connectSocket()
+  await ensureMyUserId()
+  await loadChats()
 })
 
-const getOtherParticipant = (chat) => {
-  if (!chat.participants || !user.value) return null;
-  return chat.participants.find(p => p._id !== user.value._id) || chat.participants[0];
-}
+// Kept for the avatar initial in the template.
+const getOtherParticipant = (chat) => otherParticipant(chat)
 </script>

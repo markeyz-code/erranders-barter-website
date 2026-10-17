@@ -22,7 +22,7 @@
 
 <script setup>
 import CustomInput from '~/components/CustomInput.vue'
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { useRoute } from 'vue-router'
 
 const route = useRoute()
@@ -31,19 +31,38 @@ const loading = ref(false)
 const error = ref('')
 const success = ref(false)
 
+// The reset link carries a single-use token. Without one there is nothing to
+// reset, so the page refuses BEFORE calling the API instead of posting the
+// literal string 'dummy' (which is what it used to do — a fake request that
+// could only ever fail confusingly, or worse, succeed against a lax backend).
+const token = computed(() => {
+  const raw = route.query.token
+  return typeof raw === 'string' ? raw.trim() : ''
+})
+
 const handleReset = async () => {
-  loading.value = true
   error.value = ''
   success.value = false
+
+  if (!token.value) {
+    error.value = 'This reset link is missing its token. Request a new link from the sign-in page.'
+    return
+  }
+  if (password.value.length < 8) {
+    error.value = 'Choose a password of at least 8 characters.'
+    return
+  }
+
+  loading.value = true
   try {
     const res = await fetch(`${useRuntimeConfig().public.apiBaseUrl}/auth/reset-password`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ token: route.query.token || 'dummy', password: password.value })
+      body: JSON.stringify({ token: token.value, password: password.value })
     })
     const data = await res.json()
     if (!res.ok) throw new Error(data.message || 'Failed')
-    
+
     success.value = true
   } catch (err) {
     error.value = err.message

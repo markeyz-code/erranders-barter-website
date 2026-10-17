@@ -1,66 +1,71 @@
-import { GATEWAY_ENDPOINT, GATEWAY_ENDPOINT_WITH_AUTH } from '../axios.config';
+import { GATEWAY_ENDPOINT_WITH_AUTH } from '../axios.config';
+
+/**
+ * Chat API — written against `backend/src/chat/chat.controller.ts`
+ * (`@Controller('chats')`, all routes JWT-guarded). The `api/v1` global prefix is
+ * appended by axios.config.ts, so paths here are written without it.
+ *
+ * The backend exposes exactly three chat routes:
+ *   GET  /chats                    → the caller's conversations
+ *   GET  /chats/:chatId/messages   → messages in one conversation
+ *   POST /chats/init               → { participantId, itemId? } find-or-create a conversation
+ *
+ * There is NO REST send-message route. Sending happens over the Socket.IO
+ * gateway (`backend/src/chat/chat.gateway.ts`, `sendMessage` event) — see
+ * `composables/modules/chat/useChat.ts`.
+ */
+
+/**
+ * A user as populated by the backend (`firstName lastName email`).
+ * Where the populate is missing the value is a raw ObjectId string instead.
+ */
+export interface ChatUser {
+  _id: string;
+  firstName?: string;
+  lastName?: string;
+  email?: string;
+}
+
+/** Matches `enum: ['text', 'image', 'voice']` in backend/src/chat/schemas/message.schema.ts */
+export type ChatMessageType = 'text' | 'image' | 'voice';
+
+/** Matches backend/src/chat/schemas/message.schema.ts (timestamps: true). */
+export interface ChatMessage {
+  _id: string;
+  chatId: string;
+  sender: ChatUser | string;
+  content: string;
+  type: ChatMessageType;
+  assetUrl?: string;
+  replyTo?: ChatMessage | string | null;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+/** Matches backend/src/chat/schemas/chat.schema.ts (timestamps: true). */
+export interface Chat {
+  _id: string;
+  participants: Array<ChatUser | string>;
+  item?: string | null;
+  lastMessage?: ChatMessage | null;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface InitChatPayload {
+  participantId: string;
+  itemId?: string;
+}
 
 export const chat_api = {
-  createRoom: (payload: {
-    userId: string
-    userName: string
-    userEmail?: string
-    userPhone?: string
-    businessId?: string
-    subdomain?: string
-    isGuest?: boolean
-    guestInfo?: any
-  }) => {
-    const url = '/chat/rooms/create'
-    return GATEWAY_ENDPOINT.post(url, payload)
-  },
+  /** GET /chats — the caller's conversations, newest first. */
+  getChats: () => GATEWAY_ENDPOINT_WITH_AUTH.get<Chat[]>('/chats'),
 
-  getRoomMessages: (roomId: string, params: {
-    userId: string
-    page?: number
-    limit?: number
-    beforeMessageId?: string
-  }) => {
-    const url = `/chat/rooms/${roomId}/messages`
-    return GATEWAY_ENDPOINT.get(url, { params })
-  },
+  /** GET /chats/:chatId/messages — oldest first. */
+  getMessages: (chatId: string) =>
+    GATEWAY_ENDPOINT_WITH_AUTH.get<ChatMessage[]>(`/chats/${chatId}/messages`),
 
-  sendMessage: (roomId: string, payload: {
-    senderId: string
-    senderType: 'customer' | 'staff' | 'system' | 'bot'
-    senderName: string
-    content: string
-    messageType?: string
-    attachments?: string[]
-    replyToMessageId?: string
-  }) => {
-    const url = `/chat/rooms/${roomId}/messages`
-    return GATEWAY_ENDPOINT.post(url, payload)
-  },
-
-  markMessagesAsRead: (roomId: string, userId: string) => {
-    const url = `/chat/rooms/${roomId}/messages/read`
-    return GATEWAY_ENDPOINT.put(url, { userId })
-  },
-
-  getBusinessRooms: (params?: {
-    roomType?: string
-    isActive?: boolean
-    priority?: string
-    page?: number
-    limit?: number
-  }) => {
-    const url = '/chat/rooms'
-    return GATEWAY_ENDPOINT_WITH_AUTH.get(url, { params })
-  },
-
-  getFaqs: (businessId: string) => {
-    const url = '/chat/faqs'
-    return GATEWAY_ENDPOINT.get(url, { params: { businessId } })
-  },
-
-  getAutoResponses: (businessId: string) => {
-    const url = '/chat/auto-responses'
-    return GATEWAY_ENDPOINT.get(url, { params: { businessId } })
-  },
-}
+  /** POST /chats/init — creates the conversation if it does not exist yet. */
+  initChat: (payload: InitChatPayload) =>
+    GATEWAY_ENDPOINT_WITH_AUTH.post<Chat>('/chats/init', payload),
+};

@@ -30,6 +30,14 @@
         <div v-for="i in 3" :key="i" class="bg-slate-100 p-5 rounded-xl animate-pulse h-24"></div>
       </div>
 
+      <div v-else-if="error" class="bg-red-50 border border-red-200 rounded-xl p-6 text-center">
+        <h2 class="font-bold text-red-700 mb-1">Could not load your offers</h2>
+        <p class="text-sm text-red-600 mb-4">{{ error }}</p>
+        <button @click="fetchOffers" class="bg-brand-600 text-white font-bold px-5 py-2.5 rounded-lg hover:bg-brand-700 text-sm transition-colors">
+          Try again
+        </button>
+      </div>
+
       <div v-else-if="currentOffers.length === 0" class="bg-white rounded-xl border border-slate-200 overflow-hidden">
         <div class="flex flex-col items-center justify-center p-8 sm:p-10 text-center">
           <div class="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mb-4">
@@ -227,6 +235,7 @@ const loading = ref(true)
 
 const receivedOffers = ref([])
 const sentOffers = ref([])
+const error = ref('')
 
 const justAcceptedId = ref(null)
 
@@ -274,15 +283,18 @@ const currentOffers = computed(() => {
 
 const fetchOffers = async () => {
   loading.value = true
+  error.value = ''
   try {
     const [recvRes, sentRes] = await Promise.all([
       offersApi.getReceivedOffers(),
       offersApi.getMyOffers()
     ])
-    receivedOffers.value = recvRes.data || []
-    sentOffers.value = sentRes.data || []
+    receivedOffers.value = Array.isArray(recvRes.data) ? recvRes.data : []
+    sentOffers.value = Array.isArray(sentRes.data) ? sentRes.data : []
   } catch (e) {
-    console.error(e)
+    error.value = e?.response?.data?.message || 'The offers API did not respond.'
+    receivedOffers.value = []
+    sentOffers.value = []
   } finally {
     loading.value = false
   }
@@ -318,8 +330,16 @@ const updateStatus = async (offerId, status) => {
 const startChat = (offer, type = 'chat') => {
   // If it's a received offer, the person who proposed is the proposerId
   // If it's a sent offer, the person who owns the target is receiverId
-  const partnerId = activeTab.value === 'received' ? offer.proposerId._id : offer.receiverId._id
-  
+  const partnerId =
+    activeTab.value === 'received'
+      ? offer.proposerId?._id || offer.proposerId
+      : offer.receiverId?._id || offer.receiverId
+
+  if (!partnerId) {
+    useCustomToast().showToast({ title: 'Notice', message: 'This offer has no counterpart to message.', toastType: 'error' })
+    return
+  }
+
   const query = new URLSearchParams()
   query.append('sellerId', partnerId)
   if (type !== 'chat') {

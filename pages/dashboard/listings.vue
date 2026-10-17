@@ -18,6 +18,15 @@
         <div v-for="i in 8" :key="i" class="bg-slate-100 rounded-xl h-52 animate-pulse"></div>
       </div>
 
+      <!-- Error State -->
+      <div v-else-if="error" class="bg-red-50 border border-red-200 rounded-xl p-6 text-center">
+        <h2 class="font-bold text-red-700 mb-1">Could not load your listings</h2>
+        <p class="text-sm text-red-600 mb-4">{{ error }}</p>
+        <button @click="fetchListings" class="bg-brand-600 text-white font-bold px-5 py-2.5 rounded-lg hover:bg-brand-700 text-sm transition-colors">
+          Try again
+        </button>
+      </div>
+
       <!-- Empty State -->
       <div v-else-if="!loading && items.length === 0" class="bg-white rounded-xl border border-slate-200 p-8 text-center">
         <div class="w-14 h-14 bg-brand-50 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -95,33 +104,31 @@
 <script setup>
 import { Plus, PackageX, MapPin, ArrowRightLeft } from 'lucide-vue-next'
 import { ref, onMounted } from 'vue'
+import { itemsApi } from '~/composables/useApi'
 
 definePageMeta({ layout: 'dashboard' })
 useSeoMeta({ title: 'My Active Listings | Erranders Barter' })
 
-const { token } = useAuth()
 const items = ref([])
 const loading = ref(true)
 const error = ref('')
 
-onMounted(async () => {
+const fetchListings = async () => {
+  loading.value = true
+  error.value = ''
   try {
-    const res = await fetch(`${useRuntimeConfig().public.apiBaseUrl}/items/me/listings`, {
-      headers: { 'Authorization': `Bearer ${token.value}` }
-    })
-    const data = await res.json()
-    if (res.ok) {
-      items.value = data
-    } else {
-      error.value = data.message || 'Failed to load listings'
-    }
+    const { data } = await itemsApi.myListings()
+    items.value = Array.isArray(data) ? data : []
   } catch (err) {
-    error.value = 'Network error'
-    console.error(err)
+    error.value =
+      err?.response?.data?.message || 'The listings API did not respond. Nothing is shown as a placeholder.'
+    items.value = []
   } finally {
     loading.value = false
   }
-})
+}
+
+onMounted(fetchListings)
 </script>
 
 <style scoped>

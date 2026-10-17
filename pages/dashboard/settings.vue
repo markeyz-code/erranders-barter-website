@@ -81,6 +81,8 @@ const { user, token, saveSession } = useAuth()
 const { showToast } = useToast()
 
 const loading = ref(false)
+const successMsg = ref('')
+const errorMsg = ref('')
 
 const form = ref({
   firstName: '',
@@ -140,8 +142,10 @@ const updateProfile = async () => {
     
     // Update local user state
     saveSession({ access_token: token.value, user: data })
+    successMsg.value = 'Your profile details have been saved successfully.'
     showToast('Profile Updated', 'Your profile details have been saved successfully.', 'success')
   } catch (err) {
+    errorMsg.value = err.message || 'Failed to update profile'
     showToast('Update Failed', err.message, 'error')
   } finally {
     loading.value = false

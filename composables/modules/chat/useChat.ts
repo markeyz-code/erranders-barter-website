@@ -1,490 +1,438 @@
+import { io, type Socket } from 'socket.io-client'
 import { chat_api } from '@/api_factory/modules/chat'
+import type { Chat, ChatMessage, ChatMessageType, ChatUser } from '@/api_factory/modules/chat'
+import { users_api } from '@/api_factory/modules/users'
 import { useCustomToast } from '@/composables/core/useCustomToast'
-import { useRealtimeSocket } from '@/composables/core/useRealtimeSocket'
-import { useUser } from '@/composables/modules/auth/user'
-import { useGetBusiness } from '@/composables/modules/business/useGetBusiness'
-import { useStorage } from '@vueuse/core'
+import { useAuth } from '@/composables/useAuth'
 
-export interface ChatMessage {
-  id?: string
-  _id?: string
-  roomId?: string
-  businessId?: string
-  senderId?: string | null
-  senderType?: 'customer' | 'staff' | 'system' | 'bot' | 'guest'
-  senderName?: string
-  messageType?: string
-  content?: string
-  attachments?: string[]
-  isRead?: boolean
-  readAt?: string
-  isAutomated?: boolean
-  isFAQ?: boolean
-  createdAt?: string
-  updatedAt?: string
-  metadata?: Record<string, any>
+export type { Chat, ChatMessage, ChatMessageType, ChatUser }
+
+/**
+ * Chat composable for the real backend contract:
+ *   GET  /chats                  → conversation list
+ *   GET  /chats/:chatId/messages → messages
+ *   POST /chats/init             → find-or-create a conversation
+ *   Socket.IO gateway (default namespace, `backend/src/chat/chat.gateway.ts`):
+ *     emit `joinChat`   { chatId }
+ *     emit `sendMessage` { chatId, content, type, assetUrl, replyTo }
+ *     on   `newMessage` (Message document, sender populated)
+ *     on   `chatNotification` { chatId, message }
+ *
+ * Things this backend does NOT have, and which are therefore not modelled here:
+ * FAQs, auto-responses, guest/anonymous conversations, business/subdomain rooms,
+ * read receipts and any REST send-message endpoint. Messages can only be sent
+ * while the Socket.IO connection is up (see `sendMessage`).
+ */
+
+const CHATS_KEY = 'chat_conversations'
+const ACTIVE_CHAT_KEY = 'chat_active_id'
+const MESSAGES_KEY = 'chat_active_messages'
+const OPEN_KEY = 'chat_is_open'
+const MY_ID_KEY = 'chat_my_user_id'
+
+// One shared client socket for the whole app: the floating widget and the chat
+// pages both use this composable, and the gateway has no namespace.
+const socket = ref<Socket | null>(null)
+const isConnected = ref(false)
+const listenersAttached = ref(false)
+const tokenWatcherAttached = ref(false)
+const seenIncomingIds = new Set<string>()
+
+const resolveWsBaseUrl = (): string => {
+  let raw = ''
+  try {
+    raw = String(useRuntimeConfig().public.apiBaseUrl || '')
+  } catch {
+    raw = ''
+  }
+  if (!raw) {
+    raw = String(import.meta.env?.VITE_API_BASE_URL || 'http://localhost:3100')
+  }
+  return raw.replace(/\/api\/v1\/?$/, '').replace(/\/$/, '')
 }
 
-export interface ChatRoom {
-  _id: string
-  roomType: string
-  roomName: string
-  businessId: string
-  metadata?: Record<string, any>
+const senderIdOf = (message: ChatMessage): string => {
+  const sender = message?.sender
+  if (!sender) return ''
+  return typeof sender === 'string' ? sender : String(sender._id || '')
 }
 
-export interface FAQ {
-  _id: string
-  question: string
-  answer: string
-  category?: string
-  order?: number
-  isActive?: boolean
+const senderEmailOf = (message: ChatMessage): string => {
+  const sender = message?.sender
+  if (!sender || typeof sender === 'string') return ''
+  return String(sender.email || '')
 }
-
-export interface AutoResponse {
-  _id: string
-  trigger: string
-  response: string
-  keywords?: string[]
-  isActive?: boolean
-}
-
-const ROOM_KEY = 'chat_active_room'
-const MESSAGES_KEY = 'chat_room_messages'
-const FAQS_KEY = 'chat_faqs'
-const AUTO_RESPONSES_KEY = 'chat_auto_responses'
 
 export const useChat = () => {
   const { showToast } = useCustomToast()
-  const { user, isLoggedIn } = useUser()
-  const { business } = useGetBusiness()
-  const { socket, emitWithAck, isConnected, connectSocket, guestSessionId } = useRealtimeSocket()
-  const listenersAttached = useState<boolean>('chat_socket_listeners', () => false)
+  const { user, token, isLoggedIn } = useAuth()
 
-  const room = useState<ChatRoom | null>(ROOM_KEY, () => null)
+  const chats = useState<Chat[]>(CHATS_KEY, () => [])
+  const activeChatId = useState<string | null>(ACTIVE_CHAT_KEY, () => null)
   const messages = useState<ChatMessage[]>(MESSAGES_KEY, () => [])
-  const faqs = useState<FAQ[]>(FAQS_KEY, () => [])
-  const autoResponses = useState<AutoResponse[]>(AUTO_RESPONSES_KEY, () => [])
-  const loading = ref(false)
+  const isOpen = useState<boolean>(OPEN_KEY, () => false)
+  const myUserId = useState<string>(MY_ID_KEY, () => '')
+
+  const loadingChats = ref(false)
+  const loadingMessages = ref(false)
   const sending = ref(false)
-  const loadingFaqs = ref(false)
   const incomingMessageTrigger = ref(0)
-  const isOpen = useState<boolean>('chat_is_open', () => false)
 
-  const guestProfile = useStorage('chat_guest_profile', {
-    name: '',
-    email: '',
-    phone: '',
-  })
-
-  const userId = computed(() => {
+  const sessionUserId = computed(() => {
     const profile = user.value as any
-    return profile?._id || profile?.id || profile?.userId || ''
+    return String(profile?._id || profile?.id || '')
   })
-
-  const isGuest = computed(() => !isLoggedIn.value)
-
-  const mySessionId = computed(() => guestSessionId.value)
 
   const displayName = computed(() => {
-    if (!isGuest.value) {
-      const profile = user.value as any
-      if (!profile) return 'User'
-      return profile?.fullName || profile?.name || `${profile?.firstName || ''} ${profile?.lastName || ''}`.trim() || 'User'
-    }
-    return guestProfile.value.name || 'Guest'
+    const profile = user.value as any
+    if (!profile) return 'You'
+    return (
+      profile.fullName ||
+      `${profile.firstName || ''} ${profile.lastName || ''}`.trim() ||
+      profile.email ||
+      'You'
+    )
   })
 
-  const displayEmail = computed(() => {
-    if (!isGuest.value) {
-      const profile = user.value as any
-      return profile?.email || ''
+  /** The signed-in user's id, resolved from the session or from GET /users/me. */
+  const ensureMyUserId = async (): Promise<string> => {
+    if (myUserId.value) return myUserId.value
+    if (sessionUserId.value) {
+      myUserId.value = sessionUserId.value
+      return myUserId.value
     }
-    return guestProfile.value.email || ''
-  })
-
-  const ensureRoom = async () => {
-    if (room.value?._id) return room.value
-
-    const route = useRoute()
-    
-    // Try to get businessId and subdomain from multiple sources
-    let businessId = (business.value as any)?._id
-    let subdomain = (route.query.subdomain as string) || (business.value as any)?.subdomain
-
-    // If no business loaded yet but we have subdomain, fetch it
-    if (!businessId && subdomain) {
-      const { getBusiness } = useGetBusiness()
-      await getBusiness(subdomain)
-      businessId = (business.value as any)?._id
-    }
-
-    // If still no business, try to get from cached business in useGetBusiness
-    if (!businessId) {
-      const { cachedBusiness } = useGetBusiness()
-      if (cachedBusiness.value) {
-        businessId = (cachedBusiness.value as any)?._id
-        subdomain = (cachedBusiness.value as any)?.subdomain
-      }
-    }
-
-    // Allow chat without businessId (platform level support)
-
-    if (isGuest.value && (!guestProfile.value.name || !guestProfile.value.email)) {
-      throw new Error('Name and email are required for guest chat')
-    }
-
-    loading.value = true
+    if (!token.value) return ''
     try {
-      const payload = {
-        userId: isGuest.value ? mySessionId.value : userId.value,
-        userName: displayName.value,
-        userEmail: displayEmail.value,
-        userPhone: isGuest.value ? guestProfile.value.phone : (user.value as any)?.phone,
-        businessId,
-        subdomain,
-        isGuest: isGuest.value,
-        guestInfo: isGuest.value
-          ? {
-              sessionId: mySessionId.value,
-              userName: guestProfile.value.name,
-              email: guestProfile.value.email,
-            }
-          : undefined,
+      const res = await users_api.getProfile()
+      const id = String(res?.data?._id || res?.data?.id || '')
+      if (id) myUserId.value = id
+    } catch {
+      // Interceptor already surfaced the error; an empty id only degrades
+      // message alignment, so it is not worth a second toast.
+    }
+    return myUserId.value
+  }
+
+  const isMine = (message: ChatMessage): boolean => {
+    if (!message) return false
+    const senderId = senderIdOf(message)
+    if (myUserId.value && senderId) return senderId === myUserId.value
+    const senderEmail = senderEmailOf(message)
+    const myEmail = (user.value as any)?.email
+    if (senderEmail && myEmail) return senderEmail === myEmail
+    return false
+  }
+
+  /** The other person in a conversation (falls back to the first participant). */
+  const otherParticipant = (chat: Chat): ChatUser | null => {
+    const participants = Array.isArray(chat?.participants) ? chat.participants : []
+    if (!participants.length) return null
+    const others = participants.filter((participant) => {
+      const id = typeof participant === 'string' ? participant : participant?._id
+      return id && String(id) !== myUserId.value
+    })
+    const picked = others[0] ?? participants[0]
+    return (typeof picked === 'string' ? { _id: picked } : picked) as ChatUser
+  }
+
+  const chatTitle = (chat: Chat): string => {
+    const other = otherParticipant(chat)
+    const name = `${other?.firstName || ''} ${other?.lastName || ''}`.trim()
+    return name || other?.email || 'Conversation'
+  }
+
+  const upsertMessage = (message: ChatMessage) => {
+    if (!message) return
+    const serverId = message._id
+    if (serverId) {
+      const existing = messages.value.findIndex((m) => m._id === serverId)
+      if (existing >= 0) {
+        const next = [...messages.value]
+        next[existing] = message
+        messages.value = next
+        return
       }
+    }
+    // Replace our optimistic bubble with the server's version of it.
+    const pending = messages.value.findIndex(
+      (m) => typeof m._id === 'string' && m._id.startsWith('pending_') && m.content === message.content
+    )
+    if (pending >= 0) {
+      const next = [...messages.value]
+      next[pending] = message
+      messages.value = next
+      return
+    }
+    messages.value = [...messages.value, message]
+  }
 
-      console.log('Creating chat room with payload:', payload)
+  const refreshChatPreview = (message: ChatMessage) => {
+    const chatId = String(message?.chatId || '')
+    if (!chatId) return
+    const index = chats.value.findIndex((chat) => String(chat._id) === chatId)
+    if (index < 0) {
+      void loadChats()
+      return
+    }
+    const next = [...chats.value]
+    next[index] = {
+      ...next[index],
+      lastMessage: message,
+      updatedAt: message.createdAt || new Date().toISOString(),
+    }
+    chats.value = next
+  }
 
-      const res = (await chat_api.createRoom(payload)) as any
-      console.log('Chat room API response:', res)
-      if([200, 201].includes(res.status)) {
-              room.value = res.data
-            if (room.value?._id) {
-                await joinRoomSocket(room.value._id)
-                await loadMessages()
+  /** Counts an incoming message once, even though the gateway may deliver it twice. */
+  const countIncoming = (message: ChatMessage) => {
+    if (!message?._id) return
+    if (seenIncomingIds.has(message._id)) return
+    seenIncomingIds.add(message._id)
+    if (senderIdOf(message) !== myUserId.value) {
+      incomingMessageTrigger.value++
+    }
+  }
+
+  const handleIncomingMessage = (message: ChatMessage) => {
+    if (!message?._id) return
+    if (activeChatId.value && String(message.chatId) === String(activeChatId.value)) {
+      upsertMessage(message)
+    }
+    refreshChatPreview(message)
+    countIncoming(message)
+  }
+
+  const handleNotification = (payload: { chatId?: string; message?: ChatMessage }) => {
+    if (!payload?.message) return
+    if (activeChatId.value && String(payload.chatId) === String(activeChatId.value)) {
+      upsertMessage(payload.message)
+    }
+    refreshChatPreview(payload.message)
+    countIncoming(payload.message)
+  }
+
+  const joinActiveChat = () => {
+    if (!socket.value?.connected || !activeChatId.value) return
+    socket.value.emit('joinChat', { chatId: activeChatId.value })
+  }
+
+  const disconnectSocket = () => {
+    if (socket.value) {
+      socket.value.removeAllListeners()
+      socket.value.disconnect()
+    }
+    socket.value = null
+    isConnected.value = false
+    listenersAttached.value = false
+  }
+
+  const connectSocket = () => {
+    if (typeof window === 'undefined') return
+    if (!token.value) return
+
+    const authToken = `Bearer ${token.value}`
+    if (socket.value && (socket.value.auth as any)?.token !== authToken) {
+      disconnectSocket()
+    }
+    if (socket.value) return
+
+    socket.value = io(resolveWsBaseUrl(), {
+      auth: { token: authToken },
+    })
+
+    socket.value.on('connect', () => {
+      isConnected.value = true
+      joinActiveChat()
+    })
+    socket.value.on('disconnect', () => {
+      isConnected.value = false
+    })
+    socket.value.on('connect_error', () => {
+      isConnected.value = false
+    })
+
+    if (!listenersAttached.value) {
+      socket.value.on('newMessage', handleIncomingMessage)
+      socket.value.on('chatNotification', handleNotification)
+      listenersAttached.value = true
+    }
+  }
+
+  // A shared socket must not outlive the session that authenticated it.
+  if (!tokenWatcherAttached.value) {
+    tokenWatcherAttached.value = true
+    watch(token, () => {
+      if (typeof window === 'undefined') return
+      disconnectSocket()
+      if (token.value) connectSocket()
+    })
+  }
+
+  const loadChats = async (): Promise<Chat[]> => {
+    if (!token.value) {
+      chats.value = []
+      return []
+    }
+    loadingChats.value = true
+    try {
+      const res = await chat_api.getChats()
+      chats.value = Array.isArray(res.data) ? res.data : []
+    } catch {
+      // axios.config.ts already raises a toast for HTTP/network errors.
+      chats.value = []
+    } finally {
+      loadingChats.value = false
+    }
+    return chats.value
+  }
+
+  const loadMessages = async (chatId?: string | null): Promise<ChatMessage[]> => {
+    const id = chatId || activeChatId.value
+    if (!id) return []
+    loadingMessages.value = true
+    try {
+      const res = await chat_api.getMessages(id)
+      messages.value = Array.isArray(res.data) ? res.data : []
+    } catch {
+      messages.value = []
+    } finally {
+      loadingMessages.value = false
+    }
+    return messages.value
+  }
+
+  /** Open a conversation: load its history and subscribe to its socket room. */
+  const openChat = async (chatId: string) => {
+    if (!chatId) return
+    activeChatId.value = chatId
+    messages.value = []
+    connectSocket()
+    joinActiveChat()
+    await Promise.all([ensureMyUserId(), loadMessages(chatId)])
+  }
+
+  /** POST /chats/init — find-or-create the conversation and open it. */
+  const startChat = async (participantId: string, itemId?: string) => {
+    if (!participantId) throw new Error('A participant is required to start a chat')
+    try {
+      const res = await chat_api.initChat(itemId ? { participantId, itemId } : { participantId })
+      const chat = res.data
+      if (!chat?._id) throw new Error('The server did not return a conversation')
+      const existing = chats.value.findIndex((c) => String(c._id) === String(chat._id))
+      if (existing >= 0) {
+        const next = [...chats.value]
+        next[existing] = { ...next[existing], ...chat }
+        chats.value = next
+      } else {
+        chats.value = [chat, ...chats.value]
       }
-
-      return room.value
-      }    
-      
+      await openChat(chat._id)
+      return chat
     } catch (error: any) {
+      if (!error?.response) {
+        showToast({
+          title: 'Chat error',
+          message: error?.message || 'Unable to start the conversation',
+          toastType: 'error',
+          duration: 4000,
+        })
+      }
+      throw error
+    }
+  }
+
+  /**
+   * Send over the gateway. The backend has no REST send route and the gateway
+   * `sendMessage` event has no acknowledgement callback, so this is
+   * fire-and-forget with an optimistic bubble that is reconciled when the server
+   * echoes `newMessage` back to the chat room.
+   */
+  const sendMessage = async (
+    content: string,
+    options?: { type?: ChatMessageType; assetUrl?: string; replyTo?: string }
+  ) => {
+    let text = (content || '').trim()
+    const type: ChatMessageType = options?.type || 'text'
+    const assetUrl = options?.assetUrl
+
+    if (!text && !assetUrl) return
+    // `content` is `required: true` in the Message schema, so media messages
+    // need a fallback caption or the server rejects the save.
+    if (!text) text = type === 'image' ? 'Shared an image' : 'Voice note'
+
+    if (!activeChatId.value) throw new Error('Open a conversation before sending a message')
+
+    await ensureMyUserId()
+    connectSocket()
+
+    if (!socket.value?.connected) {
       showToast({
-        title: 'Chat error',
-        message: error?.message || 'Unable to start chat',
+        title: 'Not connected',
+        message: 'Still connecting to chat. Please try again in a moment.',
         toastType: 'error',
         duration: 4000,
       })
-      throw error
-    } finally {
-      loading.value = false
+      throw new Error('Not connected to the chat server')
     }
-  }
 
-  const joinRoomSocket = async (roomId: string) => {
-    connectSocket()
-    if (!socket.value) return
-
-    const response = await emitWithAck<any>('chat:join-room', { roomId })
-    if (response?.success && Array.isArray(response.messages)) {
-      messages.value = response.messages
-    }
-  }
-
-  const loadMessages = async () => {
-    if (!room.value?._id) return
-
-    const currentUserId = isGuest.value ? mySessionId.value : userId.value
-    const res = (await chat_api.getRoomMessages(room.value._id, { userId: currentUserId, limit: 50 })) as any
-    if ([200, 201].includes(res?.status)) {
-      const payload = res.data?.data || res.data
-      messages.value = payload?.messages || payload || []
-    }
-  }
-
-  const getBusinessId = () => {
-    let businessId = (business.value as any)?._id
-    if (!businessId) {
-      const { cachedBusiness } = useGetBusiness()
-      businessId = (cachedBusiness.value as any)?._id
-    }
-    return businessId
-  }
-
-  const loadFaqs = async () => {
-    const businessId = getBusinessId()
-    if (!businessId) return
-
-    loadingFaqs.value = true
-    try {
-      const res = (await chat_api.getFaqs(businessId)) as any
-      if ([200, 201].includes(res?.status)) {
-        const payload = res.data?.data || res.data
-        faqs.value = Array.isArray(payload) ? payload : payload?.faqs || []
-      }
-    } catch (error) {
-      console.error('Failed to load FAQs:', error)
-    } finally {
-      loadingFaqs.value = false
-    }
-  }
-
-  const loadAutoResponses = async () => {
-    const businessId = getBusinessId()
-    if (!businessId) return
-
-    try {
-      const res = (await chat_api.getAutoResponses(businessId)) as any
-      if ([200, 201].includes(res?.status)) {
-        const payload = res.data?.data || res.data
-        autoResponses.value = Array.isArray(payload) ? payload : payload?.autoResponses || []
-      }
-    } catch (error) {
-      console.error('Failed to load auto responses:', error)
-    }
-  }
-
-  const sendFaqQuestion = async (faq: FAQ) => {
-    // Send the question as a user message
-    await sendMessage(faq.question)
-    
-    // Add the FAQ answer as a bot response after a short delay
-    setTimeout(() => {
-      const faqResponse: ChatMessage = {
-        id: `faq_${Date.now()}`,
-        roomId: room.value?._id,
-        senderId: 'system',
-        senderType: 'bot',
-        senderName: 'FAQ Bot',
-        content: faq.answer,
-        messageType: 'text',
-        isFAQ: true,
-        createdAt: new Date().toISOString(),
-      }
-      messages.value = [...messages.value, faqResponse]
-    }, 500)
-  }
-
-  const sendMessage = async (content: string, options?: { messageType?: string, attachments?: string[] }) => {
-    if (!content.trim() && !(options?.attachments?.length)) return
-    if (!room.value?._id) await ensureRoom()
-    if (!room.value?._id) return
-
+    const chatId = activeChatId.value
     sending.value = true
     try {
-      const type = options?.messageType || 'text'
-      const atts = options?.attachments || []
-      
-      // Optimistically add message to UI immediately
-      const optimisticMessage: ChatMessage = {
-        id: `temp_${Date.now()}`,
-        roomId: room.value._id,
-        senderId: isGuest.value ? mySessionId.value : userId.value,
-        senderType: 'customer',
-        senderName: displayName.value,
-        content,
-        messageType: type,
-        attachments: atts,
-        createdAt: new Date().toISOString(),
-        metadata: isGuest.value ? { guestId: mySessionId.value } : {},
-      }
-      messages.value = [...messages.value, optimisticMessage]
+      messages.value = [
+        ...messages.value,
+        {
+          _id: `pending_${Date.now()}`,
+          chatId,
+          sender: { _id: myUserId.value },
+          content: text,
+          type,
+          assetUrl,
+          replyTo: options?.replyTo,
+          createdAt: new Date().toISOString(),
+        },
+      ]
 
-      // Try WebSocket first for real-time experience
-      if (isConnected.value && socket.value) {
-        const response = await emitWithAck<any>('chat:send-message', {
-            roomId: room.value._id,
-            content,
-            attachments: atts,
-            senderType: 'customer',
-            senderId: isGuest.value ? mySessionId.value : userId.value,
-            senderName: displayName.value,
-            messageType: type
-        })
-
-        if (!response?.success) {
-          // WebSocket failed, fall back to REST API
-          console.warn('WebSocket send failed, falling back to REST:', response?.error)
-          await sendViaRest(content, options)
-        }
-      } else {
-        // Not connected via WebSocket, use REST API
-        await sendViaRest(content, options)
-      }
-    } catch (error: any) {
-      // Remove optimistic message on error
-      messages.value = messages.value.filter(m => !m.id?.startsWith('temp_'))
-      showToast({
-        title: 'Chat error',
-        message: error?.message || 'Unable to send message',
-        toastType: 'error',
-        duration: 4000,
+      socket.value.emit('sendMessage', {
+        chatId,
+        content: text,
+        type,
+        assetUrl,
+        replyTo: options?.replyTo,
       })
-      throw error
     } finally {
       sending.value = false
     }
   }
 
-  const sendViaRest = async (content: string, options?: { messageType?: string, attachments?: string[] }) => {
-    if (!room.value?._id) return
-
-    const payload = {
-      senderId: isGuest.value ? mySessionId.value : userId.value,
-      senderType: 'customer' as const,
-      senderName: displayName.value,
-      content,
-      messageType: options?.messageType || 'text',
-      attachments: options?.attachments || []
-    }
-
-    const res = (await chat_api.sendMessage(room.value._id, payload)) as any
-    if (![200, 201].includes(res?.status)) {
-      throw new Error(res?.data?.message || res?.data?.error || 'Message failed to send')
-    }
-    // Refresh messages if REST was used (WebSocket won't broadcast our own message back)
-    await loadMessages()
-  }
-
-  const markAsRead = async () => {
-    if (!room.value?._id) return
-    const readerId = isGuest.value ? mySessionId.value : userId.value
-    if (!readerId) return
-
-    await chat_api.markMessagesAsRead(room.value._id, readerId)
-  }
-
-  const attachSocketListeners = () => {
-    if (!socket.value) return
-
-    // Force cleanup of any existing listeners to aggressively prevent duplication
-    socket.value.off('chat:new-message')
-    socket.value.off('chat:auto-response')
-    socket.value.off('chat:faq-response')
-
-    socket.value.on('chat:new-message', (message: ChatMessage) => {
-      const msgId = message._id || message.id
-      
-      const existingTempIndex = messages.value.findIndex(
-        m => m.id?.toString().startsWith('temp_') && m.content === message.content
-      )
-
-      const exactMatchIndex = messages.value.findIndex(m => {
-        const mId = m._id || m.id
-        return mId && msgId && mId === msgId
-      })
-
-      if (exactMatchIndex >= 0) {
-        // Update existing server message
-        const updated = [...messages.value]
-        updated[exactMatchIndex] = message
-        messages.value = updated
-      } else if (existingTempIndex >= 0) {
-        // Replace optimistic message with real server message
-        const updated = [...messages.value]
-        updated[existingTempIndex] = message
-        messages.value = updated
-      } else {
-        // Safely append new message
-        messages.value = [...messages.value, message]
-      }
-
-      // If it's not our own message, increment the trigger
-      if (message.senderType !== 'customer') {
-         incomingMessageTrigger.value++
-      }
-    })
-
-    socket.value.on('chat:auto-response', (message: ChatMessage) => {
-      const msgId = message._id || message.id
-      const exists = messages.value.some(m => {
-        const mId = m._id || m.id
-        return mId && msgId && mId === msgId
-      })
-      if (!exists) {
-        messages.value = [...messages.value, message]
-        incomingMessageTrigger.value++
-      }
-    })
-
-    socket.value.on('chat:faq-response', (message: ChatMessage) => {
-      const msgId = message._id || message.id
-      const exists = messages.value.some(m => {
-        const mId = m._id || m.id
-        return mId && msgId && mId === msgId
-      })
-      if (!exists) {
-        messages.value = [...messages.value, message]
-      }
-    })
-  }
-
-  const detachSocketListeners = () => {
-    if (!socket.value) return
-    listenersAttached.value = false
-    socket.value.off('chat:new-message')
-    socket.value.off('chat:auto-response')
-    socket.value.off('chat:faq-response')
-  }
-
-  const isMine = (message: ChatMessage) => {
-    // Force messages from the admin dashboard or system bots to the left side
-    if (['bot', 'system', 'admin', 'staff'].includes(message?.senderType || '')) {
-      return false
-    }
-
-    if (isGuest.value) {
-      return message?.metadata?.guestId === mySessionId.value
-    }
-    return message?.senderId === userId.value
-  }
-
-  const triggerOrderSuccessChat = () => {
-    isOpen.value = true
-    
-    // Add a slight delay for better UX
-    setTimeout(() => {
-      // Check if message already exists to avoid duplicates
-      const exists = messages.value.some(m => m.content === 'Thanks for your order! We are assigning a dispatcher to your order shortly. Let us know if you need any help.')
-      if (!exists) {
-        messages.value.push({
-          _id: 'auto_' + Date.now(),
-          content: 'Thanks for your order! We are assigning a dispatcher to your order shortly. Let us know if you need any help.',
-          messageType: 'text',
-          senderType: 'system',
-          senderName: 'Erranders Support',
-          createdAt: new Date().toISOString()
-        } as any)
-      }
-    }, 1000)
-  }
-
   return {
-    room,
+    // state
+    chats,
+    activeChatId,
     messages,
-    faqs,
-    autoResponses,
-    loading,
+    isOpen,
+    myUserId,
+    loadingChats,
+    loadingMessages,
     sending,
     incomingMessageTrigger,
-    loadingFaqs,
-    isGuest,
-    displayName,
-    displayEmail,
-    guestProfile,
     isConnected,
-    ensureRoom,
+    isLoggedIn,
+    token,
+    displayName,
+    socket,
+    // actions
+    connectSocket,
+    disconnectSocket,
+    joinActiveChat,
+    ensureMyUserId,
+    loadChats,
     loadMessages,
-    loadFaqs,
-    loadAutoResponses,
+    openChat,
+    startChat,
     sendMessage,
-    sendFaqQuestion,
-    markAsRead,
-    joinRoomSocket,
-    attachSocketListeners,
-    detachSocketListeners,
+    // helpers
     isMine,
-    isOpen,
-    triggerOrderSuccessChat
+    otherParticipant,
+    chatTitle,
   }
 }

@@ -32,21 +32,22 @@
         <!-- Header -->
         <div class="p-4 border-b border-slate-100 flex items-center justify-between bg-white shadow-sm z-10 relative">
           <div class="flex items-center gap-3">
-            <button @click="$router.back()" class="p-2 hover:bg-slate-100 rounded-full transition-colors">
+            <button @click="router.back()" class="p-2 hover:bg-slate-100 rounded-full transition-colors">
               <ArrowLeft class="w-5 h-5 text-slate-600" />
             </button>
             <div class="w-10 h-10 bg-brand-100 rounded-full flex items-center justify-center text-brand-700 font-bold border border-brand-200">
-              S
+              {{ headerInitial }}
             </div>
             <div>
-              <h2 class="font-bold text-slate-900 leading-tight">Secure Chat</h2>
-              <p class="text-sm text-green-500 font-bold flex items-center gap-1">
-                <span class="w-2 h-2 rounded-full bg-green-500 block animate-pulse"></span> Online
+              <h2 class="font-bold text-slate-900 leading-tight">{{ headerTitle }}</h2>
+              <p class="text-sm font-bold flex items-center gap-1" :class="isConnected ? 'text-green-500' : 'text-slate-400'">
+                <span class="w-2 h-2 rounded-full block" :class="isConnected ? 'bg-green-500 animate-pulse' : 'bg-slate-300'"></span>
+                {{ isConnected ? 'Online' : 'Connecting...' }}
               </p>
             </div>
           </div>
           
-          <div class="flex items-center gap-2 text-slate-500">
+          <div v-if="activeChatId" class="flex items-center gap-2 text-slate-500">
             <button @click="startCall('voice')" class="p-2 hover:bg-slate-100 rounded-full transition-colors">
               <Phone class="w-5 h-5 text-brand-600" />
             </button>
@@ -64,6 +65,28 @@
         
         <!-- Chat Area -->
         <div class="flex-1 p-4 overflow-y-auto bg-slate-50 flex flex-col gap-4 relative" ref="chatContainer" @click="showEmojis = false">
+          <!-- No conversation resolved from the URL -->
+          <div v-if="conversationUnavailable" class="flex-1 flex flex-col items-center justify-center text-center gap-4">
+            <div class="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center">
+              <MessageSquare class="w-8 h-8 text-slate-400" />
+            </div>
+            <div>
+              <h3 class="text-lg font-bold text-slate-900 mb-1">{{ notice.title }}</h3>
+              <p class="text-slate-500 font-medium max-w-sm">{{ notice.message }}</p>
+            </div>
+            <NuxtLink to="/messages" class="px-5 py-2.5 bg-slate-900 text-white font-bold rounded-full hover:bg-brand-600 transition-colors text-sm">
+              View my messages
+            </NuxtLink>
+          </div>
+
+          <div v-else-if="loadingConversation" class="flex-1 flex items-center justify-center">
+            <Loader2 class="w-6 h-6 text-slate-400 animate-spin" />
+          </div>
+
+          <div v-else-if="!messages.length" class="flex-1 flex items-center justify-center text-center">
+            <p class="text-slate-500 font-medium">No messages yet — say hello.</p>
+          </div>
+
           <div v-for="msg in messages" :key="msg._id" :class="isMine(msg) ? 'self-end' : 'self-start'" class="max-w-[85%] group">
             
             <!-- Message Actions (Reply) -->
@@ -75,31 +98,26 @@
 
             <!-- Tagged Reply Context -->
             <div v-if="msg.replyTo" class="mb-1 p-2 bg-black/5 border-l-4 border-brand-500 rounded text-sm text-slate-500 truncate" :class="isMine(msg) ? 'text-right' : 'text-left'">
-              Reply to: "{{ msg.replyTo.content || 'Attachment' }}"
+              Reply to: "{{ replyPreview(msg) }}"
             </div>
 
             <!-- Message Bubble -->
             <div :class="isMine(msg) ? 'bg-brand-600 text-white rounded-tr-sm' : 'bg-white border border-slate-200 text-slate-700 rounded-tl-sm'" class="p-3 rounded-2xl shadow-sm text-sm break-words relative overflow-hidden">
               
-              <div v-if="msg.type === 'text'" class="whitespace-pre-wrap">{{ msg.content }}</div>
-              
-              <div v-else-if="msg.type === 'image'">
+              <div v-if="msg.type === 'image' && msg.assetUrl">
                 <img :src="msg.assetUrl" class="w-full max-w-[250px] rounded-xl object-cover mb-2 bg-black/5" loading="lazy" />
                 <span v-if="msg.content" class="block mt-1">{{ msg.content }}</span>
               </div>
-              
-              <div v-else-if="msg.type === 'video'">
-                <video :src="msg.assetUrl" controls class="w-full max-w-[250px] rounded-xl object-cover mb-2 bg-black/5"></video>
-                <span v-if="msg.content" class="block mt-1">{{ msg.content }}</span>
-              </div>
 
-              <div v-else-if="msg.type === 'voice'" class="flex items-center gap-2">
+              <div v-else-if="msg.type === 'voice' && msg.assetUrl" class="flex items-center gap-2">
                 <audio :src="msg.assetUrl" controls class="h-10 w-[200px] sm:w-[250px] outline-none filter drop-shadow-sm"></audio>
               </div>
 
+              <div v-else class="whitespace-pre-wrap">{{ msg.content }}</div>
+
             </div>
             <p :class="isMine(msg) ? 'text-right mr-1' : 'ml-1'" class="text-[10px] text-slate-400 font-bold mt-1">
-              {{ new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) }}
+              {{ formatTime(msg.createdAt) }}
             </p>
           </div>
         </div>
@@ -108,7 +126,7 @@
         <div v-if="replyingTo" class="bg-slate-100 p-3 border-t border-slate-200 flex items-center justify-between">
           <div class="text-sm text-slate-600 truncate border-l-4 border-brand-500 pl-2">
             <span class="font-bold text-brand-600 block">Replying to</span>
-            {{ replyingTo.content || 'Attachment' }}
+            {{ replyPreview(replyingTo) }}
           </div>
           <button @click="replyingTo = null" class="text-slate-400 hover:text-slate-600"><X class="w-4 h-4"/></button>
         </div>
@@ -117,8 +135,7 @@
         <div v-if="pendingAsset" class="bg-slate-100 p-3 border-t border-slate-200 flex items-center justify-between">
           <div class="flex items-center gap-3">
             <div class="w-12 h-12 bg-slate-200 rounded-lg flex items-center justify-center overflow-hidden">
-              <img v-if="pendingFileType === 'image'" :src="pendingAsset" class="w-full h-full object-cover" />
-              <Video v-else-if="pendingFileType === 'video'" class="w-6 h-6 text-slate-500" />
+              <img :src="pendingAsset" class="w-full h-full object-cover" />
             </div>
             <span class="text-sm font-bold text-slate-600">Attachment Ready</span>
           </div>
@@ -135,20 +152,20 @@
         </div>
 
         <!-- Input Area -->
-        <div class="p-3 bg-white border-t border-slate-100 relative">
+        <div v-if="!conversationUnavailable" class="p-3 bg-white border-t border-slate-100 relative">
           <form @submit.prevent="sendMessage" class="flex items-end gap-2">
             
             <button type="button" @click="showEmojis = !showEmojis" class="p-3 text-slate-400 hover:text-brand-600 bg-slate-50 hover:bg-brand-50 rounded-full transition-colors shrink-0 mb-0.5">
               <Smile class="w-5 h-5" />
             </button>
 
-            <button type="button" @click="$refs.fileInput.click()" class="p-3 text-slate-400 hover:text-brand-600 bg-slate-50 hover:bg-brand-50 rounded-full transition-colors shrink-0 mb-0.5">
+            <button type="button" @click="triggerFileInput" class="p-3 text-slate-400 hover:text-brand-600 bg-slate-50 hover:bg-brand-50 rounded-full transition-colors shrink-0 mb-0.5">
               <Paperclip class="w-5 h-5" />
             </button>
             <button type="button" @click="startCamera" class="p-3 text-slate-400 hover:text-brand-600 bg-slate-50 hover:bg-brand-50 rounded-full transition-colors shrink-0 mb-0.5" :disabled="isUploading">
               <Camera class="w-5 h-5" />
             </button>
-            <input type="file" ref="fileInput" @change="handleFile" accept="image/*,video/*" class="hidden" />
+            <input type="file" ref="fileInput" @change="handleFile" accept="image/*" class="hidden" />
 
             <div class="flex-1 bg-slate-50 border border-slate-200 rounded-2xl flex items-center min-h-[48px] focus-within:border-brand-500 transition-colors">
               <textarea 
@@ -162,8 +179,8 @@
               ></textarea>
             </div>
             
-            <button v-if="newMessage.trim() || pendingAsset" type="submit" :disabled="isUploading" class="w-12 h-12 bg-brand-600 hover:bg-brand-700 disabled:opacity-50 disabled:cursor-not-allowed rounded-full flex items-center justify-center text-white transition-colors shrink-0 shadow-sm mb-0.5">
-              <Send v-if="!isUploading" class="w-5 h-5 ml-1" />
+            <button v-if="newMessage.trim() || pendingAsset" type="submit" :disabled="isUploading || sending" class="w-12 h-12 bg-brand-600 hover:bg-brand-700 disabled:opacity-50 disabled:cursor-not-allowed rounded-full flex items-center justify-center text-white transition-colors shrink-0 shadow-sm mb-0.5">
+              <Send v-if="!isUploading && !sending" class="w-5 h-5 ml-1" />
               <Loader2 v-else class="w-5 h-5 animate-spin" />
             </button>
             
@@ -204,33 +221,55 @@
 
 <script setup>
 import { useCustomToast } from '@/composables/core/useCustomToast';
-import { ArrowLeft, Send, Paperclip, Mic, Image, X, Reply, Play, Phone, Video, Smile, Loader2, MicOff, PhoneOff, Camera, RefreshCw } from 'lucide-vue-next'
-import { ref, onMounted, onUnmounted, nextTick } from 'vue'
-import { useRoute } from 'vue-router'
-
-import { io } from 'socket.io-client'
+import { ArrowLeft, Send, Paperclip, Mic, X, Reply, Phone, Video, Smile, Loader2, PhoneOff, Camera, RefreshCw, MessageSquare } from 'lucide-vue-next'
+import { ref, computed, watch, onMounted, onUnmounted, nextTick } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
+import { useAuth } from '~/composables/useAuth'
+import { useChat } from '@/composables/modules/chat/useChat'
+import { upload_api } from '@/api_factory/modules/upload'
 
 definePageMeta({
   layout: false
 })
 
 const route = useRoute()
-const { user, token } = useAuth()
+const router = useRouter()
+const { token } = useAuth()
+const { showToast } = useCustomToast()
 
-const socket = ref(null)
-const messages = ref([])
+// Shared chat state/logic (conversation list, history, gateway socket, sending)
+const {
+  chats,
+  activeChatId,
+  messages,
+  sending,
+  isConnected,
+  socket,
+  connectSocket,
+  loadChats,
+  openChat,
+  startChat,
+  sendMessage: sendChatMessage,
+  ensureMyUserId,
+  isMine,
+  otherParticipant,
+  chatTitle,
+} = useChat()
+
 const newMessage = ref('')
 const replyingTo = ref(null)
 const pendingAsset = ref(null)
 const pendingFile = ref(null)
-const pendingFileType = ref(null)
 const chatContainer = ref(null)
 const messageInput = ref(null)
+const fileInput = ref(null)
 const isRecording = ref(false)
 const isUploading = ref(false)
-const activeCall = ref(null)
 const showEmojis = ref(false)
+const loadingConversation = ref(true)
+const conversationUnavailable = ref(false)
 
+const activeCall = ref(null)
 const peerConnection = ref(null)
 const localStream = ref(null)
 const remoteStream = ref(null)
@@ -245,59 +284,82 @@ const popularEmojis = ['😀','😂','🥰','😎','🥺','😭','🙏','👍','
 let mediaRecorder = null
 let audioChunks = []
 
-const chatId = ref(route.query.chatId || '')
-const sellerId = ref(route.query.sellerId || '')
-const itemId = ref(route.query.itemId || '')
+const activeChat = computed(() => chats.value.find(c => String(c._id) === String(activeChatId.value)) || null)
+const headerTitle = computed(() => (activeChat.value ? chatTitle(activeChat.value) : 'Secure Chat'))
+const headerInitial = computed(() => {
+  const participant = activeChat.value ? otherParticipant(activeChat.value) : null
+  return String(participant?.firstName?.[0] || participant?.email?.[0] || 'S').toUpperCase()
+})
 
-onMounted(async () => {
-  // If sellerId is provided, init the chat via backend API
-  if (sellerId.value && !chatId.value) {
-    try {
-      const res = await $fetch('/chats/init', {
-        baseURL: useRuntimeConfig().public.apiBaseUrl,
-        method: 'POST',
-        headers: { Authorization: `Bearer ${token.value}` },
-        body: { participantId: sellerId.value, itemId: itemId.value }
-      })
-      chatId.value = res._id
-    } catch (err) {
-      console.error('Failed to init chat', err)
-      return
+const notice = computed(() => {
+  if (!token.value) {
+    return {
+      title: 'Log in to chat',
+      message: 'Conversations with other traders need a signed-in account.',
     }
   }
+  return {
+    title: 'No conversation selected',
+    message: 'Open one of your conversations, or start a new one from an item listing.',
+  }
+})
 
-  // Fallback for safety
-  if (!chatId.value) {
-    chatId.value = 'test-chat-123'
+onMounted(async () => {
+  if (!token.value) {
+    conversationUnavailable.value = true
+    loadingConversation.value = false
+    return
   }
 
-  // Fetch previous messages
+  const chatIdFromQuery = route.query.chatId ? String(route.query.chatId) : ''
+  const sellerId = route.query.sellerId ? String(route.query.sellerId) : ''
+  const itemId = route.query.itemId ? String(route.query.itemId) : undefined
+
+  connectSocket()
+  attachCallListeners()
+
   try {
-    const prevMessages = await $fetch(`/chats/${chatId.value}/messages`, {
-      baseURL: useRuntimeConfig().public.apiBaseUrl,
-      headers: { Authorization: `Bearer ${token.value}` }
-    })
-    messages.value = prevMessages || []
-    scrollToBottom()
+    await ensureMyUserId()
+    if (chatIdFromQuery) {
+      await openChat(chatIdFromQuery)
+      if (!chats.value.length) await loadChats()
+    } else if (sellerId) {
+      await startChat(sellerId, itemId)
+    } else {
+      conversationUnavailable.value = true
+    }
   } catch (err) {
-    console.error('Failed to fetch messages', err)
+    console.error('Failed to open conversation', err)
+    conversationUnavailable.value = true
+  } finally {
+    loadingConversation.value = false
+    scrollToBottom()
   }
 
-  // Connect WebSocket
-  socket.value = io(useRuntimeConfig().public.apiBaseUrl.replace('/api/v1', ''), {
-    auth: { token: `Bearer ${token.value}` }
-  })
+  // Auto-start call if requested via query parameter
+  if (route.query.call === 'voice' || route.query.call === 'video') {
+    setTimeout(() => {
+      startCall(route.query.call)
+    }, 1000)
+  }
+})
 
-  socket.value.on('connect', () => {
-    socket.value.emit('joinChat', { chatId: chatId.value })
-  })
+onUnmounted(() => {
+  stopCamera()
+  const s = socket.value
+  if (s) {
+    s.off('call-offer')
+    s.off('call-answer')
+    s.off('call-ice-candidate')
+    s.off('call-end')
+  }
+})
 
-  socket.value.on('newMessage', (msg) => {
-    messages.value.push(msg)
-    scrollToBottom()
-  })
+const attachCallListeners = () => {
+  const s = socket.value
+  if (!s) return
 
-  socket.value.on('call-offer', async (data) => {
+  s.on('call-offer', async (data) => {
     callType.value = data.type
     activeCall.value = true
     callStatus.value = 'Incoming Call...'
@@ -315,44 +377,27 @@ onMounted(async () => {
     
     peerConnection.value.onicecandidate = (event) => {
       if (event.candidate) {
-        socket.value.emit('call-ice-candidate', { chatId: chatId.value, candidate: event.candidate })
+        s.emit('call-ice-candidate', { chatId: activeChatId.value, candidate: event.candidate })
       }
     }
     
     await peerConnection.value.setRemoteDescription(new RTCSessionDescription(data.offer))
   })
 
-  socket.value.on('call-answer', async (data) => {
+  s.on('call-answer', async (data) => {
     await peerConnection.value.setRemoteDescription(new RTCSessionDescription(data.answer))
     callStatus.value = 'Connected'
   })
 
-  socket.value.on('call-ice-candidate', async (data) => {
+  s.on('call-ice-candidate', async (data) => {
     if (peerConnection.value) {
       await peerConnection.value.addIceCandidate(new RTCIceCandidate(data.candidate))
     }
   })
 
-  socket.value.on('call-end', () => {
+  s.on('call-end', () => {
     cleanupCall()
   })
-
-  // Auto-start call if requested via query parameter
-  if (route.query.call === 'voice' || route.query.call === 'video') {
-    setTimeout(() => {
-      startCall(route.query.call)
-    }, 1000)
-  }
-})
-
-onUnmounted(() => {
-  stopCamera()
-  if (socket.value) socket.value.disconnect()
-})
-
-const isMine = (msg) => {
-  const currentUserId = user.value?._id || user.value?.id
-  return msg.sender?._id === currentUserId || msg.sender === currentUserId
 }
 
 const scrollToBottom = async () => {
@@ -360,6 +405,20 @@ const scrollToBottom = async () => {
   if (chatContainer.value) {
     chatContainer.value.scrollTop = chatContainer.value.scrollHeight
   }
+}
+
+const formatTime = (value) => {
+  try {
+    return value ? new Date(value).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : ''
+  } catch {
+    return ''
+  }
+}
+
+const replyPreview = (msg) => {
+  if (!msg) return 'Attachment'
+  if (typeof msg.replyTo === 'object' && msg.replyTo) return msg.replyTo.content || 'Attachment'
+  return msg.content || 'Attachment'
 }
 
 const setReply = (msg) => {
@@ -381,11 +440,15 @@ const resizeTextarea = () => {
   })
 }
 
+const triggerFileInput = () => {
+  fileInput.value?.click()
+}
+
 const handleFile = (e) => {
   const file = e.target.files[0]
+  // The Message schema type enum is text | image | voice — video is not supported.
   if (file) {
     pendingFile.value = file
-    pendingFileType.value = file.type.startsWith('video/') ? 'video' : 'image'
     pendingAsset.value = URL.createObjectURL(file)
   }
 }
@@ -393,42 +456,35 @@ const handleFile = (e) => {
 const cancelAttachment = () => {
   pendingAsset.value = null
   pendingFile.value = null
-  pendingFileType.value = null
 }
 
-
-
 const startRecording = async () => {
+  if (!activeChatId.value || isUploading.value) return
   try {
     const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
     mediaRecorder = new MediaRecorder(stream)
+    audioChunks = []
     mediaRecorder.ondataavailable = (e) => {
-      audioChunks.push(e.data)
+      if (e.data && e.data.size) audioChunks.push(e.data)
     }
     mediaRecorder.onstop = async () => {
       const audioBlob = new Blob(audioChunks, { type: 'audio/webm' })
       audioChunks = []
-      
-      const formData = new FormData()
-      formData.append('file', audioBlob, 'voicenote.webm')
-      
+      if (!activeChatId.value) return
+
       isUploading.value = true
       try {
-        const res = await $fetch('/upload/video', {
-          baseURL: useRuntimeConfig().public.apiBaseUrl,
-          method: 'POST',
-          headers: { Authorization: `Bearer ${token.value}` },
-          body: formData
-        })
-        
-        socket.value.emit('sendMessage', {
-          chatId: chatId.value,
-          content: 'Voice Note',
-          type: 'voice',
-          assetUrl: res.url
-        })
+        const res = await upload_api.uploadFile(audioBlob, 'audio')
+        const url = res?.data?.url || res?.data?.data?.url
+        if (!url) throw new Error('No URL returned from the upload server')
+        await sendChatMessage('Voice note', { type: 'voice', assetUrl: url })
       } catch (err) {
         console.error('Audio upload failed', err)
+        showToast({
+          title: 'Upload failed',
+          message: err?.response?.data?.message || err?.message || 'Could not send the voice note.',
+          toastType: 'error'
+        })
       } finally {
         isUploading.value = false
       }
@@ -436,7 +492,7 @@ const startRecording = async () => {
     mediaRecorder.start()
     isRecording.value = true
   } catch (err) {
-    useCustomToast().showToast({ title: 'Notice', message: "Microphone access denied.", toastType: "error" })
+    showToast({ title: 'Notice', message: "Microphone access denied.", toastType: "error" })
   }
 }
 
@@ -448,56 +504,57 @@ const stopRecording = () => {
   }
 }
 
-const playAudio = (url) => {
-  const audio = new window.Audio(url)
-  audio.play()
-}
-
 const sendMessage = async (e) => {
   if (e && e.shiftKey) return; // Allow Shift+Enter for new line
   if (!newMessage.value.trim() && !pendingFile.value) return
+  if (!activeChatId.value) return
 
   let uploadedUrl = ''
-  let fileType = pendingFileType.value || 'text'
-  
+
   if (pendingFile.value) {
     isUploading.value = true
-    const formData = new FormData()
-    formData.append('file', pendingFile.value)
-    
     try {
-      const endpoint = fileType === 'video' ? '/upload/video' : '/upload/image'
-      const res = await $fetch(endpoint, {
-        baseURL: useRuntimeConfig().public.apiBaseUrl,
-        method: 'POST',
-        headers: { Authorization: `Bearer ${token.value}` },
-        body: formData
-      })
-      uploadedUrl = res.url
-    } catch(err) {
+      const res = await upload_api.uploadFile(pendingFile.value, 'image')
+      uploadedUrl = res?.data?.url || res?.data?.data?.url || ''
+      if (!uploadedUrl) throw new Error('No URL returned from the upload server')
+    } catch (err) {
       console.error('Upload failed', err)
+      showToast({
+        title: 'Upload failed',
+        message: err?.response?.data?.message || err?.message || 'Could not upload the attachment.',
+        toastType: 'error'
+      })
       isUploading.value = false
       return
     }
     isUploading.value = false
   }
 
-  socket.value.emit('sendMessage', {
-    chatId: chatId.value,
-    content: newMessage.value.trim(),
-    type: uploadedUrl ? fileType : 'text',
-    assetUrl: uploadedUrl,
-    replyTo: replyingTo.value?._id
-  })
-  
+  const content = newMessage.value.trim()
+  const replyTo = replyingTo.value?._id
+
   newMessage.value = ''
   cancelAttachment()
   replyingTo.value = null
   showEmojis.value = false
   if (messageInput.value) messageInput.value.style.height = 'auto'
+
+  try {
+    await sendChatMessage(content, {
+      type: uploadedUrl ? 'image' : 'text',
+      assetUrl: uploadedUrl || undefined,
+      replyTo,
+    })
+  } catch (err) {
+    // The composable has already surfaced the failure.
+  }
 }
 
 const startCall = async (type) => {
+  if (!socket.value) {
+    showToast({ title: 'Notice', message: 'Still connecting to chat. Please try again in a moment.', toastType: 'error' })
+    return
+  }
   callType.value = type
   activeCall.value = true
   callStatus.value = 'Calling...'
@@ -521,15 +578,15 @@ const startCall = async (type) => {
     
     peerConnection.value.onicecandidate = (event) => {
       if (event.candidate) {
-        socket.value.emit('call-ice-candidate', { chatId: chatId.value, candidate: event.candidate })
+        socket.value.emit('call-ice-candidate', { chatId: activeChatId.value, candidate: event.candidate })
       }
     }
     
     const offer = await peerConnection.value.createOffer()
     await peerConnection.value.setLocalDescription(offer)
-    socket.value.emit('call-offer', { chatId: chatId.value, offer, type })
+    socket.value.emit('call-offer', { chatId: activeChatId.value, offer, type })
   } catch (err) {
-    useCustomToast().showToast({ title: 'Notice', message: "Camera/Microphone permissions denied.", toastType: "error" })
+    showToast({ title: 'Notice', message: "Camera/Microphone permissions denied.", toastType: "error" })
     cleanupCall()
   }
 }
@@ -544,16 +601,16 @@ const answerCall = async () => {
     
     const answer = await peerConnection.value.createAnswer()
     await peerConnection.value.setLocalDescription(answer)
-    socket.value.emit('call-answer', { chatId: chatId.value, answer })
+    socket.value.emit('call-answer', { chatId: activeChatId.value, answer })
     callStatus.value = 'Connected'
   } catch (err) {
-    useCustomToast().showToast({ title: 'Notice', message: "Camera/Microphone permissions denied.", toastType: "error" })
+    showToast({ title: 'Notice', message: "Camera/Microphone permissions denied.", toastType: "error" })
     endCall()
   }
 }
 
 const endCall = () => {
-  if (socket.value) socket.value.emit('call-end', { chatId: chatId.value })
+  if (socket.value) socket.value.emit('call-end', { chatId: activeChatId.value })
   cleanupCall()
 }
 
@@ -589,7 +646,7 @@ const startCamera = async () => {
     });
   } catch (error) {
     console.error('Error accessing camera:', error);
-    useCustomToast().showToast({ title: 'Camera Error', message: 'Could not access the camera.', toastType: 'error' });
+    showToast({ title: 'Camera Error', message: 'Could not access the camera.', toastType: 'error' });
     showCamera.value = false;
   }
 }
@@ -631,30 +688,20 @@ const capturePhoto = async () => {
     
     isUploading.value = true;
     try {
-      const form = new FormData();
-      form.append('file', file);
-      
-      const res = await $fetch('/upload/image', {
-        baseURL: useRuntimeConfig().public.apiBaseUrl,
-        method: 'POST',
-        headers: { Authorization: `Bearer ${token.value}` },
-        body: form
-      });
-      
-      if (res?.url) {
-        socket.value.emit('sendMessage', {
-          chatId: chatId.value,
-          content: '📷 Photo sent',
-          type: 'image',
-          assetUrl: res.url
-        });
+      const res = await upload_api.uploadFile(file, 'image');
+      const url = res?.data?.url || res?.data?.data?.url;
+      if (url) {
+        await sendChatMessage('📷 Photo sent', { type: 'image', assetUrl: url });
       }
     } catch (err) {
       console.error('Failed to upload captured photo', err);
-      useCustomToast().showToast({ title: 'Upload Failed', message: 'Failed to upload photo. Please try again.', toastType: 'error' });
+      showToast({ title: 'Upload Failed', message: 'Failed to upload photo. Please try again.', toastType: 'error' });
     } finally {
       isUploading.value = false;
     }
   }, 'image/jpeg', 0.8);
 }
+
+// Keep the view pinned to the newest message.
+watch(messages, async () => { await nextTick(); scrollToBottom() }, { deep: true })
 </script>

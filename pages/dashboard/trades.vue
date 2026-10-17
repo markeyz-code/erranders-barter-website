@@ -12,6 +12,14 @@
         <div v-for="i in 3" :key="i" class="bg-slate-100 p-5 rounded-xl animate-pulse h-24"></div>
       </div>
 
+      <div v-else-if="error" class="bg-red-50 border border-red-200 rounded-xl p-6 text-center">
+        <h2 class="font-bold text-red-700 mb-1">Could not load your trades</h2>
+        <p class="text-sm text-red-600 mb-4">{{ error }}</p>
+        <button @click="fetchTrades" class="bg-brand-600 text-white font-bold px-5 py-2.5 rounded-lg hover:bg-brand-700 text-sm transition-colors">
+          Try again
+        </button>
+      </div>
+
       <div v-else-if="!trades || trades.length === 0" class="bg-white rounded-xl border border-slate-200 overflow-hidden">
         <div class="flex flex-col items-center justify-center p-8 sm:p-10 text-center">
           <div class="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mb-4">
@@ -39,12 +47,12 @@
               <div class="flex items-center gap-2 mb-1.5">
                 <span class="px-2.5 py-0.5 rounded-full text-xs font-bold uppercase tracking-wider" 
                       :class="{'bg-yellow-50 text-yellow-600': trade.status === 'held_in_escrow', 'bg-emerald-50 text-emerald-600': trade.status === 'released', 'bg-red-50 text-red-600': trade.status === 'disputed'}">
-                  {{ trade.status.replace(/_/g, ' ') }}
+                  {{ String(trade.status || 'unknown').replace(/_/g, ' ') }}
                 </span>
-                <span class="text-xs font-medium text-slate-400">{{ new Date(trade.createdAt).toLocaleDateString() }}</span>
+                <span class="text-xs font-medium text-slate-400">{{ trade.createdAt ? new Date(trade.createdAt).toLocaleDateString() : '' }}</span>
               </div>
-              <h4 class="font-bold text-base text-slate-900 mb-0.5">Trade #{{ trade._id.slice(-6).toUpperCase() }}</h4>
-              <p class="text-xs font-medium text-slate-500">Amount: ₦{{ trade.amount.toLocaleString() }}</p>
+              <h4 class="font-bold text-base text-slate-900 mb-0.5">Trade #{{ String(trade._id).slice(-6).toUpperCase() }}</h4>
+              <p class="text-xs font-medium text-slate-500">Amount: ₦{{ Number(trade.amount || 0).toLocaleString() }}</p>
             </div>
             <NuxtLink to="/escrow" class="text-brand-600 font-bold hover:text-brand-700 bg-brand-50 hover:bg-brand-100 py-1.5 px-3.5 rounded-lg text-sm transition-colors self-start sm:self-auto">
               View Details
@@ -59,27 +67,27 @@
 <script setup>
 import { RefreshCcw } from 'lucide-vue-next'
 import { ref, onMounted } from 'vue'
-
+import { escrowApi } from '~/composables/useApi'
 
 definePageMeta({ layout: 'dashboard' })
 
-const { token } = useAuth()
 const trades = ref([])
 const loading = ref(true)
+const error = ref('')
 
-onMounted(async () => {
+const fetchTrades = async () => {
+  loading.value = true
+  error.value = ''
   try {
-    const res = await fetch(`${useRuntimeConfig().public.apiBaseUrl}/escrow/my-transactions`, {
-      headers: { 'Authorization': `Bearer ${token.value}` }
-    })
-    const data = await res.json()
-    if (res.ok) {
-      trades.value = data
-    }
+    const { data } = await escrowApi.myTransactions()
+    trades.value = Array.isArray(data) ? data : []
   } catch (err) {
-    console.error('Failed to fetch trades:', err)
+    error.value = err?.response?.data?.message || 'The escrow API did not respond.'
+    trades.value = []
   } finally {
     loading.value = false
   }
-})
+}
+
+onMounted(fetchTrades)
 </script>

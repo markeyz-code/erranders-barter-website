@@ -56,21 +56,6 @@
           
           <div class="flex-1 overflow-y-auto p-4">
             
-            <!-- Room Completion AI -->
-            <div class="mb-6 p-4 bg-gradient-to-br from-indigo-50 to-purple-50 rounded-2xl border border-indigo-100">
-              <h4 class="font-black text-indigo-900 mb-2 flex items-center gap-2"><Sparkles class="w-4 h-4" /> Room Completer AI</h4>
-              <p class="text-sm text-indigo-700 font-medium mb-3">Tell us what you already have, and we'll suggest what you're missing for a perfect room.</p>
-              <div class="flex gap-2">
-                <input v-model="roomItems" placeholder="e.g. Bed, Fan, Laptop..." class="flex-1 bg-white border border-indigo-200 rounded-xl px-3 py-2 text-sm font-bold outline-none focus:border-indigo-500" />
-                <button @click="generateSuggestions" class="bg-indigo-600 text-white px-4 py-2 rounded-xl text-sm font-bold shadow-sm hover:bg-indigo-700">Suggest</button>
-              </div>
-              <div v-if="aiSuggestions.length > 0" class="mt-4 flex flex-wrap gap-2">
-                <span v-for="sug in aiSuggestions" :key="sug" @click="searchQuery = sug" class="px-3 py-1 bg-white text-indigo-700 text-sm font-bold rounded-full border border-indigo-200 cursor-pointer hover:bg-indigo-100 shadow-sm">
-                  + {{ sug }}
-                </span>
-              </div>
-            </div>
-
             <!-- Filters -->
             <div class="flex flex-wrap gap-2 mb-6 pb-6 border-b border-slate-100">
               <span class="text-sm font-black text-slate-400 uppercase  flex items-center mr-2">Budget:</span>
@@ -82,7 +67,14 @@
             <!-- Results List -->
             <div>
               <h4 class="text-sm font-black text-slate-400 uppercase  mb-4">Matching Items & Services</h4>
-              <div v-if="filteredResults.length === 0" class="py-8 text-center text-slate-500 font-medium text-sm">
+              <div v-if="itemsLoading" class="py-8 text-center text-slate-500 font-medium text-sm">
+                Loading listings...
+              </div>
+              <div v-else-if="itemsError" class="py-6 text-center">
+                <p class="text-red-600 font-medium text-sm mb-3">{{ itemsError }}</p>
+                <button @click="fetchItems" class="text-brand-600 font-bold text-sm hover:underline">Try again</button>
+              </div>
+              <div v-else-if="filteredResults.length === 0" class="py-8 text-center text-slate-500 font-medium text-sm">
                 No items or services found under ₦{{ budget ? budget.toLocaleString() : 'Any' }} matching "{{ searchQuery }}".
               </div>
               <div v-else class="space-y-2">
@@ -136,9 +128,6 @@
           <div class="relative">
             <div class="aspect-[4/3] rounded-2xl overflow-hidden border border-slate-200">
               <img src="/img/nigerian_students_packing_hostel_1790990458873.jpg" alt="Students packing up hostel room" class="w-full h-full object-cover" />
-            </div>
-            <div class="absolute -bottom-3 -right-3 bg-brand-600 text-white px-4 py-2 rounded-xl font-bold text-xs">
-              ₦2M+ wasted yearly 😱
             </div>
           </div>
           <div>
@@ -255,79 +244,38 @@
           <p class="text-sm md:text-base text-slate-500 font-medium max-w-lg mx-auto">Barter isn't just for physical items. Students can offer services like braiding, repairs, tutoring, and more.</p>
         </div>
         
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
-          <div class="bg-white rounded-xl overflow-hidden border border-slate-200 group hover:border-brand-500 transition-colors">
-            <div class="aspect-square overflow-hidden">
-              <img src="/img/nigerian_hair_braiding_1790990545939.jpg" alt="Hair braiding service" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-            </div>
-            <div class="p-3.5">
-              <span class="px-2 py-0.5 bg-purple-100 text-purple-700 text-[10px] font-bold uppercase tracking-wider rounded border border-purple-200">Service</span>
-              <h3 class="font-bold text-slate-900 mt-1.5 text-sm">Hair Braiding</h3>
-              <p class="text-xs text-slate-500 mt-0.5">From ₦5k · Comes to hostel</p>
-            </div>
-          </div>
-          <div class="bg-white rounded-xl overflow-hidden border border-slate-200 group hover:border-brand-500 transition-colors">
-            <div class="aspect-square overflow-hidden">
-              <img src="/img/nigerian_laptop_repair_1790990557474.jpg" alt="Laptop repair service" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-            </div>
-            <div class="p-3.5">
-              <span class="px-2 py-0.5 bg-purple-100 text-purple-700 text-[10px] font-bold uppercase tracking-wider rounded border border-purple-200">Service</span>
-              <h3 class="font-bold text-slate-900 mt-1.5 text-sm">Laptop Repair</h3>
-              <p class="text-xs text-slate-500 mt-0.5">From ₦3k · HW & SW</p>
-            </div>
-          </div>
-          <div class="bg-white rounded-xl overflow-hidden border border-slate-200 group hover:border-brand-500 transition-colors">
-            <div class="aspect-square overflow-hidden">
-              <img src="/img/nigerian_tutoring_1790990568804.jpg" alt="Tutoring service" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-            </div>
-            <div class="p-3.5">
-              <span class="px-2 py-0.5 bg-purple-100 text-purple-700 text-[10px] font-bold uppercase tracking-wider rounded border border-purple-200">Service</span>
-              <h3 class="font-bold text-slate-900 mt-1.5 text-sm">Private Tutoring</h3>
-              <p class="text-xs text-slate-500 mt-0.5">From ₦2k · Any course</p>
-            </div>
-          </div>
-          <div class="bg-white rounded-xl overflow-hidden border border-slate-200 group hover:border-brand-500 transition-colors">
-            <div class="aspect-square overflow-hidden">
-              <img src="/img/nigerian_room_cleaning_1790990576715.jpg" alt="Room cleaning service" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-            </div>
-            <div class="p-3.5">
-              <span class="px-2 py-0.5 bg-purple-100 text-purple-700 text-[10px] font-bold uppercase tracking-wider rounded border border-purple-200">Service</span>
-              <h3 class="font-bold text-slate-900 mt-1.5 text-sm">Room Cleaning</h3>
-              <p class="text-xs text-slate-500 mt-0.5">₦3k per room · Any hostel</p>
-            </div>
-          </div>
+        <div v-if="itemsLoading" class="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
+          <div v-for="i in 4" :key="i" class="bg-slate-100 rounded-xl h-52 animate-pulse"></div>
         </div>
-      </div>
-    </section>
 
-    <!-- SECTION: Testimonials -->
-    <section class="py-14 px-4 sm:px-6 lg:px-8 bg-white border-b border-slate-100">
-      <div class="max-w-5xl mx-auto text-center">
-        <span class="text-xs font-bold text-brand-600 uppercase tracking-wider mb-2 block">Students Love It</span>
-        <h2 class="text-2xl md:text-3xl font-extrabold text-slate-900 mb-10">Don't take our word for it.</h2>
-        
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
-          <div class="bg-slate-50 rounded-xl p-5 text-left border border-slate-200">
-            <p class="text-sm text-slate-700 font-medium leading-relaxed mb-4">"I was about to throw my fan away during hostel clearance. Listed it on Barter, sold it in 2 hours. ₦8k straight to my account. Mad o!"</p>
-            <div class="flex items-center gap-2.5">
-              <div class="w-9 h-9 bg-brand-100 rounded-full flex items-center justify-center font-bold text-xs text-brand-700 border border-brand-200">CF</div>
-              <div><p class="font-bold text-xs text-slate-900">Chioma F.</p><p class="text-[11px] text-slate-500">300L, Biochemistry</p></div>
+        <div v-else-if="itemsError" class="bg-red-50 border border-red-200 rounded-xl p-6 text-center">
+          <p class="text-red-700 font-medium mb-3">{{ itemsError }}</p>
+          <button @click="fetchItems" class="text-brand-600 font-bold hover:underline">Try again</button>
+        </div>
+
+        <div v-else-if="serviceItems.length === 0" class="bg-slate-50 border border-dashed border-slate-200 rounded-xl p-8 text-center">
+          <p class="text-slate-600 font-medium mb-2">No services have been listed yet.</p>
+          <NuxtLink to="/sell" class="text-brand-600 font-bold hover:underline">Offer the first service</NuxtLink>
+        </div>
+
+        <div v-else class="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
+          <NuxtLink
+            v-for="item in serviceItems"
+            :key="item._id"
+            :to="'/item/' + item._id"
+            class="bg-white rounded-xl overflow-hidden border border-slate-200 group hover:border-brand-500 transition-colors"
+          >
+            <div class="aspect-square overflow-hidden">
+              <img :src="item.images?.[0] || '/no-image.png'" :alt="item.title" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
             </div>
-          </div>
-          <div class="bg-slate-50 rounded-xl p-5 text-left border border-slate-200">
-            <p class="text-sm text-slate-700 font-medium leading-relaxed mb-4">"I needed a fridge badly when I resumed. Found one on Barter for ₦15k instead of buying new for ₦50k. The escrow thing gave me confidence."</p>
-            <div class="flex items-center gap-2.5">
-              <div class="w-9 h-9 bg-blue-100 rounded-full flex items-center justify-center font-bold text-xs text-blue-700 border border-blue-200">DA</div>
-              <div><p class="font-bold text-xs text-slate-900">Damilare A.</p><p class="text-[11px] text-slate-500">100L, Medicine</p></div>
+            <div class="p-3.5">
+              <span class="px-2 py-0.5 bg-purple-100 text-purple-700 text-[10px] font-bold uppercase tracking-wider rounded border border-purple-200">Service</span>
+              <h3 class="font-bold text-slate-900 mt-1.5 text-sm truncate">{{ item.title }}</h3>
+              <p class="text-xs text-slate-500 mt-0.5 truncate">
+                {{ item.price ? '₦' + Number(item.price).toLocaleString() : 'Negotiable' }} · {{ item.location }}
+              </p>
             </div>
-          </div>
-          <div class="bg-slate-50 rounded-xl p-5 text-left border border-slate-200">
-            <p class="text-sm text-slate-700 font-medium leading-relaxed mb-4">"I do hair braiding on campus. Barter helped me get steady customers. The in-app chat is so smooth, I don't even need WhatsApp again."</p>
-            <div class="flex items-center gap-2.5">
-              <div class="w-9 h-9 bg-purple-100 rounded-full flex items-center justify-center font-bold text-xs text-purple-700 border border-purple-200">AO</div>
-              <div><p class="font-bold text-xs text-slate-900">Amara O.</p><p class="text-[11px] text-slate-500">200L, Mass Comm</p></div>
-            </div>
-          </div>
+          </NuxtLink>
         </div>
       </div>
     </section>
@@ -340,7 +288,7 @@
       <div class="max-w-2xl mx-auto text-center relative z-10">
         <h2 class="text-3xl md:text-4xl font-black mb-4 leading-tight">Stop wasting. Start trading.</h2>
         <p class="text-sm md:text-base text-slate-400 font-medium max-w-lg mx-auto mb-8 leading-relaxed">
-          Join thousands of students already buying, selling, and swapping on the Erranders Barter network.
+          Buy, sell, and swap with verified students on your campus. Every trade is protected by escrow.
         </p>
         <div class="flex flex-col sm:flex-row gap-3 justify-center">
           <NuxtLink to="/signup" class="bg-brand-600 text-white font-bold px-6 py-3 rounded-xl hover:bg-brand-700 transition-colors text-sm">
@@ -357,7 +305,7 @@
 </template>
 
 <script setup>
-import { ArrowRightLeft, Search, ShoppingCart, Tag, Truck, ShieldCheck, Camera, TrendingUp, MapPin, Sparkles, X, Check } from 'lucide-vue-next'
+import { ArrowRightLeft, Search, ShoppingCart, Tag, Truck, ShieldCheck, Camera, TrendingUp, MapPin, X, Check } from 'lucide-vue-next'
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { itemsApi } from '~/composables/useApi'
@@ -388,16 +336,27 @@ let currentIndex = 0
 let intervalId
 
 const itemsList = ref([])
+const itemsLoading = ref(true)
+const itemsError = ref('')
 
-onMounted(async () => {
+/** Real listings from GET /items. A failure is surfaced, never filled with samples. */
+const fetchItems = async () => {
+  itemsLoading.value = true
+  itemsError.value = ''
   try {
-    const { data, error } = await itemsApi.list({})
-    if (!error && data) {
-      itemsList.value = data
-    }
+    const res = await itemsApi.list({})
+    itemsList.value = Array.isArray(res.data) ? res.data : []
   } catch (err) {
-    console.error(err)
+    itemsError.value =
+      err?.response?.data?.message || 'Could not load listings from the server.'
+    itemsList.value = []
+  } finally {
+    itemsLoading.value = false
   }
+}
+
+onMounted(() => {
+  fetchItems()
 
   intervalId = setInterval(() => {
     currentIndex = (currentIndex + 1) % phrases.length
@@ -413,8 +372,6 @@ onUnmounted(() => {
 const searchQuery = ref('')
 const isDropdownOpen = ref(false)
 const budget = ref(null)
-const roomItems = ref('')
-const aiSuggestions = ref([])
 
 const handleSearch = () => {
   if (searchQuery.value.trim()) {
@@ -423,19 +380,10 @@ const handleSearch = () => {
   }
 }
 
-const generateSuggestions = () => {
-  if (!roomItems.value) return
-  const input = roomItems.value.toLowerCase()
-  let suggestions = []
-  
-  if (!input.includes('fridge')) suggestions.push('Mini Fridge')
-  if (!input.includes('fan')) suggestions.push('Standing Fan')
-  if (!input.includes('lamp')) suggestions.push('Reading Lamp')
-  if (!input.includes('extension')) suggestions.push('Extension Box')
-  if (!input.includes('pot')) suggestions.push('Hotplate / Pot')
-  
-  aiSuggestions.value = suggestions.length > 0 ? suggestions : ['Laundry Service', 'Cleaning Service']
-}
+/** The real service listings shown in the "Got skills?" section. */
+const serviceItems = computed(() =>
+  itemsList.value.filter((item) => item.type === 'service').slice(0, 4),
+)
 
 // Dynamic search results from API items
 const filteredResults = computed(() => {
@@ -443,15 +391,15 @@ const filteredResults = computed(() => {
   const q = searchQuery.value.toLowerCase()
   return itemsList.value.filter((item) => {
     const matchesSearch = (item.title || '').toLowerCase().includes(q) || (item.category || '').toLowerCase().includes(q)
-    const matchesBudget = budget.value ? (item.price || 0) <= budget.value : true
+    const matchesBudget = budget.value ? (Number(item.price) || 0) <= budget.value : true
     return matchesSearch && matchesBudget
   }).map(item => ({
     id: item._id,
     name: item.title,
-    priceText: item.price ? `₦${item.price.toLocaleString()}` : 'Swap',
+    priceText: item.price ? `₦${Number(item.price).toLocaleString()}` : 'Swap',
     category: item.type === 'service' ? 'Service' : 'Item',
     loc: item.location,
-    img: item.images?.[0] || 'https://via.placeholder.com/200'
+    img: item.images?.[0] || '/no-image.png'
   }))
 })
 </script>
