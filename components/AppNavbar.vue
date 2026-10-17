@@ -12,6 +12,7 @@
          <a href="/explore" class="hover:text-[#FF5C1A] transition-colors">Buy</a>
          <a href="/sell" class="hover:text-[#FF5C1A] transition-colors">Sell</a>
          <a href="/swap" class="hover:text-[#FF5C1A] transition-colors">Swap</a>
+         <a href="/services" class="hover:text-[#FF5C1A] transition-colors">Services</a>
       </div>
 
       <!-- Actions -->
@@ -54,6 +55,7 @@
            <a @click="isMobileMenuOpen = false" href="/explore" class="px-3.5 py-2.5 text-sm font-bold text-slate-700 hover:bg-slate-50 rounded-xl transition-colors">Buy Items</a>
            <a @click="isMobileMenuOpen = false" href="/sell" class="px-3.5 py-2.5 text-sm font-bold text-slate-700 hover:bg-slate-50 rounded-xl transition-colors">Sell Items</a>
            <a @click="isMobileMenuOpen = false" href="/swap" class="px-3.5 py-2.5 text-sm font-bold text-slate-700 hover:bg-slate-50 rounded-xl transition-colors">Swap Items</a>
+          <a @click="isMobileMenuOpen = false" href="/services" class="px-3.5 py-2.5 text-sm font-bold text-slate-700 hover:bg-slate-50 rounded-xl transition-colors">Book a Service</a>
           
           <div class="h-px bg-slate-100 my-2 mx-2"></div>
           

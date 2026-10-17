@@ -6,3 +6,7 @@ export * from './modules/users';
 export * from './modules/settings';
 export * from './modules/categories';
 export * from './modules/offers';
+export * from './modules/services';
+export * from './modules/bookings';
+export * from './modules/providers';
+export * from './modules/availability';

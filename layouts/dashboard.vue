@@ -20,6 +20,15 @@
         <NuxtLink to="/dashboard/offers" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-semibold transition-colors" exact-active-class="bg-brand-50 text-brand-600" :class="isActive('/dashboard/offers') ? 'bg-brand-50 text-brand-600' : 'text-slate-600 hover:bg-slate-50'">
           <Repeat class="w-4 h-4" /> Trade Hub
         </NuxtLink>
+        <NuxtLink to="/dashboard/services" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-semibold transition-colors" exact-active-class="bg-brand-50 text-brand-600" :class="isActive('/dashboard/services') ? 'bg-brand-50 text-brand-600' : 'text-slate-600 hover:bg-slate-50'">
+          <Briefcase class="w-4 h-4" /> My Services
+        </NuxtLink>
+        <NuxtLink to="/dashboard/availability" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-semibold transition-colors" exact-active-class="bg-brand-50 text-brand-600" :class="isActive('/dashboard/availability') ? 'bg-brand-50 text-brand-600' : 'text-slate-600 hover:bg-slate-50'">
+          <CalendarClock class="w-4 h-4" /> Availability
+        </NuxtLink>
+        <NuxtLink to="/dashboard/bookings" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-semibold transition-colors" exact-active-class="bg-brand-50 text-brand-600" :class="isActive('/dashboard/bookings') ? 'bg-brand-50 text-brand-600' : 'text-slate-600 hover:bg-slate-50'">
+          <CalendarDays class="w-4 h-4" /> Bookings
+        </NuxtLink>
         <NuxtLink to="/dashboard/wallet" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-semibold transition-colors" exact-active-class="bg-brand-50 text-brand-600" :class="isActive('/dashboard/wallet') ? 'bg-brand-50 text-brand-600' : 'text-slate-600 hover:bg-slate-50'">
           <Wallet class="w-4 h-4" /> Escrow Wallet
         </NuxtLink>
@@ -69,6 +78,15 @@
         </NuxtLink>
         <NuxtLink @click="mobileMenu = false" to="/dashboard/offers" class="flex items-center gap-3 px-4 py-4 rounded-xl font-bold text-lg text-slate-500 hover:bg-slate-50 transition-colors">
           <Repeat class="w-6 h-6" /> Trade Hub
+        </NuxtLink>
+        <NuxtLink @click="mobileMenu = false" to="/dashboard/services" class="flex items-center gap-3 px-4 py-4 rounded-xl font-bold text-lg text-slate-500 hover:bg-slate-50 transition-colors">
+          <Briefcase class="w-5 h-5" /> My Services
+        </NuxtLink>
+        <NuxtLink @click="mobileMenu = false" to="/dashboard/availability" class="flex items-center gap-3 px-4 py-4 rounded-xl font-bold text-lg text-slate-500 hover:bg-slate-50 transition-colors">
+          <CalendarClock class="w-5 h-5" /> Availability
+        </NuxtLink>
+        <NuxtLink @click="mobileMenu = false" to="/dashboard/bookings" class="flex items-center gap-3 px-4 py-4 rounded-xl font-bold text-lg text-slate-500 hover:bg-slate-50 transition-colors">
+          <CalendarDays class="w-5 h-5" /> Bookings
         </NuxtLink>
         <NuxtLink @click="mobileMenu = false" to="/dashboard/wallet" class="flex items-center gap-3 px-4 py-4 rounded-xl font-bold text-lg text-slate-500 hover:bg-slate-50 transition-colors">
           <Wallet class="w-6 h-6" /> Escrow Wallet
