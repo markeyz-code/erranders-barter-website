@@ -269,8 +269,23 @@ import { upload_api, itemsApi, categoriesApi, settingsApi } from '~/composables/
 
 import AuthModal from '~/components/AuthModal.vue'
 
+import { useAuth } from '~/composables/useAuth'
+
 const router = useRouter()
 const { isLoggedIn, user } = useAuth()
+
+const form = ref({ 
+  title: '', 
+  description: '', 
+  price: null, 
+  location: '', 
+  category: '',
+  customCategory: '',
+  condition: 'Good',
+  type: 'sell', 
+  images: [],
+  promote: false
+})
 
 const showAuthPrompt = ref(false)
 const showAuthModal = ref(false)
@@ -296,6 +311,11 @@ const handleAuthSuccess = () => {
   pendingEvent.value = null
 }
 
+const catOpen = ref(false)
+const condOpen = ref(false)
+const conditions = ['Brand New', 'Like New', 'Good', 'Fair']
+const promotedFee = ref(0)
+
 const categories = ref([])
 const serviceCategories = ['Hair Styling & Braiding', 'Laundry & Cleaning', 'Gadget Repairs', 'Tutoring', 'Graphic Design', 'Photography', 'Moving & Logistics']
 const filteredCategories = computed(() => {
@@ -307,24 +327,6 @@ const filteredCategories = computed(() => {
 
 watch(() => form.value.type, () => {
   form.value.category = ''
-})
-
-const catOpen = ref(false)
-const condOpen = ref(false)
-const conditions = ['Brand New', 'Like New', 'Good', 'Fair']
-const promotedFee = ref(0)
-
-const form = ref({ 
-  title: '', 
-  description: '', 
-  price: null, 
-  location: '', 
-  category: '',
-  customCategory: '',
-  condition: 'Good',
-  type: 'sell', 
-  images: [],
-  promote: false
 })
 
 useSeoMeta({
