@@ -262,15 +262,26 @@
           <div v-for="i in 4" :key="i" class="bg-white rounded-2xl h-72 border border-slate-200 animate-pulse"></div>
         </div>
 
-        <div v-else-if="servicesError" class="bg-red-50 border border-red-200 rounded-xl p-6 text-center">
-          <p class="text-red-700 font-medium mb-3">{{ servicesError }}</p>
-          <button @click="fetchServices" class="text-brand-600 font-bold hover:underline">Try again</button>
-        </div>
-
-        <div v-else-if="servicesList.length === 0" class="bg-white border border-dashed border-slate-200 rounded-2xl p-10 text-center">
-          <Briefcase class="w-10 h-10 text-slate-300 mx-auto mb-2" />
-          <p class="text-slate-600 font-medium mb-2">No campus services listed yet.</p>
-          <NuxtLink to="/become-a-provider" class="text-brand-600 font-bold hover:underline">Be the first to offer a skill on campus</NuxtLink>
+        <!-- Empty state when no services are available or on fallback -->
+        <div v-else-if="servicesList.length === 0" class="bg-white border border-dashed border-slate-200 rounded-3xl p-8 sm:p-12 text-center max-w-2xl mx-auto">
+          <div class="w-14 h-14 bg-purple-50 text-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
+            <Briefcase class="w-7 h-7" />
+          </div>
+          <h3 class="text-lg sm:text-xl font-bold text-slate-900 mb-1">Campus Services & Skills</h3>
+          <p class="text-sm text-slate-500 max-w-md mx-auto mb-6">
+            Looking for moving help, room deep cleaning, hair styling, or tutoring? Student providers list their skills here with instant booking.
+          </p>
+          <div class="flex flex-wrap items-center justify-center gap-3">
+            <NuxtLink to="/services" class="px-5 py-2.5 bg-slate-900 hover:bg-brand-600 text-white text-xs sm:text-sm font-bold rounded-xl transition-colors inline-flex items-center gap-2 shadow-sm">
+              <Search class="w-4 h-4" /> Browse All Services
+            </NuxtLink>
+            <NuxtLink to="/become-a-provider" class="px-5 py-2.5 bg-brand-50 hover:bg-brand-100 text-brand-700 border border-brand-200 text-xs sm:text-sm font-bold rounded-xl transition-colors inline-flex items-center gap-2">
+              <Sparkles class="w-4 h-4" /> Offer Your Skills
+            </NuxtLink>
+            <button v-if="servicesError" @click="fetchServices" class="px-3 py-2 text-xs text-slate-400 hover:text-slate-700 font-semibold transition-colors">
+              Refresh
+            </button>
+          </div>
         </div>
 
         <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
@@ -370,7 +381,8 @@ const fetchServices = async () => {
   servicesError.value = ''
   try {
     const res = await servicesApi.list({ limit: 4 })
-    const items = res?.data?.items || res?.data || []
+    // In our backend API, browse returns { data: Service[], meta: { total, ... } }
+    const items = res?.data?.data || res?.data?.items || (Array.isArray(res?.data) ? res.data : [])
     servicesList.value = Array.isArray(items) ? items : []
   } catch (err) {
     servicesError.value =

@@ -3,7 +3,7 @@ import { useCustomToast } from '@/composables/core/useCustomToast'
 
 const isDev = import.meta.env.DEV;
 const envApiUrl = import.meta.env.VITE_API_BASE_URL || import.meta.env.NUXT_PUBLIC_API_BASE_URL;
-const rawBaseUrl = envApiUrl || (isDev ? "http://localhost:3100" : "https://api.erranders.org");
+const rawBaseUrl = envApiUrl || (isDev ? "http://localhost:3100" : "https://barter-backend-api.erranders.org");
 const cleanBaseUrl = rawBaseUrl.replace(/\/api\/v1\/?$/, '').replace(/\/$/, '');
 
 const $GATEWAY_ENDPOINT = `${cleanBaseUrl}/api/v1`;
