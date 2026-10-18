@@ -104,8 +104,8 @@
         </div>
       </div>
 
-      <!-- Action Cards (Buy, Sell, Swap) -->
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-3.5 max-w-3xl mx-auto">
+      <!-- Action Cards (Buy, Sell, Swap, Book) -->
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-3.5 max-w-4xl mx-auto">
         <NuxtLink to="/explore" class="bg-white border border-slate-200 rounded-xl p-4 flex items-center gap-3.5 hover:border-brand-600 transition-all group">
           <div class="w-10 h-10 bg-blue-50 text-blue-600 rounded-lg flex items-center justify-center shrink-0"><ShoppingCart class="w-5 h-5" /></div>
           <div class="text-left"><h3 class="font-bold text-base text-slate-900">Buy Items</h3><p class="text-xs text-slate-500 font-medium">Find what you need.</p></div>
@@ -117,6 +117,10 @@
         <NuxtLink to="/swap" class="bg-white border border-slate-200 rounded-xl p-4 flex items-center gap-3.5 hover:border-orange-500 transition-all group">
           <div class="w-10 h-10 bg-orange-50 text-orange-600 rounded-lg flex items-center justify-center shrink-0"><ArrowRightLeft class="w-5 h-5" /></div>
           <div class="text-left"><h3 class="font-bold text-base text-slate-900">Swap Items</h3><p class="text-xs text-slate-500 font-medium">Trade for something else.</p></div>
+        </NuxtLink>
+        <NuxtLink to="/services" class="bg-white border border-slate-200 rounded-xl p-4 flex items-center gap-3.5 hover:border-purple-500 transition-all group">
+          <div class="w-10 h-10 bg-purple-50 text-purple-600 rounded-lg flex items-center justify-center shrink-0"><Briefcase class="w-5 h-5" /></div>
+          <div class="text-left"><h3 class="font-bold text-base text-slate-900">Book Services</h3><p class="text-xs text-slate-500 font-medium">Student skills & help.</p></div>
         </NuxtLink>
       </div>
     </div>
@@ -237,45 +241,44 @@
 
     <!-- SECTION: Services Marketplace -->
     <section class="py-14 px-4 sm:px-6 lg:px-8 bg-slate-50 border-b border-slate-100">
-      <div class="max-w-5xl mx-auto">
-        <div class="text-center mb-10">
-          <span class="text-xs font-bold text-purple-600 uppercase tracking-wider mb-2 block">Not Just Items</span>
-          <h2 class="text-2xl md:text-3xl font-extrabold text-slate-900 mb-2">Got skills? Sell them too.</h2>
-          <p class="text-sm md:text-base text-slate-500 font-medium max-w-lg mx-auto">Barter isn't just for physical items. Students can offer services like braiding, repairs, tutoring, and more.</p>
+      <div class="max-w-6xl mx-auto">
+        <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-8">
+          <div>
+            <span class="text-xs font-bold text-purple-600 uppercase tracking-wider mb-2 block">Campus Skills & Services</span>
+            <h2 class="text-2xl md:text-3xl font-extrabold text-slate-900 mb-1">Book services from verified students</h2>
+            <p class="text-sm text-slate-500 font-medium">Barbers, tutors, photographers, phone repairs and stylists right in your campus hostels.</p>
+          </div>
+          <div class="flex items-center gap-2.5 shrink-0">
+            <NuxtLink to="/become-a-provider" class="px-4 py-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-bold transition-colors inline-flex items-center gap-1.5">
+              <Sparkles class="w-3.5 h-3.5 text-purple-600" /> Become a Provider
+            </NuxtLink>
+            <NuxtLink to="/services" class="px-4 py-2 rounded-xl bg-slate-900 hover:bg-brand-600 text-white text-xs font-bold transition-colors inline-flex items-center gap-1.5 shadow-sm">
+              View All Services →
+            </NuxtLink>
+          </div>
         </div>
         
-        <div v-if="itemsLoading" class="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
-          <div v-for="i in 4" :key="i" class="bg-slate-100 rounded-xl h-52 animate-pulse"></div>
+        <div v-if="servicesLoading" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+          <div v-for="i in 4" :key="i" class="bg-white rounded-2xl h-72 border border-slate-200 animate-pulse"></div>
         </div>
 
-        <div v-else-if="itemsError" class="bg-red-50 border border-red-200 rounded-xl p-6 text-center">
-          <p class="text-red-700 font-medium mb-3">{{ itemsError }}</p>
-          <button @click="fetchItems" class="text-brand-600 font-bold hover:underline">Try again</button>
+        <div v-else-if="servicesError" class="bg-red-50 border border-red-200 rounded-xl p-6 text-center">
+          <p class="text-red-700 font-medium mb-3">{{ servicesError }}</p>
+          <button @click="fetchServices" class="text-brand-600 font-bold hover:underline">Try again</button>
         </div>
 
-        <div v-else-if="serviceItems.length === 0" class="bg-slate-50 border border-dashed border-slate-200 rounded-xl p-8 text-center">
-          <p class="text-slate-600 font-medium mb-2">No services have been listed yet.</p>
-          <NuxtLink to="/sell" class="text-brand-600 font-bold hover:underline">Offer the first service</NuxtLink>
+        <div v-else-if="servicesList.length === 0" class="bg-white border border-dashed border-slate-200 rounded-2xl p-10 text-center">
+          <Briefcase class="w-10 h-10 text-slate-300 mx-auto mb-2" />
+          <p class="text-slate-600 font-medium mb-2">No campus services listed yet.</p>
+          <NuxtLink to="/become-a-provider" class="text-brand-600 font-bold hover:underline">Be the first to offer a skill on campus</NuxtLink>
         </div>
 
-        <div v-else class="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
-          <NuxtLink
-            v-for="item in serviceItems"
-            :key="item._id"
-            :to="'/item/' + item._id"
-            class="bg-white rounded-xl overflow-hidden border border-slate-200 group hover:border-brand-500 transition-colors"
-          >
-            <div class="aspect-square overflow-hidden">
-              <img :src="item.images?.[0] || '/no-image.png'" :alt="item.title" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-            </div>
-            <div class="p-3.5">
-              <span class="px-2 py-0.5 bg-purple-100 text-purple-700 text-[10px] font-bold uppercase tracking-wider rounded border border-purple-200">Service</span>
-              <h3 class="font-bold text-slate-900 mt-1.5 text-sm truncate">{{ item.title }}</h3>
-              <p class="text-xs text-slate-500 mt-0.5 truncate">
-                {{ item.price ? '₦' + Number(item.price).toLocaleString() : 'Negotiable' }} · {{ item.location }}
-              </p>
-            </div>
-          </NuxtLink>
+        <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+          <ServiceCard
+            v-for="service in servicesList"
+            :key="service._id"
+            :service="service"
+          />
         </div>
       </div>
     </section>
@@ -305,10 +308,12 @@
 </template>
 
 <script setup>
-import { ArrowRightLeft, Search, ShoppingCart, Tag, Truck, ShieldCheck, Camera, TrendingUp, MapPin, X, Check } from 'lucide-vue-next'
+import { ArrowRightLeft, Search, ShoppingCart, Tag, Truck, ShieldCheck, Camera, TrendingUp, MapPin, X, Check, Briefcase, Sparkles } from 'lucide-vue-next'
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { itemsApi } from '~/composables/useApi'
+import { servicesApi } from '@/api_factory/modules/services'
+import ServiceCard from '~/components/ServiceCard.vue'
 
 useSeoMeta({
   title: 'Erranders Barter - Stress-Free Campus Hostel Movement',
@@ -339,6 +344,10 @@ const itemsList = ref([])
 const itemsLoading = ref(true)
 const itemsError = ref('')
 
+const servicesList = ref([])
+const servicesLoading = ref(true)
+const servicesError = ref('')
+
 /** Real listings from GET /items. A failure is surfaced, never filled with samples. */
 const fetchItems = async () => {
   itemsLoading.value = true
@@ -355,8 +364,26 @@ const fetchItems = async () => {
   }
 }
 
+/** Real services from GET /services. */
+const fetchServices = async () => {
+  servicesLoading.value = true
+  servicesError.value = ''
+  try {
+    const res = await servicesApi.list({ limit: 4 })
+    const items = res?.data?.items || res?.data || []
+    servicesList.value = Array.isArray(items) ? items : []
+  } catch (err) {
+    servicesError.value =
+      err?.response?.data?.message || 'Could not load campus services.'
+    servicesList.value = []
+  } finally {
+    servicesLoading.value = false
+  }
+}
+
 onMounted(() => {
   fetchItems()
+  fetchServices()
 
   intervalId = setInterval(() => {
     currentIndex = (currentIndex + 1) % phrases.length

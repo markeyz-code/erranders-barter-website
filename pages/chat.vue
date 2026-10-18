@@ -311,8 +311,10 @@ onMounted(async () => {
     return
   }
 
-  const chatIdFromQuery = route.query.chatId ? String(route.query.chatId) : ''
-  const sellerId = route.query.sellerId ? String(route.query.sellerId) : ''
+  const rawChatId = route.query.chatId || route.query.chat || route.query.id
+  const rawSellerId = route.query.sellerId || route.query.providerId || route.query.userId
+  const chatIdFromQuery = rawChatId ? String(rawChatId) : ''
+  const sellerId = rawSellerId ? String(rawSellerId) : ''
   const itemId = route.query.itemId ? String(route.query.itemId) : undefined
 
   connectSocket()
@@ -326,7 +328,12 @@ onMounted(async () => {
     } else if (sellerId) {
       await startChat(sellerId, itemId)
     } else {
-      conversationUnavailable.value = true
+      await loadChats()
+      if (chats.value.length > 0) {
+        await openChat(chats.value[0]._id)
+      } else {
+        conversationUnavailable.value = true
+      }
     }
   } catch (err) {
     console.error('Failed to open conversation', err)

@@ -66,17 +66,83 @@
         </div>
       </div>
 
+      <!-- Provider Suite Banner or Status -->
+      <div v-if="user?.isServiceProvider" class="bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 text-white rounded-2xl p-5 mb-6 border border-slate-800 shadow-sm">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div class="flex items-center gap-3.5">
+            <div class="w-10 h-10 rounded-xl bg-indigo-500/20 text-indigo-400 flex items-center justify-center shrink-0">
+              <Sparkles class="w-5 h-5" />
+            </div>
+            <div>
+              <div class="flex items-center gap-2">
+                <h3 class="font-bold text-base text-white">Campus Service Provider</h3>
+                <span class="px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+                  Active
+                </span>
+              </div>
+              <p class="text-xs text-slate-400 mt-0.5">Manage your services, client appointments, and booking schedule.</p>
+            </div>
+          </div>
+          <div class="flex flex-wrap items-center gap-2">
+            <NuxtLink to="/dashboard/services" class="px-3.5 py-2 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold rounded-xl transition-colors inline-flex items-center gap-1.5">
+              <Briefcase class="w-3.5 h-3.5" /> My Services
+            </NuxtLink>
+            <NuxtLink to="/dashboard/availability" class="px-3.5 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold rounded-xl transition-colors inline-flex items-center gap-1.5">
+              <CalendarClock class="w-3.5 h-3.5" /> Availability
+            </NuxtLink>
+            <NuxtLink to="/dashboard/bookings" class="px-3.5 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold rounded-xl transition-colors inline-flex items-center gap-1.5">
+              <CalendarDays class="w-3.5 h-3.5" /> Bookings
+            </NuxtLink>
+          </div>
+        </div>
+      </div>
+
+      <div v-else class="bg-gradient-to-r from-brand-50 to-indigo-50 border border-brand-200 rounded-2xl p-5 mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div class="flex items-center gap-3.5">
+          <div class="w-10 h-10 rounded-xl bg-brand-600 text-white flex items-center justify-center shrink-0">
+            <Sparkles class="w-5 h-5" />
+          </div>
+          <div>
+            <h3 class="font-bold text-base text-slate-900">Offer your skills on campus</h3>
+            <p class="text-xs text-slate-600 mt-0.5">Hair styling, phone repairs, photography, tutoring. Set your prices and get booked directly by students.</p>
+          </div>
+        </div>
+        <NuxtLink to="/become-a-provider" class="shrink-0 px-4 py-2.5 bg-brand-600 hover:bg-brand-700 text-white text-xs font-bold rounded-xl transition-colors inline-flex items-center gap-1.5 shadow-sm">
+          Become a Provider →
+        </NuxtLink>
+      </div>
+
       <!-- Quick Actions -->
       <div class="bg-white rounded-xl border border-slate-200 p-4 sm:p-5">
         <h2 class="text-base font-bold text-slate-900 mb-3.5">Quick Actions</h2>
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
           <NuxtLink to="/sell" class="p-3.5 bg-slate-50 rounded-lg border border-slate-200 hover:border-brand-500 hover:bg-white transition-all group flex items-center gap-3">
             <div class="w-10 h-10 bg-white rounded-lg border border-slate-200 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
               <Plus class="w-5 h-5 text-brand-600" />
             </div>
             <div>
               <h3 class="font-bold text-sm text-slate-900 mb-0.5">List New Item</h3>
-              <p class="text-xs text-slate-500">Sell or swap something fast.</p>
+              <p class="text-xs text-slate-500">Sell or swap an item fast.</p>
+            </div>
+          </NuxtLink>
+
+          <NuxtLink to="/services" class="p-3.5 bg-slate-50 rounded-lg border border-slate-200 hover:border-brand-500 hover:bg-white transition-all group flex items-center gap-3">
+            <div class="w-10 h-10 bg-white rounded-lg border border-slate-200 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+              <Briefcase class="w-5 h-5 text-indigo-600" />
+            </div>
+            <div>
+              <h3 class="font-bold text-sm text-slate-900 mb-0.5">Campus Services</h3>
+              <p class="text-xs text-slate-500">Book student skills & help.</p>
+            </div>
+          </NuxtLink>
+          
+          <NuxtLink to="/dashboard/bookings" class="p-3.5 bg-slate-50 rounded-lg border border-slate-200 hover:border-brand-500 hover:bg-white transition-all group flex items-center gap-3">
+            <div class="w-10 h-10 bg-white rounded-lg border border-slate-200 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+              <CalendarDays class="w-5 h-5 text-rose-600" />
+            </div>
+            <div>
+              <h3 class="font-bold text-sm text-slate-900 mb-0.5">My Appointments</h3>
+              <p class="text-xs text-slate-500">Check calls & bookings.</p>
             </div>
           </NuxtLink>
           
@@ -89,16 +155,6 @@
               <p class="text-xs text-slate-500">Move escrow balance to bank.</p>
             </div>
           </NuxtLink>
-          
-          <NuxtLink to="/explore" class="p-3.5 bg-slate-50 rounded-lg border border-slate-200 hover:border-brand-500 hover:bg-white transition-all group flex items-center gap-3">
-            <div class="w-10 h-10 bg-white rounded-lg border border-slate-200 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
-              <Search class="w-5 h-5 text-blue-600" />
-            </div>
-            <div>
-              <h3 class="font-bold text-sm text-slate-900 mb-0.5">Explore Deals</h3>
-              <p class="text-xs text-slate-500">Find the best student trades.</p>
-            </div>
-          </NuxtLink>
         </div>
       </div>
 
@@ -107,7 +163,7 @@
 </template>
 
 <script setup>
-import { MapPin, Package, CheckCircle, Wallet, Star, Plus, ArrowDownToLine, Search } from 'lucide-vue-next'
+import { MapPin, Package, CheckCircle, Wallet, Star, Plus, ArrowDownToLine, Search, Briefcase, CalendarClock, CalendarDays, Sparkles } from 'lucide-vue-next'
 import { ref, computed, onMounted } from 'vue'
 import { usersApi } from '~/composables/useApi'
 

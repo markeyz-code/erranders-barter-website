@@ -112,21 +112,29 @@
 
             <!-- Both sides -->
             <button
-              v-if="b.chatId"
               class="px-3 py-1.5 rounded-lg text-xs font-bold border border-slate-200 hover:bg-slate-50 inline-flex items-center gap-1.5"
               @click="openChat(b)"
             >
               <MessageSquare class="w-3.5 h-3.5" /> Chat
             </button>
-            <a
+
+            <!-- Video Call (Remote Appointments) -->
+            <button
               v-if="b.status === 'confirmed' && b.meetingUrl"
-              :href="b.meetingUrl"
-              target="_blank"
-              rel="noopener"
-              class="px-3 py-1.5 rounded-lg text-xs font-bold bg-blue-600 text-white hover:bg-blue-700 inline-flex items-center gap-1.5"
+              @click="openVideoCall(b)"
+              class="px-3 py-1.5 rounded-lg text-xs font-bold bg-blue-600 text-white hover:bg-blue-700 inline-flex items-center gap-1.5 shadow-sm"
             >
-              <Video class="w-3.5 h-3.5" /> Join video call
-            </a>
+              <Video class="w-3.5 h-3.5" /> Join Video Call
+            </button>
+            <button
+              v-if="b.status === 'confirmed' && b.meetingUrl"
+              @click="copyMeetingUrl(b)"
+              class="px-3 py-1.5 rounded-lg text-xs font-bold border border-slate-200 hover:bg-slate-50 inline-flex items-center gap-1.5"
+            >
+              <Check v-if="copiedId === b._id" class="w-3.5 h-3.5 text-emerald-600" />
+              <Copy v-else class="w-3.5 h-3.5 text-slate-500" />
+              <span>{{ copiedId === b._id ? 'Copied link!' : 'Copy link' }}</span>
+            </button>
 
             <button
               v-if="canReschedule(b)"
@@ -153,15 +161,23 @@
         @close="rescheduleOpen = false"
         @rescheduled="onRescheduled"
       />
+
+      <VideoCallModal
+        :is-open="videoModalOpen"
+        :meeting-url="activeVideoMeetingUrl"
+        :title="activeVideoTitle"
+        @close="videoModalOpen = false"
+      />
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { computed, ref, onMounted } from 'vue';
-import { AlertTriangle, CalendarDays, MessageSquare, Video } from 'lucide-vue-next';
+import { AlertTriangle, CalendarDays, MessageSquare, Video, Copy, Check } from 'lucide-vue-next';
 import BookingStatusPill from '~/components/BookingStatusPill.vue';
 import RescheduleBookingModal from '~/components/RescheduleBookingModal.vue';
+import VideoCallModal from '~/components/VideoCallModal.vue';
 import { bookingsApi, type Booking, type BookingStatus } from '@/api_factory/modules/bookings';
 import { getApiError, formatDateLong, formatTimeRange } from '@/composables/modules/services/useServiceFormatting';
 
@@ -183,8 +199,14 @@ const bookings = ref<Booking[]>([]);
 const loading = ref(true);
 const error = ref('');
 const busyId = ref('');
+const copiedId = ref('');
 const rescheduleOpen = ref(false);
 const rescheduling = ref<Booking | null>(null);
+
+// Video Call Modal State
+const videoModalOpen = ref(false);
+const activeVideoMeetingUrl = ref('');
+const activeVideoTitle = ref('');
 
 const formatNaira = (n?: number) =>
   typeof n === 'number' ? `₦${n.toLocaleString('en-NG')}` : '—';
@@ -275,9 +297,37 @@ const onRescheduled = (updated: Booking) => {
   replaceRow(updated);
 };
 
+const openVideoCall = (b: Booking) => {
+  if (!b.meetingUrl) return;
+  activeVideoMeetingUrl.value = b.meetingUrl;
+  activeVideoTitle.value = `${serviceTitle(b)} (${otherPartyName(b)})`;
+  videoModalOpen.value = true;
+};
+
+const copyMeetingUrl = async (b: Booking) => {
+  if (!b.meetingUrl) return;
+  try {
+    await navigator.clipboard.writeText(b.meetingUrl);
+    copiedId.value = b._id;
+    setTimeout(() => {
+      if (copiedId.value === b._id) copiedId.value = '';
+    }, 2000);
+  } catch {
+    prompt('Meeting URL:', b.meetingUrl);
+  }
+};
+
 const openChat = (b: Booking) => {
   const chatId = typeof b.chatId === 'string' ? b.chatId : (b.chatId as any)?._id;
-  if (chatId) navigateTo(`/chat?chat=${chatId}`);
+  if (chatId) {
+    navigateTo(`/chat?chatId=${chatId}`);
+    return;
+  }
+  const other = activeTab.value === 'mine' ? b.providerId : b.customerId;
+  const otherId = typeof other === 'object' && other ? (other as any)._id : other;
+  if (otherId) {
+    navigateTo(`/chat?sellerId=${otherId}`);
+  }
 };
 
 onMounted(load);

@@ -46,6 +46,16 @@
                 <span v-if="provider.university" class="text-slate-400">{{ provider.university }}</span>
               </div>
             </div>
+
+            <div class="sm:shrink-0 flex items-center">
+              <NuxtLink
+                :to="`/chat?sellerId=${provider._id}`"
+                class="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-slate-900 text-white font-bold text-sm hover:bg-brand-600 transition-colors inline-flex items-center justify-center gap-2 shadow-sm"
+              >
+                <MessageSquare class="w-4 h-4 text-brand-400" />
+                Message {{ name.split(' ')[0] || 'Provider' }}
+              </NuxtLink>
+            </div>
           </div>
 
           <p v-if="provider.bio" class="mt-4 text-slate-600 leading-relaxed">{{ provider.bio }}</p>
@@ -109,7 +119,7 @@
 <script setup lang="ts">
 import { computed, ref, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
-import { ChevronLeft, AlertTriangle, MapPin, Briefcase } from 'lucide-vue-next';
+import { ChevronLeft, AlertTriangle, MapPin, Briefcase, MessageSquare } from 'lucide-vue-next';
 import { providersApi, type ProviderWithServices } from '@/api_factory/modules/providers';
 import type { Service } from '@/api_factory/modules/services';
 import {

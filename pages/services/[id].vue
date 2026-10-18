@@ -78,26 +78,38 @@
           </div>
 
           <!-- Provider card -->
-          <NuxtLink
-            v-if="provider"
-            :to="`/providers/${provider._id}`"
-            class="mt-8 flex items-center gap-4 p-4 rounded-2xl border border-slate-200 hover:border-brand-300 hover:bg-brand-50/30 transition-colors"
-          >
-            <div class="w-14 h-14 rounded-full bg-slate-200 overflow-hidden shrink-0">
-              <img v-if="provider.avatar" :src="provider.avatar" :alt="providerName" class="w-full h-full object-cover" />
-              <span v-else class="w-full h-full flex items-center justify-center text-slate-500 font-black text-lg">
-                {{ providerName.charAt(0) }}
-              </span>
+          <div v-if="provider" class="mt-8 p-4 sm:p-5 rounded-2xl border border-slate-200">
+            <div class="flex items-center gap-4">
+              <NuxtLink :to="`/providers/${provider._id}`" class="w-14 h-14 rounded-full bg-slate-200 overflow-hidden shrink-0">
+                <img v-if="provider.avatar" :src="provider.avatar" :alt="providerName" class="w-full h-full object-cover" />
+                <span v-else class="w-full h-full flex items-center justify-center text-slate-500 font-black text-lg">
+                  {{ providerName.charAt(0) }}
+                </span>
+              </NuxtLink>
+              <div class="min-w-0 flex-1">
+                <NuxtLink :to="`/providers/${provider._id}`" class="font-bold text-slate-900 truncate hover:text-brand-600 block">
+                  {{ providerName }}
+                </NuxtLink>
+                <p class="text-xs text-slate-500 font-medium truncate">{{ provider.headline || 'Service provider' }}</p>
+                <p v-if="provider.rating" class="text-xs font-bold text-amber-600 mt-0.5">
+                  {{ provider.rating.toFixed(1) }} rating
+                </p>
+              </div>
+              <NuxtLink
+                :to="`/chat?sellerId=${provider._id}`"
+                class="px-3.5 py-2 rounded-xl bg-slate-100 hover:bg-brand-50 hover:text-brand-700 text-slate-700 text-xs font-bold transition-colors inline-flex items-center gap-1.5 shrink-0"
+              >
+                <MessageSquare class="w-3.5 h-3.5 text-brand-600" />
+                <span>Chat</span>
+              </NuxtLink>
             </div>
-            <div class="min-w-0 flex-1">
-              <p class="font-bold text-slate-900 truncate">{{ providerName }}</p>
-              <p class="text-xs text-slate-500 font-medium truncate">{{ provider.headline || 'Service provider' }}</p>
-              <p v-if="provider.rating" class="text-xs font-bold text-amber-600 mt-0.5">
-                {{ provider.rating.toFixed(1) }} rating
-              </p>
+            <div class="mt-3 pt-3 border-t border-slate-100 flex items-center justify-between text-xs font-semibold text-slate-500">
+              <span v-if="provider.serviceArea">Campus Area: {{ provider.serviceArea }}</span>
+              <NuxtLink :to="`/providers/${provider._id}`" class="text-brand-600 hover:text-brand-700 ml-auto">
+                View Full Profile →
+              </NuxtLink>
             </div>
-            <span class="text-sm font-bold text-brand-600">View profile</span>
-          </NuxtLink>
+          </div>
         </div>
 
         <!-- ── Right: booking ────────────────────────────────────────── -->
@@ -138,6 +150,14 @@
             <p class="mt-2 text-[11px] text-slate-400 text-center font-medium">
               {{ priceLabel }} · you pay after the provider accepts
             </p>
+            <div v-if="provider" class="mt-3 pt-3 border-t border-slate-100 text-center">
+              <NuxtLink
+                :to="`/chat?sellerId=${provider._id}`"
+                class="text-xs font-semibold text-slate-500 hover:text-brand-600 inline-flex items-center gap-1.5"
+              >
+                <MessageSquare class="w-3.5 h-3.5" /> Have questions first? Chat with {{ providerName.split(' ')[0] }}
+              </NuxtLink>
+            </div>
           </div>
         </aside>
       </div>
@@ -150,23 +170,24 @@
           </div>
           <h3 class="text-xl font-extrabold text-slate-900">Booking requested</h3>
           <p class="text-sm text-slate-500 mt-2">
-            {{ providerName }} will confirm your slot. You'll be able to chat with them from your bookings.
+            {{ providerName }} will confirm your slot. You can message them immediately to coordinate.
           </p>
           <p class="mt-3 text-sm font-bold text-slate-700">
             {{ formatDateLong(confirmed.date) }} · {{ formatTime12h(confirmed.startTime) }}
           </p>
-          <div class="mt-6 flex gap-3">
+          <div class="mt-6 flex flex-col sm:flex-row gap-3">
             <NuxtLink
-              to="/dashboard/bookings"
-              class="flex-1 py-2.5 rounded-xl bg-brand-600 text-white font-bold text-sm hover:bg-brand-700"
+              v-if="confirmed.chatId || provider"
+              :to="confirmed.chatId ? `/chat?chatId=${typeof confirmed.chatId === 'string' ? confirmed.chatId : (confirmed.chatId as any)._id}` : `/chat?sellerId=${provider?._id}`"
+              class="flex-1 py-2.5 rounded-xl bg-slate-900 text-white font-bold text-sm hover:bg-slate-800 flex items-center justify-center gap-2"
             >
-              View bookings
+              <MessageSquare class="w-4 h-4" /> Message Provider
             </NuxtLink>
             <NuxtLink
-              to="/services"
-              class="flex-1 py-2.5 rounded-xl border border-slate-200 text-slate-700 font-bold text-sm hover:bg-slate-50"
+              to="/dashboard/bookings"
+              class="flex-1 py-2.5 rounded-xl bg-brand-600 text-white font-bold text-sm hover:bg-brand-700 flex items-center justify-center"
             >
-              Keep browsing
+              View bookings
             </NuxtLink>
           </div>
         </div>
@@ -178,7 +199,7 @@
 <script setup lang="ts">
 import { computed, ref, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
-import { ChevronLeft, AlertTriangle, MapPin, Clock, Video, CheckCircle2 } from 'lucide-vue-next';
+import { ChevronLeft, AlertTriangle, MapPin, Clock, Video, CheckCircle2, MessageSquare } from 'lucide-vue-next';
 import BookingSlotPicker from '~/components/BookingSlotPicker.vue';
 import { servicesApi, type Service } from '@/api_factory/modules/services';
 import { bookingsApi, type Booking } from '@/api_factory/modules/bookings';
