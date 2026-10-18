@@ -4,8 +4,10 @@
     <!-- Hero Section -->
     <div class="pt-10 pb-12 px-4 sm:px-6 lg:px-8 text-center bg-white relative overflow-hidden border-b border-slate-100">
       
-      <div class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-brand-50 text-brand-700 font-bold text-xs mb-5 border border-brand-200 shadow-sm">
-        <span class="animate-pulse">📦</span> Stress-Free Hostel Movement
+      <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-brand-50 text-brand-700 font-bold text-xs mb-5 border border-brand-200 shadow-sm">
+        <span class="animate-pulse">📦</span>
+        <span>Stress-Free Hostel Movement & Automated Room Declutter</span>
+        <span class="bg-brand-600 text-white text-[10px] font-black px-1.5 py-0.2 rounded-full">New</span>
       </div>
 
       <h1 class="text-3xl md:text-5xl font-black tracking-tight text-slate-900 leading-[1.15] mb-4">
@@ -14,24 +16,8 @@
       </h1>
       
       <p class="text-sm md:text-base text-slate-600 font-medium max-w-xl mx-auto mb-6 leading-relaxed">
-        Why stress with heavy loads? Automate your <strong>hostel movement</strong> on <strong>Barter</strong> — turn your room items into instant cash or swap with verified students.
+        Why stress with heavy loads? Automate your <strong>hostel movement</strong> on <strong>Barter</strong> — turn your room items into instant cash, declutter in 2 minutes, or swap with verified students.
       </p>
-
-      <!-- Multilingual Student Chips -->
-      <!-- <div class="flex flex-wrap items-center justify-center gap-2 max-w-2xl mx-auto mb-8 text-[11px] sm:text-xs font-bold">
-        <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-slate-50 text-slate-700 border border-slate-200">
-          <span>🇳🇬</span> <strong class="text-slate-900">Pidgin:</strong> Barter am sharp-sharp!
-        </span>
-        <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-amber-50 text-amber-800 border border-amber-200">
-          <span>⚡</span> <strong class="text-amber-900">Yorùbá:</strong> Kò sí wàhálà, ṣe Barter!
-        </span>
-        <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200">
-          <span>🎒</span> <strong class="text-emerald-900">Igbo:</strong> Gbanwee ya na Barter!
-        </span>
-        <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-blue-50 text-blue-800 border border-blue-200">
-          <span>🚀</span> <strong class="text-blue-900">Hausa:</strong> Babu wahala, yi Barter!
-        </span>
-      </div> -->
 
       <!-- Smart Omnibox Search -->
       <div class="max-w-2xl mx-auto w-full mb-8 relative group z-50 text-left">
@@ -43,7 +29,7 @@
             v-model="searchQuery" 
             @focus="isDropdownOpen = true"
             type="text" 
-            placeholder="Search for fridges, textbooks, or services..." 
+            placeholder="Search for fridges, textbooks, moving helpers, or declutter deals..." 
             class="w-full bg-white border border-slate-300 focus:border-brand-600 rounded-xl py-3 pl-12 pr-28 transition-all outline-none font-medium text-base text-slate-900" 
           />
           <button type="submit" class="absolute inset-y-1.5 right-1.5 bg-brand-600 text-white font-bold px-4 rounded-lg hover:bg-brand-700 transition-colors text-sm">
@@ -58,7 +44,7 @@
             
             <!-- Filters -->
             <div class="flex flex-wrap gap-2 mb-6 pb-6 border-b border-slate-100">
-              <span class="text-sm font-black text-slate-400 uppercase  flex items-center mr-2">Budget:</span>
+              <span class="text-sm font-black text-slate-400 uppercase flex items-center mr-2">Budget:</span>
               <button @click="budget = 10000" :class="budget === 10000 ? 'bg-brand-600 text-white border-brand-600' : 'bg-white text-slate-600 border-slate-200 hover:border-brand-600'" class="px-4 py-1.5 rounded-full text-sm font-bold border transition-colors">Under ₦10k</button>
               <button @click="budget = 50000" :class="budget === 50000 ? 'bg-brand-600 text-white border-brand-600' : 'bg-white text-slate-600 border-slate-200 hover:border-brand-600'" class="px-4 py-1.5 rounded-full text-sm font-bold border transition-colors">Under ₦50k</button>
               <button @click="budget = null" class="px-4 py-1.5 bg-slate-100 text-slate-600 rounded-full text-sm font-bold border border-transparent hover:bg-slate-200 transition-colors">Any Price</button>
@@ -66,7 +52,7 @@
 
             <!-- Results List -->
             <div>
-              <h4 class="text-sm font-black text-slate-400 uppercase  mb-4">Matching Items & Services</h4>
+              <h4 class="text-sm font-black text-slate-400 uppercase mb-4">Matching Items & Services</h4>
               <div v-if="itemsLoading" class="py-8 text-center text-slate-500 font-medium text-sm">
                 Loading listings...
               </div>
@@ -104,24 +90,78 @@
         </div>
       </div>
 
-      <!-- Action Cards (Buy, Sell, Swap, Book) -->
-      <div class="grid grid-cols-2 lg:grid-cols-4 gap-3.5 max-w-4xl mx-auto">
-        <NuxtLink to="/explore" class="bg-white border border-slate-200 rounded-xl p-4 flex items-center gap-3.5 hover:border-brand-600 transition-all group">
-          <div class="w-10 h-10 bg-blue-50 text-blue-600 rounded-lg flex items-center justify-center shrink-0"><ShoppingCart class="w-5 h-5" /></div>
-          <div class="text-left"><h3 class="font-bold text-base text-slate-900">Buy Items</h3><p class="text-xs text-slate-500 font-medium">Find what you need.</p></div>
+      <!-- Action Cards (Buy, Sell, Swap, Services, Reels, Declutter) -->
+      <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 max-w-6xl mx-auto">
+        <NuxtLink to="/explore" class="bg-white border border-slate-200 rounded-2xl p-3.5 sm:p-4 flex items-center gap-3 hover:border-blue-500 hover:shadow-sm transition-all group">
+          <div class="w-10 h-10 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform"><ShoppingCart class="w-5 h-5" /></div>
+          <div class="text-left min-w-0"><h3 class="font-bold text-sm sm:text-base text-slate-900 truncate">Buy Items</h3><p class="text-xs text-slate-500 font-medium truncate">Find deals.</p></div>
         </NuxtLink>
-        <NuxtLink to="/sell" class="bg-white border border-slate-200 rounded-xl p-4 flex items-center gap-3.5 hover:border-green-500 transition-all group">
-          <div class="w-10 h-10 bg-green-50 text-green-600 rounded-lg flex items-center justify-center shrink-0"><Tag class="w-5 h-5" /></div>
-          <div class="text-left"><h3 class="font-bold text-base text-slate-900">Sell Items</h3><p class="text-xs text-slate-500 font-medium">Turn it into cash.</p></div>
+        <NuxtLink to="/sell" class="bg-white border border-slate-200 rounded-2xl p-3.5 sm:p-4 flex items-center gap-3 hover:border-green-500 hover:shadow-sm transition-all group">
+          <div class="w-10 h-10 bg-green-50 text-green-600 rounded-xl flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform"><Tag class="w-5 h-5" /></div>
+          <div class="text-left min-w-0"><h3 class="font-bold text-sm sm:text-base text-slate-900 truncate">Sell Items</h3><p class="text-xs text-slate-500 font-medium truncate">Get instant cash.</p></div>
         </NuxtLink>
-        <NuxtLink to="/swap" class="bg-white border border-slate-200 rounded-xl p-4 flex items-center gap-3.5 hover:border-orange-500 transition-all group">
-          <div class="w-10 h-10 bg-orange-50 text-orange-600 rounded-lg flex items-center justify-center shrink-0"><ArrowRightLeft class="w-5 h-5" /></div>
-          <div class="text-left"><h3 class="font-bold text-base text-slate-900">Swap Items</h3><p class="text-xs text-slate-500 font-medium">Trade for something else.</p></div>
+        <NuxtLink to="/swap" class="bg-white border border-slate-200 rounded-2xl p-3.5 sm:p-4 flex items-center gap-3 hover:border-orange-500 hover:shadow-sm transition-all group">
+          <div class="w-10 h-10 bg-orange-50 text-orange-600 rounded-xl flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform"><ArrowRightLeft class="w-5 h-5" /></div>
+          <div class="text-left min-w-0"><h3 class="font-bold text-sm sm:text-base text-slate-900 truncate">Swap Items</h3><p class="text-xs text-slate-500 font-medium truncate">Trade peers.</p></div>
         </NuxtLink>
-        <NuxtLink to="/services" class="bg-white border border-slate-200 rounded-xl p-4 flex items-center gap-3.5 hover:border-purple-500 transition-all group">
-          <div class="w-10 h-10 bg-purple-50 text-purple-600 rounded-lg flex items-center justify-center shrink-0"><Briefcase class="w-5 h-5" /></div>
-          <div class="text-left"><h3 class="font-bold text-base text-slate-900">Book Services</h3><p class="text-xs text-slate-500 font-medium">Student skills & help.</p></div>
+        <NuxtLink to="/services" class="bg-white border border-slate-200 rounded-2xl p-3.5 sm:p-4 flex items-center gap-3 hover:border-purple-500 hover:shadow-sm transition-all group">
+          <div class="w-10 h-10 bg-purple-50 text-purple-600 rounded-xl flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform"><Briefcase class="w-5 h-5" /></div>
+          <div class="text-left min-w-0"><h3 class="font-bold text-sm sm:text-base text-slate-900 truncate">Book Skills</h3><p class="text-xs text-slate-500 font-medium truncate">Helpers & barbers.</p></div>
         </NuxtLink>
+        <NuxtLink to="/reels" class="bg-gradient-to-br from-red-500/10 via-pink-500/5 to-white border border-red-300 rounded-2xl p-3.5 sm:p-4 flex items-center gap-3 hover:border-red-500 hover:shadow-sm transition-all group">
+          <div class="w-10 h-10 bg-gradient-to-tr from-red-600 to-pink-600 text-white rounded-xl flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform shadow-xs"><Film class="w-5 h-5" /></div>
+          <div class="text-left min-w-0">
+            <div class="flex items-center gap-1">
+              <h3 class="font-black text-sm sm:text-base text-slate-900 truncate">Reels</h3>
+              <span class="text-[9px] font-black uppercase px-1.5 py-0.2 rounded-full bg-red-500 text-white animate-pulse">Hot 🔥</span>
+            </div>
+            <p class="text-xs text-red-900/80 font-bold truncate">Video feed.</p>
+          </div>
+        </NuxtLink>
+        <NuxtLink to="/declutter" class="bg-white border border-slate-200/90 rounded-2xl p-3.5 sm:p-4 flex items-center gap-3 hover:border-brand-500 hover:shadow-xs transition-all group">
+          <div class="w-10 h-10 bg-brand-50 text-brand-600 group-hover:bg-brand-600 group-hover:text-white rounded-xl flex items-center justify-center shrink-0 group-hover:scale-105 transition-all shadow-xs"><Package class="w-5 h-5" /></div>
+          <div class="text-left min-w-0">
+            <div class="flex items-center gap-1">
+              <h3 class="font-black text-sm sm:text-base text-slate-900 truncate">Declutter</h3>
+              <span class="text-[9px] font-black uppercase px-1.5 py-0.2 rounded-full bg-brand-600 text-white">Auto</span>
+            </div>
+            <p class="text-xs text-slate-500 font-bold truncate">Batch clear room.</p>
+          </div>
+        </NuxtLink>
+      </div>
+
+      <!-- Executive Automated Declutter Spotlight Card -->
+      <div class="mt-6 max-w-5xl mx-auto rounded-3xl bg-slate-900 p-5 sm:p-7 text-white text-left shadow-xl relative overflow-hidden border border-slate-800">
+        <div class="absolute -right-8 -top-8 w-56 h-56 bg-brand-500/15 rounded-full blur-3xl pointer-events-none"></div>
+        <div class="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-5">
+          <div class="max-w-xl">
+            <div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-brand-500/15 text-brand-400 font-black text-[11px] mb-2.5 border border-brand-500/30">
+              <span class="text-brand-400">⚡</span> 1-Click Automated Campus Declutter
+            </div>
+            <h3 class="text-lg sm:text-2xl font-black text-white tracking-tight">
+              Moving Out or Graduating? Clear Your Entire Room in 2 Minutes.
+            </h3>
+            <p class="text-xs sm:text-sm text-slate-300 font-medium mt-1.5 leading-relaxed">
+              Select your mattress, fan, fridge, or books. Get instant campus valuations, apply automated 48h clearance discounts, notify nearby students, and optionally pair with a verified moving porter to lift your bags!
+            </p>
+          </div>
+          <div class="flex flex-col sm:flex-row md:flex-col gap-2.5 w-full md:w-auto shrink-0">
+            <NuxtLink
+              to="/declutter"
+              class="px-6 py-3.5 rounded-2xl bg-brand-600 hover:bg-brand-500 text-white font-black text-xs sm:text-sm text-center shadow-lg shadow-brand-600/30 active:scale-95 transition-all flex items-center justify-center gap-2"
+            >
+              <Package class="w-4 h-4" />
+              <span>Start Automated Declutter →</span>
+            </NuxtLink>
+            <NuxtLink
+              to="/services"
+              class="px-6 py-3 rounded-2xl bg-white/10 hover:bg-white/20 text-white font-bold text-xs text-center border border-white/15 transition-colors flex items-center justify-center gap-1.5"
+            >
+              <Truck class="w-3.5 h-3.5" />
+              <span>Book Moving Helper</span>
+            </NuxtLink>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -319,7 +359,7 @@
 </template>
 
 <script setup>
-import { ArrowRightLeft, Search, ShoppingCart, Tag, Truck, ShieldCheck, Camera, TrendingUp, MapPin, X, Check, Briefcase, Sparkles } from 'lucide-vue-next'
+import { ArrowRightLeft, Search, ShoppingCart, Tag, Truck, ShieldCheck, Camera, TrendingUp, MapPin, X, Check, Briefcase, Sparkles, Package, Film } from 'lucide-vue-next'
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { itemsApi } from '~/composables/useApi'

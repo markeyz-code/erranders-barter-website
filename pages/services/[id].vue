@@ -113,6 +113,76 @@
               </span>
             </div>
 
+            <!-- Interactive Booking Hours Editor (Directly under image/title) -->
+            <div class="mt-5 p-4 sm:p-5 rounded-2xl bg-gradient-to-br from-brand-50/70 via-white to-slate-50 border border-brand-200/80 shadow-xs">
+              <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-3">
+                <div>
+                  <span class="text-[10px] font-black uppercase tracking-wider text-brand-600 bg-brand-100/60 px-2 py-0.5 rounded-md">
+                    Customize Your Session
+                  </span>
+                  <h3 class="text-sm sm:text-base font-black text-slate-900 mt-1">
+                    {{ service.priceType === 'hourly' ? 'How many hours do you want to book for?' : 'Adjust session duration' }}
+                  </h3>
+                </div>
+                <div class="text-left sm:text-right">
+                  <span class="text-[10px] font-bold text-slate-400 block uppercase">Calculated Total</span>
+                  <span class="text-lg sm:text-xl font-black text-brand-600">
+                    {{ mobileTotalText }}
+                  </span>
+                </div>
+              </div>
+
+              <!-- Quick Hours Buttons & Stepper -->
+              <div class="flex flex-wrap items-center gap-2">
+                <button
+                  v-for="hrs in [1, 2, 3, 4, 5, 6]"
+                  :key="hrs"
+                  type="button"
+                  @click="durationMinutes = hrs * 60"
+                  class="px-3 py-1.5 rounded-xl text-xs font-black transition-all"
+                  :class="durationMinutes === hrs * 60 ? 'bg-brand-600 text-white shadow-xs scale-105' : 'bg-white border border-slate-200 text-slate-700 hover:border-brand-300 hover:bg-brand-50/50'"
+                >
+                  {{ hrs }} {{ hrs === 1 ? 'Hour' : 'Hours' }}
+                </button>
+
+                <!-- Custom minutes stepper -->
+                <div class="flex items-center bg-white border border-slate-200 rounded-xl p-0.5 ml-auto">
+                  <button
+                    type="button"
+                    :disabled="durationMinutes <= 30"
+                    @click="durationMinutes = Math.max(30, durationMinutes - 30)"
+                    class="w-7 h-7 rounded-lg flex items-center justify-center font-black text-slate-600 hover:bg-slate-100 disabled:opacity-30"
+                  >
+                    -
+                  </button>
+                  <span class="px-2 text-xs font-bold text-slate-900">
+                    {{ formatDuration(durationMinutes) }}
+                  </span>
+                  <button
+                    type="button"
+                    :disabled="durationMinutes >= 480"
+                    @click="durationMinutes = Math.min(480, durationMinutes + 30)"
+                    class="w-7 h-7 rounded-lg flex items-center justify-center font-black text-slate-600 hover:bg-slate-100 disabled:opacity-30"
+                  >
+                    +
+                  </button>
+                </div>
+              </div>
+
+              <div class="mt-3 pt-2.5 border-t border-brand-100/60 flex items-center justify-between text-xs text-slate-500 font-medium">
+                <span>
+                  Rate: <strong>{{ priceLabel }}</strong> · {{ formatDuration(durationMinutes) }} selected
+                </span>
+                <button
+                  type="button"
+                  @click="scrollToBooking"
+                  class="text-brand-600 font-bold hover:underline inline-flex items-center gap-1"
+                >
+                  Pick Open Slots ↓
+                </button>
+              </div>
+            </div>
+
             <!-- Description -->
             <div class="mt-6 pt-5 border-t border-slate-100">
               <h3 class="text-xs font-black uppercase tracking-wider text-slate-400 mb-2">About This Service</h3>
@@ -211,6 +281,7 @@
             <BookingSlotPicker
               v-model:date="date"
               v-model:startTime="startTime"
+              v-model:durationMinutes="durationMinutes"
               :service="service"
               :service-id="serviceId"
               @loaded="slots = $event"
@@ -263,8 +334,8 @@
         <div class="min-w-0">
           <p class="text-[10px] font-black uppercase tracking-wider text-slate-400">Total Price</p>
           <div class="flex items-baseline gap-1">
-            <span class="font-black text-brand-600 text-base truncate">{{ priceLabel }}</span>
-            <span class="text-xs text-slate-500 font-semibold truncate">· {{ formatDuration(service.durationMinutes) }}</span>
+            <span class="font-black text-brand-600 text-base truncate">{{ mobileTotalText }}</span>
+            <span class="text-xs text-slate-500 font-semibold truncate">· {{ formatDuration(durationMinutes) }}</span>
           </div>
         </div>
 
@@ -351,6 +422,7 @@ import {
   formatTime12h,
   formatPriceLabel,
   formatDuration,
+  calculateServiceTotal,
   serviceImage,
   providerOf,
 } from '@/composables/modules/services/useServiceFormatting';
@@ -367,6 +439,7 @@ const activeImage = ref('');
 
 const date = ref('');
 const startTime = ref('');
+const durationMinutes = ref(60);
 const notes = ref('');
 const slots = ref<AvailabilitySlot[]>([]);
 const submitting = ref(false);
@@ -385,6 +458,17 @@ const image = computed(() => serviceImage(service.value));
 const priceLabel = computed(() =>
   formatPriceLabel(service.value?.priceType, service.value?.price),
 );
+
+const mobileTotalText = computed(() => {
+  if (!service.value) return '—';
+  if (service.value.priceType === 'negotiable') return 'Negotiable';
+  const total = calculateServiceTotal(
+    service.value.priceType,
+    service.value.price,
+    durationMinutes.value,
+  );
+  return `₦${total.toLocaleString()}`;
+});
 
 const categoryName = computed(() =>
   service.value && typeof service.value.category === 'object'
@@ -411,6 +495,9 @@ const load = async () => {
   try {
     const { data } = await servicesApi.getById(serviceId.value);
     service.value = data;
+    if (data?.durationMinutes) {
+      durationMinutes.value = data.durationMinutes;
+    }
     if (data?.images?.length) {
       activeImage.value = data.images[0];
     }
@@ -431,6 +518,7 @@ const submit = async () => {
       serviceId: serviceId.value,
       date: date.value,
       startTime: startTime.value,
+      durationMinutes: durationMinutes.value,
       notes: notes.value.trim() || undefined,
     });
     confirmed.value = data;

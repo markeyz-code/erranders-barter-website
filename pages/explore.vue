@@ -44,6 +44,17 @@
         </div>
       </div>
 
+      <!-- Declutter Filter Notice -->
+      <div v-if="route.query.declutter" class="mb-5 p-3.5 rounded-2xl bg-brand-50 border border-brand-200 flex items-center justify-between text-xs text-brand-900 font-bold">
+        <div class="flex items-center gap-2">
+          <Sparkles class="w-4 h-4 text-brand-600 shrink-0" />
+          <span>Showing Campus Hostel Room Declutter & Rapid-Clearance Listings</span>
+        </div>
+        <NuxtLink to="/explore" class="underline text-brand-700 hover:text-brand-950 font-black">
+          View All Items
+        </NuxtLink>
+      </div>
+
       <div v-if="loading" class="py-20 flex flex-col items-center justify-center">
         <div class="w-12 h-12 border-4 border-slate-200 border-t-brand-600 rounded-full animate-spin mb-4"></div>
         <p class="text-slate-500 font-bold">Loading items...</p>
@@ -110,19 +121,48 @@
                 ></span>
               </div>
             </div>
-            <!-- Type badge -->
+            <!-- Sold Out Overlay -->
             <div 
-              class="absolute top-3 left-3 px-3 py-1 rounded-full text-[10px] uppercase tracking-wider font-black border"
-              :class="item.type === 'swap' 
-                ? 'bg-amber-50/90 backdrop-blur text-amber-700 border-amber-200' 
-                : 'bg-white/90 backdrop-blur text-slate-700 border-slate-200'"
+              v-if="item.status === 'sold'" 
+              class="absolute inset-0 bg-slate-950/65 backdrop-blur-[2px] flex items-center justify-center z-20"
             >
-              {{ item.type }}
+              <span class="px-3 py-1 rounded-full bg-red-600 text-white text-[11px] font-black tracking-wider uppercase shadow-md border border-red-400/40">
+                Sold Out ❌
+              </span>
             </div>
+
+            <!-- Type & Status badge -->
+            <div 
+              class="absolute top-3 left-3 flex items-center gap-1.5 z-10"
+            >
+              <span
+                class="px-3 py-1 rounded-full text-[10px] uppercase tracking-wider font-black border"
+                :class="item.type === 'swap' 
+                  ? 'bg-amber-50/90 backdrop-blur text-amber-700 border-amber-200' 
+                  : 'bg-white/90 backdrop-blur text-slate-700 border-slate-200'"
+              >
+                {{ item.type }}
+              </span>
+
+              <span
+                v-if="item.status === 'pending'"
+                class="px-2 py-0.5 rounded-full text-[9px] uppercase tracking-wider font-black bg-amber-500 text-white shadow-sm"
+              >
+                In Escrow 🔒
+              </span>
+
+              <span
+                v-else-if="item.batchId"
+                class="px-2 py-0.5 rounded-full text-[9px] font-black bg-brand-600 text-white shadow-sm flex items-center gap-0.5"
+              >
+                <Sparkles class="w-2.5 h-2.5" /> Declutter
+              </span>
+            </div>
+
             <!-- Image count badge for multi-image -->
             <div 
               v-if="item.images && item.images.length > 1" 
-              class="absolute top-3 right-3 bg-black/50 backdrop-blur text-white px-2 py-0.5 rounded-full text-[10px] font-bold flex items-center gap-1"
+              class="absolute top-3 right-3 bg-black/50 backdrop-blur text-white px-2 py-0.5 rounded-full text-[10px] font-bold flex items-center gap-1 z-10"
             >
               <ImageIcon class="w-3 h-3" />
               {{ item.images.length }}
@@ -159,7 +199,7 @@
   </main>
 </template>
 <script setup>
-import { MapPin, Search, ArrowRightLeft, ImageIcon } from 'lucide-vue-next'
+import { MapPin, Search, ArrowRightLeft, ImageIcon, Sparkles } from 'lucide-vue-next'
 import CustomSelect from '~/components/CustomSelect.vue'
 import { useRoute, useRouter } from 'vue-router'
 import { computed, ref, onMounted, watch } from 'vue'
@@ -215,6 +255,7 @@ const fetchItems = async () => {
   try {
     const params = {}
     if (searchQuery.value) params.q = searchQuery.value
+    if (route.query.declutter) params.declutter = route.query.declutter
     if (selectedType.value) params.type = selectedType.value
     if (selectedCategory.value) params.category = selectedCategory.value
     if (selectedSort.value && selectedSort.value !== 'newest') params.sort = selectedSort.value
@@ -232,7 +273,7 @@ const fetchItems = async () => {
   }
 }
 
-watch([searchQuery, selectedType, selectedCategory, selectedSort], () => {
+watch([searchQuery, () => route.query.declutter, selectedType, selectedCategory, selectedSort], () => {
   fetchItems()
 })
 

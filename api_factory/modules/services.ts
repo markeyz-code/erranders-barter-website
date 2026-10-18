@@ -133,13 +133,13 @@ export const servicesApi = {
   getById: (id: string) => GATEWAY_ENDPOINT.get<Service>(`/services/${id}`),
 
   /**
-   * GET /services/:id/availability?date=YYYY-MM-DD
+   * GET /services/:id/availability?date=YYYY-MM-DD&durationMinutes=...
    * Returns every generated slot for the day, including taken ones (`available: false`),
    * so the booking UI can grey them out instead of hiding them.
    */
-  availability: (id: string, date: string) =>
+  availability: (id: string, date: string, durationMinutes?: number) =>
     GATEWAY_ENDPOINT.get<AvailabilitySlot[]>(`/services/${id}/availability`, {
-      params: { date },
+      params: { date, ...(durationMinutes ? { durationMinutes } : {}) },
     }),
 
   /** POST /services — provider only. */

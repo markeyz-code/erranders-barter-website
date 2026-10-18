@@ -3,7 +3,11 @@ import { useCustomToast } from '@/composables/core/useCustomToast'
 
 const isDev = import.meta.env.DEV;
 const envApiUrl = import.meta.env.VITE_API_BASE_URL || import.meta.env.NUXT_PUBLIC_API_BASE_URL;
-const rawBaseUrl = envApiUrl || (isDev ? "http://localhost:3100" : "https://barter-backend-api.erranders.org");
+const isLocalBrowser = typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
+
+const rawBaseUrl = isLocalBrowser
+  ? "http://localhost:3100"
+  : (envApiUrl || (isDev ? "http://localhost:3100" : "https://barter-backend-api.erranders.org"));
 const cleanBaseUrl = rawBaseUrl.replace(/\/api\/v1\/?$/, '').replace(/\/$/, '');
 
 const $GATEWAY_ENDPOINT = `${cleanBaseUrl}/api/v1`;

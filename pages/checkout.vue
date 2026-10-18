@@ -137,12 +137,30 @@
               </div>
             </div>
             
+            <!-- Sold Out / Reserved Alert -->
+            <div v-if="item.status !== 'active'" class="mb-6 p-4 rounded-2xl bg-amber-50 border border-amber-300 text-amber-900">
+              <div class="flex items-center gap-2 font-black text-sm">
+                <span>⚠️</span>
+                <span>{{ item.status === 'sold' ? 'This item has already been SOLD OUT!' : 'This item is currently RESERVED in an ongoing trade.' }}</span>
+              </div>
+              <p class="text-xs font-medium text-amber-700 mt-1">
+                You cannot pay for an item that is already sold or reserved. Please browse other active campus listings.
+              </p>
+              <NuxtLink to="/explore" class="inline-block mt-3 px-4 py-2 bg-amber-600 text-white rounded-xl text-xs font-bold hover:bg-amber-700 transition-colors">
+                Explore Available Items →
+              </NuxtLink>
+            </div>
+
             <hr class="border-slate-100 mb-8" />
             
-            <button @click="handleCheckoutAction" :disabled="initiating || (deliveryMethod === 'errander' && !deliveryAddress)" class="w-full bg-brand-600 text-white font-black py-4 rounded-xl flex justify-center items-center gap-2 hover:bg-brand-700 transition-all shadow-lg shadow-brand-500/25 disabled:opacity-50 disabled:bg-slate-400 text-lg">
+            <button
+              @click="handleCheckoutAction"
+              :disabled="item.status !== 'active' || initiating || (deliveryMethod === 'errander' && !deliveryAddress)"
+              class="w-full bg-brand-600 text-white font-black py-4 rounded-xl flex justify-center items-center gap-2 hover:bg-brand-700 transition-all shadow-lg shadow-brand-500/25 disabled:opacity-50 disabled:bg-slate-400 text-lg"
+            >
               <Loader2 v-if="initiating" class="w-5 h-5 animate-spin" />
               <Lock v-else class="w-5 h-5" />
-              {{ initiating ? 'Processing...' : (isLoggedIn ? `Pay ₦${totalAmount.toLocaleString()} Securely` : 'Log in to Checkout') }}
+              {{ item.status !== 'active' ? (item.status === 'sold' ? 'Item Sold Out' : 'Item Reserved') : initiating ? 'Processing...' : (isLoggedIn ? `Pay ₦${totalAmount.toLocaleString()} Securely` : 'Log in to Checkout') }}
             </button>
             <p v-if="error" class="mt-4 text-red-500 font-bold text-sm text-center bg-red-50 p-3 rounded-lg">{{ error }}</p>
           </div>

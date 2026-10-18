@@ -1,12 +1,19 @@
 <template>
-  <div class="relative" ref="selectRef">
+  <div class="relative w-full" :class="isOpen ? 'z-50' : 'z-10'" ref="selectRef">
     <button
       type="button"
       @click="toggle"
-      class="flex items-center justify-between gap-2 border rounded-full px-5 py-2.5 bg-white font-bold text-sm outline-none transition-all min-w-[160px]"
-      :class="isOpen ? 'border-brand-600 shadow-lg shadow-brand-600/10 ring-2 ring-brand-600/10' : 'border-slate-200 hover:border-slate-300'"
+      class="flex items-center justify-between gap-2 border bg-white font-bold outline-none transition-all text-left"
+      :class="[
+        variant === 'form'
+          ? 'w-full rounded-xl px-3.5 py-2 text-xs sm:text-sm min-h-[38px]'
+          : 'rounded-full px-5 py-2.5 text-sm min-w-[160px]',
+        isOpen
+          ? 'border-brand-600 shadow-md shadow-brand-600/10 ring-2 ring-brand-600/15'
+          : 'border-slate-200 hover:border-slate-300'
+      ]"
     >
-      <span class="truncate" :class="modelValue ? 'text-slate-900' : 'text-slate-400'">
+      <span class="truncate" :class="modelValue ? 'text-slate-900 font-extrabold' : 'text-slate-400 font-medium'">
         {{ currentLabel }}
       </span>
       <ChevronDown
@@ -25,32 +32,31 @@
     >
       <div
         v-if="isOpen"
-        class="absolute z-50 top-full mt-2 w-full min-w-[200px] bg-white border border-slate-200 rounded-2xl shadow-[0_12px_40px_rgba(0,0,0,0.12)] overflow-hidden"
-        :class="align === 'right' ? 'right-0' : 'left-0'"
+        class="absolute z-[100] top-full mt-1.5 bg-white border border-slate-200/90 shadow-xl shadow-slate-900/10 overflow-hidden"
+        :class="[
+          variant === 'form' ? 'w-full min-w-full rounded-xl' : 'w-full min-w-[200px] rounded-2xl',
+          align === 'right' ? 'right-0' : 'left-0'
+        ]"
       >
-        <ul class="py-2 max-h-60 overflow-y-auto">
+        <ul class="p-1 max-h-60 overflow-y-auto space-y-0.5">
           <li
-            v-for="option in options"
-            :key="option.value"
+            v-for="option in normalizedOptions"
+            :key="String(option.value)"
             @click="selectOption(option)"
-            class="flex items-center gap-3 px-4 py-2.5 cursor-pointer transition-colors text-sm font-semibold"
+            class="flex items-center justify-between gap-2 px-3 py-2 cursor-pointer transition-colors text-xs sm:text-sm font-bold rounded-lg"
             :class="
               modelValue === option.value
                 ? 'bg-brand-50 text-brand-700'
-                : 'text-slate-700 hover:bg-slate-50'
+                : 'text-slate-700 hover:bg-slate-50 hover:text-brand-600'
             "
           >
-            <span
-              class="w-4 h-4 rounded-full border flex items-center justify-center flex-shrink-0 transition-colors"
-              :class="
-                modelValue === option.value
-                  ? 'border-brand-600 bg-brand-600'
-                  : 'border-slate-300'
-              "
-            >
-              <Check v-if="modelValue === option.value" class="w-2.5 h-2.5 text-white" />
-            </span>
             <span class="truncate">{{ option.label }}</span>
+            <span
+              v-if="modelValue === option.value"
+              class="w-4 h-4 rounded-full bg-brand-600 flex items-center justify-center flex-shrink-0 text-white shadow-xs"
+            >
+              <Check class="w-2.5 h-2.5 stroke-[3]" />
+            </span>
           </li>
         </ul>
       </div>
@@ -67,10 +73,11 @@ const props = defineProps({
   options: {
     type: Array,
     required: true,
-    // Each option: { value: string, label: string }
+    // Can be ['A', 'B'] or [{ value: 'A', label: 'Option A' }]
   },
   placeholder: { type: String, default: 'Select...' },
-  align: { type: String, default: 'left' }
+  align: { type: String, default: 'left' },
+  variant: { type: String, default: 'pill' } // 'pill' | 'form'
 })
 
 const emit = defineEmits(['update:modelValue'])
@@ -78,8 +85,17 @@ const emit = defineEmits(['update:modelValue'])
 const isOpen = ref(false)
 const selectRef = ref(null)
 
+const normalizedOptions = computed(() => {
+  return (props.options || []).map(opt => {
+    if (typeof opt === 'object' && opt !== null && 'value' in opt) {
+      return { value: opt.value, label: opt.label || String(opt.value) }
+    }
+    return { value: opt, label: String(opt) }
+  })
+})
+
 const currentLabel = computed(() => {
-  const found = props.options.find(o => o.value === props.modelValue)
+  const found = normalizedOptions.value.find(o => o.value === props.modelValue)
   return found ? found.label : props.placeholder
 })
 
@@ -98,11 +114,19 @@ const handleClickOutside = (e) => {
   }
 }
 
+const handleKeyDown = (e) => {
+  if (e.key === 'Escape' && isOpen.value) {
+    isOpen.value = false
+  }
+}
+
 onMounted(() => {
   document.addEventListener('click', handleClickOutside)
+  document.addEventListener('keydown', handleKeyDown)
 })
 
 onUnmounted(() => {
   document.removeEventListener('click', handleClickOutside)
+  document.removeEventListener('keydown', handleKeyDown)
 })
 </script>

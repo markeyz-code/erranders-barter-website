@@ -25,8 +25,8 @@ export default defineNuxtConfig({
       // talked to a DIFFERENT PRODUCT and 401'd on every call, which is far
       // harder to diagnose than an obviously-wrong host.
       apiBaseUrl: process.env.NUXT_PUBLIC_API_BASE_URL || process.env.VITE_API_BASE_URL || 'http://localhost:3100/api/v1',
-      apiBase: process.env.VITE_API_BASE_URL || 'https://barter-backend-api.erranders.org/api/v1',
-      wsBase: process.env.WS_BASE_URL || process.env.VITE_WS_URL || 'https://barter-backend-api.erranders.org',
+      apiBase: process.env.VITE_API_BASE_URL || 'http://localhost:3100/api/v1',
+      wsBase: process.env.WS_BASE_URL || process.env.VITE_WS_URL || 'http://localhost:3100',
       googleMapsApiKey: process.env.GOOGLE_MAPS_API_KEY || '',
       firebaseApiKey: process.env.NUXT_PUBLIC_FIREBASE_API_KEY || 'AIzaSyBzYV1KzAMugqh2N0DvbTP7vr4f96j1Po4',
       firebaseAuthDomain: process.env.NUXT_PUBLIC_FIREBASE_AUTH_DOMAIN || 'erranders-493fe.firebaseapp.com',

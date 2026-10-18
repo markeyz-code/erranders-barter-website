@@ -93,13 +93,89 @@
       </div>
     </div>
 
+    <!-- Booking Duration / Hours Selector Section -->
+    <div class="bg-slate-50/80 border border-slate-200/80 rounded-2xl p-4 sm:p-5">
+      <div class="flex items-center justify-between mb-3">
+        <div>
+          <p class="text-[11px] font-black uppercase tracking-wider text-slate-400">Booking Duration</p>
+          <h4 class="text-sm sm:text-base font-black text-slate-900">
+            Select or Edit Hours
+          </h4>
+        </div>
+        <div class="flex items-center gap-1.5">
+          <span class="px-2.5 py-1 rounded-full text-xs font-black bg-brand-50 text-brand-700 border border-brand-200">
+            {{ formatDuration(selectedDuration) }}
+          </span>
+        </div>
+      </div>
+
+      <!-- Stepper Controls & Quick Presets -->
+      <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5">
+        <!-- Stepper (Minus / Current / Plus) -->
+        <div class="flex items-center justify-between bg-white border border-slate-200/90 rounded-xl p-1 shrink-0 shadow-xs">
+          <button
+            type="button"
+            :disabled="selectedDuration <= minDurationMinutes || disabled"
+            @click="adjustDuration(-30)"
+            class="w-8 h-8 rounded-lg flex items-center justify-center font-black text-slate-700 hover:bg-slate-100 disabled:opacity-30 disabled:cursor-not-allowed transition-colors text-base"
+            aria-label="Decrease hours"
+            title="Decrease duration"
+          >
+            <Minus class="w-4 h-4" />
+          </button>
+          <span class="px-3 text-xs sm:text-sm font-black text-slate-900 text-center min-w-[72px]">
+            {{ formatDuration(selectedDuration) }}
+          </span>
+          <button
+            type="button"
+            :disabled="selectedDuration >= maxDurationMinutes || disabled"
+            @click="adjustDuration(30)"
+            class="w-8 h-8 rounded-lg flex items-center justify-center font-black text-slate-700 hover:bg-slate-100 disabled:opacity-30 disabled:cursor-not-allowed transition-colors text-base"
+            aria-label="Increase hours"
+            title="Increase duration"
+          >
+            <Plus class="w-4 h-4" />
+          </button>
+        </div>
+
+        <!-- Quick Preset Chips -->
+        <div class="flex items-center gap-1.5 flex-wrap">
+          <button
+            v-for="preset in durationPresets"
+            :key="preset.minutes"
+            type="button"
+            :disabled="disabled"
+            @click="setDuration(preset.minutes)"
+            class="px-2.5 py-1.5 rounded-xl text-xs font-bold transition-all"
+            :class="[
+              selectedDuration === preset.minutes
+                ? 'bg-slate-900 text-white font-black shadow-xs ring-1 ring-slate-900'
+                : 'bg-white text-slate-600 hover:bg-brand-50 hover:text-brand-700 hover:border-brand-300 border border-slate-200/90'
+            ]"
+          >
+            {{ preset.label }}
+          </button>
+        </div>
+      </div>
+
+      <!-- Realtime Rate & Duration Info -->
+      <div v-if="service" class="mt-3 pt-2.5 border-t border-slate-200/70 flex flex-wrap items-center justify-between gap-1 text-xs">
+        <span class="text-slate-500 font-medium">
+          Rate: <strong class="text-slate-800 font-bold">{{ formatPriceLabel(service.priceType, service.price) }}</strong>
+        </span>
+        <span class="text-brand-700 font-extrabold">
+          Estimated: {{ formatPriceBreakdown(service.priceType, service.price, selectedDuration) }}
+        </span>
+      </div>
+    </div>
+
     <!-- Available Time Slots Section -->
     <div class="space-y-3">
       <div class="flex items-center justify-between">
         <div>
           <p class="text-[11px] font-black uppercase tracking-wider text-slate-400">Available Time Slots</p>
           <p class="text-xs text-slate-500 font-medium">
-            Slots are calculated by the service duration ({{ formatDuration(service?.durationMinutes) }}).
+            Slots are calculated for your selected <strong>{{ formatDuration(selectedDuration) }}</strong> session.
           </p>
         </div>
         <button
@@ -143,7 +219,7 @@
         <Clock class="w-8 h-8 text-slate-300 mx-auto mb-2" />
         <p class="text-sm font-bold text-slate-700">No open slots on this date</p>
         <p class="text-xs text-slate-500 max-w-xs mx-auto mt-1">
-          The provider is fully booked or has closed their schedule for {{ formattedSelectedDate }}. Please choose another date above.
+          The provider is fully booked or has closed their schedule for {{ formattedSelectedDate }}. Please choose another date above or adjust your duration.
         </p>
       </div>
 
@@ -182,7 +258,7 @@
               class="text-[11px] font-medium mt-0.5"
               :class="!slot.available ? 'text-slate-400' : modelStart === slot.startTime ? 'text-white/80' : 'text-slate-500'"
             >
-              {{ formatDuration(service?.durationMinutes) }} session
+              {{ formatDuration(selectedDuration) }} session
             </p>
           </div>
 
@@ -226,7 +302,7 @@
           </h4>
           <p class="text-xs font-bold text-brand-700 flex items-center gap-1.5 mt-0.5">
             <Clock class="w-3.5 h-3.5" />
-            From {{ formatTime12h(selectedSlotInfo.startTime) }} to {{ formatTime12h(selectedSlotInfo.endTime) }} ({{ formatDuration(service?.durationMinutes) }})
+            From {{ formatTime12h(selectedSlotInfo.startTime) }} to {{ formatTime12h(selectedSlotInfo.endTime) }} ({{ formatDuration(selectedDuration) }})
           </p>
         </div>
 
@@ -263,6 +339,8 @@ import {
   Lock,
   ShieldCheck,
   AlertCircle,
+  Minus,
+  Plus,
 } from 'lucide-vue-next';
 import type { AvailabilitySlot } from '@/api_factory/modules/availability';
 import { servicesApi, type Service } from '@/api_factory/modules/services';
@@ -294,6 +372,7 @@ const props = withDefaults(
     service?: Service | null;
     date: string;
     startTime: string;
+    durationMinutes?: number;
     disabled?: boolean;
   }>(),
   { disabled: false },
@@ -302,6 +381,7 @@ const props = withDefaults(
 const emit = defineEmits<{
   (event: 'update:date', value: string): void;
   (event: 'update:startTime', value: string): void;
+  (event: 'update:durationMinutes', value: number): void;
   (event: 'loaded', slots: AvailabilitySlot[]): void;
 }>();
 
@@ -335,6 +415,59 @@ const viewMonth = ref(todayMonth);
 const slots = ref<AvailabilitySlot[]>([]);
 const loading = ref(false);
 const error = ref('');
+
+// Dynamic Duration Controls
+const minDurationMinutes = 15;
+const maxDurationMinutes = 480;
+
+const durationPresets = [
+  { label: '30m', minutes: 30 },
+  { label: '1 hr', minutes: 60 },
+  { label: '2 hrs', minutes: 120 },
+  { label: '3 hrs', minutes: 180 },
+  { label: '4 hrs', minutes: 240 },
+];
+
+const selectedDuration = ref<number>(
+  props.durationMinutes || props.service?.durationMinutes || 60,
+);
+
+watch(
+  () => props.durationMinutes,
+  (val) => {
+    if (val && val !== selectedDuration.value) {
+      selectedDuration.value = val;
+    }
+  },
+);
+
+watch(
+  () => props.service?.durationMinutes,
+  (val) => {
+    if (val && !props.durationMinutes) {
+      selectedDuration.value = val;
+    }
+  },
+);
+
+const setDuration = (minutes: number) => {
+  if (props.disabled) return;
+  const clamped = Math.max(minDurationMinutes, Math.min(maxDurationMinutes, minutes));
+  if (selectedDuration.value === clamped) return;
+  selectedDuration.value = clamped;
+  emit('update:durationMinutes', clamped);
+  emit('update:startTime', '');
+  void loadSlots(undefined, clamped);
+};
+
+const adjustDuration = (delta: number) => {
+  if (props.disabled) return;
+  const next = Math.max(
+    minDurationMinutes,
+    Math.min(maxDurationMinutes, selectedDuration.value + delta),
+  );
+  setDuration(next);
+};
 
 const modelDate = computed(() => props.date);
 const modelStart = computed(() => props.startTime);
@@ -428,8 +561,9 @@ const selectSlot = (startTime: string) => {
   if (!props.disabled) emit('update:startTime', startTime);
 };
 
-const loadSlots = async (dateOverride?: string) => {
+const loadSlots = async (dateOverride?: string, durationOverride?: number) => {
   const targetDate = dateOverride || props.date;
+  const targetDuration = durationOverride ?? selectedDuration.value;
   if (!targetDate || !props.serviceId) {
     slots.value = [];
     return;
@@ -438,7 +572,11 @@ const loadSlots = async (dateOverride?: string) => {
   loading.value = true;
   error.value = '';
   try {
-    const response = await servicesApi.availability(props.serviceId, targetDate);
+    const response = await servicesApi.availability(
+      props.serviceId,
+      targetDate,
+      targetDuration,
+    );
     slots.value = Array.isArray(response.data) ? response.data : [];
     emit('loaded', slots.value);
   } catch (err) {
@@ -458,14 +596,14 @@ const calculatedPriceText = computed(() => {
   const s = props.service;
   if (!s) return '—';
   if (s.priceType === 'negotiable') return 'Negotiable';
-  const total = calculateServiceTotal(s.priceType, s.price, s.durationMinutes);
+  const total = calculateServiceTotal(s.priceType, s.price, selectedDuration.value);
   return `₦${total.toLocaleString()}`;
 });
 
 const priceBreakdownExplanation = computed(() => {
   const s = props.service;
   if (!s) return '';
-  return formatPriceBreakdown(s.priceType, s.price, s.durationMinutes);
+  return formatPriceBreakdown(s.priceType, s.price, selectedDuration.value);
 });
 
 watch(

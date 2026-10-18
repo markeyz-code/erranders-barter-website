@@ -66,6 +66,7 @@ export interface CreateBookingPayload {
   serviceId: string;
   date: string;
   startTime: string;
+  durationMinutes?: number;
   notes?: string;
 }
 

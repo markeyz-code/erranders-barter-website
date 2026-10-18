@@ -51,8 +51,16 @@
             <video v-if="activeMedia?.type === 'video'" :src="activeMedia.src" controls autoplay muted loop class="w-full h-full object-cover"></video>
 
             <!-- Overlays -->
-            <div class="absolute top-3 left-3 bg-white/90 backdrop-blur px-2.5 py-1 rounded-md text-xs uppercase font-bold border border-slate-200 z-10">
-              {{ item.type === 'sell' ? 'For Sale' : item.type === 'swap' ? 'For Swap' : 'Service' }}
+            <div class="absolute top-3 left-3 flex items-center gap-1.5 z-10">
+              <span class="bg-white/95 backdrop-blur px-2.5 py-1 rounded-md text-xs uppercase font-black border border-slate-200">
+                {{ item.type === 'sell' ? 'For Sale' : item.type === 'swap' ? 'For Swap' : 'Service' }}
+              </span>
+              <span v-if="item.status === 'sold'" class="bg-red-600 text-white px-2.5 py-1 rounded-md text-xs uppercase font-black shadow-sm">
+                Sold Out ❌
+              </span>
+              <span v-else-if="item.status === 'pending'" class="bg-amber-500 text-white px-2.5 py-1 rounded-md text-xs uppercase font-black shadow-sm">
+                In Escrow 🔒
+              </span>
             </div>
             <div v-if="activeMedia?.type === 'image'" class="absolute bottom-3 right-3 bg-black/50 backdrop-blur px-2.5 py-1 rounded-md text-white text-xs font-semibold flex items-center gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity z-10">
               <Maximize class="w-3.5 h-3.5" /> 4D Zoom
@@ -85,6 +93,17 @@
         <div class="flex flex-col justify-center">
           
           <div class="mb-5">
+            <div class="flex items-center gap-2 mb-1.5">
+              <span
+                class="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider"
+                :class="item.status === 'sold' ? 'bg-red-100 text-red-700 border border-red-200' : item.status === 'pending' ? 'bg-amber-100 text-amber-800 border border-amber-200' : 'bg-emerald-100 text-emerald-800 border border-emerald-200'"
+              >
+                {{ item.status === 'sold' ? '● Sold Out' : item.status === 'pending' ? '● Reserved in Escrow' : '● Available' }}
+              </span>
+              <span v-if="item.batchId" class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-50 text-amber-700 border border-amber-200">
+                📦 Declutter Batch
+              </span>
+            </div>
             <h1 class="text-xl md:text-2xl font-extrabold text-slate-900 mb-2 leading-tight">{{ item.title }}</h1>
             <div class="flex items-center gap-3">
               <span v-if="item.type !== 'swap'" class="text-2xl md:text-3xl font-black text-brand-600">₦{{ Number(item.price || 0).toLocaleString() }}</span>
@@ -126,8 +145,30 @@
           </div>
           
           <div class="flex flex-col sm:flex-row gap-4 mt-auto" v-if="user?._id !== (item.sellerId?._id || item.sellerId)">
-            <!-- Sell Type (Buy Flow) -->
-            <template v-if="item.type === 'sell'">
+            <!-- Sold Out Notice -->
+            <div v-if="item.status === 'sold'" class="w-full bg-red-50 border border-red-200 text-red-700 rounded-2xl p-4 text-center">
+              <p class="font-black text-sm flex items-center justify-center gap-1.5 mb-1">
+                <X class="w-4 h-4 text-red-600 stroke-[3]" /> This item has already been SOLD OUT
+              </p>
+              <p class="text-xs text-red-600 font-medium mb-3">Another student has completed payment for this item.</p>
+              <button @click="startChat" class="px-4 py-2 bg-white border border-red-200 text-red-700 font-bold text-xs rounded-xl hover:bg-red-100/50 transition-colors inline-flex items-center gap-1.5">
+                <MessageCircle class="w-3.5 h-3.5" /> Message Seller for Similar Items
+              </button>
+            </div>
+
+            <!-- In Escrow Notice -->
+            <div v-else-if="item.status === 'pending'" class="w-full bg-amber-50 border border-amber-200 text-amber-800 rounded-2xl p-4 text-center">
+              <p class="font-black text-sm flex items-center justify-center gap-1.5 mb-1">
+                <Lock class="w-4 h-4 text-amber-600 stroke-[2.5]" /> Reserved in Escrow
+              </p>
+              <p class="text-xs text-amber-700 font-medium mb-3">A trade is currently underway. If the trade is not completed, this item will reopen.</p>
+              <button @click="startChat" class="px-4 py-2 bg-white border border-amber-200 text-amber-800 font-bold text-xs rounded-xl hover:bg-amber-100/50 transition-colors inline-flex items-center gap-1.5">
+                <MessageCircle class="w-3.5 h-3.5" /> Chat Seller
+              </button>
+            </div>
+
+            <!-- Available: Sell Type (Buy Flow) -->
+            <template v-else-if="item.type === 'sell'">
               <button @click="startChat" class="flex-1 bg-white border border-slate-200 text-slate-700 font-black py-4 rounded-2xl flex items-center justify-center gap-2 hover:bg-slate-50 transition-colors">
                 <MessageCircle class="w-5 h-5" /> Chat Seller
               </button>
@@ -136,7 +177,7 @@
               </NuxtLink>
             </template>
 
-            <!-- Swap Type -->
+            <!-- Available: Swap Type -->
             <template v-else-if="item.type === 'swap'">
               <div v-if="hasPendingOffer" class="flex-1 bg-amber-50 border border-amber-200 text-amber-700 font-black py-4 rounded-2xl flex items-center justify-center gap-2 text-center px-4">
                 <AlertTriangle class="w-5 h-5 flex-shrink-0" /> You have already sent an offer for this item
@@ -146,7 +187,7 @@
               </button>
             </template>
 
-            <!-- Service Type -->
+            <!-- Available: Service Type -->
             <template v-else-if="item.type === 'service'">
               <button @click="startChat" class="flex-1 bg-white border border-slate-200 text-slate-700 font-black py-4 rounded-2xl flex items-center justify-center gap-2 hover:bg-slate-50 transition-colors">
                 <MessageCircle class="w-5 h-5" /> Message Provider
@@ -159,7 +200,7 @@
           <div v-else class="mt-auto bg-slate-50 border border-slate-200 rounded-2xl p-4 text-center">
             <p class="font-bold text-slate-500 flex items-center justify-center gap-2">
               <ShieldCheck class="w-5 h-5 text-brand-600" />
-              This is your item
+              This is your listing
             </p>
           </div>
           

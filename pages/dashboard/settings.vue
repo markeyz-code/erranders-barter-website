@@ -35,15 +35,11 @@
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label class="block text-xs font-bold text-slate-600 mb-1.5">University</label>
-              <select v-model="form.university" class="w-full bg-slate-50 border border-slate-200 rounded-lg py-2.5 px-3.5 text-sm font-semibold text-slate-900 focus:bg-white focus:border-brand-600 outline-none transition-colors appearance-none">
-                <option value="UNILAG">UNILAG</option>
-                <option value="CMUL">CMUL</option>
-                <option value="LASU">LASU</option>
-                <option value="YABATECH">YABATECH</option>
-                <option value="UI">UI</option>
-                <option value="OAU">OAU</option>
-                <option value="Other">Other</option>
-              </select>
+              <CustomSelect
+                v-model="form.university"
+                :options="universityOptions"
+                variant="form"
+              />
             </div>
             <div>
               <label class="block text-xs font-bold text-slate-600 mb-1.5">Hostel / Residence</label>
@@ -79,6 +75,16 @@ definePageMeta({ layout: 'dashboard' })
 
 const { user, token, saveSession } = useAuth()
 const { showToast } = useToast()
+
+const universityOptions = [
+  'UNILAG',
+  'CMUL',
+  'LASU',
+  'YABATECH',
+  'UI',
+  'OAU',
+  'Other'
+]
 
 const loading = ref(false)
 const successMsg = ref('')
