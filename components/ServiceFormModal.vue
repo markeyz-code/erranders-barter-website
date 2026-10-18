@@ -81,7 +81,7 @@
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div>
             <label class="block text-sm font-bold text-slate-700 mb-1.5">
-              {{ form.priceType === 'hourly' ? 'Rate per hour (₦)' : 'Price (₦)' }}
+              {{ form.priceType === 'hourly' ? 'Rate per hour (₦)' : form.priceType === 'per_minute' ? 'Rate per minute (₦)' : 'Price (₦)' }}
             </label>
             <div class="relative">
               <span class="absolute left-3.5 top-1/2 -translate-y-1/2 font-bold text-slate-400">₦</span>
@@ -91,7 +91,7 @@
                 min="0"
                 inputmode="decimal"
                 :disabled="form.priceType === 'negotiable'"
-                :placeholder="form.priceType === 'negotiable' ? 'No price' : 'e.g. 2500'"
+                :placeholder="form.priceType === 'negotiable' ? 'No price' : form.priceType === 'per_minute' ? 'e.g. 50' : 'e.g. 2500'"
                 class="w-full bg-slate-50 border rounded-xl pl-8 pr-3 py-2.5 text-sm font-medium text-slate-900 outline-none focus:border-brand-500 transition-colors disabled:opacity-50"
                 :class="errors.price ? 'border-red-300' : 'border-slate-200'"
               />
@@ -320,6 +320,7 @@ const isEditing = computed(() => Boolean(props.service?._id));
 const priceTypeOptions = [
   { value: 'fixed', label: 'Fixed price' },
   { value: 'hourly', label: 'Hourly rate' },
+  { value: 'per_minute', label: 'Per minute rate' },
   { value: 'negotiable', label: 'Negotiable' },
 ];
 

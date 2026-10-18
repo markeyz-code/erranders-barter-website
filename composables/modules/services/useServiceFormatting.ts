@@ -132,11 +132,50 @@ export const formatTime12h = (time: string): string => {
 export const formatTimeRange = (startTime: string, endTime: string): string =>
   `${formatTime12h(startTime)} – ${formatTime12h(endTime)}`;
 
-/** Price respecting `priceType`: fixed, hourly or negotiable. */
+/** Price respecting `priceType`: fixed, hourly, per_minute or negotiable. */
 export const formatPriceLabel = (priceType: PriceType | undefined, price: number | undefined): string => {
   if (priceType === 'negotiable') return 'Negotiable';
   const amount = `₦${Number(price || 0).toLocaleString()}`;
-  return priceType === 'hourly' ? `${amount}/hr` : amount;
+  if (priceType === 'hourly') return `${amount}/hr`;
+  if (priceType === 'per_minute') return `${amount}/min`;
+  return amount;
+};
+
+/** Total price calculated for the booking duration */
+export const calculateServiceTotal = (
+  priceType: PriceType | undefined,
+  price: number | undefined,
+  durationMinutes: number | undefined,
+): number => {
+  if (priceType === 'negotiable') return 0;
+  const p = Number(price || 0);
+  const d = Math.max(1, Number(durationMinutes || 0));
+  if (priceType === 'hourly') {
+    return Math.round(p * (d / 60));
+  }
+  if (priceType === 'per_minute') {
+    return Math.round(p * d);
+  }
+  return p;
+};
+
+/** Detailed human-readable price breakdown */
+export const formatPriceBreakdown = (
+  priceType: PriceType | undefined,
+  price: number | undefined,
+  durationMinutes: number | undefined,
+): string => {
+  if (priceType === 'negotiable') return 'Price negotiable with provider';
+  const total = calculateServiceTotal(priceType, price, durationMinutes);
+  const formattedTotal = `₦${total.toLocaleString()}`;
+  const d = formatDuration(durationMinutes);
+  if (priceType === 'hourly') {
+    return `${formattedTotal} total (${formatPriceLabel(priceType, price)} · ${d})`;
+  }
+  if (priceType === 'per_minute') {
+    return `${formattedTotal} total (${formatPriceLabel(priceType, price)} · ${d})`;
+  }
+  return `${formattedTotal} fixed price (${d})`;
 };
 
 /** "45 min", "1 hr", "1 hr 30 min". */

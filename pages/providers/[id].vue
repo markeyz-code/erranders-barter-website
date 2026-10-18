@@ -84,7 +84,7 @@
           <p class="text-sm text-slate-500 mt-1">This provider hasn't published anything to book.</p>
         </div>
 
-        <div v-else class="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+        <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
           <NuxtLink
             v-for="s in services"
             :key="s._id"

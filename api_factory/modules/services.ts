@@ -17,7 +17,7 @@ import type { AvailabilitySlot } from './availability';
  */
 
 /** Matches `PriceType` in backend/src/services/schemas/service.schema.ts */
-export type PriceType = 'fixed' | 'hourly' | 'negotiable';
+export type PriceType = 'fixed' | 'hourly' | 'per_minute' | 'negotiable';
 
 /** Matches `ProviderProfile` in backend/src/users/schemas/user.schema.ts */
 export interface ProviderProfile {
