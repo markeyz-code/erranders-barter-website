@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen bg-slate-50 flex flex-col">
+  <div class="min-h-screen flex flex-col">
     <!-- Header -->
     <div class="bg-white p-4 shadow-sm border-b border-slate-100 flex items-center gap-4 sticky top-0 z-10">
       <button @click="$router.back()" class="text-slate-500 hover:text-slate-700 hover:bg-slate-100 p-2 rounded-full transition-colors font-bold">

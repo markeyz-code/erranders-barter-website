@@ -1,5 +1,5 @@
 <template>
-  <main class="min-h-screen bg-slate-50 pb-16 font-sans">
+  <main class="min-h-screen pb-16 font-sans">
     <!-- Header -->
     <div class="bg-white border-b border-slate-200 shadow-sm sticky top-0 z-30">
       <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">

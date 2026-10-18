@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen bg-slate-50 py-16 px-4 sm:px-4 sm:px-6 lg:px-4 sm:px-8">
+  <div class="min-h-screen  py-16 px-4 sm:px-4 sm:px-6 lg:px-4 sm:px-8">
     <div class="max-w-5xl mx-auto">
       
       <div class="mb-8">
@@ -156,7 +156,7 @@
             <button
               @click="handleCheckoutAction"
               :disabled="item.status !== 'active' || initiating || (deliveryMethod === 'errander' && !deliveryAddress)"
-              class="w-full bg-brand-600 text-white font-black py-4 rounded-xl flex justify-center items-center gap-2 hover:bg-brand-700 transition-all shadow-lg shadow-brand-500/25 disabled:opacity-50 disabled:bg-slate-400 text-lg"
+              class="w-full bg-brand-600 text-white font-black py-3 rounded-xl flex justify-center items-center gap-2 hover:bg-brand-700 transition-all shadow-lg shadow-brand-500/25 disabled:opacity-50 disabled:bg-slate-400 text-lg"
             >
               <Loader2 v-if="initiating" class="w-5 h-5 animate-spin" />
               <Lock v-else class="w-5 h-5" />
