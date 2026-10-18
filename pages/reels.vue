@@ -5,44 +5,45 @@
     <header class="absolute top-0 inset-x-0 z-40 p-3 sm:p-5 flex items-center justify-between pointer-events-none bg-gradient-to-b from-black/80 via-black/40 to-transparent">
       
       <!-- Left: Back Button & Brand Badge -->
-      <div class="flex items-center gap-2 sm:gap-3 pointer-events-auto">
+      <div class="flex items-center gap-2 sm:gap-3 pointer-events-auto shrink-0">
         <NuxtLink
           to="/explore"
-          class="p-2.5 rounded-full bg-white/10 hover:bg-white/20 text-white backdrop-blur-md transition-all border border-white/10 hover:scale-105 active:scale-95"
+          class="w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 text-white backdrop-blur-md transition-all border border-white/10 flex items-center justify-center hover:scale-105 active:scale-95 shrink-0"
           title="Back to Explore"
         >
           <ChevronLeft class="w-5 h-5" />
         </NuxtLink>
 
-        <div class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-black/60 backdrop-blur-md border border-white/15 shadow-lg">
-          <span class="w-2 h-2 rounded-full bg-red-500 animate-pulse"></span>
-          <span class="text-xs sm:text-sm font-black tracking-wide text-white">Reels</span>
-          <span class="text-[10px] font-black uppercase px-1.5 py-0.5 rounded bg-brand-600 text-white">
+        <div class="h-10 flex items-center gap-2 px-3.5 rounded-full bg-black/60 backdrop-blur-md border border-white/15 shadow-lg shrink-0">
+          <span class="w-2 h-2 rounded-full bg-red-500 animate-pulse shrink-0"></span>
+          <span class="text-xs sm:text-sm font-black tracking-wide text-white whitespace-nowrap">Reels</span>
+          <span class="text-[10px] font-black uppercase px-1.5 py-0.5 rounded bg-brand-600 text-white whitespace-nowrap">
             Live Feed
           </span>
         </div>
       </div>
 
       <!-- Center: Filter Pills (Desktop & Tablet) -->
-      <div class="hidden md:flex items-center gap-1.5 p-1 rounded-full bg-black/60 backdrop-blur-md border border-white/10 pointer-events-auto shadow-lg">
+      <div class="hidden md:flex items-center gap-1 p-1 rounded-full bg-black/60 backdrop-blur-md border border-white/10 pointer-events-auto shadow-lg shrink-0">
         <button
           v-for="tab in filterTabs"
           :key="tab.id"
           type="button"
           @click="selectedFilter = tab.id"
-          class="px-3 py-1 rounded-full text-xs font-black transition-all flex items-center gap-1"
-          :class="selectedFilter === tab.id ? 'bg-brand-600 text-white shadow-md' : 'text-slate-300 hover:text-white hover:bg-white/10'"
+          class="h-8 px-3.5 rounded-full text-xs font-bold transition-all flex items-center gap-1.5 whitespace-nowrap shrink-0 select-none"
+          :class="selectedFilter === tab.id ? 'bg-brand-600 text-white shadow-md shadow-brand-600/30' : 'text-slate-300 hover:text-white hover:bg-white/10'"
         >
           <span>{{ tab.label }}</span>
-          <span class="text-[10px] opacity-75">({{ tabCount(tab.id) }})</span>
+          <span v-if="tab.emoji" class="text-xs shrink-0">{{ tab.emoji }}</span>
+          <span class="text-[10px] opacity-75 font-medium shrink-0">({{ tabCount(tab.id) }})</span>
         </button>
       </div>
 
       <!-- Right: Action Buttons (Overview Grid & Sound Toggle) -->
-      <div class="flex items-center gap-2 pointer-events-auto">
+      <div class="flex items-center gap-2 pointer-events-auto shrink-0">
         
         <!-- Reel Counter -->
-        <div v-if="filteredReels.length > 0" class="hidden sm:inline-flex items-center px-2.5 py-1 rounded-full bg-black/60 backdrop-blur-md border border-white/10 text-[11px] font-black text-slate-300">
+        <div v-if="filteredReels.length > 0" class="hidden sm:inline-flex h-10 items-center px-3 rounded-full bg-black/60 backdrop-blur-md border border-white/10 text-xs font-black text-slate-300 whitespace-nowrap shrink-0">
           {{ activeIndex + 1 }} / {{ filteredReels.length }}
         </div>
 
@@ -50,18 +51,18 @@
         <button
           type="button"
           @click="isGridDrawerOpen = true"
-          class="px-3 py-2 rounded-full bg-white/10 hover:bg-white/20 text-white backdrop-blur-md transition-all border border-white/10 flex items-center gap-1.5 text-xs font-bold active:scale-95"
+          class="h-10 px-3.5 rounded-full bg-white/10 hover:bg-white/20 text-white backdrop-blur-md transition-all border border-white/10 flex items-center gap-2 text-xs font-bold active:scale-95 whitespace-nowrap shrink-0"
           title="Browse All Listings"
         >
-          <Grid class="w-4 h-4" />
-          <span class="hidden sm:inline">All Listings</span>
+          <Grid class="w-4 h-4 shrink-0" />
+          <span class="hidden sm:inline whitespace-nowrap">All Listings</span>
         </button>
 
         <!-- Sound Toggle Button -->
         <button
           type="button"
           @click="isMuted = !isMuted"
-          class="p-2.5 rounded-full bg-white/10 hover:bg-white/20 text-white backdrop-blur-md transition-all border border-white/10 active:scale-95"
+          class="w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 text-white backdrop-blur-md transition-all border border-white/10 flex items-center justify-center active:scale-95 shrink-0"
           :title="isMuted ? 'Unmute Sound' : 'Mute Sound'"
         >
           <VolumeX v-if="isMuted" class="w-5 h-5 text-slate-300" />
@@ -77,10 +78,11 @@
         :key="tab.id"
         type="button"
         @click="selectedFilter = tab.id"
-        class="px-3 py-1 rounded-full text-xs font-black transition-all shrink-0 flex items-center gap-1"
+        class="h-8 px-3 rounded-full text-xs font-bold transition-all shrink-0 flex items-center gap-1.5 whitespace-nowrap"
         :class="selectedFilter === tab.id ? 'bg-brand-600 text-white shadow-md' : 'bg-black/60 backdrop-blur-md border border-white/10 text-slate-300'"
       >
         <span>{{ tab.label }}</span>
+        <span v-if="tab.emoji" class="text-xs">{{ tab.emoji }}</span>
         <span class="text-[10px] opacity-75">({{ tabCount(tab.id) }})</span>
       </button>
     </div>
@@ -598,11 +600,11 @@ const activeIndex = ref(0);
 // Filters
 const selectedFilter = ref<'all' | 'declutter' | 'items' | 'swap' | 'services'>('all');
 const filterTabs = [
-  { id: 'all', label: 'All Reels' },
-  { id: 'declutter', label: 'Declutter 📦' },
-  { id: 'items', label: 'Buy & Sell 🛍️' },
-  { id: 'swap', label: 'Swap 🔄' },
-  { id: 'services', label: 'Services 🛠️' },
+  { id: 'all', label: 'All Reels', emoji: '' },
+  { id: 'declutter', label: 'Declutter', emoji: '📦' },
+  { id: 'items', label: 'Buy & Sell', emoji: '🛍️' },
+  { id: 'swap', label: 'Swap', emoji: '🔄' },
+  { id: 'services', label: 'Services', emoji: '🛠️' },
 ] as const;
 
 // Drawers
