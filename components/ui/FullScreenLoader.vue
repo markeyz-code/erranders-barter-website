@@ -8,7 +8,7 @@
         
         <!-- Logo -->
         <div class="relative z-10 bg-white p-4 rounded-3xl shadow-xl shadow-brand-100/50">
-          <img src="@/assets/img/logo.png" alt="Barter" class="h-12 w-auto animate-bounce" style="animation-duration: 2s;" />
+          <img src="@/assets/img/logo.png" alt="Decluttered" class="h-12 w-auto animate-bounce" style="animation-duration: 2s;" />
         </div>
         
         <!-- Loading Text -->

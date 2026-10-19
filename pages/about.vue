@@ -3,7 +3,7 @@
     <div class="max-w-3xl mx-auto px-4 sm:px-4 sm:px-6 lg:px-4 sm:px-8">
       <NuxtLink to="/" class="text-brand-600 font-bold mb-4 inline-block">← Back Home</NuxtLink>
       <h1 class="text-4xl font-extrabold text-slate-900 mb-4">About Us</h1>
-      <p class="text-lg text-slate-600 mb-8 border-l-4 border-brand-600 pl-4">The Erranders Barter network is built for students by students.</p>
+      <p class="text-lg text-slate-600 mb-8 border-l-4 border-brand-600 pl-4">The Decluttered campus marketplace is built for students by students.</p>
       
       <div class="prose prose-slate max-w-none">
         <p>This is a placeholder page for <strong>About Us</strong>. You can update this content later with the actual copy.</p>

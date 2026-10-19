@@ -316,6 +316,116 @@
         </NuxtLink>
       </div>
 
+      <!-- Google Photos Style Declutter Albums Section -->
+      <div v-if="declutterBatches.length > 0" class="mb-8 p-5 sm:p-6 rounded-3xl bg-slate-50 border border-slate-200/80">
+        <div class="flex items-center justify-between mb-4">
+          <div>
+            <h2 class="text-lg sm:text-xl font-black text-slate-900 tracking-tight flex items-center gap-2">
+              <span>Hostel Room Declutter Sales 📦</span>
+              <span class="px-2.5 py-0.5 rounded-full bg-brand-50 text-brand-700 text-xs font-black border border-brand-200">
+                {{ declutterBatches.length }} Room Group{{ declutterBatches.length === 1 ? '' : 's' }}
+              </span>
+            </h2>
+            <p class="text-xs text-slate-500 font-medium mt-0.5">
+              Organized like Google Photos albums. Click any room sale card to open and inspect the full declutter box!
+            </p>
+          </div>
+        </div>
+
+        <!-- Google Photos 3-Image Collage Mosaic Grid -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
+          <div
+            v-for="batch in declutterBatches"
+            :key="batch.batchId"
+            @click="openBatchBox(batch)"
+            class="group bg-white rounded-3xl border border-slate-200/90 hover:border-brand-500 hover:shadow-xl hover:shadow-brand-500/10 transition-all duration-300 p-3 sm:p-3.5 cursor-pointer flex flex-col justify-between"
+          >
+            <!-- 3-Image Mosaic Card -->
+            <div class="aspect-[16/10] w-full rounded-2xl overflow-hidden bg-slate-950 grid grid-cols-12 gap-1 relative shadow-inner">
+              <!-- Main Cover Photo (Left 7 cols) -->
+              <div class="col-span-7 h-full overflow-hidden relative bg-slate-900">
+                <img
+                  :src="batch.images[0] || '/no-image.png'"
+                  :alt="batch.batchTitle"
+                  class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                />
+              </div>
+
+              <!-- Stacked Sub-Photos (Right 5 cols) -->
+              <div class="col-span-5 h-full flex flex-col gap-1">
+                <div class="h-1/2 overflow-hidden relative bg-slate-800">
+                  <img
+                    :src="batch.images[1] || batch.images[0] || '/no-image.png'"
+                    :alt="batch.batchTitle"
+                    class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                  />
+                </div>
+                <div class="h-1/2 overflow-hidden relative bg-slate-800 flex items-center justify-center">
+                  <img
+                    :src="batch.images[2] || batch.images[0] || '/no-image.png'"
+                    :alt="batch.batchTitle"
+                    class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                  />
+                  <!-- More count badge overlay -->
+                  <div
+                    v-if="batch.items.length > 3"
+                    class="absolute inset-0 bg-black/60 backdrop-blur-xs flex items-center justify-center text-white font-black text-xs"
+                  >
+                    +{{ batch.items.length - 2 }} more
+                  </div>
+                </div>
+              </div>
+
+              <!-- Top Left Item Count Badge -->
+              <div class="absolute top-2.5 left-2.5">
+                <span class="px-2.5 py-1 rounded-full bg-black/75 backdrop-blur-md text-white text-[10px] font-black uppercase tracking-wider flex items-center gap-1 shadow-sm">
+                  <Package class="w-3 h-3 text-brand-400" />
+                  <span>{{ batch.items.length }} Items</span>
+                </span>
+              </div>
+
+              <!-- Bundle Discount Badge -->
+              <div v-if="batch.bundleDiscountPercent > 0" class="absolute top-2.5 right-2.5">
+                <span class="px-2.5 py-1 rounded-full bg-brand-600 text-white text-[10px] font-black uppercase tracking-wider shadow-sm">
+                  Save {{ batch.bundleDiscountPercent }}%
+                </span>
+              </div>
+            </div>
+
+            <!-- Card Bottom Meta -->
+            <div class="mt-3 space-y-2">
+              <div class="min-w-0">
+                <h3 class="font-black text-slate-900 text-sm sm:text-base group-hover:text-brand-600 transition-colors truncate">
+                  {{ batch.batchTitle }}
+                </h3>
+                <p class="text-xs font-semibold text-slate-500 flex items-center gap-1 mt-0.5 truncate">
+                  <MapPin class="w-3.5 h-3.5 text-brand-500 shrink-0" />
+                  <span>{{ batch.hostel }}</span>
+                  <span class="text-slate-300">•</span>
+                  <span class="text-slate-600">Seller: {{ batch.seller?.firstName || 'Student' }}</span>
+                </p>
+              </div>
+
+              <div class="pt-2 border-t border-slate-100 flex items-center justify-between text-xs">
+                <div>
+                  <span class="text-slate-400 font-bold uppercase text-[9px] block">Total Valuation</span>
+                  <span class="font-black text-slate-900 text-sm">₦{{ batch.totalValuation.toLocaleString() }}</span>
+                </div>
+
+                <div v-if="batch.bundleDiscountPercent > 0" class="text-right">
+                  <span class="text-brand-600 font-bold uppercase text-[9px] block">Full Bundle</span>
+                  <span class="font-black text-brand-600 text-sm">₦{{ batch.discountedTotal.toLocaleString() }}</span>
+                </div>
+              </div>
+
+              <div class="w-full py-2 rounded-xl bg-slate-50 group-hover:bg-brand-50 text-slate-700 group-hover:text-brand-700 text-xs font-black transition-colors flex items-center justify-center gap-1.5 border border-slate-100 group-hover:border-brand-200">
+                <span>Open Declutter Box 📦</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <!-- Loading State -->
       <div v-if="loading" class="py-20 flex flex-col items-center justify-center">
         <div class="w-12 h-12 border-4 border-slate-200 border-t-brand-600 rounded-full animate-spin mb-4"></div>
@@ -655,6 +765,110 @@
         </Transition>
       </Teleport>
 
+      <!-- Declutter Box Modal (Opens on Google Photos album card click) -->
+      <div
+        v-if="selectedBatchBox"
+        class="fixed inset-0 z-[150] bg-black/75 backdrop-blur-md flex items-center justify-center p-3 sm:p-6"
+      >
+        <div class="bg-white rounded-3xl max-w-2xl w-full max-h-[90vh] overflow-hidden flex flex-col shadow-2xl animate-in fade-in zoom-in-95 duration-200">
+          <!-- Modal Header -->
+          <div class="p-5 sm:p-6 border-b border-slate-100 flex items-start justify-between gap-4 bg-slate-50/70">
+            <div>
+              <div class="flex items-center gap-2 mb-1.5">
+                <span class="px-2.5 py-0.5 rounded-full bg-brand-100 text-brand-700 text-[10px] font-black uppercase tracking-wider">
+                  Declutter Box
+                </span>
+                <span class="text-xs font-bold text-slate-500">{{ selectedBatchBox.hostel }}</span>
+              </div>
+              <h3 class="text-xl sm:text-2xl font-black text-slate-900 leading-tight">
+                {{ selectedBatchBox.batchTitle }}
+              </h3>
+              <p class="text-xs text-slate-500 mt-1">
+                Listed by <strong class="text-slate-800">{{ selectedBatchBox.seller?.firstName || 'Student' }}</strong> • {{ selectedBatchBox.items.length }} items in this room sale
+              </p>
+            </div>
+
+            <button
+              type="button"
+              @click="closeBatchBox"
+              class="w-9 h-9 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-500 flex items-center justify-center transition-colors shrink-0 cursor-pointer"
+            >
+              <X class="w-5 h-5" />
+            </button>
+          </div>
+
+          <!-- Bundle Discount Banner -->
+          <div v-if="selectedBatchBox.bundleDiscountPercent > 0" class="px-5 py-3 bg-brand-50 border-b border-brand-100 flex items-center justify-between text-xs text-brand-950 font-bold">
+            <div class="flex items-center gap-2">
+              <Sparkles class="w-4 h-4 text-brand-600 shrink-0" />
+              <span>Take all items together and save <strong>{{ selectedBatchBox.bundleDiscountPercent }}% bundle discount!</strong></span>
+            </div>
+            <span class="text-brand-600 font-black">₦{{ selectedBatchBox.discountedTotal.toLocaleString() }}</span>
+          </div>
+
+          <!-- Items List inside the Declutter Box -->
+          <div class="p-5 sm:p-6 overflow-y-auto space-y-3.5 divide-y divide-slate-100 flex-1">
+            <div
+              v-for="item in selectedBatchBox.items"
+              :key="item._id"
+              class="pt-3.5 first:pt-0 flex items-center gap-3.5 sm:gap-4 group"
+            >
+              <div class="w-20 h-20 rounded-2xl overflow-hidden bg-slate-100 shrink-0 border border-slate-200">
+                <img :src="item.images?.[0] || '/no-image.png'" class="w-full h-full object-cover" />
+              </div>
+
+              <div class="flex-1 min-w-0">
+                <div class="flex items-center gap-1.5 mb-1">
+                  <span class="text-[10px] font-black uppercase px-2 py-0.5 rounded-md bg-slate-100 text-slate-600">
+                    {{ item.category || 'Appliances' }}
+                  </span>
+                  <span class="text-[10px] font-bold text-slate-500">
+                    {{ item.condition || 'Good Condition' }}
+                  </span>
+                </div>
+                <h4 class="font-bold text-slate-900 text-sm truncate">
+                  {{ item.title }}
+                </h4>
+                <p class="text-xs font-black text-brand-600 mt-0.5">
+                  ₦{{ Number(item.price || 0).toLocaleString() }}
+                </p>
+              </div>
+
+              <NuxtLink
+                :to="'/item/' + item._id"
+                class="px-3.5 py-2 rounded-xl bg-slate-100 group-hover:bg-brand-600 group-hover:text-white text-slate-800 text-xs font-black transition-colors shrink-0"
+              >
+                View Item →
+              </NuxtLink>
+            </div>
+          </div>
+
+          <!-- Modal Footer -->
+          <div class="p-4 sm:p-5 border-t border-slate-100 bg-slate-50 flex items-center justify-between gap-3">
+            <div>
+              <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">Total Box Valuation</span>
+              <span class="text-base sm:text-lg font-black text-slate-900">₦{{ selectedBatchBox.totalValuation.toLocaleString() }}</span>
+            </div>
+
+            <div class="flex items-center gap-2">
+              <button
+                type="button"
+                @click="closeBatchBox"
+                class="px-4 py-2.5 rounded-xl bg-white border border-slate-200 text-slate-700 font-bold text-xs hover:bg-slate-100 transition-colors cursor-pointer"
+              >
+                Close
+              </button>
+              <NuxtLink
+                :to="'/item/' + selectedBatchBox.items[0]?._id"
+                class="px-5 py-2.5 rounded-xl bg-brand-600 hover:bg-brand-500 text-white font-black text-xs transition-colors shadow-sm"
+              >
+                Order From This Box
+              </NuxtLink>
+            </div>
+          </div>
+        </div>
+      </div>
+
     </div>
   </main>
 </template>
@@ -671,7 +885,8 @@ import {
   SlidersHorizontal,
   Folder,
   ArrowUpDown,
-  Wallet
+  Wallet,
+  Package
 } from 'lucide-vue-next'
 import CustomSelect from '~/components/CustomSelect.vue'
 import { useRoute, useRouter } from 'vue-router'
@@ -699,11 +914,20 @@ const clearSearch = () => {
 }
 
 useSeoMeta({
-  title: computed(() => searchQuery.value ? `Search Results for "${searchQuery.value}" | Erranders Barter` : 'Explore Campus Marketplace | Erranders Barter'),
-  description: 'Discover everything available on the Erranders network. Buy, sell, and swap electronics, textbooks, room declutter batches, and more.',
-  ogTitle: 'Explore Erranders Barter',
-  ogDescription: 'Discover amazing deals from students around you on the Erranders network.',
+  title: computed(() => searchQuery.value ? `Search Results for "${searchQuery.value}" | Decluttered` : 'Explore Campus Marketplace | Decluttered'),
+  description: 'Discover everything available on the Decluttered student network. Buy, sell, and swap electronics, textbooks, room declutter batches, and more.',
+  ogTitle: 'Explore Decluttered',
+  ogDescription: 'Discover amazing room declutter sales and verified student listings on Decluttered.',
 })
+
+// Declutter Box modal and batches state
+const selectedBatchBox = ref(null)
+const openBatchBox = (batch) => {
+  selectedBatchBox.value = batch
+}
+const closeBatchBox = () => {
+  selectedBatchBox.value = null
+}
 
 // Active filters state
 const selectedType = ref(route.query.type || '')
@@ -882,6 +1106,46 @@ onMounted(async () => {
 
 const filteredItems = computed(() => {
   return items.value
+})
+
+const declutterBatches = computed(() => {
+  const map = new Map()
+  for (const item of items.value) {
+    if (!item.batchId) continue
+    const existing = map.get(item.batchId)
+    if (!existing) {
+      map.set(item.batchId, {
+        batchId: item.batchId,
+        batchTitle: item.batchTitle || (item.location ? `${item.location} Declutter Sale` : 'Room Declutter Sale'),
+        hostel: item.location || 'Campus Hostel',
+        seller: item.sellerId,
+        items: [item],
+        images: [...(item.images || [])],
+        totalValuation: Number(item.price || 0),
+        bundleDiscountPercent: Number(item.bundleDiscountPercent || 0),
+        discountedTotal: 0,
+      })
+    } else {
+      existing.items.push(item)
+      if (item.images && item.images.length) {
+        existing.images.push(...item.images)
+      }
+      existing.totalValuation += Number(item.price || 0)
+      if (item.bundleDiscountPercent && !existing.bundleDiscountPercent) {
+        existing.bundleDiscountPercent = Number(item.bundleDiscountPercent)
+      }
+    }
+  }
+
+  return Array.from(map.values()).map(b => {
+    const uniqueImages = Array.from(new Set(b.images)).filter(Boolean)
+    const discount = b.bundleDiscountPercent > 0 ? (b.totalValuation * b.bundleDiscountPercent) / 100 : 0
+    return {
+      ...b,
+      images: uniqueImages.length ? uniqueImages : ['/no-image.png'],
+      discountedTotal: Math.round(b.totalValuation - discount),
+    }
+  })
 })
 </script>
 

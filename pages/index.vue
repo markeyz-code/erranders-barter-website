@@ -16,7 +16,7 @@
       </h1>
       
       <p class="text-sm md:text-base text-slate-600 font-medium max-w-xl mx-auto mb-6 leading-relaxed">
-        Why stress with heavy loads? Automate your <strong>hostel movement</strong> on <strong>Barter</strong> — turn your room items into instant cash, declutter in 2 minutes, or swap with verified students.
+        Why stress with heavy loads? Automate your <strong>hostel movement</strong> on <strong>Decluttered</strong> — turn your room items into instant cash, declutter in 2 minutes, or swap with verified students.
       </p>
 
       <!-- Smart Omnibox Search -->
@@ -191,7 +191,7 @@
               </div>
               <div class="flex items-start gap-3">
                 <div class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5"><Check class="w-4 h-4 text-green-600" /></div>
-                <p class="text-slate-700 font-bold">Barter fixes all of this. Instantly. Securely.</p>
+                <p class="text-slate-700 font-bold">Decluttered fixes all of this. Instantly. Securely.</p>
               </div>
             </div>
           </div>
@@ -199,7 +199,7 @@
       </div>
     </section>
 
-    <!-- SECTION: How Barter Works -->
+    <!-- SECTION: How Decluttered Works -->
     <section class="py-14 px-4 sm:px-6 lg:px-8 bg-slate-50 border-b border-slate-100">
       <div class="max-w-5xl mx-auto text-center">
         <span class="text-xs font-bold text-brand-600 uppercase tracking-wider mb-2 block">How It Works</span>
@@ -222,7 +222,7 @@
             </div>
             <span class="text-3xl font-black text-slate-200 absolute top-4 right-5">02</span>
             <h3 class="text-lg font-bold text-slate-900 mb-1.5">Match & Chat</h3>
-            <p class="text-sm text-slate-600 font-medium">A buyer or swapper finds your item. Chat them directly inside Barter. No random DMs.</p>
+            <p class="text-sm text-slate-600 font-medium">A buyer or swapper finds your item. Chat them directly inside Decluttered. No random DMs.</p>
           </div>
 
           <div class="bg-white rounded-xl p-5 border border-slate-200 text-left relative overflow-hidden group hover:border-brand-500 transition-colors">
@@ -245,7 +245,7 @@
             <span class="text-xs font-bold text-green-600 uppercase tracking-wider mb-2 block">Built on Trust</span>
             <h2 class="text-2xl md:text-3xl font-extrabold text-slate-900 mb-4 leading-snug">Your money is safe. Always.</h2>
             <p class="text-sm md:text-base text-slate-600 font-medium leading-relaxed mb-6">
-              Every single transaction on Barter is protected by Erranders Escrow. The buyer's money is held securely until they confirm they received exactly what was listed. No "I don pay, abeg send am" stories.
+              Every single transaction on Decluttered is protected by Erranders Escrow. The buyer's money is held securely until they confirm they received exactly what was listed. No "I don pay, abeg send am" stories.
             </p>
             <div class="grid grid-cols-2 gap-3.5">
               <div class="bg-green-50 rounded-xl p-4 border border-green-100">
@@ -367,10 +367,10 @@ import { servicesApi } from '@/api_factory/modules/services'
 import ServiceCard from '~/components/ServiceCard.vue'
 
 useSeoMeta({
-  title: 'Erranders Barter - Stress-Free Campus Hostel Movement',
-  description: 'Automate your hostel movement. Buy, sell, and swap room items seamlessly on campus with zero stress.',
-  ogTitle: 'Erranders Barter - Automate Your Hostel Movement',
-  ogDescription: 'Simplify your hostel movement. Sell off room items or swap on Barter with verified campus students.',
+  title: 'Decluttered — Campus Student Marketplace & Hostel Declutter',
+  description: 'Automate your campus room declutter. Buy, sell, and swap room items seamlessly on campus with zero stress on Decluttered.',
+  ogTitle: 'Decluttered — Campus Student Marketplace & Hostel Declutter',
+  ogDescription: 'Simplify your hostel movement. Sell off room items or swap on Decluttered with verified campus students.',
 })
 
 const router = useRouter()
@@ -378,14 +378,14 @@ const router = useRouter()
 // Carousel Logic - Multilingual hostel movement phrases
 const phrases = [
   "Hostel movement without wahala! 📦",
-  "Barter am sharp-sharp, cash out! ⚡",
-  "Kò sí wàhálà — Ṣe Barter kọ́rọ̀! 🎒",
-  "Zụta, Ree, Gbanwee na Barter! ✨",
-  "Babu wahala — Yi Barter yanzu! 🚀",
+  "Declutter am sharp-sharp, cash out! ⚡",
+  "Kò sí wàhálà — Ṣe Decluttered kọ́rọ̀! 🎒",
+  "Zụta, Ree, Gbanwee na Decluttered! ✨",
+  "Babu wahala — Yi Decluttered yanzu! 🚀",
   "Pack light, move easy, no stress! 🛋️",
   "Ta á, Rà á, Ṣe pàṣípààrọ̀! 🤝",
-  "Kwaga hostel n'udo — Barter am! 💸",
-  "Sauƙaƙa ƙaura da Barter! 🎓"
+  "Kwaga hostel n'udo — Declutter am! 💸",
+  "Sauƙaƙa ƙaura da Decluttered! 🎓"
 ]
 const currentPhrase = ref(phrases[0])
 let currentIndex = 0

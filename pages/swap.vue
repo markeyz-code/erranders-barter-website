@@ -108,7 +108,7 @@
               <Sparkles class="w-5 h-5 text-brand-600" /> Swap Flow Explained
             </h3>
             <p class="text-slate-600 font-medium mb-8 text-sm leading-relaxed">
-              Don't have cash? No problem. Barter lets you trade what you don't need for what you want.
+              Don't have cash? No problem. Decluttered lets you trade what you don't need for what you want.
             </p>
 
             <div class="space-y-6">
@@ -163,9 +163,9 @@ const { user } = useAuth()
 const form = ref({ title: '', description: '', swapPreference: '', price: 0, location: '', type: 'swap', images: [], promote: false })
 
 useSeoMeta({
-  title: 'Swap an Item | Erranders Barter',
-  description: 'List your items to swap securely on the Erranders Barter network.',
-  ogTitle: 'Swap an Item | Erranders Barter',
+  title: 'Swap an Item | Decluttered',
+  description: 'List your items to swap securely on the Decluttered campus network.',
+  ogTitle: 'Swap an Item | Decluttered',
 })
 
 const loading = ref(false)

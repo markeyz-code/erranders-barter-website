@@ -4,11 +4,11 @@
     <div class="w-full lg:w-1/2 flex justify-center p-4 sm:p-8 lg:p-12 bg-white min-h-screen">
       <div class="w-full max-w-md py-8 my-auto">
        <NuxtLink to="/" class="flex justify-center items-center gap-2 mb-8">
-        <img src="@/assets/img/logo.png" alt="Erranders Barter" class="h-14 w-auto" />
+        <img src="@/assets/img/logo.png" alt="Decluttered" class="h-14 w-auto" />
       </NuxtLink>
 
         <h1 class="text-4xl text-center font-black text-slate-900 mb-2">Create Account</h1>
-        <p class="text-slate-500 text-center font-medium mb-8">Join the Erranders network to start trading.</p>
+        <p class="text-slate-500 text-center font-medium mb-8">Join the Decluttered network to start trading.</p>
 
         <button @click="googleLogin" class="w-full flex items-center justify-center gap-3 bg-white border border-slate-200 text-slate-700 font-bold py-3.5 rounded-xl hover:bg-slate-50 transition-colors mb-6 shadow-sm">
           <img src="https://www.google.com/favicon.ico" class="w-5 h-5" />
@@ -154,7 +154,7 @@ const handleSignup = async () => {
     saveSession(data)
     
     // Success, route to explore
-    showToast('Account Created!', `Welcome to Barter, ${data.user?.firstName || 'User'}!`, 'success')
+    showToast('Account Created!', `Welcome to Decluttered, ${data.user?.firstName || 'User'}!`, 'success')
     router.push('/explore')
   } catch (err) {
     error.value = err.message
@@ -163,4 +163,9 @@ const handleSignup = async () => {
     loading.value = false
   }
 }
+
+useSeoMeta({
+  title: 'Sign Up | Decluttered',
+  description: 'Create an account on Decluttered to buy, sell, swap campus items, and automate hostel room declutters.'
+})
 </script>

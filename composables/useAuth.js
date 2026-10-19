@@ -76,7 +76,7 @@ export function useAuth() {
         throw err
       }
       
-      showLoader('Authenticating with Barter...')
+      showLoader('Authenticating with Decluttered...')
       const idToken = await result.user.getIdToken()
       
       const res = await fetch(`${config.public.apiBaseUrl}/auth/firebase-login`, {

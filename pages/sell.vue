@@ -330,9 +330,9 @@ watch(() => form.value.type, () => {
 })
 
 useSeoMeta({
-  title: 'List an Item | Erranders Barter',
-  description: 'Sell or swap your items securely on the Erranders Barter network.',
-  ogTitle: 'List an Item | Erranders Barter',
+  title: 'List an Item | Decluttered',
+  description: 'Sell or swap your items securely on the Decluttered campus student network.',
+  ogTitle: 'List an Item | Decluttered',
 })
 
 const loading = ref(false)

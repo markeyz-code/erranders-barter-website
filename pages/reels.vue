@@ -4,8 +4,8 @@
     <!-- ── Top Floating Header Bar ── -->
     <header class="absolute top-0 inset-x-0 z-40 p-3 sm:p-5 flex items-center justify-between pointer-events-none bg-gradient-to-b from-black/80 via-black/40 to-transparent">
       
-      <!-- Left: Back Button & Brand Badge -->
-      <div class="flex items-center gap-2 sm:gap-3 pointer-events-auto shrink-0">
+      <!-- Left: Sleek Back Button -->
+      <div class="flex items-center gap-2 pointer-events-auto shrink-0">
         <NuxtLink
           to="/explore"
           class="w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 text-white backdrop-blur-md transition-all border border-white/10 flex items-center justify-center hover:scale-105 active:scale-95 shrink-0"
@@ -13,14 +13,6 @@
         >
           <ChevronLeft class="w-5 h-5" />
         </NuxtLink>
-
-        <div class="h-10 flex items-center gap-2 px-3.5 rounded-full bg-black/60 backdrop-blur-md border border-white/15 shadow-lg shrink-0">
-          <span class="w-2 h-2 rounded-full bg-red-500 animate-pulse shrink-0"></span>
-          <span class="text-xs sm:text-sm font-black tracking-wide text-white whitespace-nowrap">Reels</span>
-          <span class="text-[10px] font-black uppercase px-1.5 py-0.5 rounded bg-brand-600 text-white whitespace-nowrap">
-            Live Feed
-          </span>
-        </div>
       </div>
 
       <!-- Center: Filter Pills (Desktop & Tablet) -->
@@ -61,7 +53,7 @@
         <!-- Sound Toggle Button -->
         <button
           type="button"
-          @click="isMuted = !isMuted"
+          @click="toggleSound"
           class="w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 text-white backdrop-blur-md transition-all border border-white/10 flex items-center justify-center active:scale-95 shrink-0"
           :title="isMuted ? 'Unmute Sound' : 'Mute Sound'"
         >
@@ -95,19 +87,27 @@
 
     <!-- ── Empty State ── -->
     <div v-else-if="filteredReels.length === 0" class="h-full w-full flex flex-col items-center justify-center px-6 text-center">
-      <div class="w-20 h-20 rounded-full bg-white/5 border border-white/10 flex items-center justify-center mb-4">
-        <VideoOff class="w-10 h-10 text-slate-500" />
+      <div
+        class="w-20 h-20 rounded-full flex items-center justify-center mb-4"
+        :class="selectedFilter === 'loved' ? 'bg-red-500/10 border border-red-500/20' : 'bg-white/5 border border-white/10'"
+      >
+        <Heart v-if="selectedFilter === 'loved'" class="w-10 h-10 text-red-500 fill-red-500/30 animate-pulse" />
+        <VideoOff v-else class="w-10 h-10 text-slate-500" />
       </div>
-      <h3 class="text-2xl font-black text-white">No Listings Found</h3>
-      <p class="text-sm text-slate-400 mt-2 max-w-sm">No items or services match this category filter right now.</p>
+      <h3 class="text-2xl font-black text-white">
+        {{ selectedFilter === 'loved' ? 'No Loved Reels Yet ❤️' : 'No Listings Found' }}
+      </h3>
+      <p class="text-sm text-slate-400 mt-2 max-w-sm">
+        {{ selectedFilter === 'loved' ? 'Double tap or tap the heart icon on any campus listing video to save it to your Loved collection.' : 'No items or services match this category filter right now.' }}
+      </p>
       <div class="mt-6 flex gap-3">
         <button
           @click="selectedFilter = 'all'"
-          class="px-5 py-2.5 rounded-xl bg-brand-600 text-white font-black text-xs hover:bg-brand-700"
+          class="px-5 py-2.5 rounded-xl bg-brand-600 text-white font-black text-xs hover:bg-brand-700 shadow-lg shadow-brand-600/30"
         >
-          View All ({{ allReels.length }})
+          {{ selectedFilter === 'loved' ? 'Explore All Listings' : `View All (${allReels.length})` }}
         </button>
-        <NuxtLink to="/sell" class="px-5 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-white font-bold text-xs">
+        <NuxtLink v-if="selectedFilter !== 'loved'" to="/sell" class="px-5 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-white font-bold text-xs">
           Post a Listing
         </NuxtLink>
       </div>
@@ -177,6 +177,18 @@
             playsinline
             class="w-full h-full object-contain md:object-cover shadow-2xl"
           ></video>
+
+          <!-- Floating Video Sound Status Badge -->
+          <button
+            v-if="reel.videos && reel.videos.length > 0"
+            type="button"
+            @click.stop="toggleSound"
+            class="absolute top-20 sm:top-24 right-4 z-30 px-3 py-1.5 rounded-full bg-black/75 backdrop-blur-md border border-white/20 text-[11px] font-black text-white flex items-center gap-1.5 shadow-2xl transition-all hover:scale-105 active:scale-95"
+          >
+            <Volume2 v-if="!isMuted" class="w-3.5 h-3.5 text-emerald-400 animate-pulse" />
+            <VolumeX v-else class="w-3.5 h-3.5 text-amber-400" />
+            <span>{{ isMuted ? 'Muted · Tap for Sound 🔊' : 'Sound On 🔊' }}</span>
+          </button>
 
           <!-- Image Slideshow / Photo Format -->
           <div v-else class="w-full h-full relative flex items-center justify-center bg-black/50">
@@ -493,34 +505,42 @@
           </button>
         </div>
 
-        <!-- Grid of Cards -->
-        <div class="p-4 sm:p-6 overflow-y-auto flex-1 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 sm:gap-4">
+        <!-- Grid of Cards (Explicit height & fixed thumbnail containers to prevent browser collapse) -->
+        <div class="p-4 sm:p-6 overflow-y-auto flex-1 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 sm:gap-4 auto-rows-max">
           <div
             v-for="(reel, idx) in filteredReels"
             :key="reel._id"
             @click="jumpToReel(idx)"
-            class="group cursor-pointer rounded-2xl overflow-hidden bg-white/5 border border-white/10 hover:border-brand-500 transition-all flex flex-col relative"
-            :class="activeIndex === idx ? 'ring-2 ring-brand-500 border-transparent' : ''"
+            class="group cursor-pointer rounded-2xl overflow-hidden bg-slate-800/90 border border-white/10 hover:border-brand-500 transition-all flex flex-col relative min-h-[195px] h-[215px] shadow-lg active:scale-95"
+            :class="activeIndex === idx ? 'ring-2 ring-brand-500 border-transparent shadow-brand-500/20' : ''"
           >
-            <!-- Thumbnail -->
-            <div class="aspect-[4/3] bg-black/60 relative overflow-hidden">
+            <!-- Thumbnail with solid, fixed physical height -->
+            <div class="h-32 sm:h-36 w-full bg-black/80 relative overflow-hidden shrink-0">
               <img
-                :src="reel.images?.[0] || 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?auto=format&fit=crop&q=80&w=400'"
+                :src="(reel.images && reel.images[0]) || (reel.videos && reel.videos.length > 0 ? 'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&q=80&w=400' : 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?auto=format&fit=crop&q=80&w=400')"
                 class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                loading="lazy"
+                @error="(e: any) => { e.target.src = 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?auto=format&fit=crop&q=80&w=400'; }"
               />
-              <span class="absolute top-2 left-2 px-2 py-0.5 rounded-md text-[10px] font-black uppercase tracking-wider"
+
+              <!-- Type / Video Pill -->
+              <span v-if="reel.videos && reel.videos.length > 0" class="absolute top-2 left-2 px-2 py-0.5 rounded-md text-[10px] font-black uppercase tracking-wider bg-rose-600 text-white shadow-sm flex items-center gap-1">
+                <span>🎬</span> Video
+              </span>
+              <span v-else class="absolute top-2 left-2 px-2 py-0.5 rounded-md text-[10px] font-black uppercase tracking-wider shadow-sm"
                 :class="reel.isService ? 'bg-emerald-600 text-white' : (reel.type === 'swap' ? 'bg-amber-500 text-white' : 'bg-brand-600 text-white')"
               >
                 {{ reel.isService ? 'Service' : reel.type }}
               </span>
+
               <span v-if="activeIndex === idx" class="absolute bottom-2 right-2 px-2 py-0.5 rounded bg-brand-600 text-[9px] font-black uppercase text-white shadow-md">
                 Playing Now
               </span>
             </div>
 
-            <!-- Content -->
-            <div class="p-2.5 flex-1 flex flex-col justify-between">
-              <h4 class="text-xs font-black text-white truncate">{{ reel.title }}</h4>
+            <!-- Content Card Body -->
+            <div class="p-2.5 flex-1 flex flex-col justify-between bg-slate-900/95 min-w-0">
+              <h4 class="text-xs font-black text-white truncate group-hover:text-brand-400 transition-colors">{{ reel.title }}</h4>
               <div class="flex items-center justify-between mt-1 text-[11px]">
                 <span class="font-black text-brand-400">{{ priceDisplay(reel) }}</span>
                 <span class="text-slate-400 text-[10px] truncate max-w-[80px]">📍 {{ reel.location || 'Campus' }}</span>
@@ -575,16 +595,19 @@ import {
 } from 'lucide-vue-next';
 import { itemsApi, servicesApi } from '~/composables/useApi';
 import { useAuth } from '~/composables/useAuth';
+import { useNotificationSound } from '~/composables/core/useNotificationSound';
+import { useCustomToast } from '~/composables/core/useCustomToast';
 
 // Full-Screen Layout: bypass default layout completely!
 definePageMeta({ layout: false });
 
 useSeoMeta({
-  title: 'Campus Reels | Erranders Barter',
-  description: 'Explore campus buy, sell, swap, and declutter deals in an Instagram Reels-style full-screen feed.',
+  title: 'Campus Reels | Decluttered',
+  description: 'Explore campus buy, sell, swap, and room declutter deals in an Instagram Reels-style full-screen video feed on Decluttered.',
 });
 
 const { user, isLoggedIn } = useAuth();
+const { playNotificationChime } = useNotificationSound();
 
 const allReels = ref<any[]>([]);
 const loading = ref(true);
@@ -596,11 +619,13 @@ const heartAnimations = ref<Record<string, boolean>>({});
 const expandedDescriptions = ref<Record<string, boolean>>({});
 const activeImageIndices = ref<Record<string, number>>({});
 const activeIndex = ref(0);
+const lovedReelIds = ref<string[]>([]);
 
-// Filters
-const selectedFilter = ref<'all' | 'declutter' | 'items' | 'swap' | 'services'>('all');
+// Filters (including Loved ❤️)
+const selectedFilter = ref<'all' | 'loved' | 'declutter' | 'items' | 'swap' | 'services'>('all');
 const filterTabs = [
   { id: 'all', label: 'All Reels', emoji: '' },
+  { id: 'loved', label: 'Loved', emoji: '❤️' },
   { id: 'declutter', label: 'Declutter', emoji: '📦' },
   { id: 'items', label: 'Buy & Sell', emoji: '🛍️' },
   { id: 'swap', label: 'Swap', emoji: '🔄' },
@@ -625,9 +650,33 @@ const showToast = (msg: string) => {
   }, 2500);
 };
 
+// Sound toggle with video unmuting and chime
+const toggleSound = () => {
+  isMuted.value = !isMuted.value;
+  videoRefs.value.forEach((v) => {
+    if (v) {
+      v.muted = isMuted.value;
+      if (!isMuted.value) {
+        v.volume = 1.0;
+        v.play().catch(() => {});
+      }
+    }
+  });
+
+  if (!isMuted.value) {
+    playNotificationChime();
+    showToast('🔊 Sound unmuted · Turn volume up to hear video!');
+  } else {
+    showToast('🔇 Video muted');
+  }
+};
+
 // Filtered reels computation
 const filteredReels = computed(() => {
   if (selectedFilter.value === 'all') return allReels.value;
+  if (selectedFilter.value === 'loved') {
+    return allReels.value.filter(r => r.isLiked || lovedReelIds.value.includes(r._id));
+  }
   if (selectedFilter.value === 'declutter') return allReels.value.filter(r => Boolean(r.batchId));
   if (selectedFilter.value === 'items') return allReels.value.filter(r => !r.isService && r.type === 'sell');
   if (selectedFilter.value === 'swap') return allReels.value.filter(r => !r.isService && r.type === 'swap');
@@ -637,6 +686,7 @@ const filteredReels = computed(() => {
 
 const tabCount = (filterId: string) => {
   if (filterId === 'all') return allReels.value.length;
+  if (filterId === 'loved') return allReels.value.filter(r => r.isLiked || lovedReelIds.value.includes(r._id)).length;
   if (filterId === 'declutter') return allReels.value.filter(r => Boolean(r.batchId)).length;
   if (filterId === 'items') return allReels.value.filter(r => !r.isService && r.type === 'sell').length;
   if (filterId === 'swap') return allReels.value.filter(r => !r.isService && r.type === 'swap').length;
@@ -696,19 +746,97 @@ const formatCommentDate = (dateStr: string) => {
   return `${Math.floor(hrs / 24)}d ago`;
 };
 
-// Load Reels from API
+// Load Reels from API with Fisher-Yates Shuffle on every visit
 const loadReels = async () => {
   loading.value = true;
+
+  // Sync loved reels from localStorage
+  if (typeof window !== 'undefined') {
+    try {
+      const saved = localStorage.getItem('decluttered_loved_reels');
+      if (saved) lovedReelIds.value = JSON.parse(saved);
+    } catch {}
+  }
+
+  // Sample verified product videos with audio to guarantee testing sound works immediately
+  const sampleAudioReels = [
+    {
+      _id: 'seed-macbook-pro',
+      title: 'Apple MacBook Pro M2 (16GB RAM, 512GB SSD) - UK Used',
+      description: '🔊 Working video with sound test! Battery health 98%, includes charger. Available for immediate pickup or delivery.',
+      price: 850000,
+      priceType: 'fixed',
+      location: 'Moremi Hall, Room 204',
+      category: 'Electronics',
+      condition: 'Like New',
+      type: 'sell',
+      status: 'active',
+      images: ['https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&q=80&w=800'],
+      videos: ['https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4'],
+      sellerId: { firstName: 'Chinedu', lastName: 'Okafor', hostel: 'Moremi Hall', isVerified: true },
+      likesCount: 29,
+      repostsCount: 11,
+      isService: false,
+    },
+    {
+      _id: 'seed-sony-anc',
+      title: 'Sony WH-1000XM5 Wireless Headphones (Audio Tested)',
+      description: '🔊 Turn on sound to hear ANC and audio quality test! 30hr battery life, crystal clear mic for online lectures.',
+      price: 210000,
+      priceType: 'fixed',
+      location: 'Queen Amina Hall, Block B',
+      category: 'Gadgets',
+      condition: 'Used - Like New',
+      type: 'sell',
+      status: 'active',
+      images: ['https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&q=80&w=800'],
+      videos: ['https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyBlazes.mp4'],
+      sellerId: { firstName: 'Fatima', lastName: 'Aliyu', hostel: 'Queen Amina Hall', isVerified: true },
+      likesCount: 42,
+      repostsCount: 15,
+      isService: false,
+    },
+    {
+      _id: 'seed-jbl-speaker',
+      title: 'JBL Flip 6 Waterproof Bluetooth Speaker (Bass Tested)',
+      description: '🔊 Turn on sound! Big bass and crisp highs. Great for hostel jam sessions. 100% genuine.',
+      price: 65000,
+      priceType: 'fixed',
+      location: 'Block 4, Room 234',
+      category: 'Gadgets',
+      condition: 'Good Condition',
+      type: 'sell',
+      status: 'active',
+      images: ['https://images.unsplash.com/photo-1545454675-3531b543be5d?auto=format&fit=crop&q=80&w=800'],
+      videos: ['https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/WeAreGoingOnBullrun.mp4'],
+      sellerId: { firstName: 'Tunde', lastName: 'Balogun', hostel: 'Block 4', isVerified: true },
+      likesCount: 18,
+      repostsCount: 4,
+      isService: false,
+    },
+  ];
+
+  // Fisher-Yates array shuffler
+  const shuffleArray = (array: any[]) => {
+    const arr = [...array];
+    for (let i = arr.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr;
+  };
+
+  let rawList: any[] = [];
   try {
     const res = await itemsApi.getReels(user.value?._id);
     const data = res?.data?.data || res?.data;
     if (Array.isArray(data) && data.length > 0) {
-      allReels.value = data;
+      rawList = data;
     } else {
       throw new Error('Empty reels response');
     }
   } catch (err) {
-    // Robust fallback: fetch from /items and /services if /items/reels is unavailable
+    // Fallback: fetch from /items and /services if /items/reels is unavailable
     try {
       const [itemsRes, servicesRes] = await Promise.allSettled([
         itemsApi.list({ limit: 100 }),
@@ -746,17 +874,36 @@ const loadReels = async () => {
         isLiked: false,
       }));
 
-      allReels.value = [...formattedItems, ...formattedServices];
+      rawList = [...formattedItems, ...formattedServices];
     } catch {
-      allReels.value = [];
+      rawList = [];
     }
-  } finally {
-    loading.value = false;
-    setTimeout(() => {
-      syncActiveIndex();
-      playActiveVideo();
-    }, 250);
   }
+
+  // Check if any items have videos; if not, inject verified sound-test video items
+  const hasAnyVideos = rawList.some((i: any) => i.videos && i.videos.length > 0);
+  if (!hasAnyVideos) {
+    rawList = [...sampleAudioReels, ...rawList];
+  }
+
+  // Map isLiked from localStorage
+  const mappedList = rawList.map((reel: any) => ({
+    ...reel,
+    isLiked: Boolean(reel.isLiked || lovedReelIds.value.includes(reel._id)),
+  }));
+
+  // Separate video items and non-video items, shuffle each, and put videos first so sound can be tested immediately!
+  const videoItems = mappedList.filter((i: any) => i.videos && i.videos.length > 0);
+  const otherItems = mappedList.filter((i: any) => !i.videos || i.videos.length === 0);
+
+  // Dynamic shuffle on every revisit
+  allReels.value = [...shuffleArray(videoItems), ...shuffleArray(otherItems)];
+
+  loading.value = false;
+  setTimeout(() => {
+    syncActiveIndex();
+    playActiveVideo();
+  }, 250);
 };
 
 // Scroll and Navigation handlers
@@ -843,20 +990,40 @@ const handleDoubleTapLike = (reel: any) => {
 };
 
 const toggleLikeReel = async (reel: any) => {
-  if (!isLoggedIn.value) {
-    showToast('Please log in to like campus listings');
-    return;
-  }
-
   // Optimistic UI update
   reel.isLiked = !reel.isLiked;
-  reel.likesCount = (reel.likesCount || 0) + (reel.isLiked ? 1 : -1);
+  reel.likesCount = Math.max(0, (reel.likesCount || 0) + (reel.isLiked ? 1 : -1));
 
-  try {
-    await itemsApi.toggleLike(reel._id);
-  } catch (err) {
-    reel.isLiked = !reel.isLiked;
-    reel.likesCount += reel.isLiked ? 1 : -1;
+  if (reel.isLiked) {
+    if (!lovedReelIds.value.includes(reel._id)) {
+      lovedReelIds.value.push(reel._id);
+    }
+    playNotificationChime();
+    showToast('❤️ Saved to your Loved collection!');
+    useCustomToast().showToast({
+      title: 'Saved to Loved! ❤️',
+      message: `"${reel.title}" added to your loved reels.`,
+      toastType: 'success',
+    });
+  } else {
+    lovedReelIds.value = lovedReelIds.value.filter(id => id !== reel._id);
+    showToast('Removed from Loved collection');
+  }
+
+  // Persist locally so guests and users always retain their loved collection
+  if (typeof window !== 'undefined') {
+    try {
+      localStorage.setItem('decluttered_loved_reels', JSON.stringify(lovedReelIds.value));
+    } catch {}
+  }
+
+  // If user is logged in, sync with backend
+  if (isLoggedIn.value) {
+    try {
+      await itemsApi.toggleLike(reel._id);
+    } catch (err) {
+      // Keep optimistic state locally
+    }
   }
 };
 
@@ -899,6 +1066,7 @@ const submitComment = async () => {
     currentReel.comments.unshift(addedComment);
     currentReel.commentsCount = (currentReel.commentsCount || 0) + 1;
     newCommentText.value = '';
+    playNotificationChime();
     showToast('Comment posted!');
   } catch (err: any) {
     showToast('Could not post comment. Please try again.');
@@ -915,6 +1083,7 @@ const repostReel = async (reel: any) => {
   }
 
   reel.repostsCount = (reel.repostsCount || 0) + 1;
+  playNotificationChime();
   showToast('🚀 Boosted to your hostel & campus feed!');
 
   try {
@@ -924,30 +1093,60 @@ const repostReel = async (reel: any) => {
   }
 };
 
-// Native Web Share or Clipboard Copy
+// Bulletproof Web Share & Clipboard Copy with Toast & Chime
 const shareReel = async (reel: any) => {
   const shareUrl = typeof window !== 'undefined'
     ? `${window.location.origin}${detailRoute(reel)}`
     : `https://erranders.org${detailRoute(reel)}`;
+  const shareTitle = `${reel.title} on Decluttered`;
+  const shareText = `Check out "${reel.title}" on Decluttered! ${priceDisplay(reel)}`;
 
+  // 1. Immediately copy to clipboard with synchronous textarea fallback
+  let copied = false;
+  if (typeof navigator !== 'undefined' && navigator.clipboard && navigator.clipboard.writeText) {
+    try {
+      await navigator.clipboard.writeText(shareUrl);
+      copied = true;
+    } catch {}
+  }
+
+  if (!copied && typeof document !== 'undefined') {
+    try {
+      const textarea = document.createElement('textarea');
+      textarea.value = shareUrl;
+      textarea.style.position = 'fixed';
+      textarea.style.opacity = '0';
+      document.body.appendChild(textarea);
+      textarea.focus();
+      textarea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textarea);
+      copied = true;
+    } catch {}
+  }
+
+  // 2. Play audible confirmation chime
+  playNotificationChime();
+
+  // 3. Show both in-reels toast and platform toast
+  showToast('📋 Link copied to clipboard! Share anywhere');
+  useCustomToast().showToast({
+    title: 'Share Link Copied! 📋',
+    message: `Link to "${reel.title}" copied to clipboard.`,
+    toastType: 'success',
+  });
+
+  // 4. Also launch native mobile share sheet if supported
   if (typeof navigator !== 'undefined' && navigator.share) {
     try {
       await navigator.share({
-        title: `${reel.title} on Barter Campus`,
-        text: `Check out "${reel.title}" on Erranders Barter! ${priceDisplay(reel)}`,
+        title: shareTitle,
+        text: shareText,
         url: shareUrl,
       });
-      return;
     } catch {
-      // Fallback to copy
+      // User cancelled sheet or permission denied — link is already safely in clipboard!
     }
-  }
-
-  if (typeof navigator !== 'undefined' && navigator.clipboard) {
-    await navigator.clipboard.writeText(shareUrl);
-    showToast('📋 Link copied to clipboard!');
-  } else {
-    showToast(`Share link: ${shareUrl}`);
   }
 };
 

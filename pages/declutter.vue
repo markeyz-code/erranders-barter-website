@@ -218,6 +218,81 @@
                     />
                   </div>
                 </div>
+
+                <!-- Media Upload: Photos & Videos -->
+                <div class="pt-3 border-t border-slate-200/70">
+                  <div class="flex items-center justify-between mb-2">
+                    <label class="text-[10px] font-black uppercase tracking-wider text-slate-500 flex items-center gap-1.5">
+                      <Camera class="w-3.5 h-3.5 text-brand-600" />
+                      <span>Photos & Videos ({{ (item.images?.length || 0) + (item.videos?.length || 0) }})</span>
+                    </label>
+                    <label
+                      :for="'upload-' + item.tempId"
+                      class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-brand-50 hover:bg-brand-100 text-brand-700 text-xs font-black cursor-pointer transition-all border border-brand-200/80 active:scale-95"
+                      :class="{ 'opacity-50 cursor-wait': uploadingItemIds[item.tempId] }"
+                    >
+                      <span v-if="uploadingItemIds[item.tempId]" class="w-3 h-3 border-2 border-brand-600/30 border-t-brand-600 rounded-full animate-spin"></span>
+                      <Upload v-else class="w-3.5 h-3.5" />
+                      <span>{{ uploadingItemIds[item.tempId] ? 'Uploading…' : '+ Upload Photo / Video' }}</span>
+                      <input
+                        :id="'upload-' + item.tempId"
+                        type="file"
+                        accept="image/*,video/*"
+                        multiple
+                        class="hidden"
+                        :disabled="uploadingItemIds[item.tempId]"
+                        @change="(e) => uploadItemMedia(item, e)"
+                      />
+                    </label>
+                  </div>
+
+                  <!-- Media Previews -->
+                  <div class="flex items-center gap-2 overflow-x-auto pb-1 pt-0.5 no-scrollbar">
+                    <!-- Photos -->
+                    <div
+                      v-for="(img, imgIdx) in (item.images || [])"
+                      :key="'img-' + imgIdx"
+                      class="relative w-16 h-16 rounded-xl overflow-hidden shrink-0 border border-slate-200 group bg-slate-100 shadow-xs"
+                    >
+                      <img :src="img" class="w-full h-full object-cover" />
+                      <button
+                        type="button"
+                        @click="removeMedia(item, 'image', imgIdx)"
+                        class="absolute top-1 right-1 w-5 h-5 bg-black/75 hover:bg-red-600 text-white rounded-full flex items-center justify-center text-[10px] font-bold opacity-0 group-hover:opacity-100 transition-opacity"
+                        title="Remove photo"
+                      >
+                        ✕
+                      </button>
+                    </div>
+
+                    <!-- Videos -->
+                    <div
+                      v-for="(vid, vidIdx) in (item.videos || [])"
+                      :key="'vid-' + vidIdx"
+                      class="relative w-16 h-16 rounded-xl overflow-hidden shrink-0 border border-brand-400 group bg-black shadow-xs flex items-center justify-center"
+                    >
+                      <video :src="vid" class="w-full h-full object-cover opacity-75" />
+                      <span class="absolute inset-0 flex items-center justify-center text-white pointer-events-none">
+                        <Video class="w-5 h-5 drop-shadow" />
+                      </span>
+                      <button
+                        type="button"
+                        @click="removeMedia(item, 'video', vidIdx)"
+                        class="absolute top-1 right-1 w-5 h-5 bg-black/75 hover:bg-red-600 text-white rounded-full flex items-center justify-center text-[10px] font-bold opacity-0 group-hover:opacity-100 transition-opacity"
+                        title="Remove video"
+                      >
+                        ✕
+                      </button>
+                    </div>
+
+                    <div
+                      v-if="(!item.images || item.images.length === 0) && (!item.videos || item.videos.length === 0)"
+                      class="text-[11px] text-slate-400 font-medium italic py-1"
+                    >
+                      No media uploaded yet. Add photos/videos to help items sell in minutes!
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -230,10 +305,24 @@
           <div class="bg-white rounded-3xl border border-slate-200/90 p-5 sm:p-6 shadow-xs space-y-4">
             <h3 class="text-base sm:text-lg font-black text-slate-900 flex items-center gap-2 border-b border-slate-100 pb-3">
               <MapPin class="w-5 h-5 text-brand-600" />
-              <span>3. Hostel & Pickup Details</span>
+              <span>3. Hostel & Group Details</span>
             </h3>
 
             <div class="space-y-3.5">
+              <!-- Declutter Group Name (e.g. Room 434 Declutter Sale) -->
+              <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1 flex items-center justify-between">
+                  <span>Declutter Group / Sale Name <span class="text-brand-600">*</span></span>
+                  <span class="text-[10px] text-slate-400 font-normal">e.g. Room 434 Declutter Sale</span>
+                </label>
+                <input
+                  v-model="groupName"
+                  type="text"
+                  placeholder="e.g. Room 434 Declutter Sale"
+                  class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs sm:text-sm font-bold text-slate-900 focus:outline-none focus:bg-white focus:border-brand-600 focus:ring-2 focus:ring-brand-600/10 transition-all"
+                />
+              </div>
+
               <!-- Hostel / Campus Name -->
               <div>
                 <label class="block text-xs font-bold text-slate-700 mb-1">
@@ -404,20 +493,24 @@
     </div>
 
     <!-- Success Modal -->
-    <div v-if="publishedBatch" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+    <div v-if="publishedBatch" class="fixed inset-0 z-[150] bg-black/70 backdrop-blur-md flex items-center justify-center p-4">
       <div class="bg-white rounded-3xl max-w-md w-full p-6 sm:p-8 text-center shadow-2xl animate-in fade-in zoom-in-95 duration-200">
         <div class="w-16 h-16 rounded-2xl bg-brand-50 flex items-center justify-center mx-auto mb-4 text-brand-600 border border-brand-200">
           <CheckCircle2 class="w-8 h-8 stroke-[2.5]" />
         </div>
         <h3 class="text-xl sm:text-2xl font-black text-slate-900">Room Declutter Published! 📦</h3>
         <p class="text-xs sm:text-sm text-slate-500 mt-2 leading-relaxed">
-          Your batch of <strong class="text-slate-900">{{ publishedBatch.batchSize }} items</strong> is now live for verified campus buyers in <strong class="text-slate-900">{{ publishedBatch.hostel }}</strong>.
+          Your batch <strong class="text-slate-900">"{{ groupName || 'Room Declutter Sale' }}"</strong> with <strong class="text-slate-900">{{ publishedBatch.batchSize || activeItems.length }} items</strong> is now live for verified campus buyers in <strong class="text-slate-900">{{ publishedBatch.hostel || hostelName }}</strong>.
         </p>
 
         <div class="mt-4 p-4 rounded-2xl bg-slate-50 border border-slate-200/80 text-left space-y-1.5 text-xs">
           <div class="flex justify-between">
+            <span class="text-slate-400 font-bold uppercase tracking-wider text-[10px]">Group / Batch</span>
+            <span class="font-black text-slate-800">{{ groupName || 'Room Declutter Sale' }}</span>
+          </div>
+          <div class="flex justify-between">
             <span class="text-slate-400 font-bold uppercase tracking-wider text-[10px]">Total Valuation</span>
-            <span class="font-black text-brand-600">₦{{ Number(publishedBatch.totalValuation || 0).toLocaleString() }}</span>
+            <span class="font-black text-brand-600">₦{{ Number(publishedBatch.totalValuation || calculatedValuation).toLocaleString() }}</span>
           </div>
           <div class="flex justify-between">
             <span class="text-slate-400 font-bold uppercase tracking-wider text-[10px]">Notifications</span>
@@ -466,16 +559,21 @@ import {
   ShieldCheck,
   CheckCircle2,
   Share2,
+  Camera,
+  Upload,
+  Video,
 } from 'lucide-vue-next';
 import { itemsApi } from '@/api_factory/modules/items';
+import { upload_api } from '@/api_factory/modules/upload';
 import { bookingsApi } from '@/api_factory/modules/bookings';
+import { useCustomToast } from '@/composables/core/useCustomToast';
 import { getApiError } from '@/composables/modules/services/useServiceFormatting';
 
 definePageMeta({ layout: 'default' });
 
 useSeoMeta({
-  title: 'Automated Campus Room Declutter | Barter',
-  description: 'Moving out or graduating? Clear your entire room in 2 minutes. Automatic campus pricing, fast clearance discounts, and moving assistance.',
+  title: 'Automated Campus Room Declutter | Decluttered',
+  description: 'Moving out or graduating? Clear your entire room in 2 minutes. Automatic campus pricing, fast clearance discounts, and moving assistance on Decluttered.',
 });
 
 interface DeclutterItem {
@@ -487,6 +585,7 @@ interface DeclutterItem {
   category: string;
   condition: string;
   images?: string[];
+  videos?: string[];
 }
 
 const router = useRouter();
@@ -603,6 +702,7 @@ const activeItems = ref<DeclutterItem[]>([
 ]);
 
 const hostelName = ref('Moremi Hall, Room 204');
+const groupName = ref('Room 434 Declutter Sale');
 const urgency = ref('48h');
 const batchNotes = ref('');
 const bundleDiscount = ref(15);
@@ -613,6 +713,61 @@ const publishing = ref(false);
 const publishError = ref('');
 const publishedBatch = ref<any>(null);
 const copied = ref(false);
+const uploadingItemIds = ref<Record<string, boolean>>({});
+
+const uploadItemMedia = async (item: DeclutterItem, event: Event) => {
+  const target = event.target as HTMLInputElement;
+  if (!target.files || target.files.length === 0) return;
+  const files = Array.from(target.files);
+
+  uploadingItemIds.value[item.tempId] = true;
+  try {
+    for (const file of files) {
+      const isVideo = file.type.startsWith('video/');
+      const { data, error } = await upload_api.uploadFile(file, isVideo ? 'video' : 'image');
+      if (error) {
+        useCustomToast().showToast({
+          title: 'Upload Notice',
+          message: error || 'Failed to upload media file',
+          toastType: 'error',
+        });
+        continue;
+      }
+      const url = data?.secure_url || data?.url || data?.data?.secure_url || data?.data?.url;
+      if (url) {
+        if (isVideo) {
+          item.videos = item.videos || [];
+          item.videos.push(url);
+        } else {
+          item.images = item.images || [];
+          item.images.push(url);
+        }
+      }
+    }
+    useCustomToast().showToast({
+      title: 'Media Added! 📸',
+      message: `Media uploaded for "${item.title}".`,
+      toastType: 'success',
+    });
+  } catch (err: any) {
+    useCustomToast().showToast({
+      title: 'Upload Error',
+      message: err?.message || 'Could not upload media files',
+      toastType: 'error',
+    });
+  } finally {
+    uploadingItemIds.value[item.tempId] = false;
+    target.value = '';
+  }
+};
+
+const removeMedia = (item: DeclutterItem, type: 'image' | 'video', index: number) => {
+  if (type === 'image' && item.images) {
+    item.images.splice(index, 1);
+  } else if (type === 'video' && item.videos) {
+    item.videos.splice(index, 1);
+  }
+};
 
 const isPresetSelected = (id: string) => {
   return activeItems.value.some((item) => item.presetId === id);
@@ -695,8 +850,11 @@ const publishBatch = async () => {
   publishError.value = '';
 
   try {
+    const finalGroupName = groupName.value.trim() || `${hostelName.value.trim()} Declutter Sale`;
     const payload = {
       hostel: hostelName.value.trim(),
+      groupName: finalGroupName,
+      batchTitle: finalGroupName,
       bundleDiscountPercent: bundleDiscount.value,
       autoPriceDrop: autoPriceDrop.value,
       items: activeItems.value.map((item) => ({
@@ -705,7 +863,8 @@ const publishBatch = async () => {
         price: Number(item.price),
         category: item.category,
         condition: item.condition,
-        images: item.images,
+        images: item.images && item.images.length ? item.images : undefined,
+        videos: item.videos && item.videos.length ? item.videos : undefined,
       })),
     };
 
@@ -746,6 +905,11 @@ const copyShareLink = () => {
     const url = `${window.location.origin}/explore?declutter=true`;
     void navigator.clipboard.writeText(url);
     copied.value = true;
+    useCustomToast().showToast({
+      title: 'Link Copied! 📋',
+      message: 'Room Declutter batch link copied to clipboard.',
+      toastType: 'success',
+    });
     setTimeout(() => {
       copied.value = false;
     }, 3000);

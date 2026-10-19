@@ -4,7 +4,7 @@
     <aside class="w-full md:w-60 bg-white border-r border-slate-200 flex flex-col hidden md:flex sticky top-0 h-screen shrink-0">
       <div class="p-5 border-b border-slate-100 flex items-center justify-between">
         <NuxtLink to="/" class="flex items-center gap-2">
-          <img src="@/assets/img/logo.png" alt="Erranders Barter" class="h-8 w-auto object-contain" />
+          <img src="@/assets/img/logo.png" alt="Decluttered" class="h-8 w-auto object-contain" />
         </NuxtLink>
       </div>
       <nav class="p-3 flex-1 space-y-1">
@@ -50,7 +50,7 @@
     <!-- Mobile Topbar -->
     <header class="md:hidden bg-white border-b border-slate-100 p-4 flex items-center justify-between sticky top-0 z-40">
       <NuxtLink to="/">
-        <img src="@/assets/img/logo.png" alt="Erranders Barter" class="h-8 w-auto" />
+        <img src="@/assets/img/logo.png" alt="Decluttered" class="h-8 w-auto" />
       </NuxtLink>
       <div class="flex items-center gap-3">
         <NuxtLink to="/messages" class="relative text-slate-500">

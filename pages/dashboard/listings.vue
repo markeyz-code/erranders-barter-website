@@ -107,7 +107,7 @@ import { ref, onMounted } from 'vue'
 import { itemsApi } from '~/composables/useApi'
 
 definePageMeta({ layout: 'dashboard' })
-useSeoMeta({ title: 'My Active Listings | Erranders Barter' })
+useSeoMeta({ title: 'My Active Listings | Decluttered' })
 
 const items = ref([])
 const loading = ref(true)

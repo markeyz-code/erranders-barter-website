@@ -3,8 +3,23 @@
     <div class="max-w-5xl mx-auto bg-white/90 backdrop-blur-md border border-slate-200 rounded-full h-14 flex items-center justify-between px-3 pointer-events-auto relative">
       
       <!-- Logo -->
-       <a href="/" class="flex items-center gap-2 pl-1">
-        <img src="@/assets/img/logo.png" alt="Erranders Barter" class="h-8 sm:h-9 w-auto object-contain" />
+      <a href="/" class="flex items-center gap-2 pl-1 group">
+        <div class="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-[#FF5C1A] flex items-center justify-center text-white shadow-sm shadow-[#FF5C1A]/30 shrink-0 group-hover:scale-105 transition-transform">
+          <svg class="w-4 h-4 sm:w-5 sm:h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="m16 3 4 4-4 4"/>
+            <path d="M20 7H9a4 4 0 0 0-4 4v1"/>
+            <path d="m8 21-4-4 4-4"/>
+            <path d="M4 17h11a4 4 0 0 0 4-4v-1"/>
+          </svg>
+        </div>
+        <div class="flex flex-col leading-none">
+          <span class="text-base sm:text-xl font-black tracking-tight text-slate-900 group-hover:text-[#FF5C1A] transition-colors">
+            Decluttered<span class="text-[#FF5C1A]">.</span>
+          </span>
+          <span class="text-[7.5px] font-black uppercase tracking-wider text-slate-400 -mt-0.5">
+            Campus Marketplace
+          </span>
+        </div>
       </a>
 
       <!-- Desktop Nav -->
@@ -109,14 +124,25 @@
                     {{ unreadNotificationsCount }} new
                   </span>
                 </div>
-                <button
-                  v-if="unreadNotificationsCount > 0"
-                  type="button"
-                  @click="markAllNotificationsRead"
-                  class="text-xs font-bold text-[#FF5C1A] hover:underline"
-                >
-                  Mark all read
-                </button>
+                <div class="flex items-center gap-2.5">
+                  <button
+                    type="button"
+                    @click="testNotificationSound"
+                    class="text-[11px] font-bold text-slate-500 hover:text-[#FF5C1A] flex items-center gap-1 transition-colors cursor-pointer"
+                    title="Play sample chime sound"
+                  >
+                    <Volume2 class="w-3.5 h-3.5 text-[#FF5C1A]" />
+                    <span>Sound Test</span>
+                  </button>
+                  <button
+                    v-if="unreadNotificationsCount > 0"
+                    type="button"
+                    @click="markAllNotificationsRead"
+                    class="text-xs font-bold text-[#FF5C1A] hover:underline cursor-pointer"
+                  >
+                    Mark all read
+                  </button>
+                </div>
               </div>
 
               <!-- Notifications List -->
@@ -398,9 +424,12 @@ import {
   Package,
   Calendar,
   DollarSign,
+  Volume2,
 } from 'lucide-vue-next'
 import { useRouter, useRoute } from 'vue-router'
 import { notificationsApi } from '@/api_factory/modules/notifications'
+import { playNotificationChime } from '@/composables/core/useNotificationSound'
+import { useCustomToast } from '@/composables/core/useCustomToast'
 
 const { user, token } = useAuth()
 const router = useRouter()
@@ -469,13 +498,29 @@ const formatTimeAgo = (dateStr) => {
   return `${days}d ago`
 }
 
+const previousUnreadCount = ref(0)
+
+const testNotificationSound = () => {
+  playNotificationChime()
+  useCustomToast().showToast({
+    title: 'Notification Sound 🔔',
+    message: 'Campus chime audio test played successfully!',
+    toastType: 'info'
+  })
+}
+
 const loadNotifications = async () => {
   if (!user.value) return
   notificationsLoading.value = true
   try {
     const res = await notificationsApi.list(15)
     notifications.value = res.data?.data || []
-    unreadNotificationsCount.value = Number(res.data?.unreadCount || 0)
+    const newCount = Number(res.data?.unreadCount || 0)
+    if (newCount > previousUnreadCount.value && previousUnreadCount.value !== 0) {
+      playNotificationChime()
+    }
+    previousUnreadCount.value = newCount
+    unreadNotificationsCount.value = newCount
   } catch (err) {
     // silent fallback
   } finally {
@@ -494,6 +539,7 @@ const markAllNotificationsRead = async () => {
   try {
     await notificationsApi.markAllRead()
     unreadNotificationsCount.value = 0
+    previousUnreadCount.value = 0
     notifications.value.forEach((n) => (n.isRead = true))
   } catch (err) {}
 }
@@ -504,6 +550,7 @@ const handleNotificationClick = async (notif) => {
       await notificationsApi.markRead(notif._id)
       notif.isRead = true
       unreadNotificationsCount.value = Math.max(0, unreadNotificationsCount.value - 1)
+      previousUnreadCount.value = unreadNotificationsCount.value
     } catch (err) {}
   }
   isNotificationsOpen.value = false
@@ -534,6 +581,7 @@ onMounted(() => {
     socket.on('chatNotification', (data) => {
       if (window.location.pathname.includes('/chat') && window.location.search.includes(data.chatId)) return;
       
+      playNotificationChime()
       latestMessage.value = data
       showChatToast.value = true
       unreadChats.value.push(data)

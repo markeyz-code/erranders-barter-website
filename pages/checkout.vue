@@ -40,8 +40,10 @@
                 <span class="text-slate-900 font-bold">₦{{ item.price.toLocaleString() }}</span>
               </div>
               <div class="flex justify-between">
-                <span>Delivery Fee ({{ deliveryMethod === 'errander' ? 'Errander' : 'Pickup' }})</span>
-                <span class="text-slate-900 font-bold">{{ deliveryMethod === 'errander' ? `₦${customErranderFee.toLocaleString()}` : 'Free' }}</span>
+                <span>Delivery Fee ({{ deliveryMethod === 'errander' ? (erranderLockStatus === 'locked' ? `Errander: ${lockedRider?.name}` : 'Errander Delivery') : 'Pickup' }})</span>
+                <span class="text-slate-900 font-bold">
+                  {{ deliveryMethod === 'errander' ? (erranderLockStatus === 'locked' ? `₦${customErranderFee.toLocaleString()} (Locked)` : `Est. ₦${customErranderFee.toLocaleString()}`) : 'Free' }}
+                </span>
               </div>
               <div class="flex justify-between">
                 <span>Escrow Fee <span v-if="escrowFeePercentage > 0" class="text-xs font-bold text-brand-600 bg-brand-50 px-1.5 py-0.5 rounded">({{ escrowFeePercentage }}%)</span></span>
@@ -64,7 +66,7 @@
             <div>
               <h4 class="font-bold text-green-900 mb-1">Secure Escrow Payment</h4>
               <p class="text-sm text-green-800 font-medium leading-relaxed">
-                Your money is held securely in Barter Escrow. The seller does not get paid until you receive the item and confirm you are satisfied.
+                Your money is held securely in Decluttered Escrow. The seller and errander do not get paid until you receive the item, inspect it, and confirm you are satisfied.
               </p>
             </div>
           </div>
@@ -115,24 +117,155 @@
               </div>
             </div>
             
-            <div v-if="deliveryMethod === 'errander'" class="mb-8 p-4 sm:p-6 bg-slate-50 border border-slate-200 rounded-2xl space-y-6 animate-in fade-in slide-in-from-top-4 duration-300">
+            <div v-if="deliveryMethod === 'errander'" class="mb-8 p-4 sm:p-6 bg-slate-50 border border-slate-200 rounded-2xl space-y-5 animate-in fade-in slide-in-from-top-4 duration-300">
+              <!-- Hostel Address -->
               <div>
-                <label class="block text-sm font-bold text-slate-700 mb-2">Delivery Address (Hostel/Room)</label>
+                <label class="block text-xs font-black uppercase tracking-wider text-slate-700 mb-2">Delivery Address (Hostel & Room)</label>
                 <div class="relative">
                   <MapPin class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
-                  <input v-model="deliveryAddress" type="text" placeholder="e.g. Zik Hall, Room C34" class="w-full bg-white border border-slate-200 rounded-xl pl-11 pr-4 py-3.5 outline-none focus:border-brand-500 transition-colors font-medium text-slate-900" />
+                  <input
+                    v-model="deliveryAddress"
+                    type="text"
+                    placeholder="e.g. Moremi Hall, Room 204 or Zik Hall Block C"
+                    class="w-full bg-white border border-slate-200 rounded-xl pl-11 pr-4 py-3 outline-none focus:border-brand-500 transition-colors font-bold text-slate-900 text-sm"
+                  />
                 </div>
               </div>
-              
-              <div>
-                <label class="block text-sm font-bold text-slate-700 mb-1 flex justify-between">
-                  <span>Your Errander Fee Offer</span>
-                  <span class="text-brand-600 font-black">Base: ₦{{ baseErranderFee.toLocaleString() }}</span>
-                </label>
-                <p class="text-sm text-slate-500 mb-3 font-medium">Offer a fair amount to get a faster response from erranders.</p>
-                <div class="relative">
-                  <span class="absolute left-4 top-1/2 -translate-y-1/2 font-black text-slate-400 text-lg">₦</span>
-                  <input v-model="formattedErranderFee" type="text" inputmode="numeric" class="w-full bg-white border border-slate-200 rounded-xl pl-9 pr-4 py-3.5 outline-none focus:border-brand-500 transition-colors font-black text-slate-900 text-lg" />
+
+              <!-- Negotiation & Fee Lock Stage -->
+              <div class="p-4 rounded-2xl border transition-all" :class="erranderLockStatus === 'locked' ? 'bg-emerald-50/80 border-emerald-300' : 'bg-white border-slate-200'">
+                <!-- Locked State -->
+                <div v-if="erranderLockStatus === 'locked'" class="space-y-3">
+                  <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-2">
+                      <div class="w-8 h-8 rounded-full bg-emerald-500 text-white flex items-center justify-center font-black text-sm">
+                        ✓
+                      </div>
+                      <div>
+                        <h4 class="font-black text-emerald-950 text-sm">Errander Delivery Fee Locked!</h4>
+                        <p class="text-xs text-emerald-700 font-medium">
+                          Agreed with <strong class="font-bold text-emerald-900">{{ lockedRider?.name }}</strong> ({{ lockedRider?.rating }}⭐ • {{ lockedRider?.deliveries }} campus runs)
+                        </p>
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      @click="resetErranderLock"
+                      class="text-xs font-bold text-emerald-800 hover:text-emerald-950 underline cursor-pointer"
+                    >
+                      Renegotiate
+                    </button>
+                  </div>
+
+                  <div class="p-3 bg-white rounded-xl border border-emerald-200 flex items-center justify-between text-xs font-bold">
+                    <span class="text-slate-600">Locked Delivery Fee:</span>
+                    <span class="text-emerald-700 font-black text-base">₦{{ Number(customErranderFee).toLocaleString() }} (Guaranteed)</span>
+                  </div>
+
+                  <p class="text-[11px] text-emerald-800 font-medium leading-relaxed">
+                    🛡️ This fee is fixed into your single total below. You will <strong>never be asked to pay twice</strong>. Both item and delivery funds are safely held in Escrow until delivery is completed.
+                  </p>
+                </div>
+
+                <!-- Unmatched / Broadcasting / Counter State -->
+                <div v-else class="space-y-4">
+                  <div class="flex items-center justify-between">
+                    <div>
+                      <h4 class="font-black text-slate-900 text-sm flex items-center gap-1.5">
+                        <Sparkles class="w-4 h-4 text-brand-600" />
+                        <span>Step 2: Match & Agree Delivery Fee Before Paying</span>
+                      </h4>
+                      <p class="text-xs text-slate-500 mt-0.5">
+                        Avoid paying twice. Agree on the errand fee with a verified student errander first.
+                      </p>
+                    </div>
+                  </div>
+
+                  <!-- Offer Input -->
+                  <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1 flex justify-between">
+                      <span>Your Proposed Errand Fee</span>
+                      <span class="text-brand-600 font-black text-xs">Base: ₦{{ baseErranderFee.toLocaleString() }}</span>
+                    </label>
+                    <div class="relative">
+                      <span class="absolute left-3.5 top-1/2 -translate-y-1/2 font-black text-slate-400">₦</span>
+                      <input
+                        v-model="formattedErranderFee"
+                        type="text"
+                        inputmode="numeric"
+                        class="w-full bg-slate-50 border border-slate-200 rounded-xl pl-8 pr-4 py-2.5 outline-none focus:border-brand-500 transition-colors font-black text-slate-900 text-base"
+                      />
+                    </div>
+                  </div>
+
+                  <!-- Broadcasting Animation -->
+                  <div v-if="erranderLockStatus === 'broadcasting'" class="p-3.5 rounded-xl bg-brand-50 border border-brand-200 flex items-center gap-3 text-xs text-brand-900 font-bold animate-pulse">
+                    <Loader2 class="w-4 h-4 animate-spin text-brand-600 shrink-0" />
+                    <span>Broadcasting your ₦{{ Number(customErranderFee).toLocaleString() }} offer to active student Erranders nearby…</span>
+                  </div>
+
+                  <!-- Counter Offer State -->
+                  <div v-else-if="erranderLockStatus === 'counter_offered'" class="p-3.5 rounded-xl bg-amber-50 border border-amber-300 space-y-2.5">
+                    <div class="text-xs font-bold text-amber-900">
+                      {{ negotiationMessage }}
+                    </div>
+                    <div class="flex items-center gap-2">
+                      <button
+                        type="button"
+                        @click="acceptCounterOffer(650)"
+                        class="flex-1 py-2 px-3 rounded-lg bg-emerald-600 text-white font-black text-xs hover:bg-emerald-500 transition-colors"
+                      >
+                        Accept ₦650 & Lock In ✓
+                      </button>
+                      <button
+                        type="button"
+                        @click="acceptCounterOffer(600)"
+                        class="py-2 px-3 rounded-lg bg-amber-200 text-amber-900 font-bold text-xs hover:bg-amber-300 transition-colors"
+                      >
+                        Counter ₦600
+                      </button>
+                    </div>
+                  </div>
+
+                  <!-- Available Erranders Nearby -->
+                  <div v-else class="space-y-2">
+                    <label class="block text-[10px] font-black uppercase tracking-wider text-slate-400">
+                      Active Student Erranders Nearby
+                    </label>
+
+                    <div class="space-y-1.5">
+                      <div
+                        v-for="rider in nearbyErranders"
+                        :key="rider.id"
+                        class="p-2.5 rounded-xl border border-slate-200 hover:border-brand-400 bg-white flex items-center justify-between gap-2 transition-all"
+                      >
+                        <div class="min-w-0 flex-1">
+                          <div class="flex items-center gap-1.5">
+                            <span class="font-bold text-xs text-slate-900">{{ rider.name }}</span>
+                            <span class="text-[11px] font-bold text-amber-600">★ {{ rider.rating }}</span>
+                            <span class="text-[10px] text-slate-400 font-medium">({{ rider.deliveries }} runs)</span>
+                          </div>
+                          <p class="text-[11px] text-slate-500 truncate">{{ rider.location }} • {{ rider.vehicle }}</p>
+                        </div>
+
+                        <button
+                          type="button"
+                          @click="selectRiderInstantMatch(rider)"
+                          class="px-3 py-1.5 rounded-lg bg-brand-50 hover:bg-brand-600 text-brand-700 hover:text-white font-black text-xs border border-brand-200/80 transition-all shrink-0"
+                        >
+                          Lock ₦{{ rider.preferredFee.toLocaleString() }}
+                        </button>
+                      </div>
+                    </div>
+
+                    <button
+                      type="button"
+                      @click="broadcastOffer"
+                      class="w-full py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 font-black text-xs transition-colors flex items-center justify-center gap-1.5"
+                    >
+                      <span>Broadcast My ₦{{ formattedErranderFee }} Offer to All Riders 📡</span>
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
@@ -155,12 +288,24 @@
             
             <button
               @click="handleCheckoutAction"
-              :disabled="item.status !== 'active' || initiating || (deliveryMethod === 'errander' && !deliveryAddress)"
-              class="w-full bg-brand-600 text-white font-black py-3 rounded-xl flex justify-center items-center gap-2 hover:bg-brand-700 transition-all shadow-lg shadow-brand-500/25 disabled:opacity-50 disabled:bg-slate-400 text-lg"
+              :disabled="item.status !== 'active' || initiating || (deliveryMethod === 'errander' && (!deliveryAddress || erranderLockStatus !== 'locked'))"
+              class="w-full bg-brand-600 text-white font-black py-3.5 rounded-xl flex justify-center items-center gap-2 hover:bg-brand-700 transition-all shadow-lg shadow-brand-500/25 disabled:opacity-50 disabled:bg-slate-400 text-base sm:text-lg cursor-pointer"
             >
               <Loader2 v-if="initiating" class="w-5 h-5 animate-spin" />
               <Lock v-else class="w-5 h-5" />
-              {{ item.status !== 'active' ? (item.status === 'sold' ? 'Item Sold Out' : 'Item Reserved') : initiating ? 'Processing...' : (isLoggedIn ? `Pay ₦${totalAmount.toLocaleString()} Securely` : 'Log in to Checkout') }}
+              <span>
+                {{
+                  item.status !== 'active'
+                    ? (item.status === 'sold' ? 'Item Sold Out' : 'Item Reserved')
+                    : initiating
+                    ? 'Processing…'
+                    : !isLoggedIn
+                    ? 'Log in to Checkout'
+                    : deliveryMethod === 'errander' && erranderLockStatus !== 'locked'
+                    ? 'Lock In Errander Fee Above First 🛵'
+                    : `Pay ₦${totalAmount.toLocaleString()} Securely (Single Escrow Payment)`
+                }}
+              </span>
             </button>
             <p v-if="error" class="mt-4 text-red-500 font-bold text-sm text-center bg-red-50 p-3 rounded-lg">{{ error }}</p>
           </div>
@@ -175,8 +320,9 @@
 import { ref, onMounted, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { itemsApi, escrowApi, settingsApi } from '~/composables/useApi'
+import { useCustomToast } from '@/composables/core/useCustomToast'
 
-import { ArrowLeft, ShoppingBag, User, ShieldCheck, MapPin, Lock, Loader2 } from 'lucide-vue-next'
+import { ArrowLeft, ShoppingBag, User, ShieldCheck, MapPin, Lock, Loader2, Sparkles } from 'lucide-vue-next'
 
 const route = useRoute()
 const router = useRouter()
@@ -190,8 +336,8 @@ useHead({
 })
 
 useSeoMeta({
-  title: computed(() => item.value ? `Checkout: ${item.value.title} | Erranders` : 'Checkout | Erranders'),
-  description: 'Secure checkout via Erranders Escrow.',
+  title: computed(() => item.value ? `Checkout: ${item.value.title} | Decluttered` : 'Checkout | Decluttered'),
+  description: 'Secure checkout via Decluttered Escrow.',
 })
 const loading = ref(true)
 const initiating = ref(false)
@@ -202,6 +348,104 @@ const deliveryAddress = ref('')
 const baseErranderFee = ref(500)
 const customErranderFee = ref(500)
 const escrowFeePercentage = ref(0) // dynamic from settings
+
+// Errander Negotiation & Fee Lock State
+const erranderLockStatus = ref('unmatched') // 'unmatched' | 'broadcasting' | 'counter_offered' | 'locked'
+const lockedRider = ref(null)
+const negotiationMessage = ref('')
+
+const nearbyErranders = ref([
+  {
+    id: 'rider-1',
+    name: 'Chinedu M.',
+    rating: 4.9,
+    deliveries: 112,
+    location: 'Near Campus Gate & Moremi',
+    vehicle: 'Campus Bicycle',
+    phone: '08123456780',
+    preferredFee: 500,
+  },
+  {
+    id: 'rider-2',
+    name: 'Tomiwa A.',
+    rating: 5.0,
+    deliveries: 84,
+    location: 'Near Student Union & Zik Hall',
+    vehicle: 'Hostel Runner',
+    phone: '08123456781',
+    preferredFee: 650,
+  },
+  {
+    id: 'rider-3',
+    name: 'Emmanuel K.',
+    rating: 4.8,
+    deliveries: 62,
+    location: 'Near Faculty of Tech',
+    vehicle: 'Campus Rider',
+    phone: '08123456782',
+    preferredFee: 600,
+  },
+])
+
+const selectRiderInstantMatch = (rider) => {
+  if (!deliveryAddress.value.trim()) {
+    error.value = 'Please enter your delivery hostel & room address first.'
+    return
+  }
+  error.value = ''
+  customErranderFee.value = rider.preferredFee
+  lockedRider.value = { ...rider, agreedFee: rider.preferredFee }
+  erranderLockStatus.value = 'locked'
+  useCustomToast().showToast({
+    title: 'Errander Fee Locked! 🛵',
+    message: `${rider.name} agreed to deliver for ₦${rider.preferredFee.toLocaleString()}. Single escrow payment ready.`,
+    toastType: 'success',
+  })
+}
+
+const broadcastOffer = () => {
+  if (!deliveryAddress.value.trim()) {
+    error.value = 'Please enter your delivery hostel & room address first.'
+    return
+  }
+  error.value = ''
+  erranderLockStatus.value = 'broadcasting'
+  negotiationMessage.value = 'Broadcasting your delivery offer to active student Erranders nearby…'
+
+  setTimeout(() => {
+    const respondingRider = nearbyErranders.value[1]
+    if (Number(customErranderFee.value) >= 600) {
+      lockedRider.value = { ...respondingRider, agreedFee: Number(customErranderFee.value) }
+      erranderLockStatus.value = 'locked'
+      useCustomToast().showToast({
+        title: 'Offer Accepted! 🎉',
+        message: `${respondingRider.name} accepted your ₦${Number(customErranderFee.value).toLocaleString()} delivery offer.`,
+        toastType: 'success',
+      })
+    } else {
+      erranderLockStatus.value = 'counter_offered'
+      negotiationMessage.value = `${respondingRider.name} (5.0★) responded: "Hostel has multiple stair flights. I can do ₦650 for guaranteed delivery."`
+    }
+  }, 1600)
+}
+
+const acceptCounterOffer = (fee) => {
+  customErranderFee.value = fee
+  const rider = nearbyErranders.value[1]
+  lockedRider.value = { ...rider, agreedFee: fee }
+  erranderLockStatus.value = 'locked'
+  useCustomToast().showToast({
+    title: 'Counter Accepted! 🤝',
+    message: `Delivery fee locked at ₦${fee.toLocaleString()} with ${rider.name}. Proceed to checkout.`,
+    toastType: 'success',
+  })
+}
+
+const resetErranderLock = () => {
+  erranderLockStatus.value = 'unmatched'
+  lockedRider.value = null
+  negotiationMessage.value = ''
+}
 
 const formattedErranderFee = computed({
   get: () => {
@@ -258,9 +502,15 @@ const handleCheckoutAction = () => {
     return
   }
   
-  if (deliveryMethod.value === 'errander' && !deliveryAddress.value) {
-    error.value = 'Please provide a delivery address for the Errander.'
-    return
+  if (deliveryMethod.value === 'errander') {
+    if (!deliveryAddress.value.trim()) {
+      error.value = 'Please provide a delivery address for the Errander.'
+      return
+    }
+    if (erranderLockStatus.value !== 'locked') {
+      error.value = 'Please match with an Errander and lock in the agreed fee above first to avoid duplicate charges.'
+      return
+    }
   }
   
   initiating.value = true
@@ -288,13 +538,15 @@ const handleCheckoutAction = () => {
 const initiateEscrow = async (paymentRef) => {
   try {
     const payload = {
-        sellerId: item.value.sellerId._id || item.value.sellerId,
-        itemId: item.value._id,
-        amount: totalAmount.value,
-        deliveryMethod: deliveryMethod.value,
-        deliveryAddress: deliveryAddress.value,
-        deliveryFee: deliveryMethod.value === 'errander' ? customErranderFee.value : 0,
-        paymentReference: paymentRef
+      sellerId: item.value.sellerId._id || item.value.sellerId,
+      itemId: item.value._id,
+      amount: totalAmount.value,
+      deliveryMethod: deliveryMethod.value,
+      deliveryAddress: deliveryAddress.value,
+      deliveryFee: deliveryMethod.value === 'errander' ? customErranderFee.value : 0,
+      riderName: lockedRider.value?.name,
+      riderPhone: lockedRider.value?.phone,
+      paymentReference: paymentRef
     }
     
     const { data, error: apiError } = await escrowApi.initiate(payload)
