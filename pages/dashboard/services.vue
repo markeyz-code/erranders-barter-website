@@ -100,7 +100,7 @@
             <button
               class="px-3 py-1.5 rounded-lg text-xs font-bold text-red-600 border border-red-200 hover:bg-red-50"
               :disabled="busyId === s._id"
-              @click="remove(s)"
+              @click="openDeleteModal(s)"
             >
               Delete
             </button>
@@ -116,6 +116,19 @@
         @close="formOpen = false"
         @saved="onSaved"
       />
+
+      <!-- Custom Delete Service Confirmation Modal -->
+      <ConfirmActionModal
+        :is-open="deleteModalOpen"
+        title="Delete Service"
+        :message="serviceToDelete ? `Are you sure you want to delete '${serviceToDelete.title}'? This cannot be undone.` : ''"
+        confirm-text="Delete Service"
+        tone="danger"
+        :submitting="deleteSubmitting"
+        :error="deleteError"
+        @close="deleteModalOpen = false"
+        @confirm="confirmDelete"
+      />
     </div>
   </div>
 </template>
@@ -124,6 +137,7 @@
 import { computed, ref, onMounted } from 'vue';
 import { Plus, Briefcase, Sparkles, AlertTriangle } from 'lucide-vue-next';
 import ServiceFormModal from '~/components/ServiceFormModal.vue';
+import ConfirmActionModal from '~/components/ConfirmActionModal.vue';
 import { servicesApi, type Service } from '@/api_factory/modules/services';
 import { categoriesApi } from '@/api_factory/modules/categories';
 import type { CategoryOption } from '@/composables/modules/services/useServiceFormatting';
@@ -149,6 +163,12 @@ const error = ref('');
 const busyId = ref('');
 const formOpen = ref(false);
 const editing = ref<Service | null>(null);
+
+// Custom Delete Modal State
+const deleteModalOpen = ref(false);
+const serviceToDelete = ref<Service | null>(null);
+const deleteSubmitting = ref(false);
+const deleteError = ref('');
 
 const isProvider = computed(() => providerFlag.value);
 const providerFlag = ref(true);
@@ -176,9 +196,10 @@ const load = async () => {
 
 const loadCategories = async () => {
   try {
-    const { data } = await categoriesApi.list();
-    const list = Array.isArray(data) ? data : (data as any)?.data ?? [];
-    categories.value = list.map((c: any) => ({ _id: c._id, name: c.name }));
+    const res = await categoriesApi.list();
+    const payload = res?.data?.data || res?.data || [];
+    const list = Array.isArray(payload) ? payload : [];
+    categories.value = list.map((c: any) => ({ _id: c._id || c.id, name: c.name }));
   } catch {
     categories.value = [];
   }
@@ -210,18 +231,25 @@ const toggleActive = async (s: Service) => {
   }
 };
 
-const remove = async (s: Service) => {
-  // The backend refuses while an upcoming confirmed booking exists and returns a
-  // clear message — surface it rather than pretending it worked.
-  if (!confirm(`Delete "${s.title}"? This cannot be undone.`)) return;
-  busyId.value = s._id;
+const openDeleteModal = (s: Service) => {
+  serviceToDelete.value = s;
+  deleteError.value = '';
+  deleteModalOpen.value = true;
+};
+
+const confirmDelete = async () => {
+  if (!serviceToDelete.value) return;
+  deleteSubmitting.value = true;
+  deleteError.value = '';
   try {
-    await servicesApi.remove(s._id);
-    services.value = services.value.filter((x) => x._id !== s._id);
+    await servicesApi.remove(serviceToDelete.value._id);
+    services.value = services.value.filter((x) => x._id !== serviceToDelete.value?._id);
+    deleteModalOpen.value = false;
+    serviceToDelete.value = null;
   } catch (err) {
-    error.value = getApiError(err).message;
+    deleteError.value = getApiError(err).message;
   } finally {
-    busyId.value = '';
+    deleteSubmitting.value = false;
   }
 };
 

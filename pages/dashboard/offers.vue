@@ -109,7 +109,7 @@
           <!-- Actions -->
           <div class="mt-4 pt-4 border-t border-slate-100 flex flex-wrap items-center justify-end gap-2 relative z-20">
             <template v-if="activeTab === 'received' && offer.status === 'pending'">
-              <button @click="updateStatus(offer._id, 'declined')" class="px-4 py-2 text-sm bg-red-50 text-red-600 hover:bg-red-100 font-bold rounded-lg transition-colors border border-red-100">
+              <button @click="openDeclineModal(offer._id)" class="px-4 py-2 text-sm bg-red-50 text-red-600 hover:bg-red-100 font-bold rounded-lg transition-colors border border-red-100">
                 Decline
               </button>
               <button @click="updateStatus(offer._id, 'accepted')" class="px-4 py-2 text-sm bg-brand-600 text-white hover:bg-brand-700 font-bold rounded-lg transition-colors">
@@ -217,6 +217,17 @@
       </div>
     </div>
 
+    <!-- Decline Offer Confirmation Modal -->
+    <ConfirmActionModal
+      :is-open="declineModalOpen"
+      title="Decline Offer"
+      message="Are you sure you want to decline this swap offer? This action cannot be undone."
+      confirm-text="Decline Offer"
+      tone="danger"
+      :submitting="declineSubmitting"
+      @close="declineModalOpen = false"
+      @confirm="confirmDecline"
+    />
   </div>
 </template>
 
@@ -226,6 +237,7 @@ import { Repeat, MessageCircle, Phone, Video, X, MapPin, PlayCircle } from 'luci
 import { ref, onMounted, computed, watch } from 'vue'
 import { offersApi } from '~/composables/useApi'
 import { useRouter } from 'vue-router'
+import ConfirmActionModal from '~/components/ConfirmActionModal.vue'
 
 definePageMeta({ layout: 'dashboard' })
 
@@ -238,6 +250,11 @@ const sentOffers = ref([])
 const error = ref('')
 
 const justAcceptedId = ref(null)
+
+// Custom Decline Modal State
+const declineModalOpen = ref(false)
+const offerToDecline = ref(null)
+const declineSubmitting = ref(false)
 
 // Drawer state
 const isDrawerOpen = ref(false)
@@ -304,9 +321,27 @@ onMounted(() => {
   fetchOffers()
 })
 
+const openDeclineModal = (offerId) => {
+  offerToDecline.value = offerId
+  declineModalOpen.value = true
+}
+
+const confirmDecline = async () => {
+  if (!offerToDecline.value) return
+  declineSubmitting.value = true
+  try {
+    await offersApi.updateStatus(offerToDecline.value, 'declined')
+    declineModalOpen.value = false
+    offerToDecline.value = null
+    fetchOffers()
+  } catch(e) {
+    useCustomToast().showToast({ title: 'Notice', message: 'Failed to decline offer', toastType: "error" })
+  } finally {
+    declineSubmitting.value = false
+  }
+}
+
 const updateStatus = async (offerId, status) => {
-  if (status === 'declined' && !confirm('Are you sure you want to decline this offer?')) return
-  
   try {
     await offersApi.updateStatus(offerId, status)
     

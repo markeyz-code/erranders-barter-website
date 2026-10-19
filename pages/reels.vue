@@ -698,6 +698,7 @@ import {
   VideoOff,
   Search,
   RefreshCw,
+  ArrowUpRight,
 } from 'lucide-vue-next';
 import { itemsApi, servicesApi } from '~/composables/useApi';
 import { useAuth } from '~/composables/useAuth';
@@ -810,6 +811,17 @@ const campusHostels = [
   'Fagunwa Hall',
   'New Hall',
   'Eni Njoku Hall',
+];
+
+const campusTrendingSearches = [
+  { label: 'Kenwood heavy duty blender Mariere', query: 'blender' },
+  { label: 'Hostel Room 314 Bedbug & Fogging', query: 'fumigat' },
+  { label: '2-Man fridge & bed hostel movers', query: 'mover' },
+  { label: 'Orthopedic single bed mattress 4x6', query: 'mattress' },
+  { label: 'Haier Thermocool mini bedside fridge', query: 'fridge' },
+  { label: 'Room 434 graduation declutter bundle', query: 'declutter' },
+  { label: 'Rechargeable study desk fan & lamp', query: 'fan' },
+  { label: 'UNILAG campus room clearance deal', query: 'clearance' },
 ];
 
 const applyQuickQuery = (q: string) => {

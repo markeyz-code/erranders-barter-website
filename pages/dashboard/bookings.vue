@@ -76,8 +76,19 @@
               <p v-if="b.meetingUrl" class="mt-1 text-xs font-bold text-blue-600">Video call</p>
             </div>
 
-            <div class="text-right shrink-0">
-              <p class="text-lg font-black text-brand-600">{{ formatNaira(b.amount) }}</p>
+            <div class="text-right shrink-0 space-y-1">
+              <p class="text-lg font-black text-slate-900">{{ formatNaira(b.amount) }}</p>
+              <div v-if="b.commitmentFee" class="text-xs">
+                <span class="inline-flex items-center gap-1 font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-100">
+                  Deposit: {{ formatNaira(b.commitmentFee) }}
+                </span>
+              </div>
+              <div v-if="b.remainingBalance && b.remainingBalance > 0" class="text-[11px] font-semibold">
+                <span v-if="b.remainingBalancePaid" class="text-emerald-600 font-bold">✓ Balance Paid</span>
+                <span v-else class="text-amber-700 font-bold bg-amber-50 px-2 py-0.5 rounded-md border border-amber-100">
+                  Balance: {{ formatNaira(b.remainingBalance) }}
+                </span>
+              </div>
             </div>
           </div>
 
@@ -109,6 +120,22 @@
                 Mark complete
               </button>
             </template>
+
+            <!-- Student Action: Pay Remaining Balance & Release Escrow -->
+            <button
+              v-if="activeTab === 'mine' && b.status === 'completed' && !b.remainingBalancePaid && (b.remainingBalance || 0) > 0"
+              class="px-3.5 py-1.5 rounded-lg text-xs font-black bg-brand-600 text-white hover:bg-brand-700 shadow-sm flex items-center gap-1.5 transition-all"
+              :disabled="busyId === b._id"
+              @click="openPayBalanceModal(b)"
+            >
+              <span>Pay Balance ({{ formatNaira(b.remainingBalance) }}) & Release Escrow</span>
+            </button>
+            <span
+              v-else-if="b.status === 'completed' && b.payoutReleased"
+              class="text-xs font-bold text-emerald-600 flex items-center gap-1 bg-emerald-50 px-2.5 py-1 rounded-lg border border-emerald-100"
+            >
+              <CheckCircle2 class="w-3.5 h-3.5" /> Escrow Released
+            </span>
 
             <!-- Both sides -->
             <button
@@ -147,7 +174,7 @@
               v-if="canCancel(b)"
               class="px-3 py-1.5 rounded-lg text-xs font-bold text-red-600 border border-red-200 hover:bg-red-50 disabled:opacity-40"
               :disabled="busyId === b._id"
-              @click="cancel(b)"
+              @click="openCancelModal(b)"
             >
               Cancel
             </button>
@@ -168,16 +195,47 @@
         :title="activeVideoTitle"
         @close="videoModalOpen = false"
       />
+
+      <!-- Cancel Confirmation Modal with Reason (Custom Modal, no prompt) -->
+      <ConfirmActionModal
+        :is-open="cancelModalOpen"
+        title="Cancel Appointment"
+        message="Are you sure you want to cancel this booking? This will notify the other party and free up the time slot."
+        confirm-text="Cancel Booking"
+        tone="danger"
+        :show-reason="true"
+        :require-reason="true"
+        reason-label="Reason for Cancellation"
+        reason-placeholder="e.g. Scheduling conflict, emergency, etc."
+        :submitting="cancelSubmitting"
+        :error="cancelError"
+        @close="cancelModalOpen = false"
+        @confirm="confirmCancel"
+      />
+
+      <!-- Pay Balance & Release Escrow Modal (Custom Modal) -->
+      <ConfirmActionModal
+        :is-open="payBalanceModalOpen"
+        title="Pay Remaining Balance & Release Escrow"
+        :message="bookingToPay ? `Pay the remaining balance of ${formatNaira(bookingToPay.remainingBalance)} for '${serviceTitle(bookingToPay)}'. This marks the service fully settled and releases escrow funds to the provider.` : ''"
+        confirm-text="Pay & Release Funds"
+        tone="brand"
+        :submitting="paySubmitting"
+        :error="payError"
+        @close="payBalanceModalOpen = false"
+        @confirm="confirmPayBalance"
+      />
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { computed, ref, onMounted } from 'vue';
-import { AlertTriangle, CalendarDays, MessageSquare, Video, Copy, Check } from 'lucide-vue-next';
+import { AlertTriangle, CalendarDays, MessageSquare, Video, Copy, Check, CheckCircle2 } from 'lucide-vue-next';
 import BookingStatusPill from '~/components/BookingStatusPill.vue';
 import RescheduleBookingModal from '~/components/RescheduleBookingModal.vue';
 import VideoCallModal from '~/components/VideoCallModal.vue';
+import ConfirmActionModal from '~/components/ConfirmActionModal.vue';
 import { bookingsApi, type Booking, type BookingStatus } from '@/api_factory/modules/bookings';
 import { getApiError, formatDateLong, formatTimeRange } from '@/composables/modules/services/useServiceFormatting';
 
@@ -202,6 +260,18 @@ const busyId = ref('');
 const copiedId = ref('');
 const rescheduleOpen = ref(false);
 const rescheduling = ref<Booking | null>(null);
+
+// Custom Cancel Modal State
+const cancelModalOpen = ref(false);
+const bookingToCancel = ref<Booking | null>(null);
+const cancelSubmitting = ref(false);
+const cancelError = ref('');
+
+// Pay Balance Modal State
+const payBalanceModalOpen = ref(false);
+const bookingToPay = ref<Booking | null>(null);
+const paySubmitting = ref(false);
+const payError = ref('');
 
 // Video Call Modal State
 const videoModalOpen = ref(false);
@@ -273,17 +343,47 @@ const act = async (b: Booking, action: 'accept' | 'decline' | 'complete') => {
   }
 };
 
-const cancel = async (b: Booking) => {
-  const reason = prompt('Why are you cancelling? (shown to the other person)');
-  if (reason === null) return;
-  busyId.value = b._id;
+const openCancelModal = (b: Booking) => {
+  bookingToCancel.value = b;
+  cancelError.value = '';
+  cancelModalOpen.value = true;
+};
+
+const confirmCancel = async (reason: string) => {
+  if (!bookingToCancel.value) return;
+  cancelSubmitting.value = true;
+  cancelError.value = '';
   try {
-    const { data } = await bookingsApi.cancel(b._id, reason || 'Cancelled');
+    const { data } = await bookingsApi.cancel(bookingToCancel.value._id, reason || 'Cancelled');
     replaceRow(data);
+    cancelModalOpen.value = false;
+    bookingToCancel.value = null;
   } catch (err) {
-    error.value = getApiError(err).message;
+    cancelError.value = getApiError(err).message;
   } finally {
-    busyId.value = '';
+    cancelSubmitting.value = false;
+  }
+};
+
+const openPayBalanceModal = (b: Booking) => {
+  bookingToPay.value = b;
+  payError.value = '';
+  payBalanceModalOpen.value = true;
+};
+
+const confirmPayBalance = async () => {
+  if (!bookingToPay.value) return;
+  paySubmitting.value = true;
+  payError.value = '';
+  try {
+    const { data } = await bookingsApi.payBalance(bookingToPay.value._id);
+    replaceRow(data);
+    payBalanceModalOpen.value = false;
+    bookingToPay.value = null;
+  } catch (err) {
+    payError.value = getApiError(err).message;
+  } finally {
+    paySubmitting.value = false;
   }
 };
 
@@ -313,7 +413,16 @@ const copyMeetingUrl = async (b: Booking) => {
       if (copiedId.value === b._id) copiedId.value = '';
     }, 2000);
   } catch {
-    prompt('Meeting URL:', b.meetingUrl);
+    const el = document.createElement('textarea');
+    el.value = b.meetingUrl;
+    document.body.appendChild(el);
+    el.select();
+    document.execCommand('copy');
+    document.body.removeChild(el);
+    copiedId.value = b._id;
+    setTimeout(() => {
+      if (copiedId.value === b._id) copiedId.value = '';
+    }, 2000);
   }
 };
 

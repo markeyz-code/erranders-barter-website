@@ -223,67 +223,89 @@
         </p>
       </div>
 
-      <!-- Time Slot Cards Grid -->
-      <div v-else class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-        <button
-          v-for="slot in slots"
-          :key="slot.startTime"
-          type="button"
-          :disabled="!slot.available || disabled"
-          @click="selectSlot(slot.startTime)"
-          class="p-3 rounded-xl border text-left transition-all flex items-center justify-between gap-2"
-          :class="[
-            !slot.available
-              ? 'bg-slate-50 border-slate-200 text-slate-400 cursor-not-allowed opacity-75'
-              : modelStart === slot.startTime
-                ? 'bg-slate-900 border-slate-900 text-white shadow-md ring-2 ring-slate-900/10'
-                : 'bg-white border-slate-200 hover:border-brand-500 hover:bg-brand-50/40 text-slate-800'
-          ]"
-        >
-          <div class="min-w-0">
-            <!-- Full Start Time to End Time Range -->
-            <div class="flex items-center gap-1.5">
-              <Clock
-                class="w-3.5 h-3.5 shrink-0"
-                :class="!slot.available ? 'text-slate-300' : modelStart === slot.startTime ? 'text-brand-400' : 'text-brand-600'"
-              />
-              <span
-                class="text-xs sm:text-sm font-black tracking-tight"
-                :class="!slot.available ? 'line-through text-slate-400' : ''"
-              >
-                {{ formatTimeRange(slot.startTime, slot.endTime) }}
-              </span>
-            </div>
-            <p
-              class="text-[11px] font-medium mt-0.5"
-              :class="!slot.available ? 'text-slate-400' : modelStart === slot.startTime ? 'text-white/80' : 'text-slate-500'"
-            >
-              {{ formatDuration(selectedDuration) }} session
-            </p>
-          </div>
+      <!-- Time Slot Filtering and Compact Grid -->
+      <div v-else class="space-y-2.5">
+        <!-- Period Filter Tabs -->
+        <div class="flex items-center gap-1.5 flex-wrap">
+          <button
+            type="button"
+            @click="timePeriodFilter = 'all'"
+            class="px-2.5 py-1 rounded-lg text-xs font-bold transition-all"
+            :class="timePeriodFilter === 'all' ? 'bg-slate-900 text-white shadow-2xs' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'"
+          >
+            All ({{ slots.length }})
+          </button>
+          <button
+            v-if="morningSlots.length > 0"
+            type="button"
+            @click="timePeriodFilter = 'morning'"
+            class="px-2.5 py-1 rounded-lg text-xs font-bold transition-all"
+            :class="timePeriodFilter === 'morning' ? 'bg-slate-900 text-white shadow-2xs' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'"
+          >
+            Morning ({{ morningSlots.length }})
+          </button>
+          <button
+            v-if="afternoonSlots.length > 0"
+            type="button"
+            @click="timePeriodFilter = 'afternoon'"
+            class="px-2.5 py-1 rounded-lg text-xs font-bold transition-all"
+            :class="timePeriodFilter === 'afternoon' ? 'bg-slate-900 text-white shadow-2xs' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'"
+          >
+            Afternoon ({{ afternoonSlots.length }})
+          </button>
+          <button
+            v-if="eveningSlots.length > 0"
+            type="button"
+            @click="timePeriodFilter = 'evening'"
+            class="px-2.5 py-1 rounded-lg text-xs font-bold transition-all"
+            :class="timePeriodFilter === 'evening' ? 'bg-slate-900 text-white shadow-2xs' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'"
+          >
+            Evening ({{ eveningSlots.length }})
+          </button>
+        </div>
 
-          <!-- Status badge -->
-          <div class="shrink-0">
-            <span
-              v-if="!slot.available"
-              class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-slate-200/80 text-slate-600"
+        <!-- Compact Time Pill Grid Container with Scroll -->
+        <div class="max-h-60 sm:max-h-64 overflow-y-auto pr-1">
+          <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
+            <button
+              v-for="slot in filteredSlots"
+              :key="slot.startTime"
+              type="button"
+              :disabled="!slot.available || disabled"
+              @click="selectSlot(slot.startTime)"
+              class="p-2 sm:p-2.5 rounded-xl border text-center transition-all flex flex-col items-center justify-center relative group"
+              :class="[
+                !slot.available
+                  ? 'bg-slate-50 border-slate-200 text-slate-400 cursor-not-allowed opacity-50 line-through'
+                  : modelStart === slot.startTime
+                    ? 'bg-slate-900 border-slate-900 text-white shadow-md ring-2 ring-brand-500/50 scale-[1.02]'
+                    : 'bg-white border-slate-200 hover:border-brand-500 hover:bg-brand-50/40 text-slate-800'
+              ]"
             >
-              <Lock class="w-2.5 h-2.5" /> Booked
-            </span>
-            <span
-              v-else-if="modelStart === slot.startTime"
-              class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-brand-500 text-white"
-            >
-              <Check class="w-3 h-3 stroke-[3]" /> Selected
-            </span>
-            <span
-              v-else
-              class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200"
-            >
-              Available
-            </span>
+              <div class="flex items-center gap-1.5">
+                <span
+                  class="w-1.5 h-1.5 rounded-full shrink-0"
+                  :class="!slot.available ? 'bg-slate-300' : modelStart === slot.startTime ? 'bg-brand-400' : 'bg-emerald-500'"
+                ></span>
+                <span class="text-xs sm:text-sm font-black tracking-tight">
+                  {{ formatTime12h(slot.startTime) }}
+                </span>
+              </div>
+              <span
+                class="text-[10px] font-semibold mt-0.5 truncate"
+                :class="!slot.available ? 'text-slate-400' : modelStart === slot.startTime ? 'text-slate-300' : 'text-slate-400'"
+              >
+                to {{ formatTime12h(slot.endTime) }}
+              </span>
+              <span
+                v-if="modelStart === slot.startTime"
+                class="absolute -top-1.5 -right-1.5 w-4 h-4 rounded-full bg-brand-500 text-white flex items-center justify-center text-[9px] font-black shadow-xs"
+              >
+                ✓
+              </span>
+            </button>
           </div>
-        </button>
+        </div>
       </div>
     </div>
 
@@ -415,6 +437,30 @@ const viewMonth = ref(todayMonth);
 const slots = ref<AvailabilitySlot[]>([]);
 const loading = ref(false);
 const error = ref('');
+
+const timePeriodFilter = ref<'all' | 'morning' | 'afternoon' | 'evening'>('all');
+
+const getSlotHour = (timeStr: string) => {
+  if (!timeStr) return 0;
+  const parts = timeStr.split(':');
+  return Number(parts[0]) || 0;
+};
+
+const morningSlots = computed(() => slots.value.filter((s) => getSlotHour(s.startTime) < 12));
+const afternoonSlots = computed(() =>
+  slots.value.filter((s) => {
+    const h = getSlotHour(s.startTime);
+    return h >= 12 && h < 17;
+  }),
+);
+const eveningSlots = computed(() => slots.value.filter((s) => getSlotHour(s.startTime) >= 17));
+
+const filteredSlots = computed(() => {
+  if (timePeriodFilter.value === 'morning') return morningSlots.value;
+  if (timePeriodFilter.value === 'afternoon') return afternoonSlots.value;
+  if (timePeriodFilter.value === 'evening') return eveningSlots.value;
+  return slots.value;
+});
 
 // Dynamic Duration Controls
 const minDurationMinutes = 15;

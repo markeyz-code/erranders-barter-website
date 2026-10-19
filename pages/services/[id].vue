@@ -301,6 +301,33 @@
               />
             </label>
 
+            <!-- Commitment Deposit & Balance Breakdown -->
+            <div
+              v-if="service && service.priceType !== 'negotiable'"
+              class="mt-4 p-3.5 rounded-2xl bg-brand-50/80 border border-brand-100 space-y-2 text-left"
+            >
+              <div class="flex items-center justify-between text-xs">
+                <span class="text-slate-600 font-semibold flex items-center gap-1.5">
+                  <ShieldCheck class="w-3.5 h-3.5 text-brand-600" /> Total Service Price
+                </span>
+                <span class="font-extrabold text-slate-800">₦{{ calculatedTotal.toLocaleString() }}</span>
+              </div>
+              <div class="flex items-center justify-between text-xs pt-1.5 border-t border-brand-100">
+                <div>
+                  <span class="font-black text-brand-800">Commitment Deposit (Pay Now)</span>
+                  <p class="text-[10px] text-brand-600 font-medium">Secures appointment & prevents no-shows</p>
+                </div>
+                <span class="font-black text-brand-700 text-sm">₦{{ calculatedCommitmentFee.toLocaleString() }}</span>
+              </div>
+              <div v-if="calculatedRemainingBalance > 0" class="flex items-center justify-between text-xs pt-1.5 border-t border-brand-100/70">
+                <div>
+                  <span class="font-bold text-slate-600">Remaining Balance</span>
+                  <p class="text-[10px] text-slate-400 font-medium">Paid upon completion of service</p>
+                </div>
+                <span class="font-extrabold text-slate-700">₦{{ calculatedRemainingBalance.toLocaleString() }}</span>
+              </div>
+            </div>
+
             <!-- Booking Error Alert -->
             <div v-if="bookingError" class="mt-4 p-3.5 rounded-xl bg-red-50 border border-red-200 flex items-start gap-2">
               <AlertTriangle class="w-4 h-4 text-red-600 shrink-0 mt-0.5" />
@@ -315,12 +342,12 @@
               @click="submit"
             >
               <span v-if="submitting" class="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
-              <span>{{ submitting ? 'Requesting Booking…' : (startTime ? 'Confirm & Request Booking' : 'Select a Time Slot Above') }}</span>
+              <span>{{ submitting ? 'Securing Booking…' : (startTime ? (calculatedCommitmentFee > 0 ? `Pay Commitment (₦${calculatedCommitmentFee.toLocaleString()}) & Book` : 'Confirm & Request Booking') : 'Select a Time Slot Above') }}</span>
             </button>
 
             <!-- Price & Escrow terms notice -->
             <p class="mt-3 text-[11px] text-slate-400 text-center font-medium leading-relaxed">
-              {{ priceLabel }} · Funds held securely in Erranders Escrow until work is delivered.
+              {{ priceLabel }} · Commitment fee held securely in Erranders Escrow until work is delivered.
             </p>
           </div>
         </aside>
@@ -361,7 +388,7 @@
           </p>
 
           <!-- Confirmed appointment slot recap -->
-          <div class="mt-5 p-4 rounded-2xl bg-slate-50 border border-slate-200/80 text-left space-y-1.5">
+          <div class="mt-5 p-4 rounded-2xl bg-slate-50 border border-slate-200/80 text-left space-y-2">
             <div class="flex items-center justify-between text-xs">
               <span class="text-slate-400 font-bold uppercase tracking-wider text-[10px]">Date</span>
               <span class="font-extrabold text-slate-800">{{ formatDateLong(confirmed.date) }}</span>
@@ -373,8 +400,19 @@
               </span>
             </div>
             <div class="flex items-center justify-between text-xs pt-1.5 border-t border-slate-200/60">
-              <span class="text-slate-400 font-bold uppercase tracking-wider text-[10px]">Amount</span>
+              <span class="text-slate-500 font-semibold">Total Price</span>
               <span class="font-black text-slate-900">₦{{ Number(confirmed.amount || 0).toLocaleString() }}</span>
+            </div>
+            <div class="flex items-center justify-between text-xs bg-brand-50/90 p-2.5 rounded-xl border border-brand-100">
+              <div>
+                <span class="text-[11px] font-black text-brand-800">Commitment Fee (Paid)</span>
+                <p class="text-[10px] text-brand-600 font-medium">Secured in Erranders escrow</p>
+              </div>
+              <span class="font-black text-brand-700 text-sm">₦{{ Number(confirmed.commitmentFee ?? confirmed.amount ?? 0).toLocaleString() }}</span>
+            </div>
+            <div v-if="Number(confirmed.remainingBalance || 0) > 0" class="flex items-center justify-between text-xs px-1 text-slate-600">
+              <span class="text-[11px] font-semibold">Due at Completion</span>
+              <span class="font-extrabold text-slate-800">₦{{ Number(confirmed.remainingBalance).toLocaleString() }}</span>
             </div>
           </div>
 
@@ -411,6 +449,7 @@ import {
   CheckCircle2,
   MessageSquare,
   CalendarDays,
+  ShieldCheck,
 } from 'lucide-vue-next';
 import BookingSlotPicker from '~/components/BookingSlotPicker.vue';
 import { servicesApi, type Service } from '@/api_factory/modules/services';
@@ -459,15 +498,32 @@ const priceLabel = computed(() =>
   formatPriceLabel(service.value?.priceType, service.value?.price),
 );
 
-const mobileTotalText = computed(() => {
-  if (!service.value) return '—';
-  if (service.value.priceType === 'negotiable') return 'Negotiable';
-  const total = calculateServiceTotal(
+const calculatedTotal = computed(() => {
+  if (!service.value) return 0;
+  return calculateServiceTotal(
     service.value.priceType,
     service.value.price,
     durationMinutes.value,
   );
-  return `₦${total.toLocaleString()}`;
+});
+
+const calculatedCommitmentFee = computed(() => {
+  const total = calculatedTotal.value;
+  if (!total || total <= 0) return 0;
+  if (total <= 1000) return total;
+  // 30% commitment fee rounded to nearest 50, minimum 1,000
+  const rawFee = Math.max(1000, Math.round((total * 0.3) / 50) * 50);
+  return Math.min(rawFee, total);
+});
+
+const calculatedRemainingBalance = computed(() => {
+  return Math.max(0, calculatedTotal.value - calculatedCommitmentFee.value);
+});
+
+const mobileTotalText = computed(() => {
+  if (!service.value) return '—';
+  if (service.value.priceType === 'negotiable') return 'Negotiable';
+  return `₦${calculatedTotal.value.toLocaleString()}`;
 });
 
 const categoryName = computed(() =>

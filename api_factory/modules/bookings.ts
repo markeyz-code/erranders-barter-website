@@ -52,6 +52,12 @@ export interface Booking {
   durationMinutes: number;
   bufferMinutes?: number;
   amount: number;
+  commitmentFee?: number;
+  remainingBalance?: number;
+  commitmentFeePaid?: boolean;
+  remainingBalancePaid?: boolean;
+  paymentStatus?: 'unpaid' | 'commitment_paid' | 'fully_paid';
+  payoutReleased?: boolean;
   status: BookingStatus;
   notes?: string;
   meetingUrl?: string;
@@ -107,4 +113,8 @@ export const bookingsApi = {
   /** PATCH /bookings/:id/reschedule — moves to a freshly validated slot. */
   reschedule: (id: string, payload: RescheduleBookingPayload) =>
     GATEWAY_ENDPOINT_WITH_AUTH.patch<Booking>(`/bookings/${id}/reschedule`, payload),
+
+  /** POST /bookings/:id/pay-balance — student pays remaining balance on completion */
+  payBalance: (id: string) =>
+    GATEWAY_ENDPOINT_WITH_AUTH.post<Booking>(`/bookings/${id}/pay-balance`, {}),
 };

@@ -55,11 +55,46 @@
         <!-- Category + pricing model -->
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label class="block text-sm font-bold text-slate-700 mb-1.5">Category</label>
+            <div class="flex items-center justify-between mb-1.5">
+              <label class="block text-sm font-bold text-slate-700">Category</label>
+              <button
+                type="button"
+                @click="showInlineCategoryInput = !showInlineCategoryInput"
+                class="text-xs font-bold text-brand-600 hover:text-brand-700 inline-flex items-center gap-1 transition-colors"
+              >
+                <Plus class="w-3.5 h-3.5" />
+                <span>{{ showInlineCategoryInput ? 'Select from list' : '+ New category' }}</span>
+              </button>
+            </div>
+
+            <!-- Inline category create input -->
+            <div v-if="showInlineCategoryInput" class="flex items-center gap-2">
+              <input
+                v-model="newCategoryInput"
+                type="text"
+                placeholder="e.g. Barbering, Nail Tech, Tutor..."
+                class="w-full bg-slate-50 border rounded-xl px-3.5 py-2 text-xs sm:text-sm font-medium text-slate-900 outline-none focus:border-brand-500 border-slate-200"
+                @keydown.enter.prevent="handleCategoryCreate(newCategoryInput)"
+              />
+              <button
+                type="button"
+                :disabled="!newCategoryInput.trim() || creatingCategory"
+                @click="handleCategoryCreate(newCategoryInput)"
+                class="px-3.5 py-2 bg-brand-600 text-white font-bold text-xs rounded-xl hover:bg-brand-700 transition-colors shrink-0 disabled:opacity-40 flex items-center gap-1"
+              >
+                <Loader2 v-if="creatingCategory" class="w-3.5 h-3.5 animate-spin" />
+                <span>{{ creatingCategory ? 'Adding...' : 'Add' }}</span>
+              </button>
+            </div>
+
+            <!-- CustomSelect with allow-create -->
             <CustomSelect
+              v-else
               v-model="form.category"
               :options="categoryOptions"
               placeholder="Select category"
+              :allow-create="true"
+              @create="handleCategoryCreate"
               class="w-full"
             />
             <p v-if="errors.category" class="text-[11px] font-bold text-red-600 mt-1">{{ errors.category }}</p>
@@ -257,11 +292,12 @@
 </template>
 
 <script setup lang="ts">
-import { X, Loader2, MapPin, ImagePlus } from 'lucide-vue-next';
+import { X, Loader2, MapPin, ImagePlus, Plus } from 'lucide-vue-next';
 import type { PriceType, Service } from '@/api_factory/modules/services';
 import { servicesApi } from '@/api_factory/modules/services';
 import type { CreateServicePayload } from '@/api_factory/modules/services';
 import { upload_api } from '@/api_factory/modules/upload';
+import { categoriesApi } from '@/api_factory/modules/categories';
 import CustomSelect from '~/components/CustomSelect.vue';
 import {
   getApiError,
@@ -317,6 +353,46 @@ const fileInput = ref<HTMLInputElement | null>(null);
 
 const isEditing = computed(() => Boolean(props.service?._id));
 
+const localCategories = ref<CategoryOption[]>([]);
+const creatingCategory = ref(false);
+const showInlineCategoryInput = ref(false);
+const newCategoryInput = ref('');
+
+watch(
+  () => props.categories,
+  (cats) => {
+    if (Array.isArray(cats)) {
+      localCategories.value = [...cats];
+    }
+  },
+  { immediate: true },
+);
+
+const handleCategoryCreate = async (name: string) => {
+  const trimmed = name.trim();
+  if (!trimmed) return;
+  creatingCategory.value = true;
+  try {
+    const res = await categoriesApi.create({ name: trimmed });
+    const catData = res.data?.data || res.data;
+    if (catData && (catData._id || catData.id)) {
+      const catId = catData._id || catData.id;
+      const catName = catData.name || trimmed;
+      if (!localCategories.value.some((c) => c._id === catId)) {
+        localCategories.value.push({ _id: catId, name: catName });
+      }
+      form.value.category = catId;
+      errors.value.category = '';
+      showInlineCategoryInput.value = false;
+      newCategoryInput.value = '';
+    }
+  } catch (err) {
+    console.error('Failed to create category', err);
+  } finally {
+    creatingCategory.value = false;
+  }
+};
+
 const priceTypeOptions = [
   { value: 'fixed', label: 'Fixed price' },
   { value: 'hourly', label: 'Hourly rate' },
@@ -325,7 +401,7 @@ const priceTypeOptions = [
 ];
 
 const categoryOptions = computed(() => {
-  const options = props.categories.map((category) => ({
+  const options = localCategories.value.map((category) => ({
     value: category._id,
     label: category.name,
   }));

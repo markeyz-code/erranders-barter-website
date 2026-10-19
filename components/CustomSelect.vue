@@ -51,14 +51,15 @@
           align === 'right' ? 'right-0' : 'left-0'
         ]"
       >
-        <!-- Quick search within dropdown if options count > 7 -->
-        <div v-if="searchable && normalizedOptions.length > 7" class="p-1.5 border-b border-slate-100">
+        <!-- Quick search within dropdown if searchable or allowCreate -->
+        <div v-if="searchable && (normalizedOptions.length > 5 || allowCreate)" class="p-1.5 border-b border-slate-100">
           <input
             v-model="searchTerm"
             type="text"
-            placeholder="Search..."
+            :placeholder="allowCreate ? 'Search or type new...' : 'Search...'"
             class="w-full text-xs font-semibold px-2 py-1.5 bg-slate-50 border border-slate-200 rounded-lg outline-none focus:border-brand-600 focus:bg-white text-slate-800"
             @click.stop
+            @keydown.enter.prevent="handleEnterCreate"
           />
         </div>
 
@@ -82,8 +83,19 @@
               <Check class="w-2.5 h-2.5 stroke-[3]" />
             </span>
           </li>
+
+          <!-- Create option if allowCreate and searchTerm has text -->
           <li
-            v-if="displayedOptions.length === 0"
+            v-if="allowCreate && searchTerm.trim() && !exactMatchExists"
+            @click="handleCreateAction(searchTerm.trim())"
+            class="flex items-center gap-2 px-3 py-2 cursor-pointer transition-colors text-xs sm:text-sm font-extrabold rounded-lg text-brand-600 bg-brand-50/80 hover:bg-brand-100 border border-brand-200/60 mt-1"
+          >
+            <Plus class="w-3.5 h-3.5 shrink-0" />
+            <span class="truncate">Create "{{ searchTerm.trim() }}"</span>
+          </li>
+
+          <li
+            v-else-if="displayedOptions.length === 0"
             class="px-3 py-3 text-center text-xs text-slate-400 font-medium"
           >
             No matches found
@@ -96,7 +108,7 @@
 
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue'
-import { ChevronDown, Check } from 'lucide-vue-next'
+import { ChevronDown, Check, Plus } from 'lucide-vue-next'
 
 const props = defineProps({
   modelValue: { type: [String, Number, null], default: '' },
@@ -108,10 +120,11 @@ const props = defineProps({
   align: { type: String, default: 'left' },
   variant: { type: String, default: 'pill' }, // 'pill' | 'form' | 'filter'
   icon: { type: [Object, Function], default: null },
-  searchable: { type: Boolean, default: true }
+  searchable: { type: Boolean, default: true },
+  allowCreate: { type: Boolean, default: false },
 })
 
-const emit = defineEmits(['update:modelValue'])
+const emit = defineEmits(['update:modelValue', 'create'])
 
 const isOpen = ref(false)
 const selectRef = ref(null)
@@ -132,6 +145,12 @@ const displayedOptions = computed(() => {
   return normalizedOptions.value.filter(o => o.label.toLowerCase().includes(term))
 })
 
+const exactMatchExists = computed(() => {
+  if (!searchTerm.value?.trim()) return false
+  const term = searchTerm.value.trim().toLowerCase()
+  return normalizedOptions.value.some(o => o.label.toLowerCase() === term)
+})
+
 const currentLabel = computed(() => {
   const found = normalizedOptions.value.find(o => o.value === props.modelValue)
   return found ? found.label : props.placeholder
@@ -146,6 +165,18 @@ const selectOption = (option) => {
   emit('update:modelValue', option.value)
   isOpen.value = false
   searchTerm.value = ''
+}
+
+const handleCreateAction = (val) => {
+  emit('create', val)
+  isOpen.value = false
+  searchTerm.value = ''
+}
+
+const handleEnterCreate = () => {
+  if (props.allowCreate && searchTerm.value.trim() && !exactMatchExists.value) {
+    handleCreateAction(searchTerm.value.trim())
+  }
 }
 
 const handleClickOutside = (e) => {

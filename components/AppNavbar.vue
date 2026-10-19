@@ -403,6 +403,7 @@ import {
   DollarSign,
 } from 'lucide-vue-next'
 import { useRouter, useRoute } from 'vue-router'
+import { io } from 'socket.io-client'
 import { notificationsApi } from '@/api_factory/modules/notifications'
 import { playNotificationSound } from '@/composables/core/useSound'
 
@@ -534,23 +535,28 @@ onMounted(() => {
     notificationPollTimer = setInterval(loadNotifications, 60000)
   }
 
-  if (token.value) {
-    socket = io(useRuntimeConfig().public.apiBaseUrl.replace('/api/v1', ''), {
-      auth: { token: `Bearer ${token.value}` }
-    })
-    
-    socket.on('chatNotification', (data) => {
-      if (window.location.pathname.includes('/chat') && window.location.search.includes(data.chatId)) return;
+  if (process.client && token.value) {
+    try {
+      socket = io(useRuntimeConfig().public.apiBaseUrl.replace('/api/v1', ''), {
+        auth: { token: `Bearer ${token.value}` },
+        transports: ['polling'],
+      })
       
-      latestMessage.value = data
-      showChatToast.value = true
-      unreadChats.value.push(data)
-      playNotificationSound()
-      
-      setTimeout(() => {
-        showChatToast.value = false
-      }, 5000)
-    })
+      socket.on('chatNotification', (data) => {
+        if (typeof window !== 'undefined' && window.location.pathname.includes('/chat') && window.location.search.includes(data.chatId)) return;
+        
+        latestMessage.value = data
+        showChatToast.value = true
+        unreadChats.value.push(data)
+        playNotificationSound()
+        
+        setTimeout(() => {
+          showChatToast.value = false
+        }, 5000)
+      })
+    } catch (err) {
+      console.warn('Socket init failed:', err)
+    }
   }
 })
 
