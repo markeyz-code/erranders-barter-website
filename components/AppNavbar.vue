@@ -8,19 +8,62 @@
       </a>
 
       <!-- Desktop Nav -->
-      <div class="hidden md:flex items-center gap-7 text-sm font-bold text-slate-600">
-         <a href="/explore" class="hover:text-[#FF5C1A] transition-colors">Buy</a>
-         <a href="/sell" class="hover:text-[#FF5C1A] transition-colors">Sell</a>
-         <a href="/swap" class="hover:text-[#FF5C1A] transition-colors">Swap</a>
-         <a href="/services" class="hover:text-[#FF5C1A] transition-colors">Services</a>
-         <a href="/reels" class="hover:text-[#FF5C1A] transition-colors flex items-center gap-1 font-black text-slate-800">
-           <span>Reels</span>
-           <span class="bg-red-500 text-white text-[9px] font-black px-1.5 py-0.2 rounded-full uppercase tracking-wider animate-pulse">Hot 🔥</span>
-         </a>
-         <a href="/declutter" class="hover:text-[#FF5C1A] transition-colors flex items-center gap-1">
-           <span>Declutter</span>
-           <span class="bg-brand-50 text-brand-700 border border-brand-200 text-[10px] font-black px-1.5 py-0.2 rounded-full">New</span>
-         </a>
+      <div class="hidden md:flex items-center gap-6 text-sm font-bold">
+        <NuxtLink
+          to="/explore"
+          class="transition-colors py-1 relative"
+          :class="isRouteActive('/explore') ? 'text-[#FF5C1A] font-black' : 'text-slate-600 hover:text-[#FF5C1A]'"
+        >
+          Buy
+          <span v-if="isRouteActive('/explore')" class="absolute -bottom-1.5 inset-x-0 h-0.5 bg-[#FF5C1A] rounded-full"></span>
+        </NuxtLink>
+
+        <NuxtLink
+          to="/sell"
+          class="transition-colors py-1 relative"
+          :class="isRouteActive('/sell') ? 'text-[#FF5C1A] font-black' : 'text-slate-600 hover:text-[#FF5C1A]'"
+        >
+          Sell
+          <span v-if="isRouteActive('/sell')" class="absolute -bottom-1.5 inset-x-0 h-0.5 bg-[#FF5C1A] rounded-full"></span>
+        </NuxtLink>
+
+        <NuxtLink
+          to="/swap"
+          class="transition-colors py-1 relative"
+          :class="isRouteActive('/swap') ? 'text-[#FF5C1A] font-black' : 'text-slate-600 hover:text-[#FF5C1A]'"
+        >
+          Swap
+          <span v-if="isRouteActive('/swap')" class="absolute -bottom-1.5 inset-x-0 h-0.5 bg-[#FF5C1A] rounded-full"></span>
+        </NuxtLink>
+
+        <NuxtLink
+          to="/services"
+          class="transition-colors py-1 relative"
+          :class="isRouteActive('/services') ? 'text-[#FF5C1A] font-black' : 'text-slate-600 hover:text-[#FF5C1A]'"
+        >
+          Services
+          <span v-if="isRouteActive('/services')" class="absolute -bottom-1.5 inset-x-0 h-0.5 bg-[#FF5C1A] rounded-full"></span>
+        </NuxtLink>
+
+        <NuxtLink
+          to="/reels"
+          class="transition-colors py-1 relative flex items-center gap-1"
+          :class="isRouteActive('/reels') ? 'text-[#FF5C1A] font-black' : 'text-slate-800 hover:text-[#FF5C1A]'"
+        >
+          <span>Reels</span>
+          <span class="bg-red-500 text-white text-[9px] font-black px-1.5 py-0.2 rounded-full uppercase tracking-wider animate-pulse">Hot 🔥</span>
+          <span v-if="isRouteActive('/reels')" class="absolute -bottom-1.5 inset-x-0 h-0.5 bg-[#FF5C1A] rounded-full"></span>
+        </NuxtLink>
+
+        <NuxtLink
+          to="/declutter"
+          class="transition-colors py-1 relative flex items-center gap-1"
+          :class="isRouteActive('/declutter') ? 'text-[#FF5C1A] font-black' : 'text-slate-600 hover:text-[#FF5C1A]'"
+        >
+          <span>Declutter</span>
+          <span class="bg-brand-50 text-brand-700 border border-brand-200 text-[10px] font-black px-1.5 py-0.2 rounded-full">New</span>
+          <span v-if="isRouteActive('/declutter')" class="absolute -bottom-1.5 inset-x-0 h-0.5 bg-[#FF5C1A] rounded-full"></span>
+        </NuxtLink>
       </div>
 
       <!-- Actions -->
@@ -169,37 +212,148 @@
         leave-from-class="transform scale-100 opacity-100"
         leave-to-class="transform scale-95 opacity-0"
       >
-        <div v-if="isMobileMenuOpen" class="absolute top-[120%] left-0 w-full bg-white border border-slate-200 rounded-2xl overflow-hidden md:hidden flex flex-col p-2.5 gap-1 pointer-events-auto">
-           <a @click="isMobileMenuOpen = false" href="/explore" class="px-3.5 py-2.5 text-sm font-bold text-slate-700 hover:bg-slate-50 rounded-xl transition-colors">Buy Items</a>
-           <a @click="isMobileMenuOpen = false" href="/sell" class="px-3.5 py-2.5 text-sm font-bold text-slate-700 hover:bg-slate-50 rounded-xl transition-colors">Sell Items</a>
-           <a @click="isMobileMenuOpen = false" href="/swap" class="px-3.5 py-2.5 text-sm font-bold text-slate-700 hover:bg-slate-50 rounded-xl transition-colors">Swap Items</a>
-          <a @click="isMobileMenuOpen = false" href="/services" class="px-3.5 py-2.5 text-sm font-bold text-slate-700 hover:bg-slate-50 rounded-xl transition-colors">Book a Service</a>
-          <a @click="isMobileMenuOpen = false" href="/reels" class="px-3.5 py-2.5 text-sm font-extrabold text-slate-800 hover:bg-slate-50 rounded-xl transition-colors flex items-center justify-between">
+        <div v-if="isMobileMenuOpen" class="absolute top-[120%] left-0 w-full bg-white border border-slate-200 rounded-2xl overflow-hidden md:hidden flex flex-col p-2.5 gap-1 pointer-events-auto shadow-2xl">
+          <NuxtLink
+            to="/explore"
+            @click="isMobileMenuOpen = false"
+            class="px-3.5 py-2.5 text-sm rounded-xl transition-all flex items-center justify-between"
+            :class="isRouteActive('/explore')
+              ? 'bg-[#FF5C1A]/10 text-[#FF5C1A] font-black border border-[#FF5C1A]/25 shadow-xs'
+              : 'font-bold text-slate-700 hover:bg-slate-50 hover:text-slate-900 border border-transparent'"
+          >
+            <span>Buy Items</span>
+            <span v-if="isRouteActive('/explore')" class="w-2 h-2 rounded-full bg-[#FF5C1A] shrink-0"></span>
+          </NuxtLink>
+
+          <NuxtLink
+            to="/sell"
+            @click="isMobileMenuOpen = false"
+            class="px-3.5 py-2.5 text-sm rounded-xl transition-all flex items-center justify-between"
+            :class="isRouteActive('/sell')
+              ? 'bg-[#FF5C1A]/10 text-[#FF5C1A] font-black border border-[#FF5C1A]/25 shadow-xs'
+              : 'font-bold text-slate-700 hover:bg-slate-50 hover:text-slate-900 border border-transparent'"
+          >
+            <span>Sell Items</span>
+            <span v-if="isRouteActive('/sell')" class="w-2 h-2 rounded-full bg-[#FF5C1A] shrink-0"></span>
+          </NuxtLink>
+
+          <NuxtLink
+            to="/swap"
+            @click="isMobileMenuOpen = false"
+            class="px-3.5 py-2.5 text-sm rounded-xl transition-all flex items-center justify-between"
+            :class="isRouteActive('/swap')
+              ? 'bg-[#FF5C1A]/10 text-[#FF5C1A] font-black border border-[#FF5C1A]/25 shadow-xs'
+              : 'font-bold text-slate-700 hover:bg-slate-50 hover:text-slate-900 border border-transparent'"
+          >
+            <span>Swap Items</span>
+            <span v-if="isRouteActive('/swap')" class="w-2 h-2 rounded-full bg-[#FF5C1A] shrink-0"></span>
+          </NuxtLink>
+
+          <NuxtLink
+            to="/services"
+            @click="isMobileMenuOpen = false"
+            class="px-3.5 py-2.5 text-sm rounded-xl transition-all flex items-center justify-between"
+            :class="isRouteActive('/services')
+              ? 'bg-[#FF5C1A]/10 text-[#FF5C1A] font-black border border-[#FF5C1A]/25 shadow-xs'
+              : 'font-bold text-slate-700 hover:bg-slate-50 hover:text-slate-900 border border-transparent'"
+          >
+            <span>Book a Service</span>
+            <span v-if="isRouteActive('/services')" class="w-2 h-2 rounded-full bg-[#FF5C1A] shrink-0"></span>
+          </NuxtLink>
+
+          <NuxtLink
+            to="/reels"
+            @click="isMobileMenuOpen = false"
+            class="px-3.5 py-2.5 text-sm rounded-xl transition-all flex items-center justify-between"
+            :class="isRouteActive('/reels')
+              ? 'bg-[#FF5C1A]/10 text-[#FF5C1A] font-black border border-[#FF5C1A]/25 shadow-xs'
+              : 'font-extrabold text-slate-800 hover:bg-slate-50 border border-transparent'"
+          >
             <span class="flex items-center gap-2"><span>📱</span> Campus Reels</span>
-            <span class="bg-red-500 text-white text-[9px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider">Hot 🔥</span>
-          </a>
-          <a @click="isMobileMenuOpen = false" href="/declutter" class="px-3.5 py-2.5 text-sm font-bold text-slate-700 hover:bg-slate-50 rounded-xl transition-colors flex items-center justify-between">
+            <div class="flex items-center gap-1.5">
+              <span class="bg-red-500 text-white text-[9px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider">Hot 🔥</span>
+              <span v-if="isRouteActive('/reels')" class="w-2 h-2 rounded-full bg-[#FF5C1A] shrink-0"></span>
+            </div>
+          </NuxtLink>
+
+          <NuxtLink
+            to="/declutter"
+            @click="isMobileMenuOpen = false"
+            class="px-3.5 py-2.5 text-sm rounded-xl transition-all flex items-center justify-between"
+            :class="isRouteActive('/declutter')
+              ? 'bg-[#FF5C1A]/10 text-[#FF5C1A] font-black border border-[#FF5C1A]/25 shadow-xs'
+              : 'font-bold text-slate-700 hover:bg-slate-50 border border-transparent'"
+          >
             <span>Hostel Declutter</span>
-            <span class="bg-amber-100 text-amber-800 text-[10px] font-black px-2 py-0.5 rounded-full">Automated</span>
-          </a>
+            <div class="flex items-center gap-1.5">
+              <span class="bg-amber-100 text-amber-800 text-[10px] font-black px-2 py-0.5 rounded-full">Automated</span>
+              <span v-if="isRouteActive('/declutter')" class="w-2 h-2 rounded-full bg-[#FF5C1A] shrink-0"></span>
+            </div>
+          </NuxtLink>
           
           <div class="h-px bg-slate-100 my-2 mx-2"></div>
           
           <template v-if="!user">
-             <a @click="isMobileMenuOpen = false" href="/login" class="px-4 py-3.5 text-base font-bold text-slate-700 hover:bg-slate-50 rounded-2xl transition-colors">Log In</a>
-             <a @click="isMobileMenuOpen = false" href="/signup" class="px-4 py-3.5 text-base font-bold text-white bg-slate-900 rounded-2xl text-center mt-2 hover:bg-slate-800 transition-colors">Sign Up</a>
+            <NuxtLink
+              to="/login"
+              @click="isMobileMenuOpen = false"
+              class="px-4 py-3.5 text-base rounded-2xl transition-all flex items-center justify-between"
+              :class="isRouteActive('/login')
+                ? 'bg-[#FF5C1A]/10 text-[#FF5C1A] font-black border border-[#FF5C1A]/25 shadow-xs'
+                : 'font-bold text-slate-700 hover:bg-slate-50 border border-transparent'"
+            >
+              <span>Log In</span>
+              <span v-if="isRouteActive('/login')" class="w-2 h-2 rounded-full bg-[#FF5C1A] shrink-0"></span>
+            </NuxtLink>
+            <NuxtLink
+              to="/signup"
+              @click="isMobileMenuOpen = false"
+              class="px-4 py-3.5 text-base font-bold text-white bg-slate-900 rounded-2xl text-center mt-2 hover:bg-slate-800 transition-colors"
+            >
+              Sign Up
+            </NuxtLink>
           </template>
           <template v-else>
-             <a @click="isMobileMenuOpen = false" href="/messages" class="px-4 py-3.5 text-base font-bold text-slate-700 hover:bg-slate-50 rounded-2xl transition-colors flex items-center justify-between">
-              <div class="flex items-center gap-3"><MessageCircle class="w-5 h-5"/> Messages</div>
-              <span v-if="unreadChats.length > 0" class="bg-red-500 text-white text-xs px-2 py-0.5 rounded-full">{{ unreadChats.length }}</span>
-            </a>
-             <a @click="isMobileMenuOpen = false" href="/dashboard" class="px-4 py-3.5 text-base font-bold text-slate-700 hover:bg-slate-50 rounded-2xl transition-colors flex items-center gap-3">
-              <User class="w-5 h-5"/> Dashboard
-            </a>
+            <NuxtLink
+              to="/messages"
+              @click="isMobileMenuOpen = false"
+              class="px-4 py-3.5 text-base rounded-2xl transition-all flex items-center justify-between"
+              :class="isRouteActive('/messages')
+                ? 'bg-[#FF5C1A]/10 text-[#FF5C1A] font-black border border-[#FF5C1A]/25 shadow-xs'
+                : 'font-bold text-slate-700 hover:bg-slate-50 border border-transparent'"
+            >
+              <div class="flex items-center gap-3">
+                <MessageCircle class="w-5 h-5" :class="isRouteActive('/messages') ? 'text-[#FF5C1A]' : 'text-slate-600'" />
+                <span>Messages</span>
+              </div>
+              <div class="flex items-center gap-2">
+                <span v-if="unreadChats.length > 0" class="bg-red-500 text-white text-xs px-2 py-0.5 rounded-full">{{ unreadChats.length }}</span>
+                <span v-if="isRouteActive('/messages')" class="w-2 h-2 rounded-full bg-[#FF5C1A] shrink-0"></span>
+              </div>
+            </NuxtLink>
+            <NuxtLink
+              to="/dashboard"
+              @click="isMobileMenuOpen = false"
+              class="px-4 py-3.5 text-base rounded-2xl transition-all flex items-center justify-between"
+              :class="isRouteActive('/dashboard')
+                ? 'bg-[#FF5C1A]/10 text-[#FF5C1A] font-black border border-[#FF5C1A]/25 shadow-xs'
+                : 'font-bold text-slate-700 hover:bg-slate-50 border border-transparent'"
+            >
+              <div class="flex items-center gap-3">
+                <User class="w-5 h-5" :class="isRouteActive('/dashboard') ? 'text-[#FF5C1A]' : 'text-slate-600'" />
+                <span>Dashboard</span>
+              </div>
+              <span v-if="isRouteActive('/dashboard')" class="w-2 h-2 rounded-full bg-[#FF5C1A] shrink-0"></span>
+            </NuxtLink>
           </template>
           
-           <a @click="isMobileMenuOpen = false" href="/sell" class="px-4 py-3.5 text-base font-bold text-white bg-[#FF5C1A] rounded-2xl text-center mt-2 hover:bg-[#FF7A45] transition-colors">Start Trading</a>
+          <NuxtLink
+            to="/sell"
+            @click="isMobileMenuOpen = false"
+            class="px-4 py-3.5 text-base font-bold text-white bg-[#FF5C1A] rounded-2xl text-center mt-2 hover:bg-[#FF7A45] transition-colors shadow-lg shadow-[#FF5C1A]/25"
+          >
+            Start Trading
+          </NuxtLink>
         </div>
       </Transition>
       
@@ -245,13 +399,51 @@ import {
   Calendar,
   DollarSign,
 } from 'lucide-vue-next'
-import { io } from 'socket.io-client'
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 import { notificationsApi } from '@/api_factory/modules/notifications'
 
 const { user, token } = useAuth()
 const router = useRouter()
+const route = useRoute()
 const isMobileMenuOpen = ref(false)
+
+const isRouteActive = (target) => {
+  const currentPath = route.path
+  if (target === '/explore') {
+    return currentPath === '/explore' && !route.query.declutter
+  }
+  if (target === '/declutter') {
+    return currentPath === '/declutter' || (currentPath === '/explore' && Boolean(route.query.declutter))
+  }
+  if (target === '/sell') {
+    return currentPath === '/sell'
+  }
+  if (target === '/swap') {
+    return currentPath === '/swap'
+  }
+  if (target === '/services') {
+    return currentPath.startsWith('/services')
+  }
+  if (target === '/reels') {
+    return currentPath.startsWith('/reels')
+  }
+  if (target === '/messages') {
+    return currentPath.startsWith('/messages')
+  }
+  if (target === '/dashboard') {
+    return currentPath.startsWith('/dashboard')
+  }
+  if (target === '/login') {
+    return currentPath === '/login'
+  }
+  if (target === '/signup') {
+    return currentPath === '/signup'
+  }
+  if (target === '/') {
+    return currentPath === '/'
+  }
+  return currentPath.startsWith(target)
+}
 const unreadChats = ref([])
 const showChatToast = ref(false)
 const latestMessage = ref(null)
