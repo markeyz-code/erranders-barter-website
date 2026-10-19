@@ -126,18 +126,21 @@
           </div>
           
           <div class="flex items-center justify-between mb-8 pb-8 border-b border-slate-200" v-if="item.sellerId">
-            <div class="flex items-center gap-4">
-              <div class="w-14 h-14 bg-brand-100 rounded-full flex items-center justify-center font-black text-brand-700 text-xl border border-brand-200 relative overflow-hidden">
+            <NuxtLink :to="'/profile/' + (item.sellerId._id || item.sellerId)" class="flex items-center gap-4 group hover:opacity-90 transition-opacity">
+              <div class="w-14 h-14 bg-brand-100 rounded-full flex items-center justify-center font-black text-brand-700 text-xl border border-brand-200 relative overflow-hidden group-hover:border-brand-500 transition-colors">
                 <span class="absolute">{{ item.sellerId.firstName?.[0] }}{{ item.sellerId.lastName?.[0] }}</span>
                 <img v-if="item.sellerId.avatar" :src="item.sellerId.avatar" class="w-full h-full object-cover absolute inset-0 z-10" @error="$event.target.style.display='none'" />
               </div>
               <div>
-                <p class="font-black text-slate-900 text-lg">{{ item.sellerId.firstName }} {{ item.sellerId.lastName?.[0] }}.</p>
+                <p class="font-black text-slate-900 text-lg group-hover:text-brand-600 transition-colors flex items-center gap-1.5">
+                  <span>{{ item.sellerId.firstName }} {{ item.sellerId.lastName?.[0] }}.</span>
+                  <span class="text-xs text-brand-500 font-bold">view profile →</span>
+                </p>
                 <p class="text-sm text-slate-500 font-medium flex items-center gap-1">
                   <ShieldCheck v-if="item.sellerId.isVerified" class="w-4 h-4 text-green-500" /> {{ item.sellerId.isVerified ? 'Verified Student' : 'Student' }}
                 </p>
               </div>
-            </div>
+            </NuxtLink>
             <div class="text-right" v-if="item.sellerId.hostel">
               <p class="text-sm font-bold text-slate-400 uppercase ">Hostel</p>
               <p class="font-bold text-slate-900">{{ item.sellerId.hostel }}</p>

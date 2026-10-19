@@ -1,18 +1,4 @@
-import { GATEWAY_ENDPOINT_WITH_AUTH } from '../axios.config';
-
-/**
- * Users API — written against `backend/src/users/users.controller.ts`.
- * The backend exposes exactly:
- *   GET   /users/me
- *   PATCH /users/me          (NOT PUT — this was previously sending PUT and 404ing)
- *   GET   /users/me/stats
- *   POST  /users/me/withdraw
- *   GET   /users/admin/all
- *
- * The previous `getRecentlyViewed`, `addRecentlyViewed`, `updateFcmToken` and
- * `deleteAccount` helpers pointed at routes this backend does not implement and
- * have been removed rather than left to 404.
- */
+import { GATEWAY_ENDPOINT, GATEWAY_ENDPOINT_WITH_AUTH } from '../axios.config';
 
 export interface UpdateProfilePayload {
   firstName?: string;
@@ -27,6 +13,10 @@ export interface UpdateProfilePayload {
 export const users_api = {
   getProfile: () => {
     return GATEWAY_ENDPOINT_WITH_AUTH.get('/users/me');
+  },
+
+  getPublicProfile: (id: string) => {
+    return GATEWAY_ENDPOINT.get(`/users/${id}`);
   },
 
   getMyStats: () => {

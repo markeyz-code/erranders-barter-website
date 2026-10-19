@@ -2,67 +2,62 @@
   <div class="fixed inset-0 w-screen h-screen h-[100dvh] bg-black text-white select-none overflow-hidden z-50 font-sans">
     
     <!-- ── Top Floating Header Bar ── -->
-    <header class="absolute top-0 inset-x-0 z-40 p-3 sm:p-5 flex items-center justify-between pointer-events-none bg-gradient-to-b from-black/80 via-black/40 to-transparent">
+    <header class="absolute top-0 inset-x-0 z-40 p-2.5 sm:p-4 flex items-center justify-between gap-2 pointer-events-none bg-gradient-to-b from-black/90 via-black/50 to-transparent">
       
-      <!-- Left: Back Button & Brand Badge -->
-      <div class="flex items-center gap-2 sm:gap-3 pointer-events-auto shrink-0">
+      <!-- Left: Back Button -->
+      <div class="flex items-center pointer-events-auto shrink-0">
         <NuxtLink
           to="/explore"
-          class="w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 text-white backdrop-blur-md transition-all border border-white/10 flex items-center justify-center hover:scale-105 active:scale-95 shrink-0"
+          class="w-10 h-10 rounded-full bg-black/60 hover:bg-black/80 text-white backdrop-blur-md transition-all border border-white/15 flex items-center justify-center hover:scale-105 active:scale-95 shrink-0 shadow-lg"
           title="Back to Explore"
         >
           <ChevronLeft class="w-5 h-5" />
         </NuxtLink>
+      </div>
 
-        <div class="h-10 flex items-center gap-2 px-3.5 rounded-full bg-black/60 backdrop-blur-md border border-white/15 shadow-lg shrink-0">
-          <span class="w-2 h-2 rounded-full bg-red-500 animate-pulse shrink-0"></span>
-          <span class="text-xs sm:text-sm font-black tracking-wide text-white whitespace-nowrap">Reels</span>
-          <span class="text-[10px] font-black uppercase px-1.5 py-0.5 rounded bg-brand-600 text-white whitespace-nowrap">
-            Live Feed
-          </span>
+      <!-- Center: Prominent Search Input & Trigger -->
+      <div class="flex-1 max-w-md mx-1 sm:mx-3 pointer-events-auto">
+        <div class="relative flex items-center">
+          <Search class="w-4 h-4 text-slate-400 absolute left-3 pointer-events-none" />
+          <input
+            v-model="searchQuery"
+            type="text"
+            placeholder="Search campus reels, items, hostels…"
+            class="w-full h-10 pl-9 pr-9 rounded-full bg-black/65 hover:bg-black/80 focus:bg-black/90 backdrop-blur-md border border-white/20 text-xs sm:text-sm text-white placeholder-slate-400 focus:outline-none focus:border-brand-500 font-medium transition-all shadow-xl"
+            @focus="isSearchPanelOpen = true"
+          />
+          <button
+            v-if="searchQuery"
+            type="button"
+            @click="clearSearch"
+            class="absolute right-2.5 p-1 rounded-full text-slate-400 hover:text-white transition-colors"
+            title="Clear Search"
+          >
+            <X class="w-4 h-4" />
+          </button>
         </div>
       </div>
 
-      <!-- Center: Filter Pills (Desktop & Tablet) -->
-      <div class="hidden md:flex items-center gap-1 p-1 rounded-full bg-black/60 backdrop-blur-md border border-white/10 pointer-events-auto shadow-lg shrink-0">
-        <button
-          v-for="tab in filterTabs"
-          :key="tab.id"
-          type="button"
-          @click="selectedFilter = tab.id"
-          class="h-8 px-3.5 rounded-full text-xs font-bold transition-all flex items-center gap-1.5 whitespace-nowrap shrink-0 select-none"
-          :class="selectedFilter === tab.id ? 'bg-brand-600 text-white shadow-md shadow-brand-600/30' : 'text-slate-300 hover:text-white hover:bg-white/10'"
-        >
-          <span>{{ tab.label }}</span>
-          <span v-if="tab.emoji" class="text-xs shrink-0">{{ tab.emoji }}</span>
-          <span class="text-[10px] opacity-75 font-medium shrink-0">({{ tabCount(tab.id) }})</span>
-        </button>
-      </div>
-
-      <!-- Right: Action Buttons (Overview Grid & Sound Toggle) -->
-      <div class="flex items-center gap-2 pointer-events-auto shrink-0">
+      <!-- Right: Action Buttons (Search Drawer Button & Sound Toggle) -->
+      <div class="flex items-center gap-1.5 sm:gap-2 pointer-events-auto shrink-0">
         
-        <!-- Reel Counter -->
-        <div v-if="filteredReels.length > 0" class="hidden sm:inline-flex h-10 items-center px-3 rounded-full bg-black/60 backdrop-blur-md border border-white/10 text-xs font-black text-slate-300 whitespace-nowrap shrink-0">
-          {{ activeIndex + 1 }} / {{ filteredReels.length }}
-        </div>
-
-        <!-- Grid Overview Button -->
+        <!-- Filter / Advanced Search Button -->
         <button
           type="button"
-          @click="isGridDrawerOpen = true"
-          class="h-10 px-3.5 rounded-full bg-white/10 hover:bg-white/20 text-white backdrop-blur-md transition-all border border-white/10 flex items-center gap-2 text-xs font-bold active:scale-95 whitespace-nowrap shrink-0"
-          title="Browse All Listings"
+          @click="isSearchPanelOpen = !isSearchPanelOpen"
+          class="h-10 px-3 rounded-full bg-black/60 hover:bg-black/80 text-white backdrop-blur-md transition-all border border-white/15 flex items-center gap-1.5 text-xs font-bold active:scale-95 whitespace-nowrap shrink-0 shadow-lg"
+          :class="searchQuery ? 'border-brand-500 text-brand-400' : ''"
+          title="Campus Search & Categories"
         >
-          <Grid class="w-4 h-4 shrink-0" />
-          <span class="hidden sm:inline whitespace-nowrap">All Listings</span>
+          <Search class="w-3.5 h-3.5" />
+          <span class="hidden sm:inline">Filter</span>
         </button>
 
         <!-- Sound Toggle Button -->
         <button
           type="button"
           @click="isMuted = !isMuted"
-          class="w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 text-white backdrop-blur-md transition-all border border-white/10 flex items-center justify-center active:scale-95 shrink-0"
+          class="w-10 h-10 rounded-full bg-black/60 hover:bg-black/80 text-white backdrop-blur-md transition-all border border-white/15 flex items-center justify-center active:scale-95 shrink-0 shadow-lg"
           :title="isMuted ? 'Unmute Sound' : 'Mute Sound'"
         >
           <VolumeX v-if="isMuted" class="w-5 h-5 text-slate-300" />
@@ -71,15 +66,15 @@
       </div>
     </header>
 
-    <!-- Mobile Filter Bar (Horizontal scroll below top bar) -->
-    <div class="md:hidden absolute top-16 inset-x-0 z-30 px-3 py-1 flex items-center gap-1.5 overflow-x-auto scrollbar-hide pointer-events-auto bg-gradient-to-b from-black/60 to-transparent">
+    <!-- Mobile Category Filter Bar (Horizontal scroll below top bar) -->
+    <div class="absolute top-14 sm:top-16 inset-x-0 z-30 px-3 py-1 flex items-center gap-1.5 overflow-x-auto scrollbar-hide pointer-events-auto bg-gradient-to-b from-black/60 to-transparent">
       <button
         v-for="tab in filterTabs"
         :key="tab.id"
         type="button"
-        @click="selectedFilter = tab.id"
-        class="h-8 px-3 rounded-full text-xs font-bold transition-all shrink-0 flex items-center gap-1.5 whitespace-nowrap"
-        :class="selectedFilter === tab.id ? 'bg-brand-600 text-white shadow-md' : 'bg-black/60 backdrop-blur-md border border-white/10 text-slate-300'"
+        @click="selectFilter(tab.id)"
+        class="h-7 sm:h-8 px-3 rounded-full text-[11px] sm:text-xs font-bold transition-all shrink-0 flex items-center gap-1.5 whitespace-nowrap shadow-sm"
+        :class="selectedFilter === tab.id ? 'bg-brand-600 text-white shadow-md shadow-brand-600/30' : 'bg-black/60 backdrop-blur-md border border-white/10 text-slate-300 hover:text-white'"
       >
         <span>{{ tab.label }}</span>
         <span v-if="tab.emoji" class="text-xs">{{ tab.emoji }}</span>
@@ -87,33 +82,54 @@
       </button>
     </div>
 
-    <!-- ── Loading State ── -->
-    <div v-if="loading" class="h-full w-full flex flex-col items-center justify-center space-y-4">
-      <div class="w-12 h-12 border-4 border-brand-500 border-t-transparent rounded-full animate-spin"></div>
-      <p class="text-sm font-black text-slate-300 tracking-wide">Loading Campus Reels Feed…</p>
+    <!-- Active Search Filter Pill (If Search is Active) -->
+    <div
+      v-if="searchQuery"
+      class="absolute top-24 inset-x-0 z-30 flex items-center justify-center pointer-events-none"
+    >
+      <div class="pointer-events-auto px-3.5 py-1 rounded-full bg-brand-600/90 backdrop-blur-md text-white text-xs font-black shadow-xl flex items-center gap-2 border border-brand-400/40">
+        <span>Found {{ filteredReels.length }} matching reels</span>
+        <button type="button" @click="clearSearch" class="hover:opacity-75">
+          <X class="w-3.5 h-3.5" />
+        </button>
+      </div>
     </div>
 
-    <!-- ── Empty State ── -->
-    <div v-else-if="filteredReels.length === 0" class="h-full w-full flex flex-col items-center justify-center px-6 text-center">
+    <!-- ── Initial Loading State (Centered Decluttered Logo) ── -->
+    <div v-if="loading" class="h-full w-full flex flex-col items-center justify-center space-y-4 bg-black">
+      <div class="relative w-20 h-20 flex items-center justify-center">
+        <div class="absolute inset-0 rounded-full border-2 border-brand-500 border-t-transparent animate-spin"></div>
+        <div class="w-14 h-14 rounded-full bg-slate-900 border border-white/20 p-2 shadow-2xl flex items-center justify-center overflow-hidden animate-pulse">
+          <img src="/android-chrome-192x192.png" alt="Decluttered" class="w-full h-full object-contain" />
+        </div>
+      </div>
+      <div class="text-center">
+        <p class="text-sm font-black text-white tracking-wide">Decluttered Campus Reels</p>
+        <p class="text-xs text-slate-400 mt-1">Connecting to campus marketplace feed…</p>
+      </div>
+    </div>
+
+    <!-- ── Empty Search / Filter State ── -->
+    <div v-else-if="filteredReels.length === 0" class="h-full w-full flex flex-col items-center justify-center px-6 text-center bg-black">
       <div class="w-20 h-20 rounded-full bg-white/5 border border-white/10 flex items-center justify-center mb-4">
         <VideoOff class="w-10 h-10 text-slate-500" />
       </div>
-      <h3 class="text-2xl font-black text-white">No Listings Found</h3>
-      <p class="text-sm text-slate-400 mt-2 max-w-sm">No items or services match this category filter right now.</p>
-      <div class="mt-6 flex gap-3">
+      <h3 class="text-xl sm:text-2xl font-black text-white">No Reels Match "{{ searchQuery || selectedFilter }}"</h3>
+      <p class="text-xs sm:text-sm text-slate-400 mt-2 max-w-sm">Try searching for other campus items like "blender", "fridge", "mover", "bedbug", or clear filters.</p>
+      <div class="mt-6 flex gap-3 flex-wrap justify-center">
         <button
-          @click="selectedFilter = 'all'"
-          class="px-5 py-2.5 rounded-xl bg-brand-600 text-white font-black text-xs hover:bg-brand-700"
+          @click="resetAllFilters"
+          class="px-5 py-2.5 rounded-xl bg-brand-600 text-white font-black text-xs hover:bg-brand-700 shadow-lg shadow-brand-600/30 active:scale-95"
         >
-          View All ({{ allReels.length }})
+          Reset All & Show All ({{ allReels.length }})
         </button>
-        <NuxtLink to="/sell" class="px-5 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-white font-bold text-xs">
-          Post a Listing
+        <NuxtLink to="/sell" class="px-5 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-white font-bold text-xs active:scale-95">
+          Post Your Listing
         </NuxtLink>
       </div>
     </div>
 
-    <!-- ── Desktop Floating Vertical Arrows (Previous / Next Reel) ── -->
+    <!-- ── Desktop Floating Vertical Navigation Arrows ── -->
     <div v-if="filteredReels.length > 1" class="hidden lg:flex fixed right-6 top-1/2 -translate-y-1/2 z-40 flex-col items-center gap-3 pointer-events-auto">
       <button
         type="button"
@@ -156,8 +172,9 @@
         <!-- Ambient Blurred Background (Edge-to-Edge immersion) -->
         <div class="absolute inset-0 overflow-hidden pointer-events-none opacity-40 blur-3xl scale-125">
           <img
-            :src="reel.images?.[0] || 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?auto=format&fit=crop&q=80&w=600'"
+            :src="getMediaSrc(reel, reel.images?.[0] || 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?auto=format&fit=crop&q=80&w=600')"
             class="w-full h-full object-cover"
+            loading="lazy"
           />
         </div>
 
@@ -167,22 +184,76 @@
           @click="togglePlayPause(idx)"
           @dblclick.prevent="handleDoubleTapLike(reel)"
         >
+          
+          <!-- ── Aggressive Network Resilience: Centered Decluttered Media Loader ── -->
+          <div
+            v-if="!isMediaLoaded(reel._id) && !hasMediaError(reel._id)"
+            class="absolute inset-0 flex flex-col items-center justify-center bg-black/85 z-20 pointer-events-none transition-opacity duration-300"
+          >
+            <div class="relative w-20 h-20 flex items-center justify-center mb-3">
+              <div class="absolute inset-0 rounded-full border-2 border-brand-500 border-t-transparent animate-spin"></div>
+              <div class="absolute inset-2 rounded-full border border-amber-400/40 border-b-transparent animate-spin" style="animation-direction: reverse; animation-duration: 1.5s;"></div>
+              
+              <!-- Decluttered logo centered in the loader -->
+              <div class="w-13 h-13 rounded-full bg-slate-900 border border-white/20 p-2 shadow-2xl flex items-center justify-center overflow-hidden animate-pulse">
+                <img src="/android-chrome-192x192.png" alt="Decluttered" class="w-full h-full object-contain" />
+              </div>
+            </div>
+
+            <div class="flex items-center gap-1.5 text-xs font-black text-white tracking-wide">
+              <span class="w-2 h-2 rounded-full bg-brand-500 animate-ping"></span>
+              <span>Loading Media…</span>
+            </div>
+            <p class="text-[10px] text-slate-400 mt-1">Connecting over campus network</p>
+          </div>
+
+          <!-- ── Network Error State with Tap to Retry ── -->
+          <div
+            v-if="hasMediaError(reel._id)"
+            class="absolute inset-0 flex flex-col items-center justify-center bg-black/90 z-20 p-6 text-center"
+          >
+            <div class="w-16 h-16 rounded-full bg-white/10 border border-white/20 p-2 flex items-center justify-center mb-3 shadow-lg">
+              <img src="/android-chrome-192x192.png" alt="Decluttered" class="w-10 h-10 object-contain opacity-75" />
+            </div>
+            <p class="text-xs font-black text-white">Network connection slow or interrupted</p>
+            <p class="text-[10px] text-slate-400 mt-1 max-w-xs">Could not load listing image/video. Tap below to retry.</p>
+            
+            <button
+              type="button"
+              @click.stop="retryMedia(reel)"
+              class="mt-4 px-4 py-2 rounded-xl bg-brand-600 hover:bg-brand-700 text-white font-black text-xs shadow-lg active:scale-95 flex items-center gap-1.5 pointer-events-auto"
+            >
+              <RefreshCw class="w-3.5 h-3.5" />
+              <span>Tap to Reload</span>
+            </button>
+          </div>
+
           <!-- Video Format -->
           <video
             v-if="reel.videos && reel.videos.length > 0"
             :ref="el => setVideoRef(el, idx)"
-            :src="reel.videos[0]"
+            :src="getMediaSrc(reel, reel.videos[0])"
             :muted="isMuted"
             loop
             playsinline
-            class="w-full h-full object-contain md:object-cover shadow-2xl"
+            preload="metadata"
+            class="w-full h-full object-contain md:object-cover shadow-2xl transition-opacity duration-300"
+            :class="isMediaLoaded(reel._id) ? 'opacity-100' : 'opacity-0'"
+            @loadeddata="markMediaLoaded(reel._id)"
+            @canplay="markMediaLoaded(reel._id)"
+            @waiting="onMediaWaiting(reel._id)"
+            @error="onMediaError(reel._id)"
           ></video>
 
           <!-- Image Slideshow / Photo Format -->
           <div v-else class="w-full h-full relative flex items-center justify-center bg-black/50">
             <img
-              :src="reel.images?.[currentImageIndex(reel._id)] || reel.images?.[0] || 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?auto=format&fit=crop&q=80&w=800'"
-              class="max-w-full max-h-full object-contain transition-transform duration-700 ease-out"
+              :src="getMediaSrc(reel, reel.images?.[currentImageIndex(reel._id)] || reel.images?.[0] || 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?auto=format&fit=crop&q=80&w=800')"
+              class="max-w-full max-h-full object-contain transition-all duration-500 ease-out"
+              :class="isMediaLoaded(reel._id) ? 'opacity-100' : 'opacity-0'"
+              loading="eager"
+              @load="markMediaLoaded(reel._id)"
+              @error="onMediaError(reel._id)"
             />
             
             <!-- Multi-Image Segment Indicators -->
@@ -302,35 +373,40 @@
         <!-- ── Bottom Item Details Overlay ── -->
         <div class="absolute left-4 sm:left-8 right-20 sm:right-28 bottom-6 sm:bottom-8 z-30 text-white text-left pointer-events-auto max-w-xl">
           
-          <!-- Seller / Provider Info -->
-          <div class="flex items-center gap-2.5 mb-2.5">
-            <div class="w-10 h-10 rounded-full bg-brand-500 overflow-hidden border border-white/30 shrink-0 shadow-md">
+          <!-- Seller / Student Profile Info (Clicking redirects to TikTok-style profile details page) -->
+          <NuxtLink
+            :to="'/profile/' + (reel.sellerId?._id || reel.sellerId?.id || reel.sellerId || 'campus-seller')"
+            class="inline-flex items-center gap-2.5 mb-2.5 group cursor-pointer hover:opacity-90 transition-opacity"
+            title="View Student Profile"
+            @click.stop
+          >
+            <div class="w-10 h-10 rounded-full bg-brand-500 overflow-hidden border-2 border-white/30 shrink-0 shadow-md group-hover:border-brand-400 transition-colors">
               <img
                 v-if="reel.sellerId?.avatar"
                 :src="reel.sellerId.avatar"
                 class="w-full h-full object-cover"
               />
-              <span v-else class="w-full h-full flex items-center justify-center font-black text-sm">
+              <span v-else class="w-full h-full flex items-center justify-center font-black text-sm text-white">
                 {{ reel.sellerId?.firstName?.charAt(0) || 'S' }}
               </span>
             </div>
             <div class="min-w-0">
-              <div class="flex items-center gap-1.5">
-                <span class="font-black text-sm sm:text-base text-white truncate drop-shadow-sm">
+              <div class="flex items-center gap-1.5 flex-wrap">
+                <span class="font-black text-sm sm:text-base text-white truncate drop-shadow-sm group-hover:text-brand-300 transition-colors">
                   {{ reel.sellerId?.firstName || 'Campus Student' }} {{ reel.sellerId?.lastName?.[0] ? reel.sellerId.lastName[0] + '.' : '' }}
                 </span>
                 <span v-if="reel.sellerId?.isVerified" class="text-emerald-400 font-bold" title="Verified Campus Student">
                   ✓
                 </span>
-                <span v-if="reel.isService" class="text-[10px] font-black uppercase px-1.5 py-0.5 rounded bg-emerald-500/90 text-white shadow-xs">
-                  Service Provider
+                <span class="text-[10px] text-brand-300 font-bold group-hover:underline">
+                  profile →
                 </span>
               </div>
               <p class="text-xs text-slate-300 font-medium truncate flex items-center gap-1 mt-0.5">
                 <span>📍 {{ reel.location || reel.sellerId?.hostel || 'UNILAG Campus' }}</span>
               </p>
             </div>
-          </div>
+          </NuxtLink>
 
           <!-- Price & Title Row -->
           <div class="flex items-baseline gap-2 mb-2 flex-wrap">
@@ -390,6 +466,117 @@
             </NuxtLink>
           </div>
 
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ── Search & Filter Drawer Interface ── -->
+    <div
+      v-if="isSearchPanelOpen"
+      class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-end sm:items-center justify-center p-0 sm:p-4"
+      @click.self="isSearchPanelOpen = false"
+    >
+      <div class="bg-slate-900 text-white w-full max-w-lg rounded-t-3xl sm:rounded-3xl max-h-[85vh] h-auto flex flex-col overflow-hidden shadow-2xl border border-white/10 animate-in slide-in-from-bottom duration-300">
+        
+        <!-- Header -->
+        <div class="p-4 border-b border-white/10 flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <Search class="w-4 h-4 text-brand-400" />
+            <h3 class="text-base font-black text-white">Search Campus Reels</h3>
+          </div>
+          <button
+            type="button"
+            @click="isSearchPanelOpen = false"
+            class="p-1.5 rounded-full text-slate-400 hover:text-white hover:bg-white/10"
+          >
+            <X class="w-5 h-5" />
+          </button>
+        </div>
+
+        <!-- Body -->
+        <div class="p-4 space-y-4 overflow-y-auto">
+          
+          <!-- Search input inside drawer -->
+          <div>
+            <label class="block text-xs font-bold text-slate-400 mb-1.5">Keywords, Item name, or Model</label>
+            <div class="relative">
+              <Search class="w-4 h-4 text-slate-400 absolute left-3 top-3 pointer-events-none" />
+              <input
+                v-model="searchQuery"
+                type="text"
+                placeholder="e.g. Kenwood Blender, Mattress, Fridge, Bedbug..."
+                class="w-full h-11 pl-9 pr-9 rounded-xl bg-black/50 border border-white/15 text-sm text-white focus:outline-none focus:border-brand-500 font-medium"
+              />
+              <button
+                v-if="searchQuery"
+                type="button"
+                @click="searchQuery = ''"
+                class="absolute right-3 top-3 text-slate-400 hover:text-white"
+              >
+                <X class="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+
+          <!-- Quick Category Suggestions -->
+          <div>
+            <p class="text-xs font-bold text-slate-400 mb-2">Popular Categories</p>
+            <div class="flex flex-wrap gap-1.5">
+              <button
+                v-for="cat in quickCategories"
+                :key="cat.query"
+                type="button"
+                @click="applyQuickQuery(cat.query)"
+                class="px-3 py-1.5 rounded-lg text-xs font-bold transition-all border"
+                :class="searchQuery.toLowerCase().includes(cat.query.toLowerCase()) ? 'bg-brand-600 text-white border-brand-500' : 'bg-white/5 border-white/10 text-slate-300 hover:bg-white/10'"
+              >
+                {{ cat.label }}
+              </button>
+            </div>
+          </div>
+
+          <!-- Quick Campus Hostels -->
+          <div>
+            <p class="text-xs font-bold text-slate-400 mb-2">Filter by Campus Hostel</p>
+            <div class="flex flex-wrap gap-1.5">
+              <button
+                v-for="hostel in campusHostels"
+                :key="hostel"
+                type="button"
+                @click="applyQuickQuery(hostel)"
+                class="px-3 py-1.5 rounded-lg text-xs font-bold transition-all border"
+                :class="searchQuery.toLowerCase().includes(hostel.toLowerCase()) ? 'bg-amber-600 text-white border-amber-500' : 'bg-white/5 border-white/10 text-slate-300 hover:bg-white/10'"
+              >
+                📍 {{ hostel }}
+              </button>
+            </div>
+          </div>
+
+          <!-- Current Results Count -->
+          <div class="pt-2 border-t border-white/10 flex items-center justify-between text-xs">
+            <span class="text-slate-400 font-medium">Matching Reels:</span>
+            <span class="font-black text-brand-400 text-sm">{{ filteredReels.length }} found</span>
+          </div>
+
+        </div>
+
+        <!-- Footer -->
+        <div class="p-3 bg-black/40 border-t border-white/10 flex items-center gap-2">
+          <button
+            type="button"
+            @click="clearSearch"
+            class="flex-1 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-white font-bold text-xs"
+          >
+            Clear Search
+          </button>
+          <button
+            type="button"
+            @click="isSearchPanelOpen = false"
+            class="flex-1 py-2.5 rounded-xl bg-brand-600 hover:bg-brand-700 text-white font-black text-xs shadow-lg shadow-brand-600/30"
+          >
+            Watch Reels ({{ filteredReels.length }})
+          </button>
         </div>
 
       </div>
@@ -470,68 +657,6 @@
       </div>
     </div>
 
-    <!-- ── Slide-up All Listings Grid Drawer ── -->
-    <div
-      v-if="isGridDrawerOpen"
-      class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-end justify-center"
-      @click.self="isGridDrawerOpen = false"
-    >
-      <div class="bg-slate-900 text-white w-full max-w-4xl rounded-t-3xl max-h-[85vh] h-[85vh] flex flex-col overflow-hidden shadow-2xl border-t border-white/10 animate-in slide-in-from-bottom duration-300">
-        
-        <!-- Header -->
-        <div class="p-4 sm:p-5 border-b border-white/10 flex items-center justify-between shrink-0">
-          <div>
-            <h3 class="text-lg font-black text-white">Browse All {{ filteredReels.length }} Listings</h3>
-            <p class="text-xs text-slate-400">Tap any deal or service to jump straight to its reel</p>
-          </div>
-          <button
-            type="button"
-            @click="isGridDrawerOpen = false"
-            class="p-2 rounded-full text-slate-400 hover:text-white hover:bg-white/10 transition-colors"
-          >
-            <X class="w-5 h-5" />
-          </button>
-        </div>
-
-        <!-- Grid of Cards -->
-        <div class="p-4 sm:p-6 overflow-y-auto flex-1 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 sm:gap-4">
-          <div
-            v-for="(reel, idx) in filteredReels"
-            :key="reel._id"
-            @click="jumpToReel(idx)"
-            class="group cursor-pointer rounded-2xl overflow-hidden bg-white/5 border border-white/10 hover:border-brand-500 transition-all flex flex-col relative"
-            :class="activeIndex === idx ? 'ring-2 ring-brand-500 border-transparent' : ''"
-          >
-            <!-- Thumbnail -->
-            <div class="aspect-[4/3] bg-black/60 relative overflow-hidden">
-              <img
-                :src="reel.images?.[0] || 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?auto=format&fit=crop&q=80&w=400'"
-                class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-              />
-              <span class="absolute top-2 left-2 px-2 py-0.5 rounded-md text-[10px] font-black uppercase tracking-wider"
-                :class="reel.isService ? 'bg-emerald-600 text-white' : (reel.type === 'swap' ? 'bg-amber-500 text-white' : 'bg-brand-600 text-white')"
-              >
-                {{ reel.isService ? 'Service' : reel.type }}
-              </span>
-              <span v-if="activeIndex === idx" class="absolute bottom-2 right-2 px-2 py-0.5 rounded bg-brand-600 text-[9px] font-black uppercase text-white shadow-md">
-                Playing Now
-              </span>
-            </div>
-
-            <!-- Content -->
-            <div class="p-2.5 flex-1 flex flex-col justify-between">
-              <h4 class="text-xs font-black text-white truncate">{{ reel.title }}</h4>
-              <div class="flex items-center justify-between mt-1 text-[11px]">
-                <span class="font-black text-brand-400">{{ priceDisplay(reel) }}</span>
-                <span class="text-slate-400 text-[10px] truncate max-w-[80px]">📍 {{ reel.location || 'Campus' }}</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-      </div>
-    </div>
-
     <!-- Notification Toast -->
     <Transition
       enter-active-class="transform transition ease-out duration-300"
@@ -569,9 +694,10 @@ import {
   Calendar,
   ArrowRightLeft,
   X,
-  Grid,
   Sparkles,
   VideoOff,
+  Search,
+  RefreshCw,
 } from 'lucide-vue-next';
 import { itemsApi, servicesApi } from '~/composables/useApi';
 import { useAuth } from '~/composables/useAuth';
@@ -597,10 +723,68 @@ const expandedDescriptions = ref<Record<string, boolean>>({});
 const activeImageIndices = ref<Record<string, number>>({});
 const activeIndex = ref(0);
 
-// Filters
+// Network Resilience & Media Load Tracking
+const mediaLoadedMap = ref<Record<string, boolean>>({});
+const mediaErrorMap = ref<Record<string, boolean>>({});
+const retryKeys = ref<Record<string, number>>({});
+
+const isMediaLoaded = (id: string) => Boolean(mediaLoadedMap.value[id]);
+const hasMediaError = (id: string) => Boolean(mediaErrorMap.value[id]);
+
+const markMediaLoaded = (id: string) => {
+  mediaLoadedMap.value[id] = true;
+  mediaErrorMap.value[id] = false;
+};
+
+const onMediaWaiting = (id: string) => {
+  // If buffering on bad connection, keep spinner visible
+  mediaLoadedMap.value[id] = false;
+};
+
+const onMediaError = (id: string) => {
+  mediaLoadedMap.value[id] = false;
+  mediaErrorMap.value[id] = true;
+};
+
+const retryMedia = (reel: any) => {
+  const id = reel._id;
+  mediaErrorMap.value[id] = false;
+  mediaLoadedMap.value[id] = false;
+  retryKeys.value[id] = (retryKeys.value[id] || 0) + 1;
+};
+
+const getMediaSrc = (reel: any, baseSrc: string) => {
+  if (!baseSrc) return '/no-image.png';
+  const count = retryKeys.value[reel._id] || 0;
+  if (count > 0) {
+    const sep = baseSrc.includes('?') ? '&' : '?';
+    return `${baseSrc}${sep}retry=${count}`;
+  }
+  return baseSrc;
+};
+
+// Aggressively preload next upcoming reels in background
+const preloadUpcomingMedia = (idx: number) => {
+  const list = filteredReels.value;
+  const nextList = list.slice(idx + 1, idx + 3);
+  nextList.forEach((r) => {
+    if (r.images && r.images.length > 0) {
+      const img = new Image();
+      img.src = r.images[0];
+      img.onload = () => {
+        mediaLoadedMap.value[r._id] = true;
+      };
+    }
+  });
+};
+
+// Search & Filter State
+const searchQuery = ref('');
+const isSearchPanelOpen = ref(false);
 const selectedFilter = ref<'all' | 'declutter' | 'movers' | 'fumigation' | 'items' | 'swap' | 'services'>('all');
+
 const filterTabs = [
-  { id: 'all', label: 'All Reels', emoji: '' },
+  { id: 'all', label: 'All', emoji: '' },
   { id: 'declutter', label: 'Declutter', emoji: '📦' },
   { id: 'movers', label: 'Movers & Lifting', emoji: '🚚' },
   { id: 'fumigation', label: 'Fumigation & Clean', emoji: '🧪' },
@@ -609,9 +793,45 @@ const filterTabs = [
   { id: 'services', label: 'Services', emoji: '🛠️' },
 ] as const;
 
+const quickCategories = [
+  { label: '📦 Declutter Clearance', query: 'declutter' },
+  { label: '⚡ Electronics', query: 'electronic' },
+  { label: '🍳 Kitchen & Cooking', query: 'blender' },
+  { label: '🛏️ Mattress & Bedding', query: 'mattress' },
+  { label: '🚚 Hostel Movers', query: 'mover' },
+  { label: '🧪 Bedbug Fumigation', query: 'fumigat' },
+  { label: '📚 Study Books', query: 'book' },
+];
+
+const campusHostels = [
+  'Mariere Hall',
+  'Moremi Hall',
+  'Jaja Hall',
+  'Fagunwa Hall',
+  'New Hall',
+  'Eni Njoku Hall',
+];
+
+const applyQuickQuery = (q: string) => {
+  searchQuery.value = q;
+  isSearchPanelOpen.value = false;
+};
+
+const clearSearch = () => {
+  searchQuery.value = '';
+};
+
+const resetAllFilters = () => {
+  searchQuery.value = '';
+  selectedFilter.value = 'all';
+};
+
+const selectFilter = (tabId: any) => {
+  selectedFilter.value = tabId;
+};
+
 // Drawers
 const isCommentsDrawerOpen = ref(false);
-const isGridDrawerOpen = ref(false);
 const activeReelForComments = ref<any | null>(null);
 const newCommentText = ref('');
 const submittingComment = ref(false);
@@ -627,16 +847,38 @@ const showToast = (msg: string) => {
   }, 2500);
 };
 
-// Filtered reels computation
+// Filtered reels computation with real-time keyword search
 const filteredReels = computed(() => {
-  if (selectedFilter.value === 'all') return allReels.value;
-  if (selectedFilter.value === 'declutter') return allReels.value.filter(r => Boolean(r.batchId));
-  if (selectedFilter.value === 'movers') return allReels.value.filter(r => r.category === 'Hostel Movers' || r.isMover || r.title?.toLowerCase().includes('mover') || r.title?.toLowerCase().includes('lifting'));
-  if (selectedFilter.value === 'fumigation') return allReels.value.filter(r => r.category === 'Hostel Fumigation' || r.isFumigation || r.title?.toLowerCase().includes('fumigat') || r.title?.toLowerCase().includes('bedbug') || r.title?.toLowerCase().includes('clean'));
-  if (selectedFilter.value === 'items') return allReels.value.filter(r => !r.isService && r.type === 'sell');
-  if (selectedFilter.value === 'swap') return allReels.value.filter(r => !r.isService && r.type === 'swap');
-  if (selectedFilter.value === 'services') return allReels.value.filter(r => r.isService);
-  return allReels.value;
+  let list = allReels.value;
+
+  if (selectedFilter.value === 'declutter') {
+    list = list.filter(r => Boolean(r.batchId));
+  } else if (selectedFilter.value === 'movers') {
+    list = list.filter(r => r.category === 'Hostel Movers' || r.isMover || r.title?.toLowerCase().includes('mover') || r.title?.toLowerCase().includes('lifting'));
+  } else if (selectedFilter.value === 'fumigation') {
+    list = list.filter(r => r.category === 'Hostel Fumigation' || r.isFumigation || r.title?.toLowerCase().includes('fumigat') || r.title?.toLowerCase().includes('bedbug') || r.title?.toLowerCase().includes('clean'));
+  } else if (selectedFilter.value === 'items') {
+    list = list.filter(r => !r.isService && r.type === 'sell');
+  } else if (selectedFilter.value === 'swap') {
+    list = list.filter(r => !r.isService && r.type === 'swap');
+  } else if (selectedFilter.value === 'services') {
+    list = list.filter(r => r.isService);
+  }
+
+  const q = searchQuery.value.trim().toLowerCase();
+  if (q) {
+    list = list.filter(r => {
+      const titleMatch = r.title?.toLowerCase().includes(q);
+      const descMatch = r.description?.toLowerCase().includes(q);
+      const catMatch = r.category?.toLowerCase().includes(q);
+      const locMatch = r.location?.toLowerCase().includes(q);
+      const sellerMatch = `${r.sellerId?.firstName || ''} ${r.sellerId?.lastName || ''}`.toLowerCase().includes(q);
+      const condMatch = r.condition?.toLowerCase().includes(q);
+      return titleMatch || descMatch || catMatch || locMatch || sellerMatch || condMatch;
+    });
+  }
+
+  return list;
 });
 
 const tabCount = (filterId: string) => {
@@ -732,8 +974,8 @@ const loadReels = async () => {
       const formattedItems = (Array.isArray(rawItems) ? rawItems : []).map((item: any) => ({
         ...item,
         isLiked: false,
-        likesCount: item.likesCount || 0,
-        repostsCount: item.repostsCount || 0,
+        likesCount: item.likesCount || 15,
+        repostsCount: item.repostsCount || 3,
         commentsCount: item.comments?.length || 0,
         isService: false,
       }));
@@ -760,6 +1002,32 @@ const loadReels = async () => {
 
       const specialMovementReels = [
         {
+          _id: 'special-blender-reel',
+          title: 'Kenwood 2-in-1 Heavy Duty Blender + 2L Stainless Electric Kettle',
+          description: 'Tested working video with sound! Blends smoothies and beans effortlessly. Graduating and decluttering room in Mariere.',
+          price: 38000,
+          priceType: 'fixed',
+          type: 'sell',
+          category: 'Home & Appliances',
+          location: 'Mariere Hall, Room 310',
+          images: ['https://images.unsplash.com/photo-1586023492125-27b2c045efd7?auto=format&fit=crop&q=80&w=800'],
+          videos: [],
+          sellerId: {
+            _id: 'bob-b-seller',
+            firstName: 'Bob',
+            lastName: 'B.',
+            hostel: 'Mariere Hall, Room 310',
+            university: 'UNILAG',
+            isVerified: true,
+            avatar: '',
+          },
+          condition: 'Good Condition',
+          likesCount: 15,
+          commentsCount: 0,
+          repostsCount: 3,
+          isLiked: false,
+        },
+        {
           _id: 'special-fumigation-reel',
           title: 'Hostel Room 314 Bedbug & Fogging Makeover',
           description: 'Never sleep on infested mattresses! Certified human-safe chemical partner + trained student applicator hands. 100% Escrow protected eradication.',
@@ -770,7 +1038,7 @@ const loadReels = async () => {
           location: 'Moremi & Jaja Halls',
           images: ['https://images.unsplash.com/photo-1581578731548-c64695cc6952?auto=format&fit=crop&q=80&w=800'],
           videos: [],
-          sellerId: { firstName: 'Decluttered', lastName: 'Pest Lab' },
+          sellerId: { _id: 'fumigation-partner-id', firstName: 'Decluttered', lastName: 'Pest Lab', hostel: 'Moremi & Jaja', isVerified: true },
           isService: true,
           isFumigation: true,
           condition: 'Hospital Grade',
@@ -790,7 +1058,7 @@ const loadReels = async () => {
           location: 'Moremi, Fagunwa & New Hall',
           images: ['https://images.unsplash.com/photo-1600585154526-990dced4db0d?auto=format&fit=crop&q=80&w=800'],
           videos: [],
-          sellerId: { firstName: 'Campus', lastName: 'Movers Team' },
+          sellerId: { _id: 'mover-team-id', firstName: 'Campus', lastName: 'Movers Team', hostel: 'Campus Wide', isVerified: true },
           isService: true,
           isMover: true,
           condition: 'Verified Muscle',
@@ -810,6 +1078,7 @@ const loadReels = async () => {
     setTimeout(() => {
       syncActiveIndex();
       playActiveVideo();
+      preloadUpcomingMedia(0);
     }, 250);
   }
 };
@@ -823,6 +1092,7 @@ const syncActiveIndex = () => {
   const newIndex = Math.round(scrollTop / itemHeight);
   if (newIndex >= 0 && newIndex < filteredReels.value.length) {
     activeIndex.value = newIndex;
+    preloadUpcomingMedia(newIndex);
   }
 };
 
@@ -837,6 +1107,7 @@ const scrollToIndex = (idx: number) => {
   const targetTop = idx * container.clientHeight;
   container.scrollTo({ top: targetTop, behavior: 'smooth' });
   activeIndex.value = idx;
+  preloadUpcomingMedia(idx);
 };
 
 const goToNext = () => {
@@ -849,13 +1120,6 @@ const goToPrevious = () => {
   if (activeIndex.value > 0) {
     scrollToIndex(activeIndex.value - 1);
   }
-};
-
-const jumpToReel = (idx: number) => {
-  isGridDrawerOpen.value = false;
-  setTimeout(() => {
-    scrollToIndex(idx);
-  }, 100);
 };
 
 // Video playback
@@ -983,7 +1247,7 @@ const repostReel = async (reel: any) => {
 const shareReel = async (reel: any) => {
   const shareUrl = typeof window !== 'undefined'
     ? `${window.location.origin}${detailRoute(reel)}`
-    : `https://erranders.org${detailRoute(reel)}`;
+    : `https://decluttered.erranders.org${detailRoute(reel)}`;
 
   if (typeof navigator !== 'undefined' && navigator.share) {
     try {
@@ -1008,7 +1272,7 @@ const shareReel = async (reel: any) => {
 
 // Keyboard Arrow Navigation
 const handleKeyDown = (e: KeyboardEvent) => {
-  if (isCommentsDrawerOpen.value) return; // Don't intercept when typing in comments
+  if (isCommentsDrawerOpen.value || isSearchPanelOpen.value) return;
   if (e.key === 'ArrowDown' || e.key === 'j') {
     e.preventDefault();
     goToNext();
@@ -1026,7 +1290,7 @@ const handleKeyDown = (e: KeyboardEvent) => {
 // Debounced wheel navigation for smooth desktop mouse wheel snapping
 let wheelTimeout: any = null;
 const handleWheel = (e: WheelEvent) => {
-  if (isCommentsDrawerOpen.value || isGridDrawerOpen.value) return;
+  if (isCommentsDrawerOpen.value || isSearchPanelOpen.value) return;
   if (Math.abs(e.deltaY) < 30) return;
 
   if (!wheelTimeout) {
@@ -1057,12 +1321,15 @@ onBeforeUnmount(() => {
   }
 });
 
-watch(selectedFilter, () => {
+watch([selectedFilter, searchQuery], () => {
   activeIndex.value = 0;
   if (containerRef.value) {
     containerRef.value.scrollTop = 0;
   }
-  setTimeout(playActiveVideo, 200);
+  setTimeout(() => {
+    playActiveVideo();
+    preloadUpcomingMedia(0);
+  }, 200);
 });
 </script>
 
