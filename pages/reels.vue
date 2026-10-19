@@ -598,10 +598,12 @@ const activeImageIndices = ref<Record<string, number>>({});
 const activeIndex = ref(0);
 
 // Filters
-const selectedFilter = ref<'all' | 'declutter' | 'items' | 'swap' | 'services'>('all');
+const selectedFilter = ref<'all' | 'declutter' | 'movers' | 'fumigation' | 'items' | 'swap' | 'services'>('all');
 const filterTabs = [
   { id: 'all', label: 'All Reels', emoji: '' },
   { id: 'declutter', label: 'Declutter', emoji: '📦' },
+  { id: 'movers', label: 'Movers & Lifting', emoji: '🚚' },
+  { id: 'fumigation', label: 'Fumigation & Clean', emoji: '🧪' },
   { id: 'items', label: 'Buy & Sell', emoji: '🛍️' },
   { id: 'swap', label: 'Swap', emoji: '🔄' },
   { id: 'services', label: 'Services', emoji: '🛠️' },
@@ -629,6 +631,8 @@ const showToast = (msg: string) => {
 const filteredReels = computed(() => {
   if (selectedFilter.value === 'all') return allReels.value;
   if (selectedFilter.value === 'declutter') return allReels.value.filter(r => Boolean(r.batchId));
+  if (selectedFilter.value === 'movers') return allReels.value.filter(r => r.category === 'Hostel Movers' || r.isMover || r.title?.toLowerCase().includes('mover') || r.title?.toLowerCase().includes('lifting'));
+  if (selectedFilter.value === 'fumigation') return allReels.value.filter(r => r.category === 'Hostel Fumigation' || r.isFumigation || r.title?.toLowerCase().includes('fumigat') || r.title?.toLowerCase().includes('bedbug') || r.title?.toLowerCase().includes('clean'));
   if (selectedFilter.value === 'items') return allReels.value.filter(r => !r.isService && r.type === 'sell');
   if (selectedFilter.value === 'swap') return allReels.value.filter(r => !r.isService && r.type === 'swap');
   if (selectedFilter.value === 'services') return allReels.value.filter(r => r.isService);
@@ -638,6 +642,8 @@ const filteredReels = computed(() => {
 const tabCount = (filterId: string) => {
   if (filterId === 'all') return allReels.value.length;
   if (filterId === 'declutter') return allReels.value.filter(r => Boolean(r.batchId)).length;
+  if (filterId === 'movers') return allReels.value.filter(r => r.category === 'Hostel Movers' || r.isMover || r.title?.toLowerCase().includes('mover') || r.title?.toLowerCase().includes('lifting')).length;
+  if (filterId === 'fumigation') return allReels.value.filter(r => r.category === 'Hostel Fumigation' || r.isFumigation || r.title?.toLowerCase().includes('fumigat') || r.title?.toLowerCase().includes('bedbug') || r.title?.toLowerCase().includes('clean')).length;
   if (filterId === 'items') return allReels.value.filter(r => !r.isService && r.type === 'sell').length;
   if (filterId === 'swap') return allReels.value.filter(r => !r.isService && r.type === 'swap').length;
   if (filterId === 'services') return allReels.value.filter(r => r.isService).length;
@@ -663,18 +669,24 @@ const priceDisplay = (reel: any) => {
 
 // Action route helper
 const actionButtonRoute = (reel: any) => {
+  if (reel.isFumigation) return '/fumigation';
+  if (reel.isMover) return '/movers';
   if (reel.isService) return `/services/${reel._id}`;
   if (reel.type === 'swap') return `/item/${reel._id}`;
   return `/checkout?itemId=${reel._id}`;
 };
 
 const actionButtonText = (reel: any) => {
+  if (reel.isFumigation) return 'Book Fumigation (₦14,000+) 🧪';
+  if (reel.isMover) return 'Book Campus Mover (₦2,500+) 🚚';
   if (reel.isService) return `Book Session (${priceDisplay(reel)})`;
   if (reel.type === 'swap') return 'Propose Swap Offer';
   return `Buy via Escrow (${priceDisplay(reel)})`;
 };
 
 const detailRoute = (reel: any) => {
+  if (reel.isFumigation) return '/fumigation';
+  if (reel.isMover) return '/movers';
   if (reel.isService) return `/services/${reel._id}`;
   return `/item/${reel._id}`;
 };
@@ -746,7 +758,50 @@ const loadReels = async () => {
         isLiked: false,
       }));
 
-      allReels.value = [...formattedItems, ...formattedServices];
+      const specialMovementReels = [
+        {
+          _id: 'special-fumigation-reel',
+          title: 'Hostel Room 314 Bedbug & Fogging Makeover',
+          description: 'Never sleep on infested mattresses! Certified human-safe chemical partner + trained student applicator hands. 100% Escrow protected eradication.',
+          price: 14000,
+          priceType: 'fixed',
+          type: 'service',
+          category: 'Hostel Fumigation',
+          location: 'Moremi & Jaja Halls',
+          images: ['https://images.unsplash.com/photo-1581578731548-c64695cc6952?auto=format&fit=crop&q=80&w=800'],
+          videos: [],
+          sellerId: { firstName: 'Decluttered', lastName: 'Pest Lab' },
+          isService: true,
+          isFumigation: true,
+          condition: 'Hospital Grade',
+          likesCount: 382,
+          commentsCount: 29,
+          repostsCount: 45,
+          isLiked: false,
+        },
+        {
+          _id: 'special-mover-reel',
+          title: 'Moremi 4th Floor Fridge & Bed Stair Haul',
+          description: '2-Man student muscle crew with heavy-duty hand trolley and stair climber straps. Zero broken items, zero wahala.',
+          price: 3000,
+          priceType: 'fixed',
+          type: 'service',
+          category: 'Hostel Movers',
+          location: 'Moremi, Fagunwa & New Hall',
+          images: ['https://images.unsplash.com/photo-1600585154526-990dced4db0d?auto=format&fit=crop&q=80&w=800'],
+          videos: [],
+          sellerId: { firstName: 'Campus', lastName: 'Movers Team' },
+          isService: true,
+          isMover: true,
+          condition: 'Verified Muscle',
+          likesCount: 215,
+          commentsCount: 14,
+          repostsCount: 19,
+          isLiked: false,
+        }
+      ];
+
+      allReels.value = [...specialMovementReels, ...formattedItems, ...formattedServices];
     } catch {
       allReels.value = [];
     }

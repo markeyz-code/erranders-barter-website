@@ -288,12 +288,15 @@
             <h2 class="text-2xl md:text-3xl font-extrabold text-slate-900 mb-1">Book services from verified students</h2>
             <p class="text-sm text-slate-500 font-medium">Barbers, tutors, photographers, phone repairs and stylists right in your campus hostels.</p>
           </div>
-          <div class="flex items-center gap-2.5 shrink-0">
-            <NuxtLink to="/become-a-provider" class="px-4 py-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-bold transition-colors inline-flex items-center gap-1.5">
-              <Sparkles class="w-3.5 h-3.5 text-purple-600" /> Become a Provider
+          <div class="flex flex-wrap items-center gap-2 shrink-0">
+            <NuxtLink to="/fumigation" class="px-3 py-1.5 rounded-xl bg-emerald-50 text-emerald-800 border border-emerald-200 text-xs font-black transition-colors inline-flex items-center gap-1.5 hover:bg-emerald-100">
+              🧪 Room Fumigation
             </NuxtLink>
-            <NuxtLink to="/services" class="px-4 py-2 rounded-xl bg-slate-900 hover:bg-brand-600 text-white text-xs font-bold transition-colors inline-flex items-center gap-1.5 shadow-sm">
-              View All Services →
+            <NuxtLink to="/movers" class="px-3 py-1.5 rounded-xl bg-amber-50 text-amber-800 border border-amber-200 text-xs font-black transition-colors inline-flex items-center gap-1.5 hover:bg-amber-100">
+              🚚 Hostel Movers
+            </NuxtLink>
+            <NuxtLink to="/services" class="px-3.5 py-1.5 rounded-xl bg-slate-900 hover:bg-brand-600 text-white text-xs font-bold transition-colors inline-flex items-center gap-1.5 shadow-sm">
+              All Services →
             </NuxtLink>
           </div>
         </div>
