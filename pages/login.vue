@@ -3,12 +3,13 @@
     <!-- Form Side -->
     <div class="w-full lg:w-1/2 flex justify-center p-4 sm:p-8 lg:p-12 bg-white min-h-screen">
       <div class="w-full max-w-md py-8 my-auto">
-        <NuxtLink to="/" class="flex justify-center items-center gap-2">
-          <img src="@/assets/img/logo.png" alt="Decluttered" class="h-14 w-auto" />
+        <NuxtLink to="/" class="flex justify-center items-center gap-2 mb-6">
+          <img src="/android-chrome-192x192.png" alt="Decluttered" class="h-10 w-10 rounded-xl object-contain shadow-xs" />
+          <span class="text-3xl font-black tracking-tight text-slate-900">Decluttered<span class="text-[#FF5C1A]">.</span></span>
         </NuxtLink>
 
         <h1 class="text-4xl text-center font-black text-slate-900 mb-2">Welcome Back</h1>
-        <p class="text-slate-500 text-center font-medium mb-8">Log in to your Decluttered account to continue.</p>
+        <p class="text-slate-500 text-center font-medium mb-8">Log in to your Erranders account to continue.</p>
 
         <button @click="googleLogin" class="w-full flex items-center justify-center gap-3 bg-white border border-slate-200 text-slate-700 font-bold py-3.5 rounded-xl hover:bg-slate-50 transition-colors mb-6">
           <img src="https://www.google.com/favicon.ico" class="w-5 h-5" />
@@ -46,7 +47,7 @@
       <div class="absolute inset-0 bg-gradient-to-t from-slate-900/90 via-slate-900/40 to-transparent"></div>
       <div class="absolute bottom-16 left-16 right-16">
         <h2 class="text-5xl font-black text-white mb-4 leading-tight">Trade smart.<br/>Move fast.</h2>
-        <p class="text-lg text-slate-300 font-medium">The Decluttered campus marketplace connects thousands of Nigerian students daily.</p>
+        <p class="text-lg text-slate-300 font-medium">Decluttered by Erranders connects thousands of verified Nigerian students daily.</p>
       </div>
     </div>
   </div>
@@ -57,14 +58,15 @@ import { ArrowRightLeft } from 'lucide-vue-next'
 import CustomInput from '~/components/CustomInput.vue'
 import { useRouter } from 'vue-router'
 import { useAuth } from '~/composables/useAuth'
-
-useSeoMeta({
-  title: 'Log In | Decluttered',
-  description: 'Log in to your Decluttered account to browse, buy, swap, and automate room declutters.'
-})
 import { useToast } from '~/composables/useToast'
 
 definePageMeta({ layout: false })
+
+useSeoMeta({
+  title: 'Log In | Decluttered by Erranders',
+  description: 'Log in to your Decluttered campus account to manage listings, declutter batches, and escrow orders.',
+  ogTitle: 'Log In | Decluttered by Erranders'
+})
 
 const router = useRouter()
 const { saveSession, firebaseLogin } = useAuth()

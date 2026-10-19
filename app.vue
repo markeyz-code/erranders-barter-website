@@ -24,8 +24,8 @@ onMounted(() => {
 })
 
 useSeoMeta({
-  ogImage: '/logo.png',
-  twitterImage: '/logo.png',
+  ogImage: '/og-image-1200x630.png',
+  twitterImage: '/og-image-1200x630.png',
   twitterCard: 'summary_large_image',
 })
 </script>

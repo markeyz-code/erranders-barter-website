@@ -243,10 +243,10 @@ const item = ref(null)
 const loading = ref(true)
 
 useSeoMeta({
-  title: computed(() => item.value ? `${item.value.title} | Decluttered` : 'Loading Item...'),
-  description: computed(() => item.value ? item.value.description : 'View item details on Decluttered campus marketplace.'),
-  ogTitle: computed(() => item.value ? item.value.title : 'Decluttered Item'),
-  ogDescription: computed(() => item.value ? item.value.description : 'View item details on Decluttered campus marketplace.'),
+  title: computed(() => item.value ? `${item.value.title} | Decluttered by Erranders` : 'Loading Item...'),
+  description: computed(() => item.value ? item.value.description : 'View item details on Decluttered by Erranders.'),
+  ogTitle: computed(() => item.value ? item.value.title : 'Decluttered by Erranders Item'),
+  ogDescription: computed(() => item.value ? item.value.description : 'View item details on Decluttered by Erranders.'),
   ogImage: computed(() => item.value && item.value.images?.[0] ? item.value.images[0] : ''),
 })
 

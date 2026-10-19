@@ -16,7 +16,7 @@
       </h1>
       
       <p class="text-sm md:text-base text-slate-600 font-medium max-w-xl mx-auto mb-6 leading-relaxed">
-        Why stress with heavy loads? Automate your <strong>hostel movement</strong> on <strong>Decluttered</strong> — turn your room items into instant cash, declutter in 2 minutes, or swap with verified students.
+        Why stress with heavy loads? Automate your <strong>hostel movement</strong> on <strong>Decluttered</strong> — turn your room items into instant cash, declutter in 2 minutes, or trade with verified students.
       </p>
 
       <!-- Smart Omnibox Search -->
@@ -367,10 +367,10 @@ import { servicesApi } from '@/api_factory/modules/services'
 import ServiceCard from '~/components/ServiceCard.vue'
 
 useSeoMeta({
-  title: 'Decluttered — Campus Student Marketplace & Hostel Declutter',
-  description: 'Automate your campus room declutter. Buy, sell, and swap room items seamlessly on campus with zero stress on Decluttered.',
-  ogTitle: 'Decluttered — Campus Student Marketplace & Hostel Declutter',
-  ogDescription: 'Simplify your hostel movement. Sell off room items or swap on Decluttered with verified campus students.',
+  title: 'Decluttered by Erranders - Stress-Free Campus Hostel Movement & Marketplace',
+  description: 'Automate your hostel movement. Buy, sell, and declutter room items seamlessly on campus with verified students and escrow safety.',
+  ogTitle: 'Decluttered by Erranders - Automate Your Hostel Movement',
+  ogDescription: 'Simplify your hostel movement. Sell off room items, buy student essentials, or declutter room batches with verified campus students.',
 })
 
 const router = useRouter()
@@ -379,7 +379,7 @@ const router = useRouter()
 const phrases = [
   "Hostel movement without wahala! 📦",
   "Declutter am sharp-sharp, cash out! ⚡",
-  "Kò sí wàhálà — Ṣe Decluttered kọ́rọ̀! 🎒",
+  "Kò sí wàhálà — Ṣe Declutter kọ́rọ̀! 🎒",
   "Zụta, Ree, Gbanwee na Decluttered! ✨",
   "Babu wahala — Yi Decluttered yanzu! 🚀",
   "Pack light, move easy, no stress! 🛋️",

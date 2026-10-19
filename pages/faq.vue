@@ -23,7 +23,6 @@
 </template>
 <script setup>
 useSeoMeta({
-  title: 'FAQ | Decluttered',
-  description: 'Frequently asked questions about buying, selling, swapping, and room declutter on Decluttered.'
+  title: 'FAQ | Decluttered by Erranders',
 })
 </script>

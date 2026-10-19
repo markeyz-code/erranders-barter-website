@@ -1,23 +1,23 @@
-/**
- * Nuxt 3 Client Plugin: PWA Service Worker Registration & Install Trigger
- */
 export default defineNuxtPlugin(() => {
-  if (typeof window === 'undefined' || !('serviceWorker' in navigator)) return;
+  if (typeof window === 'undefined') return
 
-  window.addEventListener('load', () => {
-    navigator.serviceWorker
-      .register('/sw.js')
-      .then((registration) => {
-        console.debug('Decluttered PWA Service Worker registered:', registration.scope);
-      })
-      .catch((error) => {
-        console.warn('Decluttered PWA Service Worker registration failed:', error);
-      });
-  });
+  // Register Service Worker
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker
+        .register('/sw.js')
+        .then((registration) => {
+          console.debug('Decluttered PWA ServiceWorker registered with scope:', registration.scope)
+        })
+        .catch((error) => {
+          console.debug('Decluttered ServiceWorker registration failed:', error)
+        })
+    })
+  }
 
-  // Track install prompt availability
+  // Capture beforeinstallprompt for installable banner/buttons
   window.addEventListener('beforeinstallprompt', (e: Event) => {
-    e.preventDefault();
-    (window as any).__pwaInstallPrompt = e;
-  });
-});
+    // Stash the event so it can be triggered later if needed
+    ;(window as any).deferredPwaInstallPrompt = e
+  })
+})

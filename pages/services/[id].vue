@@ -535,7 +535,7 @@ const submit = async () => {
 };
 
 useSeoMeta({
-  title: computed(() => service.value ? `${service.value.title} | Decluttered Services` : 'Service Details | Decluttered'),
+  title: computed(() => service.value ? `${service.value.title} | Decluttered Campus Services` : 'Service Details | Decluttered'),
   description: computed(() => service.value?.description?.slice(0, 160) || 'Book campus skills and services on Decluttered.'),
 });
 

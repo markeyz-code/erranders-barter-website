@@ -1,22 +1,38 @@
 export default defineNuxtConfig({
   app: {
     head: {
-      title: 'Decluttered — Campus Student Marketplace',
+      title: 'Decluttered | Campus Declutter & Student Marketplace',
+      htmlAttrs: { lang: 'en' },
       meta: [
+        { charset: 'utf-8' },
+        { name: 'viewport', content: 'width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover' },
         { name: 'theme-color', content: '#FF5C1A' },
-        { name: 'mobile-web-app-capable', content: 'yes' },
         { name: 'apple-mobile-web-app-capable', content: 'yes' },
         { name: 'apple-mobile-web-app-status-bar-style', content: 'black-translucent' },
         { name: 'apple-mobile-web-app-title', content: 'Decluttered' },
-        { name: 'application-name', content: 'Decluttered' },
-        { name: 'description', content: 'Buy, sell, swap student items, and automate room declutters across campus hostels with verified student escrow and errander delivery.' },
+        { name: 'mobile-web-app-capable', content: 'yes' },
+        { name: 'format-detection', content: 'telephone=no' },
+        {
+          name: 'description',
+          content: 'Clear your hostel room in 2 minutes. Buy, sell, and swap verified campus student gear with instant escrows and fast delivery.'
+        },
+        { property: 'og:site_name', content: 'Decluttered' },
+        { property: 'og:title', content: 'Decluttered | Campus Declutter & Student Marketplace' },
+        { property: 'og:description', content: 'Automated hostel room clearance and peer-to-peer campus marketplace.' },
+        { property: 'og:type', content: 'website' },
+        { property: 'og:image', content: '/og-image-1200x630.png' },
+        { name: 'twitter:card', content: 'summary_large_image' },
+        { name: 'twitter:title', content: 'Decluttered | Campus Declutter & Student Marketplace' },
+        { name: 'twitter:description', content: 'Clear your hostel room in 2 minutes. Buy, sell, and swap verified student gear.' }
       ],
       link: [
+        { rel: 'manifest', href: '/manifest.webmanifest' },
+        { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' },
+        { rel: 'icon', type: 'image/png', sizes: '192x192', href: '/favicon-192x192.png' },
+        { rel: 'apple-touch-icon', href: '/apple-touch-icon.png' },
         { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
         { rel: 'preconnect', href: 'https://fonts.gstatic.com', crossorigin: '' },
-        { rel: 'stylesheet', href: 'https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap' },
-        { rel: 'manifest', href: '/manifest.webmanifest' },
-        { rel: 'apple-touch-icon', href: '/apple-touch-icon.png' },
+        { rel: 'stylesheet', href: 'https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap' }
       ]
     },
   },

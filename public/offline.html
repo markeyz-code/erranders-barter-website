@@ -4,23 +4,104 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Offline | Decluttered</title>
+  <meta name="theme-color" content="#FF5C1A">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800;900&display=swap" rel="stylesheet">
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }
-    body { background-color: #0f172a; color: #ffffff; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 24px; text-align: center; }
-    .card { background: #1e293b; border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 24px; padding: 40px 24px; max-width: 440px; width: 100%; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5); }
-    .icon { font-size: 56px; margin-bottom: 16px; }
-    h1 { font-size: 24px; font-weight: 900; margin-bottom: 8px; color: #ffffff; }
-    p { font-size: 14px; color: #94a3b8; line-height: 1.6; margin-bottom: 28px; }
-    .btn { display: inline-block; background: #FF5C1A; color: #ffffff; text-decoration: none; font-weight: 800; font-size: 14px; padding: 14px 28px; border-radius: 14px; transition: background 0.2s; border: none; cursor: pointer; }
-    .btn:hover { background: #ea580c; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: #fafaf9;
+      color: #0f172a;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+    }
+    .card {
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 2rem;
+      padding: 2.5rem 2rem;
+      max-width: 440px;
+      width: 100%;
+      text-align: center;
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.03);
+    }
+    .icon-badge {
+      width: 72px;
+      height: 72px;
+      border-radius: 1.5rem;
+      background: #fff7ed;
+      border: 1px solid #ffedd5;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 1.5rem;
+      font-size: 2rem;
+    }
+    h1 {
+      font-size: 1.5rem;
+      font-weight: 900;
+      letter-spacing: -0.025em;
+      color: #0f172a;
+      margin-bottom: 0.5rem;
+    }
+    p {
+      font-size: 0.875rem;
+      color: #64748b;
+      line-height: 1.5;
+      margin-bottom: 1.75rem;
+    }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      background: #FF5C1A;
+      color: #ffffff;
+      font-weight: 800;
+      font-size: 0.9375rem;
+      padding: 0.875rem 1.5rem;
+      border-radius: 1rem;
+      border: none;
+      cursor: pointer;
+      box-shadow: 0 10px 15px -3px rgba(255, 92, 26, 0.25);
+      transition: all 0.2s ease;
+      text-decoration: none;
+    }
+    .btn:hover {
+      background: #ea4e0f;
+      transform: translateY(-1px);
+    }
+    .btn:active {
+      transform: translateY(0);
+    }
+    .tip {
+      margin-top: 1.5rem;
+      padding: 0.75rem 1rem;
+      background: #f8fafc;
+      border: 1px dashed #cbd5e1;
+      border-radius: 0.875rem;
+      font-size: 0.75rem;
+      color: #64748b;
+      font-weight: 600;
+    }
   </style>
 </head>
 <body>
   <div class="card">
-    <div class="icon">📡</div>
-    <h1>You're Offline</h1>
-    <p>Decluttered needs an active campus internet connection to load live listings, escrow trades, and reels. Please check your data or Wi-Fi.</p>
-    <button class="btn" onclick="window.location.reload()">Retry Connection</button>
+    <div class="icon-badge">📦</div>
+    <h1>You're Currently Offline</h1>
+    <p>Decluttered needs an active campus Wi-Fi or mobile data connection to sync real-time room listings, reels, and chats.</p>
+    <button class="btn" onclick="window.location.reload()">
+      Retry Connection 🔄
+    </button>
+    <div class="tip">
+      💡 Tip: Once connected, installed Decluttered operates with instant app speed.
+    </div>
   </div>
 </body>
 </html>

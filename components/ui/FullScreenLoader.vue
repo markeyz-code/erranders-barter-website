@@ -7,8 +7,9 @@
         <div class="absolute -inset-4 w-40 h-40 bg-brand-50 rounded-full animate-pulse opacity-50 delay-75"></div>
         
         <!-- Logo -->
-        <div class="relative z-10 bg-white p-4 rounded-3xl shadow-xl shadow-brand-100/50">
-          <img src="@/assets/img/logo.png" alt="Decluttered" class="h-12 w-auto animate-bounce" style="animation-duration: 2s;" />
+        <div class="relative z-10 bg-white px-5 py-3.5 rounded-3xl shadow-xl shadow-brand-100/50 flex items-center gap-2.5">
+          <img src="/android-chrome-192x192.png" alt="Decluttered" class="h-10 w-10 rounded-xl object-contain animate-bounce" style="animation-duration: 2s;" />
+          <span class="font-black text-xl text-slate-900">Decluttered<span class="text-[#FF5C1A]">.</span></span>
         </div>
         
         <!-- Loading Text -->

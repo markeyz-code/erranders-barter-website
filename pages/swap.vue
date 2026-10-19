@@ -163,9 +163,9 @@ const { user } = useAuth()
 const form = ref({ title: '', description: '', swapPreference: '', price: 0, location: '', type: 'swap', images: [], promote: false })
 
 useSeoMeta({
-  title: 'Swap an Item | Decluttered',
-  description: 'List your items to swap securely on the Decluttered campus network.',
-  ogTitle: 'Swap an Item | Decluttered',
+  title: 'Swap an Item | Decluttered by Erranders',
+  description: 'List your items to swap or trade securely on the Decluttered campus network.',
+  ogTitle: 'Swap an Item | Decluttered by Erranders',
 })
 
 const loading = ref(false)

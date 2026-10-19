@@ -3,7 +3,7 @@
     <div class="max-w-4xl mx-auto px-4 sm:px-4 sm:px-6 lg:px-4 sm:px-8">
       <h1 class="text-4xl font-black text-slate-900 mb-6">Terms of Service</h1>
       <div class="prose prose-lg text-slate-600">
-        <p>Welcome to Decluttered. By using our platform, you agree to these terms.</p>
+        <p>Welcome to Decluttered by Erranders. By using our platform, you agree to these terms.</p>
         
         <h3 class="text-2xl font-bold text-slate-800 mt-8 mb-4">1. Acceptance of Terms</h3>
         <p>By creating an account, you agree to be bound by these Terms of Service and all applicable laws.</p>
@@ -19,6 +19,6 @@
 </template>
 <script setup>
 useSeoMeta({
-  title: 'Terms of Service | Decluttered',
+  title: 'Terms of Service | Decluttered by Erranders',
 })
 </script>

@@ -6,22 +6,12 @@
         
         <!-- Brand & Newsletter -->
         <div class="flex-1 w-full lg:max-w-md">
-          <NuxtLink to="/" class="flex items-center gap-2 mb-3 group">
-            <div class="w-8 h-8 rounded-full bg-[#FF5C1A] flex items-center justify-center text-white shadow-sm shadow-[#FF5C1A]/30 shrink-0">
-              <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                <path d="m16 3 4 4-4 4"/>
-                <path d="M20 7H9a4 4 0 0 0-4 4v1"/>
-                <path d="m8 21-4-4 4-4"/>
-                <path d="M4 17h11a4 4 0 0 0 4-4v-1"/>
-              </svg>
-            </div>
-            <div class="flex flex-col leading-none">
-              <span class="text-xl font-black tracking-tight text-slate-900">Decluttered<span class="text-[#FF5C1A]">.</span></span>
-              <span class="text-[7.5px] font-black uppercase tracking-wider text-slate-400">Campus Marketplace</span>
-            </div>
+          <NuxtLink to="/" class="flex items-center gap-2 mb-3">
+            <img src="/android-chrome-192x192.png" alt="Decluttered" class="h-8 w-8 rounded-lg object-contain shadow-xs" />
+            <span class="font-black text-slate-900 tracking-tight text-xl">Decluttered<span class="text-[#FF5C1A]">.</span></span>
           </NuxtLink>
           <p class="text-sm font-medium leading-relaxed mb-4">
-            The smartest way to trade, sell, and automate room declutters on campus. Backed by Erranders escrow & logistics.
+            The smartest way to buy, sell, and declutter room gear on campus. Backed by Erranders escrow & logistics.
           </p>
           <div class="flex items-center bg-slate-50 rounded-lg p-1 border border-slate-200">
             <input type="email" placeholder="Enter email for updates..." class="bg-transparent border-none outline-none text-slate-900 text-sm px-4 py-2 w-full" />
@@ -66,8 +56,8 @@
       </div>
 
       <!-- Bottom Bar -->
-      <div class="flex flex-col sm:flex-row items-center justify-between pt-6 border-t border-slate-200 text-sm font-bold  uppercase text-slate-500">
-        <p>© 2026 Erranders Inc.</p>
+      <div class="flex flex-col sm:flex-row items-center justify-between pt-6 border-t border-slate-200 text-sm font-bold uppercase text-slate-500">
+        <p>© 2026 Decluttered by Erranders. All rights reserved.</p>
         <div class="flex gap-4 mt-4 sm:mt-0">
           <a href="#" class="hover:text-brand-600 transition-colors">Twitter</a>
           <a href="#" class="hover:text-brand-600 transition-colors">Instagram</a>

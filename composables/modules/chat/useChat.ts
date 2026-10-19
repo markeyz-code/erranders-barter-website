@@ -3,6 +3,7 @@ import { chat_api } from '@/api_factory/modules/chat'
 import type { Chat, ChatMessage, ChatMessageType, ChatUser } from '@/api_factory/modules/chat'
 import { users_api } from '@/api_factory/modules/users'
 import { useCustomToast } from '@/composables/core/useCustomToast'
+import { playNotificationSound } from '@/composables/core/useSound'
 import { useAuth } from '@/composables/useAuth'
 
 export type { Chat, ChatMessage, ChatMessageType, ChatUser }
@@ -190,6 +191,7 @@ export const useChat = () => {
     seenIncomingIds.add(message._id)
     if (senderIdOf(message) !== myUserId.value) {
       incomingMessageTrigger.value++
+      playNotificationSound()
     }
   }
 

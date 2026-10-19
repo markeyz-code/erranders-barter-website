@@ -330,9 +330,9 @@ watch(() => form.value.type, () => {
 })
 
 useSeoMeta({
-  title: 'List an Item | Decluttered',
-  description: 'Sell or swap your items securely on the Decluttered campus student network.',
-  ogTitle: 'List an Item | Decluttered',
+  title: 'List an Item | Decluttered by Erranders',
+  description: 'Sell or declutter your items securely on the Decluttered campus network.',
+  ogTitle: 'List an Item | Decluttered by Erranders',
 })
 
 const loading = ref(false)

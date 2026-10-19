@@ -8,7 +8,7 @@
       <div class="p-4 sm:p-8">
         <h2 class="text-3xl font-black text-slate-900 mb-2">{{ isLogin ? 'Welcome Back' : 'Create Account' }}</h2>
         <p class="text-slate-500 font-medium mb-8">
-          {{ isLogin ? 'Log in to securely checkout via Escrow.' : 'Join Decluttered to buy, sell, swap, and room declutter securely.' }}
+          {{ isLogin ? 'Log in to securely checkout via Escrow.' : 'Join Decluttered to buy, sell, and declutter securely.' }}
         </p>
 
         <form @submit.prevent="handleSubmit" class="space-y-4">

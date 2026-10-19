@@ -212,8 +212,8 @@ import { getApiError, type CategoryOption } from '@/composables/modules/services
 definePageMeta({ layout: 'default' });
 
 useSeoMeta({
-  title: 'Services & Skills | Decluttered',
-  description: 'Book student barbers, tutors, nail techs, laundry and campus services safely on Decluttered.',
+  title: 'Services & Skills | Decluttered by Erranders',
+  description: 'Book student barbers, tutors, nail techs, laundry and photographers by the slot.',
 });
 
 const route = useRoute();

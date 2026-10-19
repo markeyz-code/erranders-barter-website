@@ -8,7 +8,9 @@ export const itemsApi = {
   /** POST /items/declutter-batch — publish an automated batch of room declutter items */
   createDeclutterBatch: (data: {
     hostel: string;
+    groupName?: string;
     bundleDiscountPercent?: number;
+    autoPriceDrop?: boolean;
     items: Array<{
       title: string;
       description?: string;
@@ -16,6 +18,7 @@ export const itemsApi = {
       category?: string;
       condition?: string;
       images?: string[];
+      videos?: string[];
     }>;
   }) => GATEWAY_ENDPOINT_WITH_AUTH.post<{
     success: boolean;

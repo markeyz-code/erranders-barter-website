@@ -219,78 +219,71 @@
                   </div>
                 </div>
 
-                <!-- Media Upload: Photos & Videos -->
-                <div class="pt-3 border-t border-slate-200/70">
+                <!-- Photos & Video Upload for Item -->
+                <div class="pt-2 border-t border-slate-200/70">
                   <div class="flex items-center justify-between mb-2">
-                    <label class="text-[10px] font-black uppercase tracking-wider text-slate-500 flex items-center gap-1.5">
-                      <Camera class="w-3.5 h-3.5 text-brand-600" />
-                      <span>Photos & Videos ({{ (item.images?.length || 0) + (item.videos?.length || 0) }})</span>
-                    </label>
-                    <label
-                      :for="'upload-' + item.tempId"
-                      class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-brand-50 hover:bg-brand-100 text-brand-700 text-xs font-black cursor-pointer transition-all border border-brand-200/80 active:scale-95"
-                      :class="{ 'opacity-50 cursor-wait': uploadingItemIds[item.tempId] }"
-                    >
-                      <span v-if="uploadingItemIds[item.tempId]" class="w-3 h-3 border-2 border-brand-600/30 border-t-brand-600 rounded-full animate-spin"></span>
-                      <Upload v-else class="w-3.5 h-3.5" />
-                      <span>{{ uploadingItemIds[item.tempId] ? 'Uploading…' : '+ Upload Photo / Video' }}</span>
-                      <input
-                        :id="'upload-' + item.tempId"
-                        type="file"
-                        accept="image/*,video/*"
-                        multiple
-                        class="hidden"
-                        :disabled="uploadingItemIds[item.tempId]"
-                        @change="(e) => uploadItemMedia(item, e)"
-                      />
-                    </label>
+                    <span class="text-[10px] font-black uppercase tracking-wider text-slate-500 flex items-center gap-1">
+                      <Camera class="w-3 h-3 text-brand-600" />
+                      <span>Item Photos & Videos ({{ (item.images?.length || 0) + (item.videos?.length || 0) }})</span>
+                    </span>
+                    <span class="text-[10px] text-slate-400 font-medium">Real photos sell 3x faster</span>
                   </div>
 
-                  <!-- Media Previews -->
-                  <div class="flex items-center gap-2 overflow-x-auto pb-1 pt-0.5 no-scrollbar">
-                    <!-- Photos -->
+                  <div class="flex items-center gap-2 flex-wrap">
+                    <!-- Images -->
                     <div
-                      v-for="(img, imgIdx) in (item.images || [])"
+                      v-for="(imgUrl, imgIdx) in item.images"
                       :key="'img-' + imgIdx"
-                      class="relative w-16 h-16 rounded-xl overflow-hidden shrink-0 border border-slate-200 group bg-slate-100 shadow-xs"
+                      class="relative w-14 h-14 rounded-xl overflow-hidden border border-slate-200 group bg-slate-100 shrink-0 shadow-2xs"
                     >
-                      <img :src="img" class="w-full h-full object-cover" />
+                      <img :src="imgUrl" class="w-full h-full object-cover" />
                       <button
                         type="button"
-                        @click="removeMedia(item, 'image', imgIdx)"
-                        class="absolute top-1 right-1 w-5 h-5 bg-black/75 hover:bg-red-600 text-white rounded-full flex items-center justify-center text-[10px] font-bold opacity-0 group-hover:opacity-100 transition-opacity"
+                        @click="item.images.splice(imgIdx, 1)"
+                        class="absolute inset-0 bg-black/60 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
                         title="Remove photo"
                       >
-                        ✕
+                        <X class="w-4 h-4 text-white" />
                       </button>
                     </div>
 
                     <!-- Videos -->
                     <div
-                      v-for="(vid, vidIdx) in (item.videos || [])"
+                      v-for="(vidUrl, vidIdx) in item.videos"
                       :key="'vid-' + vidIdx"
-                      class="relative w-16 h-16 rounded-xl overflow-hidden shrink-0 border border-brand-400 group bg-black shadow-xs flex items-center justify-center"
+                      class="relative w-14 h-14 rounded-xl overflow-hidden border border-brand-300 group bg-slate-900 shrink-0 shadow-2xs"
                     >
-                      <video :src="vid" class="w-full h-full object-cover opacity-75" />
-                      <span class="absolute inset-0 flex items-center justify-center text-white pointer-events-none">
-                        <Video class="w-5 h-5 drop-shadow" />
-                      </span>
+                      <video :src="vidUrl" class="w-full h-full object-cover" muted playsinline></video>
+                      <span class="absolute bottom-1 right-1 bg-black/80 text-white text-[8px] font-black px-1 rounded">VID</span>
                       <button
                         type="button"
-                        @click="removeMedia(item, 'video', vidIdx)"
-                        class="absolute top-1 right-1 w-5 h-5 bg-black/75 hover:bg-red-600 text-white rounded-full flex items-center justify-center text-[10px] font-bold opacity-0 group-hover:opacity-100 transition-opacity"
+                        @click="item.videos.splice(vidIdx, 1)"
+                        class="absolute inset-0 bg-black/60 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
                         title="Remove video"
                       >
-                        ✕
+                        <X class="w-4 h-4 text-white" />
                       </button>
                     </div>
 
-                    <div
-                      v-if="(!item.images || item.images.length === 0) && (!item.videos || item.videos.length === 0)"
-                      class="text-[11px] text-slate-400 font-medium italic py-1"
+                    <!-- Add Media Button -->
+                    <label
+                      class="w-14 h-14 rounded-xl border-2 border-dashed border-slate-300 hover:border-brand-500 bg-white hover:bg-brand-50/50 flex flex-col items-center justify-center cursor-pointer transition-colors shrink-0 text-slate-400 hover:text-brand-600"
+                      :class="{ 'opacity-50 pointer-events-none': uploadingItemId === item.tempId }"
                     >
-                      No media uploaded yet. Add photos/videos to help items sell in minutes!
-                    </div>
+                      <Loader2 v-if="uploadingItemId === item.tempId" class="w-4 h-4 animate-spin text-brand-600" />
+                      <template v-else>
+                        <ImagePlus class="w-4 h-4 mb-0.5" />
+                        <span class="text-[9px] font-black leading-tight text-center">Add</span>
+                      </template>
+                      <input
+                        type="file"
+                        accept="image/*,video/*"
+                        multiple
+                        class="hidden"
+                        :disabled="uploadingItemId === item.tempId"
+                        @change="uploadItemMedia($event, item)"
+                      />
+                    </label>
                   </div>
                 </div>
               </div>
@@ -305,24 +298,10 @@
           <div class="bg-white rounded-3xl border border-slate-200/90 p-5 sm:p-6 shadow-xs space-y-4">
             <h3 class="text-base sm:text-lg font-black text-slate-900 flex items-center gap-2 border-b border-slate-100 pb-3">
               <MapPin class="w-5 h-5 text-brand-600" />
-              <span>3. Hostel & Group Details</span>
+              <span>3. Hostel & Pickup Details</span>
             </h3>
 
             <div class="space-y-3.5">
-              <!-- Declutter Group Name (e.g. Room 434 Declutter Sale) -->
-              <div>
-                <label class="block text-xs font-bold text-slate-700 mb-1 flex items-center justify-between">
-                  <span>Declutter Group / Sale Name <span class="text-brand-600">*</span></span>
-                  <span class="text-[10px] text-slate-400 font-normal">e.g. Room 434 Declutter Sale</span>
-                </label>
-                <input
-                  v-model="groupName"
-                  type="text"
-                  placeholder="e.g. Room 434 Declutter Sale"
-                  class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs sm:text-sm font-bold text-slate-900 focus:outline-none focus:bg-white focus:border-brand-600 focus:ring-2 focus:ring-brand-600/10 transition-all"
-                />
-              </div>
-
               <!-- Hostel / Campus Name -->
               <div>
                 <label class="block text-xs font-bold text-slate-700 mb-1">
@@ -334,6 +313,23 @@
                   placeholder="e.g. Moremi Hall, Room 204 or off-campus lodge"
                   class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs sm:text-sm font-medium text-slate-900 focus:outline-none focus:bg-white focus:border-brand-600 focus:ring-2 focus:ring-brand-600/10 transition-all"
                 />
+              </div>
+
+              <!-- Group / Room Declutter Sale Name -->
+              <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1 flex items-center justify-between">
+                  <span>Group Declutter Sale Name</span>
+                  <span class="text-[10px] font-black text-brand-600 bg-brand-50 px-2 py-0.5 rounded-full border border-brand-200">Google Photos Album View</span>
+                </label>
+                <input
+                  v-model="groupName"
+                  type="text"
+                  placeholder="e.g. Room 434 Declutter Sale"
+                  class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs sm:text-sm font-bold text-slate-900 focus:outline-none focus:bg-white focus:border-brand-600 focus:ring-2 focus:ring-brand-600/10 transition-all"
+                />
+                <p class="text-[10px] text-slate-400 mt-1 font-medium">
+                  Roommates can combine items under one group name. Displays like a stacked Google Photos album on Explore!
+                </p>
               </div>
 
               <!-- Urgency / Clearance Deadline -->
@@ -492,25 +488,23 @@
       </div>
     </div>
 
-    <!-- Success Modal -->
-    <div v-if="publishedBatch" class="fixed inset-0 z-[150] bg-black/70 backdrop-blur-md flex items-center justify-center p-4">
+    <!-- Success Modal with z-[200] to exceed navbar -->
+    <div v-if="publishedBatch" class="fixed inset-0 z-[200] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
       <div class="bg-white rounded-3xl max-w-md w-full p-6 sm:p-8 text-center shadow-2xl animate-in fade-in zoom-in-95 duration-200">
         <div class="w-16 h-16 rounded-2xl bg-brand-50 flex items-center justify-center mx-auto mb-4 text-brand-600 border border-brand-200">
           <CheckCircle2 class="w-8 h-8 stroke-[2.5]" />
         </div>
-        <h3 class="text-xl sm:text-2xl font-black text-slate-900">Room Declutter Published! 📦</h3>
+        <h3 class="text-xl sm:text-2xl font-black text-slate-900">
+          {{ groupName ? `${groupName} Published!` : 'Room Declutter Published!' }} 📦
+        </h3>
         <p class="text-xs sm:text-sm text-slate-500 mt-2 leading-relaxed">
-          Your batch <strong class="text-slate-900">"{{ groupName || 'Room Declutter Sale' }}"</strong> with <strong class="text-slate-900">{{ publishedBatch.batchSize || activeItems.length }} items</strong> is now live for verified campus buyers in <strong class="text-slate-900">{{ publishedBatch.hostel || hostelName }}</strong>.
+          Your batch of <strong class="text-slate-900">{{ publishedBatch.batchSize }} items</strong> is now live for verified campus buyers in <strong class="text-slate-900">{{ publishedBatch.hostel }}</strong>.
         </p>
 
         <div class="mt-4 p-4 rounded-2xl bg-slate-50 border border-slate-200/80 text-left space-y-1.5 text-xs">
           <div class="flex justify-between">
-            <span class="text-slate-400 font-bold uppercase tracking-wider text-[10px]">Group / Batch</span>
-            <span class="font-black text-slate-800">{{ groupName || 'Room Declutter Sale' }}</span>
-          </div>
-          <div class="flex justify-between">
             <span class="text-slate-400 font-bold uppercase tracking-wider text-[10px]">Total Valuation</span>
-            <span class="font-black text-brand-600">₦{{ Number(publishedBatch.totalValuation || calculatedValuation).toLocaleString() }}</span>
+            <span class="font-black text-brand-600">₦{{ Number(publishedBatch.totalValuation || 0).toLocaleString() }}</span>
           </div>
           <div class="flex justify-between">
             <span class="text-slate-400 font-bold uppercase tracking-wider text-[10px]">Notifications</span>
@@ -560,20 +554,24 @@ import {
   CheckCircle2,
   Share2,
   Camera,
-  Upload,
+  ImagePlus,
   Video,
+  X,
+  Loader2,
 } from 'lucide-vue-next';
 import { itemsApi } from '@/api_factory/modules/items';
-import { upload_api } from '@/api_factory/modules/upload';
 import { bookingsApi } from '@/api_factory/modules/bookings';
-import { useCustomToast } from '@/composables/core/useCustomToast';
 import { getApiError } from '@/composables/modules/services/useServiceFormatting';
+import { upload_api } from '~/composables/useApi';
+import { useCustomToast } from '@/composables/core/useCustomToast';
 
 definePageMeta({ layout: 'default' });
 
 useSeoMeta({
   title: 'Automated Campus Room Declutter | Decluttered',
-  description: 'Moving out or graduating? Clear your entire room in 2 minutes. Automatic campus pricing, fast clearance discounts, and moving assistance on Decluttered.',
+  description: 'Moving out or graduating? Clear your entire room in 2 minutes. Group declutter sales, instant campus valuations, and fast clearance on Decluttered.',
+  ogTitle: 'Automated Campus Room Declutter | Decluttered',
+  ogDescription: 'Group room clearance, instant campus valuations, and fast delivery.',
 });
 
 interface DeclutterItem {
@@ -584,8 +582,8 @@ interface DeclutterItem {
   price: number;
   category: string;
   condition: string;
-  images?: string[];
-  videos?: string[];
+  images: string[];
+  videos: string[];
 }
 
 const router = useRouter();
@@ -689,6 +687,7 @@ const activeItems = ref<DeclutterItem[]>([
     category: 'Furniture',
     condition: 'Good Condition',
     images: ['https://images.unsplash.com/photo-1584100936595-c0654b55a2e2?auto=format&fit=crop&q=80&w=800'],
+    videos: [],
   },
   {
     tempId: 'init-fan',
@@ -698,11 +697,12 @@ const activeItems = ref<DeclutterItem[]>([
     category: 'Appliances',
     condition: 'Good Condition',
     images: ['https://images.unsplash.com/photo-1585338107529-13afc5f02586?auto=format&fit=crop&q=80&w=800'],
+    videos: [],
   },
 ]);
 
 const hostelName = ref('Moremi Hall, Room 204');
-const groupName = ref('Room 434 Declutter Sale');
+const groupName = ref('Room 204 Declutter Sale');
 const urgency = ref('48h');
 const batchNotes = ref('');
 const bundleDiscount = ref(15);
@@ -713,59 +713,48 @@ const publishing = ref(false);
 const publishError = ref('');
 const publishedBatch = ref<any>(null);
 const copied = ref(false);
-const uploadingItemIds = ref<Record<string, boolean>>({});
+const uploadingItemId = ref<string | null>(null);
 
-const uploadItemMedia = async (item: DeclutterItem, event: Event) => {
-  const target = event.target as HTMLInputElement;
-  if (!target.files || target.files.length === 0) return;
-  const files = Array.from(target.files);
+const uploadItemMedia = async (e: Event, item: DeclutterItem) => {
+  const target = e.target as HTMLInputElement;
+  const files = target.files ? Array.from(target.files) : [];
+  if (!files.length) return;
 
-  uploadingItemIds.value[item.tempId] = true;
+  uploadingItemId.value = item.tempId;
   try {
-    for (const file of files) {
-      const isVideo = file.type.startsWith('video/');
-      const { data, error } = await upload_api.uploadFile(file, isVideo ? 'video' : 'image');
-      if (error) {
-        useCustomToast().showToast({
-          title: 'Upload Notice',
-          message: error || 'Failed to upload media file',
-          toastType: 'error',
-        });
-        continue;
-      }
-      const url = data?.secure_url || data?.url || data?.data?.secure_url || data?.data?.url;
+    const promises = files.map((file) =>
+      upload_api.uploadFile(file, file.type.startsWith('video/') ? 'video' : 'image')
+    );
+    const results = await Promise.all(promises);
+
+    if (!item.images) item.images = [];
+    if (!item.videos) item.videos = [];
+
+    results.forEach((res: any, idx: number) => {
+      const url = res.data?.url || res.data?.data?.url;
       if (url) {
-        if (isVideo) {
-          item.videos = item.videos || [];
+        if (files[idx].type.startsWith('video/')) {
           item.videos.push(url);
         } else {
-          item.images = item.images || [];
           item.images.push(url);
         }
       }
-    }
+    });
+
     useCustomToast().showToast({
-      title: 'Media Added! 📸',
-      message: `Media uploaded for "${item.title}".`,
+      title: 'Media Uploaded! 📸',
+      message: `${files.length} file(s) attached to ${item.title}.`,
       toastType: 'success',
     });
-  } catch (err: any) {
+  } catch (err) {
     useCustomToast().showToast({
-      title: 'Upload Error',
-      message: err?.message || 'Could not upload media files',
+      title: 'Upload Failed',
+      message: 'Could not upload media files. Please try again.',
       toastType: 'error',
     });
   } finally {
-    uploadingItemIds.value[item.tempId] = false;
+    uploadingItemId.value = null;
     target.value = '';
-  }
-};
-
-const removeMedia = (item: DeclutterItem, type: 'image' | 'video', index: number) => {
-  if (type === 'image' && item.images) {
-    item.images.splice(index, 1);
-  } else if (type === 'video' && item.videos) {
-    item.videos.splice(index, 1);
   }
 };
 
@@ -786,6 +775,7 @@ const togglePreset = (preset: typeof presets[0]) => {
       category: preset.category,
       condition: preset.condition,
       images: [preset.image],
+      videos: [],
     });
   }
 };
@@ -799,6 +789,7 @@ const selectAll = () => {
     category: p.category,
     condition: p.condition,
     images: [p.image],
+    videos: [],
   }));
 };
 
@@ -814,6 +805,7 @@ const addCustomItem = () => {
     category: 'General',
     condition: 'Good Condition',
     images: ['https://images.unsplash.com/photo-1586023492125-27b2c045efd7?auto=format&fit=crop&q=80&w=800'],
+    videos: [],
   });
 };
 
@@ -850,11 +842,9 @@ const publishBatch = async () => {
   publishError.value = '';
 
   try {
-    const finalGroupName = groupName.value.trim() || `${hostelName.value.trim()} Declutter Sale`;
     const payload = {
       hostel: hostelName.value.trim(),
-      groupName: finalGroupName,
-      batchTitle: finalGroupName,
+      groupName: groupName.value.trim() || undefined,
       bundleDiscountPercent: bundleDiscount.value,
       autoPriceDrop: autoPriceDrop.value,
       items: activeItems.value.map((item) => ({
@@ -900,14 +890,15 @@ const publishBatch = async () => {
   }
 };
 
-const copyShareLink = () => {
+const copyShareLink = async () => {
   if (typeof navigator !== 'undefined' && navigator.clipboard) {
-    const url = `${window.location.origin}/explore?declutter=true`;
-    void navigator.clipboard.writeText(url);
+    const batchParam = publishedBatch.value?.batchId ? `&batchId=${publishedBatch.value.batchId}` : '';
+    const url = `${window.location.origin}/explore?declutter=true${batchParam}`;
+    await navigator.clipboard.writeText(url);
     copied.value = true;
     useCustomToast().showToast({
-      title: 'Link Copied! 📋',
-      message: 'Room Declutter batch link copied to clipboard.',
+      title: 'Share Link Copied! 📋',
+      message: 'Declutter room sale link copied to clipboard. Share it with your hostel group!',
       toastType: 'success',
     });
     setTimeout(() => {

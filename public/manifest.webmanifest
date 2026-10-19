@@ -1,58 +1,76 @@
 {
-  "name": "Decluttered — Student Campus Marketplace",
+  "name": "Decluttered - Campus Declutter & Student Marketplace",
   "short_name": "Decluttered",
-  "description": "Buy, sell, swap, and automate room declutters across campus hostels with verified student escrow and errander delivery.",
+  "description": "Clear your hostel room in 2 minutes. Buy, sell, and swap verified campus student gear with instant escrows.",
   "start_url": "/",
   "id": "/",
   "scope": "/",
   "display": "standalone",
-  "orientation": "portrait",
-  "background_color": "#0B0F17",
+  "orientation": "portrait-primary",
+  "background_color": "#ffffff",
   "theme_color": "#FF5C1A",
-  "categories": ["shopping", "education", "lifestyle"],
+  "lang": "en",
+  "categories": ["shopping", "productivity", "lifestyle", "education"],
   "icons": [
+    {
+      "src": "/favicon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/favicon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
     {
       "src": "/android-chrome-192x192.png",
       "sizes": "192x192",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
     },
     {
       "src": "/android-chrome-512x512.png",
       "sizes": "512x512",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
     },
     {
-      "src": "/apple-touch-icon.png",
-      "sizes": "180x180",
-      "type": "image/png"
+      "src": "/maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
     }
   ],
   "shortcuts": [
     {
-      "name": "Explore Listings",
-      "short_name": "Explore",
-      "url": "/explore",
-      "icons": [{ "src": "/android-chrome-192x192.png", "sizes": "192x192" }]
-    },
-    {
       "name": "Room Declutter",
       "short_name": "Declutter",
+      "description": "Automated hostel room clearance batch in 2 minutes",
       "url": "/declutter",
-      "icons": [{ "src": "/android-chrome-192x192.png", "sizes": "192x192" }]
+      "icons": [{ "src": "/favicon-192x192.png", "sizes": "192x192" }]
     },
     {
-      "name": "Campus Reels",
+      "name": "Explore Campus Marketplace",
+      "short_name": "Explore",
+      "description": "Browse active campus student listings and hostel sales",
+      "url": "/explore",
+      "icons": [{ "src": "/favicon-192x192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Marketplace Reels",
       "short_name": "Reels",
+      "description": "Watch video reels of verified campus items & skills",
       "url": "/reels",
-      "icons": [{ "src": "/android-chrome-192x192.png", "sizes": "192x192" }]
+      "icons": [{ "src": "/favicon-192x192.png", "sizes": "192x192" }]
     },
     {
-      "name": "Sell an Item",
+      "name": "List an Item",
       "short_name": "Sell",
+      "description": "Post an item or campus service for sale",
       "url": "/sell",
-      "icons": [{ "src": "/android-chrome-192x192.png", "sizes": "192x192" }]
+      "icons": [{ "src": "/favicon-192x192.png", "sizes": "192x192" }]
     }
   ]
 }

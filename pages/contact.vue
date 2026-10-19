@@ -30,7 +30,6 @@ const submit = () => {
   useCustomToast().showToast({ title: 'Notice', message: 'Support message sent successfully! We will get back to you soon.', toastType: "success" })
 }
 useSeoMeta({
-  title: 'Contact Support | Decluttered',
-  description: 'Need help with your orders, escrows, or declutter batches? Contact the Decluttered team.'
+  title: 'Contact Support | Decluttered by Erranders',
 })
 </script>
