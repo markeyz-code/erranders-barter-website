@@ -61,6 +61,9 @@ export default defineNuxtConfig({
       // first label is not a reserved one — `decluttered` above all, since that is this
       // site. Set this empty to disable subdomain routing entirely.
       businessApexDomain: process.env.NUXT_PUBLIC_BUSINESS_APEX_DOMAIN || 'erranders.org',
+      // The business admin is a SEPARATE application (barter/business). The
+      // marketplace never hosts it; this URL is only used to send owners there.
+      businessAdminUrl: process.env.NUXT_PUBLIC_BUSINESS_ADMIN_URL || 'https://business.erranders.org',
       googleMapsApiKey: process.env.GOOGLE_MAPS_API_KEY || '',
       firebaseApiKey: process.env.NUXT_PUBLIC_FIREBASE_API_KEY || 'AIzaSyBzYV1KzAMugqh2N0DvbTP7vr4f96j1Po4',
       firebaseAuthDomain: process.env.NUXT_PUBLIC_FIREBASE_AUTH_DOMAIN || 'erranders-493fe.firebaseapp.com',

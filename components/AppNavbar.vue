@@ -48,15 +48,6 @@
           <span class="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse"></span>
           <span v-if="isRouteActive('/reels')" class="absolute -bottom-1 inset-x-0 h-0.5 bg-[#FF5C1A] rounded-full"></span>
         </NuxtLink>
-
-        <NuxtLink
-          to="/business"
-          class="transition-colors py-1 relative flex items-center gap-1.5"
-          :class="isRouteActive('/business') || isRouteActive('/become-a-business') ? 'text-[#FF5C1A] font-black' : 'text-slate-600 hover:text-slate-950'"
-        >
-          <span>Businesses</span>
-          <span v-if="isRouteActive('/business') || isRouteActive('/become-a-business')" class="absolute -bottom-1 inset-x-0 h-0.5 bg-[#FF5C1A] rounded-full"></span>
-        </NuxtLink>
       </nav>
 
       <!-- Actions -->
@@ -256,20 +247,6 @@
               <span class="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse"></span>
               <span v-if="isRouteActive('/reels')" class="w-2 h-2 rounded-full bg-[#FF5C1A] shrink-0"></span>
             </div>
-          </NuxtLink>
-
-          <NuxtLink
-            to="/business"
-            @click="isMobileMenuOpen = false"
-            class="px-3.5 py-2.5 text-sm rounded-xl transition-all flex items-center justify-between"
-            :class="isRouteActive('/business') || isRouteActive('/become-a-business')
-              ? 'bg-[#FF5C1A]/10 text-[#FF5C1A] font-black border border-[#FF5C1A]/25 shadow-xs'
-              : 'font-bold text-slate-700 hover:bg-slate-50 border border-transparent'"
-          >
-            <div class="flex items-center gap-2">
-              <span>💼 Businesses & Agencies</span>
-            </div>
-            <span class="text-[10px] font-bold text-slate-400">Portal</span>
           </NuxtLink>
           
           <div class="h-px bg-slate-100 my-1.5 mx-2"></div>

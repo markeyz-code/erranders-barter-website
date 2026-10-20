@@ -25,9 +25,9 @@
           <a :href="`https://${created.slug}.erranders.org`" target="_blank" rel="noopener" class="font-bold text-brand-600 hover:underline">{{ created.slug }}.erranders.org</a>
         </p>
         <div class="mt-5 flex gap-3 justify-center">
-          <NuxtLink to="/dashboard/business" class="px-5 py-2.5 bg-brand-600 text-white rounded-xl text-sm font-bold">
+          <a :href="adminUrl" target="_blank" rel="noopener" class="px-5 py-2.5 bg-brand-600 text-white rounded-xl text-sm font-bold">
             Open my business dashboard
-          </NuxtLink>
+          </a>
         </div>
       </div>
 
@@ -135,6 +135,7 @@ const BENEFITS = [
 const form = reactive({
   name: '', slug: '', category: '', description: '', phone: '', email: '', address: '',
 });
+const adminUrl = String(useRuntimeConfig().public.businessAdminUrl || 'https://business.erranders.org');
 const submitting = ref(false);
 const error = ref('');
 const created = ref<Business | null>(null);

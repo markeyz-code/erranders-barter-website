@@ -76,7 +76,7 @@
 
         <!-- Business Mini-Admin Card -->
         <NuxtLink
-          to="/business"
+          to="/become-a-business"
           class="p-5 rounded-3xl bg-gradient-to-r from-purple-950 via-slate-900 to-slate-900 text-white border border-purple-500/30 flex items-center justify-between gap-4 group hover:shadow-xl hover:shadow-purple-950/20 transition-all"
         >
           <div class="space-y-1">

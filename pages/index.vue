@@ -677,7 +677,7 @@
             </NuxtLink>
 
             <NuxtLink
-              to="/business"
+              to="/become-a-business"
               class="px-6 py-3.5 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-900 font-bold text-xs sm:text-sm text-center transition-colors border border-slate-200 flex items-center justify-center gap-2"
             >
               <span>Manage Business Mini-Admin</span>
@@ -778,7 +778,7 @@ const heroSlides: HeroSlide[] = [
     ctaPrimaryText: 'Book Handyman Now',
     ctaPrimaryLink: '/services',
     ctaSecondaryText: 'List Your Skill',
-    ctaSecondaryLink: '/business',
+    ctaSecondaryLink: '/become-a-business',
     icon: Wrench,
     accentBg: 'bg-amber-50',
     accentBorder: 'border-amber-200',
@@ -858,7 +858,7 @@ const heroSlides: HeroSlide[] = [
     ctaPrimaryText: 'Book Fumigation',
     ctaPrimaryLink: '/services?category=fumigation',
     ctaSecondaryText: 'Become A Provider',
-    ctaSecondaryLink: '/business',
+    ctaSecondaryLink: '/become-a-business',
     icon: Sparkles,
     accentBg: 'bg-rose-50',
     accentBorder: 'border-rose-200',
