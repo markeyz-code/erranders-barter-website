@@ -48,6 +48,39 @@
     </div>
   </section>
 
+  <!-- shop: the business's real catalogue -->
+  <section v-else-if="type === 'products'" class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <h2 class="text-2xl font-extrabold text-slate-900">{{ p.title || 'Shop' }}</h2>
+    <p v-if="p.note" class="mt-1 text-sm text-slate-500">{{ p.note }}</p>
+
+    <div v-if="products.length === 0" class="mt-5 py-10 text-center border border-dashed border-slate-200 rounded-2xl">
+      <p class="text-sm text-slate-500">Nothing in the shop yet.</p>
+    </div>
+    <div v-else class="mt-5 grid grid-cols-2 sm:grid-cols-3 gap-4">
+      <div v-for="product in products" :key="product._id" class="rounded-2xl border border-slate-200 overflow-hidden">
+        <div class="aspect-square bg-slate-100">
+          <img
+            v-if="product.images?.length"
+            :src="product.images[0]"
+            :alt="product.name"
+            class="w-full h-full object-cover"
+            loading="lazy"
+          />
+          <div v-else class="w-full h-full flex items-center justify-center">
+            <ShoppingBag class="w-8 h-8 text-slate-300" />
+          </div>
+        </div>
+        <div class="p-3">
+          <p class="text-sm font-bold text-slate-900 line-clamp-2">{{ product.name }}</p>
+          <p class="mt-1 text-sm font-black" :style="{ color: accent }">{{ naira(product.sellPrice) }}</p>
+          <p class="text-[11px] font-semibold" :class="product.inStock ? 'text-emerald-600' : 'text-slate-400'">
+            {{ product.inStock ? 'In stock' : 'Sold out' }}
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <!-- gallery -->
   <section v-else-if="type === 'gallery'" class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
     <h2 class="text-2xl font-extrabold text-slate-900">{{ p.title || 'Our work' }}</h2>
@@ -135,7 +168,7 @@
 
 <script setup lang="ts">
 import { computed } from 'vue';
-import { Phone, Mail, MapPin } from 'lucide-vue-next';
+import { Phone, Mail, MapPin, ShoppingBag } from 'lucide-vue-next';
 import { formatPriceLabel } from '@/composables/modules/services/useServiceFormatting';
 
 /**
@@ -150,6 +183,7 @@ const props = defineProps<{
   block: { type: string; props: Record<string, any> };
   business: any;
   services: any[];
+  products?: any[];
   accent: string;
 }>();
 
@@ -177,4 +211,6 @@ const testimonialItems = computed<any[]>(() =>
 );
 
 const priceLabel = (service: any) => formatPriceLabel(service?.priceType, service?.price);
+const products = computed<any[]>(() => props.products || []);
+const naira = (n?: number) => (typeof n === 'number' ? `₦${n.toLocaleString('en-NG')}` : '—');
 </script>

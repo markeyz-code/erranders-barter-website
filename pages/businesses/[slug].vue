@@ -15,6 +15,22 @@
     </div>
 
     <template v-else-if="business">
+      <!-- Resource library: shown regardless of whether a page has been designed. -->
+      <section class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
+        <NuxtLink
+          :to="`/library/${business.slug}`"
+          class="flex items-center justify-between gap-4 p-4 rounded-2xl border border-slate-200 hover:border-brand-300 hover:bg-brand-50/30 transition-colors"
+        >
+          <div class="min-w-0">
+            <p class="font-bold text-slate-900">Resource library</p>
+            <p class="text-xs text-slate-500 font-medium">
+              Notes and materials {{ business.name }} shares with students.
+            </p>
+          </div>
+          <span class="text-sm font-bold text-brand-600 shrink-0">Open</span>
+        </NuxtLink>
+      </section>
+
       <!-- Owner-designed page. Only rendered when the business has published one. -->
       <template v-if="design && design.blocks.length > 0">
         <PageBlock
@@ -23,6 +39,7 @@
           :block="block"
           :business="business"
           :services="designServices"
+          :products="designProducts"
           :accent="design.accentColor || '#FF5C1A'"
         />
 
@@ -179,6 +196,7 @@ const slug = computed(() =>
 const business = ref<Business | null>(null);
 const design = ref<{ blocks: Array<{ id: string; type: string; isVisible: boolean; props: Record<string, any> }>; accentColor?: string } | null>(null);
 const designServices = ref<any[]>([]);
+const designProducts = ref<any[]>([]);
 const openings = ref<BusinessOpening[]>([]);
 const loading = ref(true);
 const error = ref('');
@@ -242,6 +260,7 @@ const load = async () => {
     // A "services" section reads live offerings rather than copies of them. They arrive
     // with the page payload, so the design renders in a single request.
     designServices.value = (data as any).services ?? [];
+    designProducts.value = (data as any).products ?? [];
     useSeoMeta({ title: `${data.business.name} — Declutter` });
   } catch (err: any) {
     error.value =

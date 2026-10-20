@@ -101,6 +101,18 @@ export const businessesApi = {
       { params },
     ),
 
+  /** GET /businesses/:slug/resources — only what this signed-in student may open. */
+  getResources: (slug: string) =>
+    GATEWAY_ENDPOINT_WITH_AUTH.get<{
+      business: { name: string; slug: string };
+      viewerEmail: string | null;
+      watermark: string | null;
+      resources: Array<{
+        _id: string; title: string; description?: string;
+        kind: 'file' | 'video' | 'link'; url: string; createdAt?: string;
+      }>;
+    }>(`/businesses/${slug}/resources`),
+
   /** POST /businesses/:slug/openings/:openingId/apply — public, no account needed. */
   applyToOpening: (
     slug: string,
