@@ -215,6 +215,16 @@
         
         
       </div>
+      <button
+        v-if="item"
+        class="mt-6 inline-flex items-center gap-1.5 text-xs font-bold text-slate-400 hover:text-red-600"
+        @click="reportOpen = true"
+      >
+        <Flag class="w-3.5 h-3.5" /> Report this listing
+      </button>
+
+      <ReportModal :target="reportTarget" @close="reportOpen = false" />
+
       <AuthModal :isOpen="isAuthModalOpen" @close="isAuthModalOpen = false" @success="handleAuthSuccess" />
       <ProposeSwapModal 
         v-if="item" 
@@ -235,6 +245,8 @@ import { optimizeVideoUrl, optimizeImageUrl } from '~/composables/useMediaOptimi
 
 import AuthModal from '~/components/AuthModal.vue'
 import ProposeSwapModal from '~/components/ProposeSwapModal.vue'
+import ReportModal from '~/components/ReportModal.vue'
+import { Flag } from 'lucide-vue-next'
 
 import { useAuth } from '~/composables/useAuth'
 
@@ -244,6 +256,13 @@ const { isLoggedIn, user } = useAuth()
 const isAuthModalOpen = ref(false)
 const isSwapModalOpen = ref(false)
 const item = ref(null)
+const reportOpen = ref(false)
+/** The report modal wants a plain target, so it is derived rather than passed around. */
+const reportTarget = computed(() =>
+  reportOpen.value && item.value
+    ? { type: 'item', id: item.value._id, label: item.value.title }
+    : null,
+)
 const loading = ref(true)
 
 useSeoMeta({

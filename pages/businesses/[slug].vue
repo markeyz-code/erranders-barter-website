@@ -56,6 +56,15 @@
         </div>
       </section>
 
+      <!-- Report: businesses can be reported exactly like a listing. -->
+      <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 flex justify-end">
+        <button class="inline-flex items-center gap-1.5 text-xs font-bold text-slate-400 hover:text-red-600" @click="reportOpen = true">
+          <Flag class="w-3.5 h-3.5" /> Report this business
+        </button>
+      </div>
+
+      <ReportModal :target="reportTarget" @close="reportOpen = false" />
+
       <!-- Resource library: shown regardless of whether a page has been designed. -->
       <section class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
         <NuxtLink
@@ -217,6 +226,7 @@ import { useRoute } from 'vue-router';
 import { Building2, MapPin, Phone, Mail, Globe, GraduationCap, Clock } from 'lucide-vue-next';
 import PageBlock from '~/components/business/PageBlock.vue';
 import ApplyModal from '~/components/business/ApplyModal.vue';
+import ReportModal from '~/components/ReportModal.vue';
 import { businessesApi, type Business, type BusinessOpening } from '@/api_factory/modules/businesses';
 
 /**

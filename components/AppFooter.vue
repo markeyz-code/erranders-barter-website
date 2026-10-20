@@ -48,6 +48,7 @@
               <LifeBuoy class="w-4 h-4 text-blue-500" /> Help
             </h4>
             <ul class="space-y-2 text-sm font-medium">
+              <li><NuxtLink to="/help" class="hover:text-blue-400 transition-colors">Help centre</NuxtLink></li>
               <li><NuxtLink to="/faq" class="hover:text-blue-400 transition-colors">FAQ</NuxtLink></li>
               <li><NuxtLink to="/contact" class="hover:text-blue-400 transition-colors">Contact Support</NuxtLink></li>
             </ul>
