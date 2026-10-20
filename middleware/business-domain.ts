@@ -72,6 +72,20 @@ export default defineNuxtRouteMiddleware((to) => {
   const slug = businessSlugFromHost(host, apex);
   if (!slug) return;
 
+  // slug.erranders.org/admin  →  /business?slug=<slug>  (Business Mini-Admin)
+  // slug.erranders.org/login  →  /business/login        (Business Login)
+  // slug.erranders.org/*      →  /businesses/<slug>     (Public Storefront)
+  if (to.path === '/admin' || to.path.startsWith('/admin/')) {
+    const target = `/business?slug=${slug}`;
+    if (to.fullPath === target) return;
+    return navigateTo(target, { redirectCode: 302 });
+  }
+
+  if (to.path === '/login') {
+    if (to.fullPath === '/business/login') return;
+    return navigateTo('/business/login', { redirectCode: 302 });
+  }
+
   const alreadyThere = to.path === `/businesses/${slug}`;
   if (alreadyThere) return;
 
