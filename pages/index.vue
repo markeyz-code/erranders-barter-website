@@ -5,13 +5,14 @@
     <CatchUpBanner />
 
     <!-- ── Dynamic Hero: Search First, Visual Feed, Zero Long Reading ── -->
+    <!-- ── Dynamic Hero: Search First, Visual Feed, Zero Long Reading ── -->
     <section class="bg-white border-b border-slate-200/80 pt-6 pb-8 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
       <!-- Soft dot background grid -->
       <div class="absolute inset-0 bg-[radial-gradient(#e2e8f0_1.5px,transparent_1.5px)] [background-size:20px_20px] opacity-60 pointer-events-none"></div>
 
       <div class="max-w-7xl mx-auto relative z-10">
         
-        <!-- Live Campus Ticker Badge -->
+        <!-- Live Campus Ticker Badges -->
         <div class="flex flex-wrap items-center gap-2 mb-4">
           <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200/80 text-emerald-800 text-xs font-bold shadow-2xs">
             <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
@@ -24,38 +25,199 @@
             <ShieldCheck class="w-3.5 h-3.5 text-purple-600" />
             <span>Escrow Protected</span>
           </div>
+
+          <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-orange-50 border border-orange-200/80 text-orange-800 text-xs font-bold">
+            <Truck class="w-3.5 h-3.5 text-brand-600" />
+            <span>Automate Hostel Movement</span>
+          </div>
         </div>
 
-        <!-- Punchy Action Header -->
-        <div class="flex flex-col lg:flex-row lg:items-end justify-between gap-6 mb-6">
-          <div class="max-w-2xl">
-            <h1 class="text-3xl sm:text-4xl lg:text-5xl font-black text-slate-900 tracking-tight leading-[1.15]">
-              Buy, swap and book <br class="hidden sm:inline" />
-              <span class="text-brand-600">straight from students</span> on your campus.
-            </h1>
-            <p class="mt-2 text-sm sm:text-base text-slate-600 font-medium">
-              No long talk. Grab room items before they sell out, trade what you have, or book hostel helpers.
-            </p>
+        <!-- Interactive Slang & Language Strip (Quick-jump to slides) -->
+        <div class="flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-1 mb-5">
+          <button
+            v-for="(slide, idx) in heroSlides"
+            :key="slide.id"
+            @click="goToSlide(idx)"
+            class="px-3 py-1 rounded-full text-xs font-bold transition-all whitespace-nowrap flex items-center gap-1.5 cursor-pointer border"
+            :class="currentSlideIndex === idx
+              ? 'bg-slate-900 text-white border-slate-900 shadow-xs scale-[1.02]'
+              : 'bg-white hover:bg-slate-100 text-slate-600 border-slate-200/80'"
+          >
+            <span>{{ slide.langFlag }}</span>
+            <span>{{ slide.langTag }}: {{ slide.themeBadge }}</span>
+          </button>
+        </div>
+
+        <!-- ── Dynamic Ease-In / Ease-Out Hero Carousel & Hub ── -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch mb-8">
+          
+          <!-- Left Column: Rotating Animated Copy & CTAs -->
+          <div
+            class="lg:col-span-8 bg-slate-50/50 hover:bg-slate-50/80 border border-slate-200/90 rounded-3xl p-6 sm:p-8 flex flex-col justify-between transition-colors shadow-2xs relative overflow-hidden"
+            @mouseenter="pauseCarousel"
+            @mouseleave="resumeCarousel"
+          >
+            <!-- Carousel Track with Ease-In / Ease-Out Transition -->
+            <div class="relative min-h-[290px] sm:min-h-[260px] flex flex-col justify-between">
+              <Transition :name="slideTransition" mode="out-in">
+                <div :key="currentSlideIndex" class="w-full">
+                  
+                  <!-- Relatable Student Complaint Turned Marketing Tag -->
+                  <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-black mb-3 border shadow-2xs max-w-full overflow-hidden" :class="[currentSlide.accentBg, currentSlide.accentBorder, currentSlide.accentText]">
+                    <span class="text-sm shrink-0">🗣️</span>
+                    <span class="tracking-wide shrink-0 font-extrabold uppercase text-[10px]">Hostel Reality:</span>
+                    <span class="font-bold truncate">"{{ currentSlide.complaint }}"</span>
+                  </div>
+
+                  <!-- Punchy Main Marketing Headline -->
+                  <h1 class="text-2xl sm:text-4xl lg:text-[42px] font-black text-slate-900 tracking-tight leading-[1.18] mb-2.5">
+                    {{ currentSlide.headlinePrefix }}<br class="hidden sm:inline" />
+                    <span :class="currentSlide.highlightColor">{{ currentSlide.headlineHighlight }}</span>
+                  </h1>
+
+                  <!-- Dynamic Relatable Subtitle -->
+                  <p class="text-sm sm:text-base text-slate-600 font-medium max-w-2xl leading-relaxed">
+                    {{ currentSlide.subtitle }}
+                  </p>
+
+                  <!-- Money-Making Aspect Highlight -->
+                  <div class="mt-4 p-3 sm:p-3.5 rounded-2xl bg-amber-50/80 border border-amber-200/90 text-amber-950 flex flex-col sm:flex-row sm:items-center justify-between gap-2 shadow-2xs">
+                    <div class="flex items-center gap-2.5">
+                      <div class="w-7 h-7 rounded-lg bg-amber-500/10 border border-amber-500/20 flex items-center justify-center shrink-0">
+                        <Coins class="w-4 h-4 text-amber-600" />
+                      </div>
+                      <span class="text-xs sm:text-sm font-bold text-amber-900">{{ currentSlide.moneyTag }}</span>
+                    </div>
+                    <NuxtLink
+                      to="/sell"
+                      class="shrink-0 text-xs font-black text-amber-700 hover:text-amber-800 underline underline-offset-2 flex items-center gap-1"
+                    >
+                      <span>Cash Out Now</span>
+                      <ArrowRight class="w-3.5 h-3.5" />
+                    </NuxtLink>
+                  </div>
+
+                  <!-- Dynamic Action Buttons for Slide -->
+                  <div class="mt-5 flex flex-wrap items-center gap-3">
+                    <NuxtLink
+                      :to="currentSlide.ctaPrimaryLink"
+                      class="px-5 py-3 rounded-2xl bg-brand-600 hover:bg-brand-500 text-white font-black text-xs sm:text-sm transition-all shadow-md shadow-brand-600/20 active:scale-95 flex items-center gap-2"
+                    >
+                      <component :is="currentSlide.icon" class="w-4 h-4" />
+                      <span>{{ currentSlide.ctaPrimaryText }}</span>
+                    </NuxtLink>
+
+                    <NuxtLink
+                      :to="currentSlide.ctaSecondaryLink"
+                      class="px-5 py-3 rounded-2xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs sm:text-sm transition-all shadow-sm active:scale-95 flex items-center gap-2"
+                    >
+                      <Banknote class="w-4 h-4 text-amber-400" />
+                      <span>{{ currentSlide.ctaSecondaryText }}</span>
+                    </NuxtLink>
+                  </div>
+
+                </div>
+              </Transition>
+            </div>
+
+            <!-- Carousel Navigation & Indicators Bottom Row -->
+            <div class="mt-6 pt-4 border-t border-slate-200/80 flex items-center justify-between gap-4">
+              <div class="flex items-center gap-1.5">
+                <button
+                  v-for="(_, index) in heroSlides"
+                  :key="index"
+                  @click="goToSlide(index)"
+                  class="h-1.5 rounded-full transition-all duration-300 focus:outline-none"
+                  :class="currentSlideIndex === index ? 'w-8 bg-brand-600' : 'w-2 bg-slate-300 hover:bg-slate-400'"
+                  :title="`Slide ${index + 1}`"
+                ></button>
+              </div>
+
+              <div class="flex items-center gap-2">
+                <span class="text-xs font-bold text-slate-400 tabular-nums">
+                  0{{ currentSlideIndex + 1 }} / 0{{ heroSlides.length }}
+                </span>
+
+                <div class="flex items-center gap-1">
+                  <button
+                    @click="prevSlide"
+                    class="w-8 h-8 rounded-xl bg-white hover:bg-slate-100 text-slate-700 flex items-center justify-center transition-all active:scale-95 border border-slate-200 shadow-2xs"
+                    aria-label="Previous slide"
+                  >
+                    <ChevronLeft class="w-4 h-4" />
+                  </button>
+                  <button
+                    @click="nextSlide"
+                    class="w-8 h-8 rounded-xl bg-white hover:bg-slate-100 text-slate-700 flex items-center justify-center transition-all active:scale-95 border border-slate-200 shadow-2xs"
+                    aria-label="Next slide"
+                  >
+                    <ChevronRight class="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+            </div>
+
           </div>
 
-          <!-- Quick Action Buttons -->
-          <div class="flex items-center gap-2.5 shrink-0">
-            <NuxtLink
-              to="/sell"
-              class="px-5 py-3 rounded-2xl bg-brand-600 hover:bg-brand-500 text-white font-black text-xs sm:text-sm transition-all shadow-md shadow-brand-600/20 active:scale-95 flex items-center gap-2"
-            >
-              <Tag class="w-4 h-4" />
-              <span>Sell Room Items</span>
-            </NuxtLink>
+          <!-- Right Column: Plain White "Hostel Movement & Cashout Hub" -->
+          <div class="lg:col-span-4 bg-white border border-slate-200/90 rounded-3xl p-6 flex flex-col justify-between shadow-2xs relative">
+            <div>
+              <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-100 text-slate-800 text-xs font-extrabold mb-3">
+                <Zap class="w-3.5 h-3.5 text-brand-600" />
+                <span>Zero Campus Stress</span>
+              </div>
+              
+              <h2 class="text-lg font-black text-slate-900 tracking-tight leading-snug">
+                Automate Movement.<br />Save Time & Cash Out.
+              </h2>
+              <p class="text-xs text-slate-500 font-medium mt-1">
+                Why endure hostel wahala when fellow students can sort you out in minutes?
+              </p>
 
-            <NuxtLink
-              to="/declutter"
-              class="px-5 py-3 rounded-2xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs sm:text-sm transition-all shadow-sm active:scale-95 flex items-center gap-2"
-            >
-              <Package class="w-4 h-4 text-brand-400" />
-              <span>1-Click Declutter</span>
-            </NuxtLink>
+              <!-- Value Props List -->
+              <div class="mt-4 space-y-3">
+                <div class="flex items-start gap-2.5 p-2.5 rounded-xl bg-slate-50 border border-slate-100">
+                  <Truck class="w-4 h-4 text-brand-600 shrink-0 mt-0.5" />
+                  <div>
+                    <h4 class="text-xs font-black text-slate-900">Automate Hostel Movement</h4>
+                    <p class="text-[11px] text-slate-500 font-medium">Luggage, fridges, mattresses moved smoothly without back pain.</p>
+                  </div>
+                </div>
+
+                <div class="flex items-start gap-2.5 p-2.5 rounded-xl bg-slate-50 border border-slate-100">
+                  <Wrench class="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+                  <div>
+                    <h4 class="text-xs font-black text-slate-900">Skip Electrician / Painter Delays</h4>
+                    <p class="text-[11px] text-slate-500 font-medium">Why wait weeks for hall staff? Book skilled student handymen today.</p>
+                  </div>
+                </div>
+
+                <div class="flex items-start gap-2.5 p-2.5 rounded-xl bg-slate-50 border border-slate-100">
+                  <Coins class="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                  <div>
+                    <h4 class="text-xs font-black text-slate-900">Make Money From Clutter</h4>
+                    <p class="text-[11px] text-slate-500 font-medium">Sell room items in 2 hrs or earn on weekends doing hostel gigs.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Bottom Live Metric & Quick Link -->
+            <div class="mt-5 pt-4 border-t border-slate-100 flex items-center justify-between gap-3">
+              <div>
+                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Student Payouts</span>
+                <span class="text-sm font-black text-emerald-600">₦4.8M+</span>
+              </div>
+              <NuxtLink
+                to="/declutter"
+                class="px-4 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold flex items-center gap-1.5 transition-all shadow-2xs"
+              >
+                <span>1-Click Declutter</span>
+                <ArrowRight class="w-3.5 h-3.5" />
+              </NuxtLink>
+            </div>
           </div>
+
         </div>
 
         <!-- Live Omnibox Search -->
@@ -67,7 +229,7 @@
                 v-model="searchInput"
                 type="text"
                 class="w-full bg-slate-50 hover:bg-white focus:bg-white border border-slate-300 focus:border-brand-600 rounded-2xl pl-12 pr-4 py-3.5 text-sm sm:text-base font-semibold text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-4 focus:ring-brand-600/10 transition-all shadow-sm"
-                placeholder="Search mini-fridges, fans, textbooks, hot plates, hostel movers..."
+                placeholder="Search hostel movers, electricians, painters, mini-fridges, fans, textbooks, hot plates..."
               />
             </div>
             <button
@@ -567,10 +729,12 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, reactive, ref, computed } from 'vue';
+import { onMounted, onUnmounted, reactive, ref, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import {
-  Search, ShoppingBag, Tag, Package, ShieldCheck, MapPin, Clock, ArrowRight, ArrowRightLeft, Flame, Play as PlayIcon, Wrench, CheckCircle2, ExternalLink, Heart, Sparkles, Zap
+  Search, ShoppingBag, Tag, Package, ShieldCheck, MapPin, Clock, ArrowRight, ArrowRightLeft,
+  Flame, Play as PlayIcon, Wrench, CheckCircle2, ExternalLink, Heart, Sparkles, Zap,
+  ChevronLeft, ChevronRight, Truck, Paintbrush, Banknote, Coins
 } from 'lucide-vue-next';
 import CatchUpBanner from '~/components/CatchUpBanner.vue';
 import { itemsApi } from '@/api_factory/modules/items';
@@ -593,8 +757,201 @@ const campusStats = ref({
 });
 
 const popularSearches = [
-  'Mini Fridge', 'Standing Fan', 'Textbooks', 'Gas Cylinder', 'Hot Plate', 'Mattress', 'Fumigation', 'Luggage Movers'
+  'Hostel Movers', 'Hostel Electrician', 'Room Painter', 'Mini Fridge', 'Standing Fan', 'Fumigation', 'Hot Plate', 'Gas Cylinder', 'Mattress'
 ];
+
+interface HeroSlide {
+  id: string;
+  langTag: string;
+  langFlag: string;
+  themeBadge: string;
+  complaint: string;
+  headlinePrefix: string;
+  headlineHighlight: string;
+  subtitle: string;
+  moneyTag: string;
+  ctaPrimaryText: string;
+  ctaPrimaryLink: string;
+  ctaSecondaryText: string;
+  ctaSecondaryLink: string;
+  icon: any;
+  accentBg: string;
+  accentBorder: string;
+  accentText: string;
+  highlightColor: string;
+}
+
+const heroSlides: HeroSlide[] = [
+  {
+    id: 'pidgin-movement',
+    langTag: 'Pidgin English',
+    langFlag: '🇳🇬',
+    themeBadge: 'Automate Movement',
+    complaint: 'Why you dey carry 6x6 mattress climb 3 floors under hot sun? Dey play!',
+    headlinePrefix: 'Automate your hostel movement. ',
+    headlineHighlight: 'Zero stress, chop life!',
+    subtitle: 'Why carry heavy boxes or beg your roommate for help? Book trusted student porters, hostel movers, and van pickups in 60 seconds.',
+    moneyTag: 'Make Money: Earn ₦25k–₦40k this weekend moving luggage for students!',
+    ctaPrimaryText: 'Automate Movement',
+    ctaPrimaryLink: '/services?category=movers',
+    ctaSecondaryText: 'Earn As A Mover',
+    ctaSecondaryLink: '/sell',
+    icon: Truck,
+    accentBg: 'bg-orange-50',
+    accentBorder: 'border-orange-200',
+    accentText: 'text-orange-900',
+    highlightColor: 'text-brand-600',
+  },
+  {
+    id: 'campus-handyman',
+    langTag: 'Campus Hustle',
+    langFlag: '⚡',
+    themeBadge: 'Electrician & Painter',
+    complaint: 'Why wait 3 weeks for Hostel Electrician or Painter? Declutter is here for you!',
+    headlinePrefix: 'Hostel maintenance dey delay? ',
+    headlineHighlight: 'Fix room sockets & paint sharp sharp.',
+    subtitle: 'School electrician no pick call? Dead sockets, noisy ceiling fan, or dull room walls? Book certified student electricians, carpenters, and room painters right in your hall.',
+    moneyTag: 'Make Money: Got fixing or painting skills? Pocket ₦10k–₦20k daily on campus!',
+    ctaPrimaryText: 'Book Handyman Now',
+    ctaPrimaryLink: '/services',
+    ctaSecondaryText: 'List Your Skill',
+    ctaSecondaryLink: '/business',
+    icon: Wrench,
+    accentBg: 'bg-amber-50',
+    accentBorder: 'border-amber-200',
+    accentText: 'text-amber-900',
+    highlightColor: 'text-amber-600',
+  },
+  {
+    id: 'yoruba-cashout',
+    langTag: 'Yorùbá Slang',
+    langFlag: '🇳🇬',
+    themeBadge: 'Owó Sharp Sharp',
+    complaint: 'Padi mi, kí ló kàn ẹ pẹ̀lú stress? Kilode tí o fi fẹ́ fi fridge sọ nù?',
+    headlinePrefix: 'Ẹrù hostel kò ní pa ẹ́! ',
+    headlineHighlight: 'Cash out on your room items sharp sharp.',
+    subtitle: 'Kò sí wàhálà! Moving out or graduating? Don\'t dash out your mini fridge, standing fan, or gas cylinder for free. Turn unused hostel items into urgent cash in under 2 hours.',
+    moneyTag: 'Make Money: Average student pockets ₦48,500 selling room clutter on Declutter.',
+    ctaPrimaryText: 'Sell Room Items',
+    ctaPrimaryLink: '/sell',
+    ctaSecondaryText: '1-Click Declutter',
+    ctaSecondaryLink: '/declutter',
+    icon: Coins,
+    accentBg: 'bg-emerald-50',
+    accentBorder: 'border-emerald-200',
+    accentText: 'text-emerald-900',
+    highlightColor: 'text-emerald-600',
+  },
+  {
+    id: 'igbo-smart-trade',
+    langTag: 'Igbo Slang',
+    langFlag: '🇳🇬',
+    themeBadge: 'Mee Ego & Smart Trade',
+    complaint: 'Nwanne, nwoke anaghị ata ahụhụ na hostel! Why spend all your pocket money on new items?',
+    headlinePrefix: 'Mee ego sharp sharp! ',
+    headlineHighlight: 'Buy, sell & swap with fellow students.',
+    subtitle: 'Ihe dị ọnụ ahịa na campus! Freshers and staylites save 70% buying clean pre-loved room essentials, or trade what you don\'t need for what you need with zero long grammar.',
+    moneyTag: 'Swap & Save: Trade your old monitor, stove, or textbooks without spending 1 kobo.',
+    ctaPrimaryText: 'Swap An Item',
+    ctaPrimaryLink: '/swap',
+    ctaSecondaryText: 'Sell Your Clutter',
+    ctaSecondaryLink: '/sell',
+    icon: ArrowRightLeft,
+    accentBg: 'bg-blue-50',
+    accentBorder: 'border-blue-200',
+    accentText: 'text-blue-900',
+    highlightColor: 'text-blue-600',
+  },
+  {
+    id: 'hausa-ba-wahala',
+    langTag: 'Hausa Slang',
+    langFlag: '🇳🇬',
+    themeBadge: 'Ba Wahala Clearance',
+    complaint: 'Ba wahala ko kadan! Me yasa zaka sha wahala a hostel lokacin clearance?',
+    headlinePrefix: 'Kasuwa ta bude: ',
+    headlineHighlight: 'Automate room movement & make money before break.',
+    subtitle: 'Exams don finish and hostel clearance deadline dey chase you? Clear your room in 10 minutes, get luggage safely transported home, and enjoy your holiday in peace.',
+    moneyTag: 'Ka samu kudi: Make fast money from every single item you pack before holiday begins!',
+    ctaPrimaryText: '1-Click Declutter',
+    ctaPrimaryLink: '/declutter',
+    ctaSecondaryText: 'Book Moving Help',
+    ctaSecondaryLink: '/services',
+    icon: Package,
+    accentBg: 'bg-purple-50',
+    accentBorder: 'border-purple-200',
+    accentText: 'text-purple-900',
+    highlightColor: 'text-purple-600',
+  },
+  {
+    id: 'hostel-fumigation',
+    langTag: 'Hostel Life',
+    langFlag: '✨',
+    themeBadge: 'Bedbug Free & Fresh Walls',
+    complaint: 'Roommate travel leave mess? Dirty bunk, peeled walls & bedbug drama?',
+    headlinePrefix: 'Why sleep in discomfort? ',
+    headlineHighlight: 'Book fast room fumigation & makeover.',
+    subtitle: 'Eliminate hostel pests once and for all, wash your mattress, and get your room freshly coated before semester lectures start. Clean room, clear head, better grades.',
+    moneyTag: 'Make Money: Student cleaners & fumigators earn up to ₦15,000 per room session!',
+    ctaPrimaryText: 'Book Fumigation',
+    ctaPrimaryLink: '/services?category=fumigation',
+    ctaSecondaryText: 'Become A Provider',
+    ctaSecondaryLink: '/business',
+    icon: Sparkles,
+    accentBg: 'bg-rose-50',
+    accentBorder: 'border-rose-200',
+    accentText: 'text-rose-900',
+    highlightColor: 'text-rose-600',
+  },
+];
+
+const currentSlideIndex = ref(0);
+const slideDirection = ref<'next' | 'prev'>('next');
+const slideTransition = computed(() => `hero-slide-${slideDirection.value}`);
+const currentSlide = computed(() => heroSlides[currentSlideIndex.value]);
+
+let carouselTimer: any = null;
+const isPaused = ref(false);
+
+const nextSlide = () => {
+  slideDirection.value = 'next';
+  currentSlideIndex.value = (currentSlideIndex.value + 1) % heroSlides.length;
+};
+
+const prevSlide = () => {
+  slideDirection.value = 'prev';
+  currentSlideIndex.value = (currentSlideIndex.value - 1 + heroSlides.length) % heroSlides.length;
+};
+
+const goToSlide = (index: number) => {
+  if (index === currentSlideIndex.value) return;
+  slideDirection.value = index > currentSlideIndex.value ? 'next' : 'prev';
+  currentSlideIndex.value = index;
+};
+
+const startCarousel = () => {
+  stopCarousel();
+  carouselTimer = setInterval(() => {
+    if (!isPaused.value) {
+      slideDirection.value = 'next';
+      currentSlideIndex.value = (currentSlideIndex.value + 1) % heroSlides.length;
+    }
+  }, 5500);
+};
+
+const stopCarousel = () => {
+  if (carouselTimer) {
+    clearInterval(carouselTimer);
+    carouselTimer = null;
+  }
+};
+
+const pauseCarousel = () => {
+  isPaused.value = true;
+};
+
+const resumeCarousel = () => {
+  isPaused.value = false;
+};
 
 /** Tab counts are the real number of rows each rail is showing, never a guess. */
 const filterTabs = computed(() => [
@@ -708,5 +1065,45 @@ onMounted(() => {
     })
     .catch(() => { reels.value = []; })
     .finally(() => { loading.reels = false; });
+
+  // Start Ease-in / Ease-out Hero Carousel auto-rotation
+  startCarousel();
+});
+
+onUnmounted(() => {
+  stopCarousel();
 });
 </script>
+
+<style scoped>
+/* ── Hero Carousel Ease-in / Ease-out Transitions ── */
+.hero-slide-next-enter-active,
+.hero-slide-prev-enter-active {
+  transition: opacity 0.45s cubic-bezier(0.16, 1, 0.3, 1), transform 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.hero-slide-next-leave-active,
+.hero-slide-prev-leave-active {
+  transition: opacity 0.35s cubic-bezier(0.7, 0, 0.84, 0), transform 0.35s cubic-bezier(0.7, 0, 0.84, 0);
+}
+
+.hero-slide-next-enter-from {
+  opacity: 0;
+  transform: translateY(18px) scale(0.985);
+}
+
+.hero-slide-next-leave-to {
+  opacity: 0;
+  transform: translateY(-16px) scale(0.985);
+}
+
+.hero-slide-prev-enter-from {
+  opacity: 0;
+  transform: translateY(-18px) scale(0.985);
+}
+
+.hero-slide-prev-leave-to {
+  opacity: 0;
+  transform: translateY(16px) scale(0.985);
+}
+</style>
