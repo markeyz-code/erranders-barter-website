@@ -44,6 +44,14 @@
               <Briefcase class="w-4 h-4 text-emerald-400" />
               <span>Join as Student Fumigation Crew</span>
             </button>
+
+            <NuxtLink 
+              to="/business"
+              class="px-5 py-3.5 rounded-2xl bg-emerald-950/80 hover:bg-emerald-900 text-emerald-300 font-bold text-xs transition-all border border-emerald-500/40 flex items-center gap-2 backdrop-blur-md active:scale-95"
+            >
+              <LayoutDashboard class="w-4 h-4 text-emerald-400" />
+              <span>Business Mini-Admin ⚙️</span>
+            </NuxtLink>
           </div>
         </div>
       </div>
@@ -399,7 +407,7 @@
 
 <script setup>
 import { ref } from 'vue'
-import { ArrowLeft, Sparkles, Briefcase, CheckCircle2, X, Loader2 } from 'lucide-vue-next'
+import { ArrowLeft, Sparkles, Briefcase, CheckCircle2, X, Loader2, LayoutDashboard } from 'lucide-vue-next'
 import { useCustomToast } from '@/composables/core/useCustomToast'
 
 useSeoMeta({

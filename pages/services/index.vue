@@ -31,7 +31,7 @@
       </div>
 
       <!-- Hostel Movement Season Spotlight -->
-      <div class="mb-8 grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div class="mb-8 grid grid-cols-1 md:grid-cols-3 gap-4">
         <!-- Fumigation Card -->
         <NuxtLink
           to="/fumigation"
@@ -71,6 +71,27 @@
           </div>
           <div class="shrink-0 w-10 h-10 rounded-2xl bg-amber-500 text-slate-950 flex items-center justify-center font-black text-lg group-hover:scale-105 transition-transform shadow-md">
             →
+          </div>
+        </NuxtLink>
+
+        <!-- Business Mini-Admin Card -->
+        <NuxtLink
+          to="/business"
+          class="p-5 rounded-3xl bg-gradient-to-r from-purple-950 via-slate-900 to-slate-900 text-white border border-purple-500/30 flex items-center justify-between gap-4 group hover:shadow-xl hover:shadow-purple-950/20 transition-all"
+        >
+          <div class="space-y-1">
+            <span class="px-2.5 py-0.5 rounded-full bg-purple-500/20 text-purple-300 font-black text-[10px] uppercase tracking-wider inline-block">
+              💼 Vendor Operations
+            </span>
+            <h3 class="text-base sm:text-lg font-black text-white group-hover:text-purple-400 transition-colors">
+              Service Business Mini-Admin
+            </h3>
+            <p class="text-xs text-slate-300 font-medium">
+              Manage dispatch, recruit campus crew, track payouts & configure domain.
+            </p>
+          </div>
+          <div class="shrink-0 w-10 h-10 rounded-2xl bg-purple-500 text-white flex items-center justify-center font-black text-lg group-hover:scale-105 transition-transform shadow-md">
+            ⚙️
           </div>
         </NuxtLink>
       </div>
