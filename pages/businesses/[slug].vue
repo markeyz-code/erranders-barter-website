@@ -15,6 +15,52 @@
     </div>
 
     <template v-else-if="business">
+      <!-- Owner-designed page. Only rendered when the business has published one. -->
+      <template v-if="design && design.blocks.length > 0">
+        <PageBlock
+          v-for="block in design.blocks"
+          :key="block.id"
+          :block="block"
+          :business="business"
+          :services="designServices"
+          :accent="design.accentColor || '#FF5C1A'"
+        />
+
+        <!-- Roles still live outside the design: hiring is platform behaviour. -->
+        <section v-if="openings.length" class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12 border-t border-slate-100">
+          <h2 class="text-2xl font-extrabold text-slate-900">Work with us</h2>
+          <p class="text-sm text-slate-500 font-medium mt-1 mb-4">Open roles at {{ business.name }}</p>
+          <div class="space-y-3">
+            <div v-for="role in openings" :key="role._id" class="rounded-2xl border border-slate-200 p-4">
+              <div class="flex flex-wrap items-start justify-between gap-2">
+                <div class="min-w-0">
+                  <div class="flex flex-wrap items-center gap-2">
+                    <p class="font-bold text-slate-900">{{ role.title }}</p>
+                    <span class="px-2 py-0.5 rounded-md bg-slate-100 text-slate-600 text-[11px] font-bold capitalize">
+                      {{ role.type.replace('_', ' ') }}
+                    </span>
+                    <span v-if="role.pay" class="text-xs font-bold text-brand-600">{{ role.pay }}</span>
+                  </div>
+                  <p v-if="role.description" class="mt-1.5 text-sm text-slate-600">{{ role.description }}</p>
+                </div>
+                <button class="px-3 py-1.5 rounded-lg bg-slate-900 text-white text-xs font-bold hover:bg-slate-800 shrink-0" @click="openApply(role)">
+                  Apply
+                </button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <ApplyModal
+          :role="applyFor"
+          :business-name="business.name"
+          :slug="slug"
+          @close="closeApply"
+          @applied="onApplied"
+        />
+      </template>
+
+      <template v-else>
       <!-- Banner + identity -->
       <div class="relative">
         <div class="h-40 sm:h-56 bg-slate-900 overflow-hidden">
@@ -94,34 +140,15 @@
           To apply, message {{ business.name }} on Declutter — they'll arrange the rest with you.
         </p>
       </section>
+      </template>
 
-      <!-- Apply -->
-      <div v-if="applyFor" class="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4" @click.self="closeApply">
-        <div class="bg-white rounded-2xl max-w-md w-full p-5">
-          <h3 class="text-lg font-extrabold text-slate-900">Apply · {{ applyFor.title }}</h3>
-          <p class="text-xs text-slate-500 mt-0.5">{{ business?.name }}</p>
-
-          <div v-if="applied" class="mt-4 p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-center">
-            <CheckCircle2 class="w-8 h-8 text-emerald-600 mx-auto mb-2" />
-            <p class="text-sm font-bold text-slate-900">Application sent</p>
-            <p class="text-xs text-slate-600 mt-1">{{ business?.name }} will review it and contact you.</p>
-          </div>
-
-          <form v-else class="mt-4 space-y-3" @submit.prevent="submitApplication">
-            <input v-model="applyForm.name" placeholder="Your name" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm" />
-            <input v-model="applyForm.email" type="email" placeholder="Email" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm" />
-            <input v-model="applyForm.phone" placeholder="Phone (optional)" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm" />
-            <textarea v-model="applyForm.message" rows="3" placeholder="Why you're a good fit (optional)" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm" />
-            <p v-if="applyError" class="text-xs font-bold text-red-600">{{ applyError }}</p>
-            <div class="flex gap-2">
-              <button type="submit" class="flex-1 py-2.5 rounded-xl bg-brand-600 text-white text-sm font-bold disabled:opacity-40" :disabled="!canApply">
-                {{ submittingApplication ? 'Sending…' : 'Send application' }}
-              </button>
-              <button type="button" class="px-4 py-2.5 rounded-xl border border-slate-200 text-sm font-bold" @click="closeApply">Cancel</button>
-            </div>
-          </form>
-        </div>
-      </div>
+      <ApplyModal
+        :role="applyFor"
+        :business-name="business?.name || ''"
+        :slug="slug"
+        @close="closeApply"
+        @applied="onApplied"
+      />
     </template>
   </main>
 </template>
@@ -129,7 +156,9 @@
 <script setup lang="ts">
 import { computed, reactive, ref, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
-import { Building2, MapPin, Phone, Mail, Globe, CheckCircle2 } from 'lucide-vue-next';
+import { Building2, MapPin, Phone, Mail, Globe } from 'lucide-vue-next';
+import PageBlock from '~/components/business/PageBlock.vue';
+import ApplyModal from '~/components/business/ApplyModal.vue';
 import { businessesApi, type Business, type BusinessOpening } from '@/api_factory/modules/businesses';
 
 /**
@@ -148,6 +177,8 @@ const slug = computed(() =>
 );
 
 const business = ref<Business | null>(null);
+const design = ref<{ blocks: Array<{ id: string; type: string; isVisible: boolean; props: Record<string, any> }>; accentColor?: string } | null>(null);
+const designServices = ref<any[]>([]);
 const openings = ref<BusinessOpening[]>([]);
 const loading = ref(true);
 const error = ref('');
@@ -193,6 +224,10 @@ const submitApplication = async () => {
   }
 };
 
+const onApplied = () => {
+  /* The modal shows its own confirmation; nothing else to do here. */
+};
+
 const load = async () => {
   loading.value = true;
   error.value = '';
@@ -200,6 +235,13 @@ const load = async () => {
     const { data } = await businessesApi.getBySlug(slug.value);
     business.value = data.business;
     openings.value = (data.openings ?? []).filter((o) => o.isOpen !== false);
+
+    const page = (data as any).page;
+    design.value = page && Array.isArray(page.blocks) && page.blocks.length > 0 ? page : null;
+
+    // A "services" section reads live offerings rather than copies of them. They arrive
+    // with the page payload, so the design renders in a single request.
+    designServices.value = (data as any).services ?? [];
     useSeoMeta({ title: `${data.business.name} — Declutter` });
   } catch (err: any) {
     error.value =
