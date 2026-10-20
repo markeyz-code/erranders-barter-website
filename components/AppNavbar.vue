@@ -176,7 +176,9 @@
         <a v-if="user" href="/messages" class="relative hidden md:flex items-center justify-center w-10 h-10 rounded-full bg-slate-100 hover:bg-[#FF5C1A]/10 text-slate-700 hover:text-[#FF5C1A] transition-colors">
           <MessageCircle class="w-5 h-5" />
           <span v-if="unreadChats.length > 0" class="absolute top-1 right-1 w-2.5 h-2.5 bg-red-500 rounded-full animate-pulse"></span>
-        </a>        <!-- Desktop Auth -->
+        </a>
+
+        <!-- Desktop Auth -->
         <div v-if="!user" class="hidden md:flex items-center gap-2">
            <a href="/login" class="px-3 py-1.5 text-sm font-bold text-slate-700 hover:text-[#FF5C1A] transition-colors">Log In</a>
            <a href="/sell" class="bg-slate-900 hover:bg-[#FF5C1A] text-white font-bold px-4 sm:px-5 py-2 sm:py-2.5 rounded-full transition-all text-xs sm:text-sm shadow-xs active:scale-95">Start Trading</a>
