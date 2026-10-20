@@ -57,6 +57,13 @@ export function businessSlugFromHost(host: string, apex: string): string | null 
   return prefix;
 }
 
+/**
+ * GLOBAL middleware — it must run on every request, not just pages that opt in.
+ *
+ * It was previously a named middleware that nothing referenced, so it never executed:
+ * a business subdomain would have served the marketplace home page instead of the
+ * business's page.
+ */
 export default defineNuxtRouteMiddleware((to) => {
   const config = useRuntimeConfig();
 
@@ -86,8 +93,14 @@ export default defineNuxtRouteMiddleware((to) => {
     return navigateTo('/business/login', { redirectCode: 302 });
   }
 
-  const alreadyThere = to.path === `/businesses/${slug}`;
-  if (alreadyThere) return;
+  // Assets, the API and auth callbacks must never be redirected.
+  if (to.path.startsWith('/_') || to.path.startsWith('/api') || to.path.startsWith('/auth')) {
+    return;
+  }
+
+  // Already on a business page for this tenant — nothing to do. Any OTHER slug on this
+  // host is wrong, so fall through and correct it.
+  if (to.path === `/businesses/${slug}`) return;
 
   return navigateTo(`/businesses/${slug}`, { redirectCode: 302 });
 });
