@@ -94,6 +94,13 @@ export const businessesApi = {
   updateMine: (payload: Partial<Business>) =>
     GATEWAY_ENDPOINT_WITH_AUTH.patch<Business>('/businesses/me', payload),
 
+  /** GET /businesses — public directory, optionally narrowed by category. */
+  list: (params: { category?: string; search?: string; page?: number; limit?: number } = {}) =>
+    GATEWAY_ENDPOINT.get<{ data: Business[]; meta: { total: number; page: number; limit: number; totalPages: number } }>(
+      '/businesses',
+      { params },
+    ),
+
   /** GET /businesses/:slug — public page. */
   getBySlug: (slug: string) => GATEWAY_ENDPOINT.get<BusinessPublic>(`/businesses/${slug}`),
 

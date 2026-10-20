@@ -21,7 +21,8 @@
         <CheckCircle2 class="w-10 h-10 text-emerald-600 mx-auto mb-3" />
         <p class="font-extrabold text-slate-900">{{ created.name }} is set up</p>
         <p class="text-sm text-slate-600 mt-1">
-          Your page lives at <span class="font-bold">/businesses/{{ created.slug }}</span>
+          Your page is live at
+          <a :href="`https://${created.slug}.erranders.org`" target="_blank" rel="noopener" class="font-bold text-brand-600 hover:underline">{{ created.slug }}.erranders.org</a>
         </p>
         <div class="mt-5 flex gap-3 justify-center">
           <NuxtLink to="/dashboard/business" class="px-5 py-2.5 bg-brand-600 text-white rounded-xl text-sm font-bold">
@@ -43,17 +44,22 @@
         </label>
 
         <label class="block">
-          <span class="text-xs font-bold text-slate-600">Your address on Declutter</span>
-          <div class="mt-1.5 flex items-center rounded-xl border border-slate-200 bg-slate-50 overflow-hidden">
-            <span class="pl-3 text-xs font-semibold text-slate-400 select-none">declutter.app/</span>
+          <span class="text-xs font-bold text-slate-600">Your web address</span>
+          <div class="mt-1.5 flex items-stretch rounded-xl border border-slate-200 bg-slate-50 overflow-hidden">
             <input
               v-model="form.slug"
               type="text"
-              class="flex-1 bg-transparent px-1 py-2.5 text-sm font-semibold focus:outline-none"
-              placeholder="fumigpro"
+              class="flex-1 bg-transparent px-3 py-2.5 text-sm font-semibold text-right focus:outline-none"
+              placeholder="your-business"
             />
+            <span class="px-3 py-2.5 text-xs font-semibold text-slate-500 border-l border-slate-200 bg-white select-none">
+              .erranders.org
+            </span>
           </div>
-          <span class="text-[11px] text-slate-400">Letters, numbers and hyphens. This is also your subdomain.</span>
+          <span class="text-[11px] text-slate-400">
+            Letters, numbers and hyphens — this becomes
+            <span class="font-semibold text-slate-600">{{ slugPreview }}.erranders.org</span>
+          </span>
         </label>
 
         <label class="block">
@@ -142,6 +148,8 @@ const suggestSlug = () => {
     form.slug = slugify(form.name);
   }
 };
+
+const slugPreview = computed(() => slugify(form.slug) || 'your-business');
 
 const canSubmit = computed(
   () => form.name.trim().length > 1 && slugify(form.slug).length > 1 && form.category.trim().length > 1 && !submitting.value,

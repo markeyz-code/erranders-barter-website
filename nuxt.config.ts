@@ -55,11 +55,12 @@ export default defineNuxtConfig({
       apiBaseUrl: process.env.NUXT_PUBLIC_API_BASE_URL || process.env.VITE_API_BASE_URL || 'http://localhost:3100/api/v1',
       apiBase: process.env.VITE_API_BASE_URL || 'http://localhost:3100/api/v1',
       wsBase: process.env.WS_BASE_URL || process.env.VITE_WS_URL || 'http://localhost:3100',
-      // The apex host that business subdomains hang off, e.g. "declutter.app" makes
-      // "fumigpro.declutter.app" resolve to that business's page. Left EMPTY by default
-      // on purpose: with no apex the subdomain middleware is inert, so a missing or wrong
-      // value can never redirect the normal site to a bogus business page.
-      businessApexDomain: process.env.NUXT_PUBLIC_BUSINESS_APEX_DOMAIN || '',
+      // Every business gets `<business-name>.erranders.org`.
+      //
+      // The middleware only treats a host as a tenant when it ends in this apex AND the
+      // first label is not a reserved one — `decluttered` above all, since that is this
+      // site. Set this empty to disable subdomain routing entirely.
+      businessApexDomain: process.env.NUXT_PUBLIC_BUSINESS_APEX_DOMAIN || 'erranders.org',
       googleMapsApiKey: process.env.GOOGLE_MAPS_API_KEY || '',
       firebaseApiKey: process.env.NUXT_PUBLIC_FIREBASE_API_KEY || 'AIzaSyBzYV1KzAMugqh2N0DvbTP7vr4f96j1Po4',
       firebaseAuthDomain: process.env.NUXT_PUBLIC_FIREBASE_AUTH_DOMAIN || 'erranders-493fe.firebaseapp.com',

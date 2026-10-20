@@ -36,6 +36,15 @@
                 </span>
               </div>
               <p class="text-sm font-semibold text-slate-500 capitalize">{{ business.category }}</p>
+              <!-- Every business owns a subdomain, not a path. -->
+              <a
+                :href="`https://${business.slug}.erranders.org`"
+                target="_blank"
+                rel="noopener"
+                class="mt-1 inline-flex items-center gap-1 text-xs font-bold text-brand-600 hover:underline"
+              >
+                <Globe class="w-3 h-3" /> {{ business.slug }}.erranders.org
+              </a>
             </div>
           </div>
 
@@ -82,7 +91,7 @@
 <script setup lang="ts">
 import { computed, ref, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
-import { Building2, MapPin, Phone, Mail } from 'lucide-vue-next';
+import { Building2, MapPin, Phone, Mail, Globe } from 'lucide-vue-next';
 import { businessesApi, type Business, type BusinessOpening } from '@/api_factory/modules/businesses';
 
 /**

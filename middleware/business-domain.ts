@@ -17,10 +17,18 @@ import { defineNuxtRouteMiddleware, navigateTo, useRequestHeaders } from '#app';
  * localhost and preview URLs where wildcard DNS does not exist.
  */
 
-/** Hosts that are infrastructure, never a tenant. */
+/**
+ * Hosts that are infrastructure, never a tenant.
+ *
+ * `decluttered` is the Declutter site itself, so it MUST be here: with the apex at
+ * `erranders.org`, `decluttered.erranders.org` is a subdomain of it, and without
+ * this entry the live site would redirect every visitor to /businesses/decluttered.
+ */
 const RESERVED = new Set([
   'www', 'api', 'admin', 'app', 'dashboard', 'staging', 'preview', 'dev',
-  'mail', 'smtp', 'cdn', 'assets', 'static',
+  'mail', 'smtp', 'cdn', 'assets', 'static', 'docs', 'status', 'blog',
+  // Live product hosts under erranders.org
+  'decluttered', 'declutter', 'barter', 'marketplace', 'shop', 'vendor', 'pay', 'payments',
 ]);
 
 /** Domains where the first label is part of the provider, not a tenant. */
@@ -53,7 +61,7 @@ export default defineNuxtRouteMiddleware((to) => {
   const config = useRuntimeConfig();
 
   // A tenant host always wins over the requested path: the subdomain IS the address.
-  const apex = String((config.public as any).businessApexDomain || '');
+  const apex = String((config.public as any).businessApexDomain || 'erranders.org');
   if (!apex) return;
 
   const headers = import.meta.server ? useRequestHeaders(['host']) : {};
