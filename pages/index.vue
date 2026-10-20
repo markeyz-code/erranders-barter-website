@@ -137,18 +137,18 @@
     </div>
 
     <!-- ── SECTION 1: ITEMS MAPPED TO BUY (Hot Deals Feed) ── -->
-    <section id="buy-section" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-10 pb-8">
+    <section id="buy-section" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-8">
       <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-3 mb-6">
         <div>
           <div class="inline-flex items-center gap-1.5 text-xs font-bold text-brand-600 uppercase tracking-wider mb-1">
             <ShoppingBag class="w-4 h-4" />
-            <span>Ready for Instant Purchase</span>
+            <span>Ready to Buy</span>
           </div>
           <h2 class="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
             Items Mapped to Buy
           </h2>
           <p class="text-xs sm:text-sm text-slate-500 font-medium">
-            Pre-inspected items currently listed by students in your campus hostels.
+            Room essentials listed by campus students.
           </p>
         </div>
 
@@ -156,7 +156,7 @@
           to="/explore"
           class="inline-flex items-center gap-1 text-xs sm:text-sm font-bold text-brand-600 hover:text-brand-700 hover:underline shrink-0"
         >
-          <span>Browse All {{ displayToBuy.length }} Items</span>
+          <span>Browse All {{ toBuy.length }} Items</span>
           <ArrowRight class="w-4 h-4" />
         </NuxtLink>
       </div>
@@ -240,17 +240,17 @@
               <div class="flex items-center gap-2">
                 <h3 class="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">Just Sold Out</h3>
                 <span class="px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-700 text-[10px] font-bold uppercase tracking-wider border border-slate-200/80">
-                  Live Campus Activity
+                  Live
                 </span>
               </div>
               <p class="text-xs text-slate-500 font-medium">
-                Deals snatched up by students in the last 24 hours. Don't snooze on hot listings!
+                Deals snatched up by campus students today.
               </p>
             </div>
           </div>
 
           <NuxtLink to="/sell" class="text-xs font-bold text-brand-600 hover:text-brand-700 hover:underline">
-            Have similar items? Sell for instant cash →
+            Sell similar items →
           </NuxtLink>
         </div>
 
@@ -290,19 +290,19 @@
       </div>
     </section>
 
-    <!-- ── SECTION 3: ITEMS TO SWAP (Active Barter Exchanges) ── -->
-    <section id="swap-section" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+    <!-- ── SECTION 3: ITEMS TO SWAP (Active Barter Exchanges - 2 Rows Max) ── -->
+    <section id="swap-section" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-3 mb-6">
         <div>
           <div class="inline-flex items-center gap-1.5 text-xs font-bold text-amber-600 uppercase tracking-wider mb-1">
             <ArrowRightLeft class="w-4 h-4" />
-            <span>Direct Student Exchanges</span>
+            <span>Direct Trades</span>
           </div>
           <h2 class="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
             Items Up for Swap
           </h2>
           <p class="text-xs sm:text-sm text-slate-500 font-medium">
-            Trade what you have in your room for what you need — zero cash required.
+            Trade what you have for what you need — zero cash required.
           </p>
         </div>
 
@@ -401,15 +401,17 @@
             :to="`/reels?reelId=${reel._id}`"
             class="group rounded-3xl bg-white border border-slate-200 overflow-hidden relative aspect-[3/4] hover:border-brand-500 hover:shadow-xl transition-all duration-300 flex flex-col justify-between p-3.5 shadow-xs"
           >
-            <!-- Background Video / Image Preview -->
-            <div class="absolute inset-0 bg-slate-100">
+            <!-- Background Video / Image Preview (Autoplay loop muted for live preview) -->
+            <div class="absolute inset-0 bg-slate-900 overflow-hidden">
               <video
                 v-if="reel.videos?.length"
                 :src="reel.videos[0]"
                 class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                autoplay
+                loop
                 muted
                 playsinline
-                preload="metadata"
+                preload="auto"
               />
               <img
                 v-else
@@ -418,33 +420,33 @@
                 class="w-full h-full object-cover group-hover:scale-105 transition-all duration-500"
                 loading="lazy"
               />
-              <div class="absolute inset-0 bg-gradient-to-t from-slate-950/70 via-transparent to-black/20 pointer-events-none"></div>
+              <div class="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-black/30 pointer-events-none"></div>
             </div>
 
             <!-- Top Overlay: Creator & Views -->
             <div class="relative z-10 flex items-center justify-between">
-              <div class="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/90 backdrop-blur-md text-[10px] font-bold text-slate-800 border border-white/60 shadow-xs">
-                <span class="w-1.5 h-1.5 rounded-full bg-brand-500 animate-pulse"></span>
-                <span>{{ reel.author || '@student' }}</span>
+              <div class="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-black/60 backdrop-blur-md text-[10px] font-bold text-white border border-white/20 shadow-xs">
+                <span class="w-1.5 h-1.5 rounded-full bg-brand-400 animate-pulse"></span>
+                <span class="truncate max-w-[80px]">{{ reel.sellerId?.firstName || reel.author || '@student' }}</span>
               </div>
-              <span class="px-2.5 py-0.5 rounded-full bg-white/90 backdrop-blur-md text-[10px] font-bold text-slate-800 border border-white/60 shadow-xs flex items-center gap-1">
+              <span class="px-2.5 py-0.5 rounded-full bg-black/60 backdrop-blur-md text-[10px] font-bold text-white border border-white/20 shadow-xs flex items-center gap-1">
                 <Heart class="w-3 h-3 text-red-500 fill-red-500 inline" /> {{ reel.likesCount || 0 }}
               </span>
             </div>
 
             <!-- Center: Big Play Icon on Hover -->
-            <div class="relative z-10 flex items-center justify-center opacity-80 group-hover:opacity-100 group-hover:scale-110 transition-all">
-              <div class="w-12 h-12 rounded-full bg-white/95 text-slate-900 group-hover:bg-brand-600 group-hover:text-white flex items-center justify-center shadow-lg backdrop-blur-md transition-all">
+            <div class="relative z-10 flex items-center justify-center opacity-85 group-hover:opacity-100 group-hover:scale-110 transition-all">
+              <div class="w-11 h-11 rounded-full bg-white/95 text-slate-900 group-hover:bg-brand-600 group-hover:text-white flex items-center justify-center shadow-lg backdrop-blur-md transition-all">
                 <PlayIcon class="w-5 h-5 fill-current ml-0.5" />
               </div>
             </div>
 
             <!-- Bottom: Product Card Overlay -->
-            <div class="relative z-10 space-y-1 bg-white/95 backdrop-blur-md p-2.5 sm:p-3 rounded-2xl border border-white/90 shadow-md">
-              <h4 class="font-bold text-xs text-slate-900 line-clamp-1">{{ reel.title }}</h4>
+            <div class="relative z-10 space-y-1 bg-black/75 backdrop-blur-md p-2.5 sm:p-3 rounded-2xl border border-white/15 shadow-md">
+              <h4 class="font-bold text-xs text-white line-clamp-1">{{ reel.title }}</h4>
               <div class="flex items-center justify-between">
-                <span class="font-black text-brand-600 text-xs">{{ naira(reel.price) }}</span>
-                <span class="text-[10px] font-black text-slate-600 group-hover:text-brand-600 flex items-center gap-0.5">
+                <span class="font-black text-brand-400 text-xs">{{ naira(reel.price) }}</span>
+                <span class="text-[10px] font-black text-slate-300 group-hover:text-brand-400 flex items-center gap-0.5">
                   Watch →
                 </span>
               </div>
@@ -456,18 +458,18 @@
     </section>
 
     <!-- ── SECTION 5: CAMPUS SERVICES & SKILLS ── -->
-    <section id="services-section" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-      <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-3 mb-8">
+    <section id="services-section" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+      <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-3 mb-6">
         <div>
           <div class="inline-flex items-center gap-1.5 text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
             <Wrench class="w-4 h-4 text-brand-600" />
-            <span>Verified Campus Help</span>
+            <span>Campus Help</span>
           </div>
           <h2 class="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
             Book Services & Skills
           </h2>
           <p class="text-xs sm:text-sm text-slate-500 font-medium">
-            From hostel room fumigation and moving crews to laptop repairs and haircut bookings.
+            Hostel fumigation, moving porters, repairs & campus gigs.
           </p>
         </div>
 
@@ -481,7 +483,7 @@
       </div>
 
       <!-- Services Cards Grid -->
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
         <NuxtLink
           v-for="service in displayServices"
           :key="service._id"
@@ -515,6 +517,56 @@
             </span>
           </div>
         </NuxtLink>
+      </div>
+    </section>
+
+    <!-- ── SECTION 6: PARTNER BUSINESS SPOTLIGHT (Concise, Clean & Non-Wordy) ── -->
+    <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 mb-10">
+      <div class="p-6 sm:p-8 rounded-3xl bg-white text-slate-900 border border-slate-200/90 shadow-sm relative overflow-hidden">
+        <!-- Soft dot grid -->
+        <div class="absolute inset-0 bg-[radial-gradient(#e2e8f0_1.5px,transparent_1.5px)] [background-size:20px_20px] opacity-60 pointer-events-none"></div>
+
+        <div class="relative z-10 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
+          <div class="max-w-2xl space-y-2.5">
+            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-100 border border-slate-200 text-slate-700 text-xs font-bold">
+              <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+              <span>Commercial Partners</span>
+              <span class="text-slate-300">•</span>
+              <span>Custom Subdomains</span>
+            </div>
+
+            <h3 class="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
+              Hostel Fumigation & Move Partners
+            </h3>
+
+            <p class="text-xs sm:text-sm text-slate-600 font-medium leading-relaxed">
+              Campus businesses get custom storefronts (e.g. <span class="font-mono text-brand-600 font-bold">fumigation.erranders.org</span>) with student dispatch crews and instant escrow payouts.
+            </p>
+
+            <div class="flex flex-wrap items-center gap-3 text-xs text-slate-600 pt-0.5">
+              <span class="flex items-center gap-1.5"><CheckCircle2 class="w-3.5 h-3.5 text-emerald-600" /> Hospital-grade chemical guarantee</span>
+              <span class="flex items-center gap-1.5"><CheckCircle2 class="w-3.5 h-3.5 text-emerald-600" /> Dispatch student crews</span>
+              <span class="flex items-center gap-1.5"><CheckCircle2 class="w-3.5 h-3.5 text-emerald-600" /> Instant Escrow payouts</span>
+            </div>
+          </div>
+
+          <div class="flex flex-col sm:flex-row lg:flex-col gap-2.5 w-full lg:w-auto shrink-0">
+            <NuxtLink
+              to="/fumigation"
+              class="px-5 py-3 rounded-2xl bg-brand-600 hover:bg-brand-500 text-white font-bold text-xs sm:text-sm text-center transition-all shadow-sm active:scale-95 flex items-center justify-center gap-2"
+            >
+              <span>Book Room Fumigation</span>
+            </NuxtLink>
+
+            <NuxtLink
+              to="/become-a-business"
+              class="px-5 py-3 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-900 font-bold text-xs sm:text-sm text-center transition-colors border border-slate-200 flex items-center justify-center gap-2"
+            >
+              <span>Manage Business Mini-Admin</span>
+              <ExternalLink class="w-3.5 h-3.5 text-slate-500" />
+            </NuxtLink>
+          </div>
+        </div>
       </div>
     </section>
 
@@ -590,7 +642,7 @@ const startHeadingRotation = () => {
   rotationTimer = setInterval(() => {
     currentHeadingIndex.value = (currentHeadingIndex.value + 1) % heroHeadings.length;
     currentSlangIndex.value = (currentSlangIndex.value + 1) % slangSlogans.length;
-  }, 3800);
+  }, 3200);
 };
 
 const stopHeadingRotation = () => {
