@@ -48,6 +48,15 @@
           <span class="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse"></span>
           <span v-if="isRouteActive('/reels')" class="absolute -bottom-1 inset-x-0 h-0.5 bg-[#FF5C1A] rounded-full"></span>
         </NuxtLink>
+
+        <!-- The business platform is a separate application. -->
+        <a
+          :href="businessPlatformUrl"
+          class="transition-colors py-1 relative flex items-center gap-1.5 text-slate-600 hover:text-slate-950"
+        >
+          <span>Businesses</span>
+          <ArrowUpRight class="w-3.5 h-3.5" />
+        </a>
       </nav>
 
       <!-- Actions -->
@@ -248,6 +257,15 @@
               <span v-if="isRouteActive('/reels')" class="w-2 h-2 rounded-full bg-[#FF5C1A] shrink-0"></span>
             </div>
           </NuxtLink>
+
+          <a
+            :href="businessPlatformUrl"
+            @click="isMobileMenuOpen = false"
+            class="px-3.5 py-2.5 text-sm font-bold text-slate-700 hover:bg-slate-50 border border-transparent rounded-xl transition-all flex items-center justify-between"
+          >
+            <span>Businesses</span>
+            <ArrowUpRight class="w-4 h-4" />
+          </a>
           
           <div class="h-px bg-slate-100 my-1.5 mx-2"></div>
           

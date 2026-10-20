@@ -19,12 +19,12 @@
             class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-brand-50 border border-brand-200/80 text-brand-700 text-xs sm:text-sm font-semibold hover:bg-brand-100/70 transition-colors shadow-2xs"
           >
             <Zap class="w-3.5 h-3.5 fill-current text-brand-600" />
-            <span>Automate Hostel Movement & Turn Clutter into Cash</span>
+            <span>Turn Clutter into Cash ⚡</span>
           </NuxtLink>
         </div>
 
         <!-- Automatic Ease-In / Ease-Out Rotating Heading (No buttons, fully automatic) -->
-        <div class="relative h-[110px] sm:h-[135px] md:h-[155px] overflow-hidden flex items-center justify-center">
+        <div class="relative h-[80px] sm:h-[100px] md:h-[115px] overflow-hidden flex items-center justify-center">
           <TransitionGroup name="hero-slide" tag="div" class="w-full">
             <h1 
               :key="currentHeadingIndex"
@@ -36,7 +36,7 @@
         </div>
 
         <!-- Rotating Slang Subtitle -->
-        <div class="h-8 overflow-hidden text-sm sm:text-base font-semibold text-slate-500 flex items-center justify-center px-4">
+        <div class="h-7 overflow-hidden text-xs sm:text-sm font-semibold text-slate-500 flex items-center justify-center px-4">
           <Transition name="fade-sub" mode="out-in">
             <span :key="currentSlangIndex" class="inline-flex items-center gap-2 text-center text-slate-600">
               {{ slangSlogans[currentSlangIndex] }}
@@ -374,13 +374,13 @@
           <div>
             <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-100 border border-slate-200 text-slate-700 text-xs font-bold mb-2">
               <Flame class="w-3.5 h-3.5 text-brand-600 fill-brand-600" />
-              <span>Campus Video Experience</span>
+              <span>Reels</span>
             </div>
             <h2 class="text-2xl sm:text-4xl font-black text-slate-900 tracking-tight">
-              Watch & Buy in 15 Seconds
+              Watch & Buy
             </h2>
             <p class="text-xs sm:text-sm text-slate-500 font-medium max-w-xl mt-1">
-              Real video walk-throughs: see fridge chilling power, mattress thickness, and room clearance unboxings before paying.
+              Video previews before you pay.
             </p>
           </div>
 
@@ -399,7 +399,7 @@
             v-for="reel in displayReels"
             :key="reel._id"
             :to="`/reels?reelId=${reel._id}`"
-            class="group rounded-3xl bg-white border border-slate-200 overflow-hidden relative aspect-[9/16] hover:border-brand-500 hover:shadow-xl transition-all duration-300 flex flex-col justify-between p-3.5 shadow-xs"
+            class="group rounded-3xl bg-white border border-slate-200 overflow-hidden relative aspect-[3/4] hover:border-brand-500 hover:shadow-xl transition-all duration-300 flex flex-col justify-between p-3.5 shadow-xs"
           >
             <!-- Background Video / Image Preview -->
             <div class="absolute inset-0 bg-slate-100">
@@ -518,55 +518,6 @@
       </div>
     </section>
 
-    <!-- ── SECTION 6: PARTNER BUSINESS SPOTLIGHT (Fumigation, Movers & Business Mini-Admin) ── -->
-    <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 mb-12">
-      <div class="p-6 sm:p-10 rounded-3xl bg-white text-slate-900 border border-slate-200/90 shadow-sm relative overflow-hidden">
-        <!-- Soft dot grid matching hero section -->
-        <div class="absolute inset-0 bg-[radial-gradient(#e2e8f0_1.5px,transparent_1.5px)] [background-size:20px_20px] opacity-60 pointer-events-none"></div>
-
-        <div class="relative z-10 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-8">
-          <div class="max-w-2xl space-y-3">
-            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-100 border border-slate-200 text-slate-700 text-xs font-bold">
-              <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
-              <span>Commercial Service Partners</span>
-              <span class="text-slate-300">•</span>
-              <span>Unique Subdomains Included</span>
-            </div>
-
-            <h3 class="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
-              Hostel Room Fumigation & Business Vendor Portal
-            </h3>
-
-            <p class="text-xs sm:text-sm text-slate-600 font-medium leading-relaxed">
-              Operating a service business on campus? Businesses like <strong>Hostel Room Fumigation Partners</strong> and <strong>Luggage Movers</strong> get their own dedicated storefront (e.g. <span class="font-mono text-brand-600 font-bold">fumigation.erranders.org</span>), recruit campus student staff, and manage dispatches & escrow payouts from their private Mini-Admin.
-            </p>
-
-            <div class="flex flex-wrap items-center gap-4 text-xs text-slate-600 pt-1">
-              <span class="flex items-center gap-1.5"><CheckCircle2 class="w-4 h-4 text-emerald-600" /> Hospital-grade chemical guarantee</span>
-              <span class="flex items-center gap-1.5"><CheckCircle2 class="w-4 h-4 text-emerald-600" /> Dispatch student crew members</span>
-              <span class="flex items-center gap-1.5"><CheckCircle2 class="w-4 h-4 text-emerald-600" /> Instant Escrow payouts</span>
-            </div>
-          </div>
-
-          <div class="flex flex-col sm:flex-row lg:flex-col gap-3 w-full lg:w-auto shrink-0">
-            <NuxtLink
-              to="/fumigation"
-              class="px-6 py-3.5 rounded-2xl bg-brand-600 hover:bg-brand-500 text-white font-bold text-xs sm:text-sm text-center transition-all shadow-sm active:scale-95 flex items-center justify-center gap-2"
-            >
-              <span>Book Room Fumigation</span>
-            </NuxtLink>
-
-            <NuxtLink
-              to="/become-a-business"
-              class="px-6 py-3.5 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-900 font-bold text-xs sm:text-sm text-center transition-colors border border-slate-200 flex items-center justify-center gap-2"
-            >
-              <span>Manage Business Mini-Admin</span>
-              <ExternalLink class="w-4 h-4 text-slate-500" />
-            </NuxtLink>
-          </div>
-        </div>
-      </div>
-    </section>
 
   </div>
 </template>
@@ -607,49 +558,31 @@ const currentSlangIndex = ref(0);
 let rotationTimer: any = null;
 
 const heroHeadings = [
-  {
-    text: 'Automate hostel movement. 📦<br/><span class="text-brand-600">Zero stress, chop life!</span>',
-    lang: '🇳🇬 Pidgin'
-  },
-  {
-    text: 'Why wait for hostel electrician or painter? ⚡<br/><span class="text-brand-600">Declutter is here for you!</span>',
-    lang: '🇬🇧 Campus Fix'
-  },
-  {
-    text: 'You dey carry mattress climb 3 floors? 😩<br/>Make we <span class="text-brand-600">move your luggage sharp sharp.</span>',
-    lang: '🇳🇬 Pidgin'
-  },
-  {
-    text: 'Ẹrù hostel kò ní pa ẹ́! 💸<br/>Turn room clutter into <span class="text-brand-600">urgent cash today.</span>',
-    lang: '🇳🇬 Yoruba'
-  },
-  {
-    text: 'Nwanne, nwoke anaghị ata ahụhụ! 🚀<br/>Sell old room items & <span class="text-brand-600">mee ego sharp!</span>',
-    lang: '🇳🇬 Igbo'
-  },
-  {
-    text: 'Ba wahala ko kadan! 🏃‍♂️<br/>Automate room movement & <span class="text-brand-600">cash out before break.</span>',
-    lang: '🇳🇬 Hausa'
-  },
-  {
-    text: 'Graduating or changing hostel? 🎓<br/>Make <span class="text-brand-600">₦50k+ selling clutter</span> in 2 hrs.',
-    lang: '💰 Cashout'
-  },
-  {
-    text: 'Bedbug drama & dull room walls? 🐜<br/>Book <span class="text-brand-600">hostel fumigation & painters</span> fast.',
-    lang: '✨ Fresh Room'
-  }
+  { text: 'Sell your room stuff. <span class="text-brand-600">Get paid today.</span> 💰' },
+  { text: 'Book movers, painters & <span class="text-brand-600">electricians</span> ⚡' },
+  { text: 'Swap items. <span class="text-brand-600">No cash needed.</span> 🔄' },
+  { text: 'Clutter → Cash. <span class="text-brand-600">In 2 hours.</span> 📦' },
+  { text: 'Room fumigation <span class="text-brand-600">booked in 60s</span> ✨' },
+  { text: 'Graduating? <span class="text-brand-600">Cash out ₦50k+</span> 🎓' },
+  { text: 'No stress. <span class="text-brand-600">Chop life!</span> 🇳🇬' },
+  { text: 'Kò sí wàhálà — <span class="text-brand-600">buy & sell easy</span> 🤝' },
+  { text: 'Nwanne, <span class="text-brand-600">mee ego sharp!</span> 🚀' },
+  { text: 'Ba wahala! <span class="text-brand-600">Move & cash out.</span> 🏃‍♂️' },
+  { text: 'Escrow protected. <span class="text-brand-600">100% safe.</span> 🛡️' },
+  { text: 'Save 70% on <span class="text-brand-600">room essentials</span> 🔥' },
 ];
 
 const slangSlogans = [
-  "No stress yourself: Book trusted student porters & van pickups in 60s. 🚚",
-  "School electrician dey delay? Book verified hall handymen right now. ⚡",
-  "Don't dash out that fridge or fan! Cash out ₦40k+ before holidays. 💰",
-  "Padi mi, kò sí wàhálà: Buy, sell & swap with fellow students. 🤝",
-  "Nwanne, save 70% on room essentials or swap what you don't use. 🔄",
-  "Hostel clearance deadline dey chase you? 1-Click Declutter clears your room. 📦",
-  "Got skills to wire, paint or carry bags? Pocket ₦15k+ daily on campus. 🛠️",
-  "100% Escrow protected. No stories, safe student payments. 🛡️"
+  "Book porters & van pickups in 60s 🚚",
+  "Electrician dey delay? Book handymen now ⚡",
+  "Cash out ₦40k+ before holidays 💰",
+  "Buy, sell & swap with students 🤝",
+  "Save 70% on room essentials 🔄",
+  "1-Click Declutter clears your room 📦",
+  "Earn ₦15k+ daily on campus 🛠️",
+  "Escrow protected. No stories 🛡️",
+  "Fumigation & painting in 24hrs ✨",
+  "Mattress, fridge, fan — all listed 🏠",
 ];
 
 const startHeadingRotation = () => {
@@ -711,9 +644,9 @@ const naira = (n?: number) => (typeof n === 'number' && !isNaN(n) ? `₦${Number
 // Every rail renders exactly what the API returned. No sample inventory is ever
 // substituted: a student must never see an item that nobody is actually selling,
 // because it cannot be opened or bought.
-const displayToBuy = computed(() => toBuy.value);
+const displayToBuy = computed(() => toBuy.value.slice(0, 8));
 const displayJustSold = computed(() => justSold.value);
-const displayToSwap = computed(() => toSwap.value);
+const displayToSwap = computed(() => toSwap.value.slice(0, 6));
 const displayReels = computed(() => reels.value);
 const displayServices = computed(() => services.value);
 
