@@ -11,43 +11,6 @@
       <div class="absolute inset-0 bg-[radial-gradient(#e2e8f0_1.5px,transparent_1.5px)] [background-size:20px_20px] opacity-60 pointer-events-none"></div>
 
       <div class="max-w-7xl mx-auto relative z-10">
-        
-        <!-- Live Campus Ticker Badges -->
-        <div class="flex flex-wrap items-center gap-2 mb-4">
-          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200/80 text-emerald-800 text-xs font-bold shadow-2xs">
-            <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-            <span>Live Campus Market</span>
-            <span class="text-slate-400">•</span>
-            <span class="font-normal">{{ campusStats.activeListings }} items active</span>
-          </div>
-
-          <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-purple-50 border border-purple-200/80 text-purple-800 text-xs font-bold">
-            <ShieldCheck class="w-3.5 h-3.5 text-purple-600" />
-            <span>Escrow Protected</span>
-          </div>
-
-          <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-orange-50 border border-orange-200/80 text-orange-800 text-xs font-bold">
-            <Truck class="w-3.5 h-3.5 text-brand-600" />
-            <span>Automate Hostel Movement</span>
-          </div>
-        </div>
-
-        <!-- Interactive Slang & Language Strip (Quick-jump to slides) -->
-        <div class="flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-1 mb-5">
-          <button
-            v-for="(slide, idx) in heroSlides"
-            :key="slide.id"
-            @click="goToSlide(idx)"
-            class="px-3 py-1 rounded-full text-xs font-bold transition-all whitespace-nowrap flex items-center gap-1.5 cursor-pointer border"
-            :class="currentSlideIndex === idx
-              ? 'bg-slate-900 text-white border-slate-900 shadow-xs scale-[1.02]'
-              : 'bg-white hover:bg-slate-100 text-slate-600 border-slate-200/80'"
-          >
-            <span>{{ slide.langFlag }}</span>
-            <span>{{ slide.langTag }}: {{ slide.themeBadge }}</span>
-          </button>
-        </div>
-
         <!-- ── Dynamic Ease-In / Ease-Out Hero Carousel & Hub ── -->
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch mb-8">
           
