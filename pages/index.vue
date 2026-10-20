@@ -108,7 +108,7 @@
               ? 'bg-brand-600 text-white shadow-sm shadow-brand-600/25 scale-[1.02]'
               : 'bg-slate-100 text-slate-600 hover:bg-slate-200 hover:text-slate-900'"
           >
-            <span>{{ tab.emoji }}</span>
+            <component :is="tab.icon" class="w-3.5 h-3.5" />
             <span>{{ tab.label }}</span>
             <span v-if="tab.count" class="text-[10px] opacity-80">({{ tab.count }})</span>
           </button>
@@ -185,7 +185,7 @@
             </div>
             <!-- Escrow Badge -->
             <span class="absolute bottom-2.5 right-2.5 px-2 py-0.5 rounded-md text-[9px] font-black bg-slate-900/80 text-white backdrop-blur-md">
-              🛡️ Escrow
+              <ShieldCheck class="w-2.5 h-2.5 inline -mt-0.5" /> Escrow
             </span>
           </div>
 
@@ -226,7 +226,7 @@
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
           <div class="flex items-center gap-3">
             <div class="w-10 h-10 rounded-2xl bg-red-500/20 text-red-400 flex items-center justify-center font-black text-base border border-red-500/30">
-              ⚡
+              <Zap class="w-5 h-5" />
             </div>
             <div>
               <div class="flex items-center gap-2">
@@ -272,10 +272,10 @@
               <span class="font-black text-emerald-400">{{ naira(item.price) }}</span>
               <span class="text-[11px] text-slate-400 flex items-center gap-1 font-medium">
                 <Clock class="w-3 h-3 text-slate-500" />
-                {{ item.soldAgo || 'Just now' }}
+                {{ item.soldAgo || 'Recently' }}
               </span>
             </div>
-            <p class="text-[10px] text-slate-500 mt-1 truncate">📍 {{ item.location || 'Campus Wide' }}</p>
+            <p class="text-[10px] text-slate-500 mt-1 truncate"><MapPin class="w-3 h-3 inline -mt-0.5" /> {{ item.location || 'Campus Wide' }}</p>
           </div>
         </div>
 
@@ -339,14 +339,14 @@
                   <ArrowRightLeft class="w-3 h-3 text-amber-600" /> Wants in Exchange:
                 </span>
                 <p class="text-xs font-bold text-amber-950 truncate mt-0.5">
-                  {{ swap.swapPreference || 'Open to fair student trades' }}
+                  {{ swap.swapPreference || 'Open to fair trades' }}
                 </p>
               </div>
             </div>
           </div>
 
           <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
-            <span class="text-[11px] text-slate-400 font-medium">📍 {{ swap.location || 'Campus Wide' }}</span>
+            <span class="text-[11px] text-slate-400 font-medium"><MapPin class="w-3 h-3 inline -mt-0.5" /> {{ swap.location || 'Campus Wide' }}</span>
             <span class="px-3 py-1 rounded-xl bg-amber-500/15 group-hover:bg-amber-500 text-amber-700 group-hover:text-white font-black text-xs transition-colors">
               Propose Trade ⇄
             </span>
@@ -378,7 +378,7 @@
             class="px-5 py-3 rounded-2xl bg-gradient-to-r from-red-600 to-pink-600 hover:from-red-500 hover:to-pink-500 text-white font-black text-xs sm:text-sm transition-all shadow-lg shadow-red-600/30 flex items-center gap-2 shrink-0 active:scale-95"
           >
             <PlayIcon class="w-4 h-4 fill-current" />
-            <span>Open Full Reels Feed 🔥</span>
+            <span>Open full reels feed</span>
           </NuxtLink>
         </div>
 
@@ -417,7 +417,7 @@
                 <span>{{ reel.author || '@student' }}</span>
               </div>
               <span class="px-2 py-0.5 rounded-full bg-black/60 backdrop-blur-md text-[10px] font-bold text-white flex items-center gap-1">
-                ❤️ {{ reel.likesCount || '850' }}
+                <Heart class="w-3 h-3 inline" /> {{ reel.likesCount || 0 }}
               </span>
             </div>
 
@@ -472,12 +472,12 @@
         <NuxtLink
           v-for="service in displayServices"
           :key="service._id"
-          :to="service.route || `/services/${service._id}`"
+          :to="`/services/${service._id}`"
           class="p-5 rounded-3xl bg-white border border-slate-200/90 hover:border-purple-500 hover:shadow-xl hover:shadow-purple-500/10 transition-all duration-300 group flex flex-col justify-between"
         >
           <div class="space-y-3">
             <div class="flex items-center justify-between">
-              <span class="text-2xl">{{ service.icon || '🛠️' }}</span>
+              <Wrench class="w-6 h-6 text-brand-600" />
               <span class="px-2.5 py-0.5 rounded-full text-[10px] font-black bg-purple-50 text-purple-700 border border-purple-200">
                 {{ service.badge || 'Verified' }}
               </span>
@@ -494,7 +494,7 @@
           </div>
 
           <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between">
-            <span class="font-black text-sm text-slate-900">{{ service.priceText }}</span>
+            <span class="font-black text-sm text-slate-900">{{ service.priceText || servicePriceLabel(service) }}</span>
             <span class="px-3 py-1 rounded-xl bg-slate-900 group-hover:bg-purple-600 text-white text-xs font-bold transition-colors">
               Book Slot
             </span>
@@ -511,7 +511,7 @@
         <div class="relative z-10 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-8">
           <div class="max-w-2xl space-y-3">
             <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/20 border border-emerald-500/40 text-emerald-400 text-xs font-black">
-              <span>🏢 Commercial Services & Vendor Ecosystem</span>
+              <span>Commercial services and vendor ecosystem</span>
               <span class="text-slate-500">•</span>
               <span>Unique Subdomain Included</span>
             </div>
@@ -536,14 +536,14 @@
               to="/fumigation"
               class="px-6 py-3.5 rounded-2xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-xs sm:text-sm text-center transition-all shadow-lg shadow-emerald-500/30 active:scale-95 flex items-center justify-center gap-2"
             >
-              <span>🧪 Book Room Fumigation (₦14k+)</span>
+              <span>Book a fumigation</span>
             </NuxtLink>
 
             <NuxtLink
               to="/business"
               class="px-6 py-3.5 rounded-2xl bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs sm:text-sm text-center transition-colors border border-slate-700 flex items-center justify-center gap-2"
             >
-              <span>💼 Manage Business Mini-Admin</span>
+              <span>Manage your business mini-admin</span>
               <ExternalLink class="w-4 h-4 text-slate-400" />
             </NuxtLink>
           </div>
@@ -558,12 +558,12 @@
 import { onMounted, reactive, ref, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import {
-  Search, ShoppingBag, Tag, Package, ShieldCheck, MapPin, Clock, ArrowRight,
-  ArrowRightLeft, Flame, Play as PlayIcon, Wrench, CheckCircle2, ExternalLink
+  Search, ShoppingBag, Tag, Package, ShieldCheck, MapPin, Clock, ArrowRight, ArrowRightLeft, Flame, Play as PlayIcon, Wrench, CheckCircle2, ExternalLink, Heart, Sparkles, Zap
 } from 'lucide-vue-next';
 import CatchUpBanner from '~/components/CatchUpBanner.vue';
 import { itemsApi } from '@/api_factory/modules/items';
 import { servicesApi, type Service } from '@/api_factory/modules/services';
+import { formatPriceLabel } from '@/composables/modules/services/useServiceFormatting';
 
 useSeoMeta({
   title: 'Decluttered by Erranders - Instant Campus Marketplace, Deals & Gigs',
@@ -584,54 +584,15 @@ const popularSearches = [
   'Mini Fridge', 'Standing Fan', 'Textbooks', 'Gas Cylinder', 'Hot Plate', 'Mattress', 'Fumigation', 'Luggage Movers'
 ];
 
-const filterTabs = [
-  { id: 'all', label: 'All Marketplace', emoji: '✨' },
-  { id: 'buy', label: 'Items to Buy', emoji: '🛒', count: 42 },
-  { id: 'sold', label: 'Just Sold Out', emoji: '🔥', count: 18 },
-  { id: 'swap', label: 'Swaps', emoji: '🔄', count: 15 },
-  { id: 'reels', label: 'Reels', emoji: '🎬', count: 24 },
-  { id: 'services', label: 'Services & Skills', emoji: '🛠️', count: 12 },
-];
-
-// Fallback high-quality campus inventory when API returns empty
-const sampleToBuy = [
-  { _id: 'buy-1', title: 'Hisense 90L Bedside Mini Fridge (Chills in 10m)', price: 32000, originalPrice: 42000, condition: 'Like New', location: 'Moremi Hall, Block B', images: ['https://images.unsplash.com/photo-1571175443880-49e1d25b2bc5?auto=format&fit=crop&q=80&w=600'] },
-  { _id: 'buy-2', title: 'Ox 18-Inch Heavy Duty Rechargeable Standing Fan', price: 14500, originalPrice: 19000, condition: 'Clean 9/10', location: 'Jaja Hall, 4th Floor', images: ['https://images.unsplash.com/photo-1618941716939-553df3c6c278?auto=format&fit=crop&q=80&w=600'] },
-  { _id: 'buy-3', title: 'Calculus, Engineering Maths & Circuit Theory Textbooks', price: 3000, originalPrice: 8500, condition: 'Good', location: 'Faculty of Engineering', images: ['https://images.unsplash.com/photo-1497633762265-9d179a990aa6?auto=format&fit=crop&q=80&w=600'] },
-  { _id: 'buy-4', title: 'Binatone Double Burner Electric Hot Plate', price: 9000, originalPrice: 14000, condition: 'Tested & Working', location: 'Mariere Hall', images: ['https://images.unsplash.com/photo-1584992236310-6edddc08acff?auto=format&fit=crop&q=80&w=600'] },
-  { _id: 'buy-5', title: 'Mouka Foam 4.5ft Semi-Orthopedic Hostel Mattress', price: 18000, originalPrice: 28000, condition: 'Very Clean', location: 'Eni Njoku Hall', images: ['https://images.unsplash.com/photo-1582533561751-ef6f6ab93a2e?auto=format&fit=crop&q=80&w=600'] },
-  { _id: 'buy-6', title: 'Apple 20W USB-C Fast Charger + 2m Type-C Cable', price: 6500, originalPrice: 12000, condition: 'Original', location: 'Honours Hall', images: ['https://images.unsplash.com/photo-1583863788434-e58a36330cf0?auto=format&fit=crop&q=80&w=600'] },
-  { _id: 'buy-7', title: 'Standard Wooden Study Desk with 2 Drawers', price: 11000, originalPrice: 16000, condition: 'Sturdy', location: 'Kofo Hall', images: ['https://images.unsplash.com/photo-1518455027359-f3f8164ba6bd?auto=format&fit=crop&q=80&w=600'] },
-  { _id: 'buy-8', title: 'Kenwood 1.5L Blender + Dry Mill Jar', price: 8500, originalPrice: 13000, condition: 'Like New', location: 'New Hall', images: ['https://images.unsplash.com/photo-1570222094114-d054a817e56b?auto=format&fit=crop&q=80&w=600'] },
-];
-
-const sampleJustSold = [
-  { _id: 'sold-1', title: 'Hisense 1.5HP Inverter Air Conditioner', price: 48000, soldAgo: '14m ago', location: 'Jaja Hall', images: ['https://images.unsplash.com/photo-1621905252507-b35492cc74b4?auto=format&fit=crop&q=80&w=500'] },
-  { _id: 'sold-2', title: 'Royal 6kg Gas Cylinder + Pre-filled Gas', price: 11500, soldAgo: '32m ago', location: 'Moremi Hall', images: ['https://images.unsplash.com/photo-1584992236310-6edddc08acff?auto=format&fit=crop&q=80&w=500'] },
-  { _id: 'sold-3', title: 'Sony WH-1000XM4 Wireless Headphones', price: 58000, soldAgo: '48m ago', location: 'Mariere Hall', images: ['https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&q=80&w=500'] },
-  { _id: 'sold-4', title: 'Maxi Rechargeable Table Fan with Light', price: 7500, soldAgo: '1h ago', location: 'Honours Hall', images: ['https://images.unsplash.com/photo-1618941716939-553df3c6c278?auto=format&fit=crop&q=80&w=500'] },
-  { _id: 'sold-5', title: 'Samsung 24-inch Curved FHD Monitor', price: 39000, soldAgo: '2h ago', location: 'Faculty of Law', images: ['https://images.unsplash.com/photo-1527443224154-c4a3942d3acf?auto=format&fit=crop&q=80&w=500'] },
-];
-
-const sampleToSwap = [
-  { _id: 'swap-1', title: 'PlayStation 4 Slim 500GB (2 Pads + 3 Games)', swapPreference: 'iPhone 11 or Laptop with 8GB RAM', location: 'Jaja Hall', images: ['https://images.unsplash.com/photo-1486401899868-0e435ed85128?auto=format&fit=crop&q=80&w=600'] },
-  { _id: 'swap-2', title: 'Century 18-inch Standing Fan (Working Perfect)', swapPreference: 'Electric Kettle or 1.5L Blender', location: 'Moremi Hall', images: ['https://images.unsplash.com/photo-1618941716939-553df3c6c278?auto=format&fit=crop&q=80&w=600'] },
-  { _id: 'swap-3', title: 'Casio fx-991EX Scientific Calculator', swapPreference: 'Engineering Mechanics Textbooks', location: 'Faculty of Science', images: ['https://images.unsplash.com/photo-1587145820266-a5951ee6f620?auto=format&fit=crop&q=80&w=600'] },
-];
-
-const sampleReels = [
-  { _id: 'reel-1', title: 'Testing this mini fridge before moving out! Chills in 10 mins ❄️', price: 32000, author: '@tunde_unilag', likesCount: '1.4k', images: ['https://images.unsplash.com/photo-1571175443880-49e1d25b2bc5?auto=format&fit=crop&q=80&w=600'] },
-  { _id: 'reel-2', title: 'How our certified crew fumigated a room in Jaja without toxic odor 🧪', price: 14000, author: '@cleanzone_pest', likesCount: '2.8k', images: ['https://images.unsplash.com/photo-1584992236310-6edddc08acff?auto=format&fit=crop&q=80&w=600'] },
-  { _id: 'reel-3', title: 'Cleared my entire 400L room items in 2 mins with Declutter batch! 📦', price: 54000, author: '@chidera_grad', likesCount: '3.2k', images: ['https://images.unsplash.com/photo-1582533561751-ef6f6ab93a2e?auto=format&fit=crop&q=80&w=600'] },
-  { _id: 'reel-4', title: 'Ox rechargeable fan demonstration during campus power outage 🔥', price: 14500, author: '@kemi_hostel', likesCount: '920', images: ['https://images.unsplash.com/photo-1618941716939-553df3c6c278?auto=format&fit=crop&q=80&w=600'] },
-];
-
-const sampleServices = [
-  { _id: 'srv-1', title: 'Hostel Room Fumigation & Bedbug Eradication', description: 'Certified hospital-grade pest knockout with student applicator crew. 100% guarantee.', priceText: 'From ₦14,000', icon: '🧪', badge: 'Certified Partner', route: '/fumigation' },
-  { _id: 'srv-2', title: 'Hostel Movers & Heavy Luggage Porters', description: '2-man student lifting crews with trolleys to move heavy boxes and mattresses across stairs.', priceText: 'From ₦2,500', icon: '🚚', badge: 'Fast Movers', route: '/movers' },
-  { _id: 'srv-3', title: 'Room Move-In Scrub & Deep Cleaning', description: 'Complete floor degreasing, mirror sanitization, and chemical fragrance disinfection.', priceText: 'From ₦12,000', icon: '✨', badge: 'Deep Clean', route: '/fumigation' },
-  { _id: 'srv-4', title: 'Campus Laptop & Phone Screen Repairs', description: 'Same-day screen replacement, charging port fixes, and OS installations in your hostel.', priceText: 'From ₦3,500', icon: '💻', badge: 'TechDesk', route: '/services' },
-];
+/** Tab counts are the real number of rows each rail is showing, never a guess. */
+const filterTabs = computed(() => [
+  { id: 'all', label: 'All Marketplace', icon: Sparkles },
+  { id: 'buy', label: 'Items to Buy', icon: ShoppingBag, count: toBuy.value.length },
+  { id: 'sold', label: 'Just Sold Out', icon: Flame, count: justSold.value.length },
+  { id: 'swap', label: 'Swaps', icon: ArrowRightLeft, count: toSwap.value.length },
+  { id: 'reels', label: 'Reels', icon: PlayIcon, count: reels.value.length },
+  { id: 'services', label: 'Services & Skills', icon: Wrench, count: services.value.length },
+]);
 
 // State arrays from API
 const toBuy = ref<any[]>([]);
@@ -653,17 +614,25 @@ const unwrap = (res: any): any[] => {
 
 const imageOf = (item: any): string => {
   const first = Array.isArray(item?.images) && item.images.length ? item.images[0] : item?.image;
-  return first || 'https://images.unsplash.com/photo-1584992236310-6edddc08acff?auto=format&fit=crop&q=80&w=600';
+  // A listing without a photo gets a neutral placeholder, never a stock image of
+  // some other product.
+  return first || 'https://placehold.co/600x600/f1f5f9/94a3b8?text=No+photo';
 };
+
+/** Service cards show the real price from the API; only the (deleted) sample rows had priceText. */
+const servicePriceLabel = (service: any): string =>
+  formatPriceLabel(service?.priceType, service?.price);
 
 const naira = (n?: number) => (typeof n === 'number' && !isNaN(n) ? `₦${Number(n).toLocaleString('en-NG')}` : '₦0');
 
-// Display items supplemented with sample inventory so page is never an empty ghost town
-const displayToBuy = computed(() => (toBuy.value.length ? toBuy.value : sampleToBuy));
-const displayJustSold = computed(() => (justSold.value.length ? justSold.value : sampleJustSold));
-const displayToSwap = computed(() => (toSwap.value.length ? toSwap.value : sampleToSwap));
-const displayReels = computed(() => (reels.value.length ? reels.value : sampleReels));
-const displayServices = computed(() => (services.value.length ? services.value : sampleServices));
+// Every rail renders exactly what the API returned. No sample inventory is ever
+// substituted: a student must never see an item that nobody is actually selling,
+// because it cannot be opened or bought.
+const displayToBuy = computed(() => toBuy.value);
+const displayJustSold = computed(() => justSold.value);
+const displayToSwap = computed(() => toSwap.value);
+const displayReels = computed(() => reels.value);
+const displayServices = computed(() => services.value);
 
 const submitSearch = () => {
   const q = searchInput.value.trim();

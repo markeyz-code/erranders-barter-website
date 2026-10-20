@@ -81,7 +81,7 @@
         >
           <div class="space-y-1">
             <span class="px-2.5 py-0.5 rounded-full bg-purple-500/20 text-purple-300 font-black text-[10px] uppercase tracking-wider inline-block">
-              💼 Vendor Operations
+               Vendor Operations
             </span>
             <h3 class="text-base sm:text-lg font-black text-white group-hover:text-purple-400 transition-colors">
               Service Business Mini-Admin
