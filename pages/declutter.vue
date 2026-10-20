@@ -564,6 +564,7 @@ import { bookingsApi } from '@/api_factory/modules/bookings';
 import { getApiError } from '@/composables/modules/services/useServiceFormatting';
 import { upload_api } from '~/composables/useApi';
 import { useCustomToast } from '@/composables/core/useCustomToast';
+import { optimizeVideoUrl, optimizeImageUrl, getVideoThumbnailUrl } from '~/composables/useMediaOptimize';
 
 definePageMeta({ layout: 'default' });
 
@@ -734,9 +735,14 @@ const uploadItemMedia = async (e: Event, item: DeclutterItem) => {
       const url = res.data?.url || res.data?.data?.url;
       if (url) {
         if (files[idx].type.startsWith('video/')) {
-          item.videos.push(url);
+          const optVid = optimizeVideoUrl(url);
+          item.videos.push(optVid);
+          // If no photo was attached, add poster thumbnail to images so search views display nicely
+          if (item.images.length === 0) {
+            item.images.push(getVideoThumbnailUrl(url) || optVid);
+          }
         } else {
-          item.images.push(url);
+          item.images.push(optimizeImageUrl(url));
         }
       }
     });

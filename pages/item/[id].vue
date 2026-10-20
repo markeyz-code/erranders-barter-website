@@ -231,6 +231,7 @@ import { ArrowLeft, MapPin, ShieldCheck, MessageCircle, ShoppingCart, Lock, Maxi
 import { ref, onMounted, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { itemsApi, offersApi } from '~/composables/useApi'
+import { optimizeVideoUrl, optimizeImageUrl } from '~/composables/useMediaOptimize'
 
 import AuthModal from '~/components/AuthModal.vue'
 import ProposeSwapModal from '~/components/ProposeSwapModal.vue'
@@ -257,7 +258,7 @@ const mediaGallery = ref([])
 const activeMedia = ref(null)
 const isZoomOpen = ref(false)
 
-const hasVideo = computed(() => item.value?.videos?.length > 0)
+const hasVideo = computed(() => mediaGallery.value.some(m => m.type === 'video'))
 
 const playFirstVideo = () => {
   const videoMedia = mediaGallery.value.find(m => m.type === 'video')
@@ -316,16 +317,31 @@ const fetchItem = async () => {
     
     item.value = data
     
-    // Construct media gallery
+    // Construct media gallery with intelligent type detection and aggressive optimization
     const gallery = []
-    if (data.images && data.images.length > 0) {
-      data.images.forEach(img => gallery.push({ type: 'image', src: img }))
-    } else {
+    const rawImages = (data.images || []).filter(Boolean)
+    const rawVideos = (data.videos || []).filter(Boolean)
+
+    rawImages.forEach((img) => {
+      const isVid = img.includes('/video/upload/') || /\.(mp4|webm|mov|ogg)(\?.*)?$/i.test(img)
+      if (isVid) {
+        gallery.push({ type: 'video', src: optimizeVideoUrl(img) })
+      } else {
+        gallery.push({ type: 'image', src: optimizeImageUrl(img) })
+      }
+    })
+
+    rawVideos.forEach((vid) => {
+      const optimizedVid = optimizeVideoUrl(vid)
+      if (!gallery.some(g => g.src === optimizedVid || g.src === vid)) {
+        gallery.push({ type: 'video', src: optimizedVid })
+      }
+    })
+
+    if (gallery.length === 0) {
       gallery.push({ type: 'image', src: '/no-image.png' })
     }
-    if (data.videos && data.videos.length > 0) {
-      data.videos.forEach(vid => gallery.push({ type: 'video', src: vid }))
-    }
+
     mediaGallery.value = gallery
     activeMedia.value = gallery[0]
   } catch (err) {

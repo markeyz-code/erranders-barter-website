@@ -9,20 +9,31 @@ import { GATEWAY_ENDPOINT_WITH_AUTH_FORM_DATA } from '../axios.config';
  * Signatures are unchanged so no caller has to change.
  */
 export const upload_api = {
-  uploadFile: (file: File | Blob, resourceType: 'image' | 'video' | 'raw' | 'audio' = 'image') => {
+  uploadFile: (
+    file: File | Blob,
+    resourceType: 'image' | 'video' | 'raw' | 'audio' = 'image',
+    onUploadProgress?: (progressEvent: any) => void
+  ) => {
     const formData = new FormData();
-    // Use an appropriate filename if it's a raw blob (like an audio recording)
+    // Use an appropriate filename if it's a raw blob (like a camera recording or audio recording)
     if (file instanceof File) {
-      formData.append('file', file);
+      formData.append('file', file, file.name);
     } else {
-      const ext = resourceType === 'audio' ? 'webm' : 'bin';
-      formData.append('file', file, `recording-${Date.now()}.${ext}`);
+      let ext = 'bin';
+      if (resourceType === 'audio') {
+        ext = file.type?.includes('mp4') ? 'm4a' : 'webm';
+      } else if (resourceType === 'video') {
+        ext = file.type?.includes('mp4') ? 'mp4' : 'webm';
+      } else if (resourceType === 'image') {
+        ext = file.type?.includes('png') ? 'png' : 'jpg';
+      }
+      formData.append('file', file, `media-${Date.now()}.${ext}`);
     }
 
-    // Cloudinary's `video` resource type is the one that accepts audio, and the
-    // backend only has /upload/image and /upload/video, so anything that is not
-    // an image goes to /upload/video.
     const endpoint = resourceType === 'image' ? '/upload/image' : '/upload/video';
-    return GATEWAY_ENDPOINT_WITH_AUTH_FORM_DATA.post(endpoint, formData);
+    return GATEWAY_ENDPOINT_WITH_AUTH_FORM_DATA.post(endpoint, formData, {
+      onUploadProgress,
+      timeout: 180000,
+    });
   }
 };

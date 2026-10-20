@@ -22,9 +22,7 @@ export const GATEWAY_ENDPOINT_WITH_AUTH = axios.create({
 
 export const GATEWAY_ENDPOINT_WITH_AUTH_FORM_DATA = axios.create({
   baseURL: $GATEWAY_ENDPOINT,
-  headers: {
-    "Content-Type": "multipart/form-data",
-  },
+  timeout: 180000, // 3 minutes for media/video uploads
 });
 
 export interface CustomAxiosResponse extends AxiosResponse {
@@ -39,7 +37,10 @@ const instanceArray = [
 ];
 
 instanceArray.forEach((instance) => {
-  instance.defaults.timeout = 15000; // Set global timeout to 15 seconds
+  // Only apply default 15s timeout to standard endpoints, keeping 180s for uploads
+  if (!instance.defaults.timeout || instance.defaults.timeout < 15000) {
+    instance.defaults.timeout = 15000;
+  }
   instance.interceptors.request.use((config: any) => {
     let currentToken = null;
     if (typeof window !== 'undefined') {

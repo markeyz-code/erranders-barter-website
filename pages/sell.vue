@@ -158,35 +158,81 @@
                   <textarea v-model="form.description" rows="4" :placeholder="form.type === 'service' ? 'Describe your service, what is included, your experience, and availability...' : 'Describe the item, any flaws, why you\'re selling...'" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 outline-none focus:border-brand-500 transition-colors font-medium text-slate-900 resize-none"></textarea>
                 </div>
                 
-                <!-- Images & Video -->
+                <!-- Images & Video Assets -->
                 <div>
-                  <label class="block text-sm font-bold text-slate-700 mb-2 flex justify-between">
-                    <span>Media (Photos/Videos)</span>
-                  </label>
+                  <div class="flex items-center justify-between mb-2">
+                    <label class="block text-sm font-bold text-slate-700">
+                      Media (Photos & Campus Reels Video)
+                    </label>
+                    <span class="text-xs text-slate-400 font-medium">Reel videos auto-optimized</span>
+                  </div>
                   
-                  <div class="flex gap-4 flex-wrap">
-                    <div v-for="(media, idx) in form.images" :key="idx" class="relative w-24 h-24 rounded-xl overflow-hidden border border-slate-200 group bg-slate-900 flex items-center justify-center">
+                  <div class="flex gap-3 flex-wrap items-center">
+                    <!-- Media Preview Thumbnails -->
+                    <div
+                      v-for="(media, idx) in form.images"
+                      :key="idx"
+                      class="relative w-24 h-24 rounded-2xl overflow-hidden border border-slate-200 group bg-slate-900 flex items-center justify-center shadow-xs"
+                    >
                       <img v-if="!media.isVideo" :src="media.url" class="w-full h-full object-cover" />
-                      <video v-else :src="media.url" class="w-full h-full object-cover" autoplay loop muted playsinline></video>
-                      <button type="button" @click="form.images.splice(idx, 1)" class="absolute inset-0 bg-black/50 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                        <X class="w-6 h-6" />
+                      <template v-else>
+                        <video :src="media.url" class="w-full h-full object-cover" loop muted playsinline></video>
+                        <div class="absolute top-1.5 left-1.5 px-1.5 py-0.5 rounded-md bg-black/80 backdrop-blur-md text-[9px] font-black text-amber-400 flex items-center gap-1 border border-amber-400/30">
+                          <Film class="w-2.5 h-2.5" /> REEL
+                        </div>
+                        <div class="absolute inset-0 flex items-center justify-center pointer-events-none group-hover:opacity-0 transition-opacity">
+                          <div class="w-7 h-7 rounded-full bg-black/60 flex items-center justify-center text-white">
+                            <Play class="w-3.5 h-3.5 fill-white ml-0.5" />
+                          </div>
+                        </div>
+                      </template>
+                      <button
+                        type="button"
+                        @click="form.images.splice(idx, 1)"
+                        class="absolute inset-0 bg-black/60 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                        title="Remove media"
+                      >
+                        <X class="w-6 h-6 hover:text-red-400 transition-colors" />
                       </button>
                     </div>
 
-                    <!-- Upload Files Button -->
-                    <label class="w-24 h-24 rounded-xl border border-dashed border-slate-300 bg-slate-50 flex flex-col items-center justify-center cursor-pointer hover:border-brand-500 hover:bg-brand-50 transition-colors">
-                      <ImagePlus class="w-6 h-6 text-slate-400 mb-1" />
-                      <span class="text-[10px] font-bold text-slate-500 uppercase  text-center leading-tight" v-if="!uploading">Upload<br>Files</span>
-                      <span class="text-[10px] font-bold text-brand-500 uppercase  animate-pulse" v-else>Wait...</span>
-                      <input type="file" accept="image/*,video/*" multiple @change="uploadMultiple" class="hidden" :disabled="uploading" />
+                    <!-- 1. Add Photos Button -->
+                    <label class="w-24 h-24 rounded-2xl border-2 border-dashed border-slate-300 hover:border-brand-500 bg-slate-50/70 hover:bg-brand-50/50 flex flex-col items-center justify-center cursor-pointer transition-all shrink-0 text-slate-500 hover:text-brand-600">
+                      <ImagePlus class="w-6 h-6 mb-1 text-slate-400 group-hover:text-brand-500" />
+                      <span class="text-[10px] font-black uppercase text-center leading-tight">Add<br>Photos</span>
+                      <input type="file" accept="image/*" multiple @change="uploadPhotos" class="hidden" :disabled="uploading" />
                     </label>
 
-                    <!-- Record Video Button -->
-                    <button type="button" @click="openCamera" class="w-24 h-24 rounded-xl border border-dashed border-slate-300 bg-slate-50 flex flex-col items-center justify-center cursor-pointer hover:border-brand-500 hover:bg-brand-50 transition-colors">
-                      <Video class="w-6 h-6 text-slate-400 mb-1" />
-                      <span class="text-[10px] font-bold text-slate-500 uppercase  text-center leading-tight">Record<br>Video</span>
+                    <!-- 2. Dedicated Upload Video Button -->
+                    <label class="w-24 h-24 rounded-2xl border-2 border-dashed border-purple-200 hover:border-purple-500 bg-purple-50/40 hover:bg-purple-50 flex flex-col items-center justify-center cursor-pointer transition-all shrink-0 text-purple-700 hover:text-purple-800">
+                      <UploadCloud class="w-6 h-6 mb-1 text-purple-500" />
+                      <span class="text-[10px] font-black uppercase text-center leading-tight">Upload<br>Video</span>
+                      <input type="file" accept="video/mp4,video/webm,video/quicktime,video/*" @change="uploadVideoFile" class="hidden" :disabled="uploading" />
+                    </label>
+
+                    <!-- 3. Record Video Button -->
+                    <button
+                      type="button"
+                      @click="openCamera"
+                      class="w-24 h-24 rounded-2xl border-2 border-dashed border-amber-200 hover:border-amber-500 bg-amber-50/40 hover:bg-amber-50 flex flex-col items-center justify-center cursor-pointer transition-all shrink-0 text-amber-700 hover:text-amber-800"
+                    >
+                      <Video class="w-6 h-6 mb-1 text-amber-500" />
+                      <span class="text-[10px] font-black uppercase text-center leading-tight">Record<br>Video</span>
                     </button>
                   </div>
+
+                  <!-- Upload Status / Compression Indicator -->
+                  <div v-if="uploading" class="mt-3 p-3 rounded-xl bg-brand-50 border border-brand-200 flex items-center justify-between text-xs">
+                    <div class="flex items-center gap-2">
+                      <Loader2 class="w-4 h-4 animate-spin text-brand-600" />
+                      <span class="font-bold text-brand-800">{{ uploadStatusText || 'Aggressively optimizing and uploading media...' }}</span>
+                    </div>
+                    <span v-if="uploadProgress > 0" class="font-black text-brand-700">{{ uploadProgress }}%</span>
+                  </div>
+
+                  <p class="text-[11px] text-slate-500 mt-2 font-medium">
+                    💡 Tip: Adding a 15–45s product video gets your item featured directly in the <strong>Campus Reels feed</strong> for 5x faster offers.
+                  </p>
                 </div>
                 
                 <hr class="border-slate-100" />
@@ -264,8 +310,9 @@
 import { useCustomToast } from '@/composables/core/useCustomToast';
 import { ref, onMounted, onBeforeUnmount, computed, watch } from 'vue'
 import { useRouter } from 'vue-router'
-import { ArrowLeft, ShieldCheck, Truck, Repeat, Check, MapPin, ImagePlus, Video, X, Loader2, ChevronDown, SwitchCamera } from 'lucide-vue-next'
+import { ArrowLeft, ShieldCheck, Truck, Repeat, Check, MapPin, ImagePlus, Video, X, Loader2, ChevronDown, SwitchCamera, UploadCloud, Play, Film } from 'lucide-vue-next'
 import { upload_api, itemsApi, categoriesApi, settingsApi } from '~/composables/useApi'
+import { optimizeVideoUrl, optimizeImageUrl, getVideoThumbnailUrl } from '~/composables/useMediaOptimize'
 
 import AuthModal from '~/components/AuthModal.vue'
 
@@ -305,7 +352,8 @@ const checkAuth = (actionName, event = null) => {
 const handleAuthSuccess = () => {
   showAuthModal.value = false
   if (pendingAction.value === 'submit') submitListing()
-  if (pendingAction.value === 'upload') uploadMultiple(pendingEvent.value)
+  if (pendingAction.value === 'upload_photos') uploadPhotos(pendingEvent.value)
+  if (pendingAction.value === 'upload_video') uploadVideoFile(pendingEvent.value)
   if (pendingAction.value === 'camera') openCamera()
   pendingAction.value = null
   pendingEvent.value = null
@@ -337,6 +385,8 @@ useSeoMeta({
 
 const loading = ref(false)
 const uploading = ref(false)
+const uploadStatusText = ref('')
+const uploadProgress = ref(0)
 const success = ref(false)
 
 onMounted(async () => {
@@ -359,29 +409,97 @@ onMounted(async () => {
   }
 })
 
-const uploadMultiple = async (e) => {
-  if (!checkAuth('upload', e)) return
-  const files = Array.from(e.target.files)
+const uploadPhotos = async (e) => {
+  if (!checkAuth('upload_photos', e)) return
+  const files = Array.from(e.target?.files || [])
   if (!files.length) return
   
   uploading.value = true
+  uploadStatusText.value = `Uploading ${files.length} photo(s)...`
+  uploadProgress.value = 0
+
   try {
-    const promises = files.map(file => upload_api.uploadFile(file, file.type.startsWith('video/') ? 'video' : 'image'))
+    const promises = files.map(file => upload_api.uploadFile(file, 'image'))
     const results = await Promise.all(promises)
     
-    results.forEach((res, i) => {
-      if (res.data?.url) {
+    results.forEach((res) => {
+      const url = res.data?.url || res.data?.data?.url
+      if (url) {
         form.value.images.push({
-          url: res.data.url,
-          isVideo: files[i].type.startsWith('video/')
+          url: optimizeImageUrl(url),
+          isVideo: false
         })
       }
     })
+    useCustomToast().showToast({ title: 'Success', message: 'Photos added successfully!', toastType: "success" })
   } catch (err) {
-    useCustomToast().showToast({ title: 'Notice', message: 'Failed to upload some files', toastType: "error" })
+    useCustomToast().showToast({ title: 'Notice', message: 'Failed to upload some photos', toastType: "error" })
   } finally {
     uploading.value = false
-    e.target.value = ''
+    uploadStatusText.value = ''
+    uploadProgress.value = 0
+    if (e.target) e.target.value = ''
+  }
+}
+
+const uploadVideoFile = async (e) => {
+  if (!checkAuth('upload_video', e)) return
+  const files = Array.from(e.target?.files || [])
+  if (!files.length) return
+
+  const file = files[0]
+
+  // Validate size (max 60MB)
+  if (file.size > 60 * 1024 * 1024) {
+    useCustomToast().showToast({
+      title: 'File Too Large',
+      message: 'Video must be 60MB or less. Please select a shorter clip.',
+      toastType: 'error'
+    })
+    if (e.target) e.target.value = ''
+    return
+  }
+
+  uploading.value = true
+  uploadStatusText.value = 'Compressing & uploading video for Campus Reels...'
+  uploadProgress.value = 0
+
+  try {
+    const res = await upload_api.uploadFile(file, 'video', (progressEvent) => {
+      if (progressEvent.total) {
+        uploadProgress.value = Math.round((progressEvent.loaded * 100) / progressEvent.total)
+      }
+    })
+
+    const url = res.data?.url || res.data?.data?.url
+    const thumbnailUrl = res.data?.thumbnailUrl || res.data?.data?.thumbnailUrl || getVideoThumbnailUrl(url)
+
+    if (url) {
+      form.value.images.push({
+        url: optimizeVideoUrl(url),
+        isVideo: true,
+        thumbnailUrl
+      })
+      useCustomToast().showToast({
+        title: 'Video Attached! 🎥',
+        message: 'Video auto-optimized for Campus Reels and Explore views.',
+        toastType: 'success'
+      })
+    } else {
+      throw new Error('No URL returned')
+    }
+  } catch (err) {
+    console.error('Video upload error:', err)
+    useCustomToast().showToast({
+      title: 'Video Upload Failed',
+      message: 'Could not upload video. Please ensure it is a valid MP4/WebM clip.',
+      toastType: 'error'
+    })
+  } finally {
+    uploading.value = false
+    uploadStatusText.value = ''
+    uploadProgress.value = 0
+    if (e.target) e.target.value = ''
   }
 }
 
@@ -440,32 +558,50 @@ const startRecording = () => {
   }
   mediaRecorder.value.onstop = async () => {
     const blob = new Blob(recordedChunks.value, { type: 'video/webm' })
-    const file = new File([blob], `video_${Date.now()}.webm`, { type: 'video/webm' })
+    const file = new File([blob], `reel_${Date.now()}.webm`, { type: 'video/webm' })
     
     // Upload the recorded video automatically
     uploading.value = true
+    uploadStatusText.value = 'Compressing recorded clip for Campus Reels...'
+    uploadProgress.value = 0
     closeCamera()
     
     try {
-      const { data, error } = await upload_api.uploadFile(file, 'video') 
-      if (data && data.url) {
-        form.value.images.push({ url: data.url, isVideo: true })
+      const res = await upload_api.uploadFile(file, 'video', (p) => {
+        if (p.total) uploadProgress.value = Math.round((p.loaded * 100) / p.total)
+      })
+      const url = res.data?.url || res.data?.data?.url
+      const thumbnailUrl = res.data?.thumbnailUrl || res.data?.data?.thumbnailUrl || getVideoThumbnailUrl(url)
+
+      if (url) {
+        form.value.images.push({
+          url: optimizeVideoUrl(url),
+          isVideo: true,
+          thumbnailUrl
+        })
+        useCustomToast().showToast({
+          title: 'Recorded Reel Attached! 🎥',
+          message: 'Ready for Campus Reels!',
+          toastType: 'success'
+        })
       } else {
-        useCustomToast().showToast({ title: 'Notice', message: error || 'Video upload failed', toastType: "error" })
+        useCustomToast().showToast({ title: 'Notice', message: 'Video upload failed', toastType: "error" })
       }
     } catch (err) {
       useCustomToast().showToast({ title: 'Notice', message: 'Error uploading video', toastType: "error" })
     } finally {
       uploading.value = false
+      uploadStatusText.value = ''
+      uploadProgress.value = 0
     }
   }
   mediaRecorder.value.start()
   isRecording.value = true
   
-  // Auto stop after 15 seconds to keep it short
+  // Auto stop after 30 seconds
   setTimeout(() => {
     if (isRecording.value) stopRecording()
-  }, 15000)
+  }, 30000)
 }
 
 const stopRecording = () => {
@@ -487,10 +623,21 @@ const createItemOnBackend = async () => {
     
     const finalCategory = form.value.category === 'Other' ? form.value.customCategory : form.value.category
 
+    const imageUrls = form.value.images.filter(m => !m.isVideo).map(m => optimizeImageUrl(m.url))
+    const videoUrls = form.value.images.filter(m => m.isVideo).map(m => optimizeVideoUrl(m.url))
+
+    let finalImages = [...imageUrls]
+    if (finalImages.length === 0 && videoUrls.length > 0) {
+      // Use video poster frame so search and grid views display nicely
+      const poster = getVideoThumbnailUrl(videoUrls[0])
+      finalImages.push(poster || videoUrls[0])
+    }
+
     const { data, error } = await itemsApi.create({
       ...form.value,
       category: finalCategory,
-      images: form.value.images.map(m => m.url), // Just send urls to backend
+      images: finalImages,
+      videos: videoUrls,
       isPromoted: form.value.promote
     })
     

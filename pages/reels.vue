@@ -702,6 +702,7 @@ import {
 } from 'lucide-vue-next';
 import { itemsApi, servicesApi } from '~/composables/useApi';
 import { useAuth } from '~/composables/useAuth';
+import { optimizeVideoUrl, optimizeImageUrl } from '~/composables/useMediaOptimize';
 
 // Full-Screen Layout: bypass default layout completely!
 definePageMeta({ layout: false });
@@ -756,12 +757,14 @@ const retryMedia = (reel: any) => {
 
 const getMediaSrc = (reel: any, baseSrc: string) => {
   if (!baseSrc) return '/no-image.png';
+  const isVideo = Boolean(reel.videos && reel.videos.length > 0 && reel.videos.includes(baseSrc));
+  const optimized = isVideo ? optimizeVideoUrl(baseSrc) : optimizeImageUrl(baseSrc, 1200);
   const count = retryKeys.value[reel._id] || 0;
   if (count > 0) {
-    const sep = baseSrc.includes('?') ? '&' : '?';
-    return `${baseSrc}${sep}retry=${count}`;
+    const sep = optimized.includes('?') ? '&' : '?';
+    return `${optimized}${sep}retry=${count}`;
   }
-  return baseSrc;
+  return optimized;
 };
 
 // Aggressively preload next upcoming reels in background
