@@ -15,8 +15,49 @@
     </div>
 
     <template v-else-if="business">
+      <!-- Study Guard / Academic Focus Banner -->
+      <section
+        v-if="business.studyMode?.isActive"
+        class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pt-6"
+      >
+        <div class="relative overflow-hidden rounded-2xl border border-amber-200/80 bg-gradient-to-r from-amber-50 via-orange-50/50 to-amber-50 p-4 sm:p-5 shadow-sm">
+          <div class="flex items-start gap-3.5">
+            <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-amber-500/10 text-amber-700 ring-1 ring-amber-500/20">
+              <GraduationCap class="h-5 w-5" />
+            </div>
+            <div class="flex-1 min-w-0">
+              <div class="flex flex-wrap items-center gap-2">
+                <span class="inline-flex items-center gap-1.5 rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-bold text-amber-900">
+                  <span class="relative flex h-2 w-2">
+                    <span class="absolute inline-flex h-full w-full animate-ping rounded-full bg-amber-400 opacity-75"></span>
+                    <span class="relative inline-flex h-2 w-2 rounded-full bg-amber-600"></span>
+                  </span>
+                  Study Guard Active
+                </span>
+                <span class="text-xs font-semibold text-amber-800/80">Lectures / Study Hours in Session</span>
+              </div>
+              <p class="mt-1.5 text-sm font-semibold text-amber-950 leading-relaxed">
+                {{ business.studyMode.notice || "Currently attending classes. Orders and requests placed now will be confirmed and processed right after lectures!" }}
+              </p>
+              <div v-if="business.studyMode.lectureSchedule && business.studyMode.lectureSchedule.length > 0" class="mt-2.5 flex flex-wrap items-center gap-2">
+                <span class="text-[11px] font-bold text-amber-800 uppercase tracking-wider flex items-center gap-1">
+                  <Clock class="w-3 h-3" /> Scheduled Class Hours:
+                </span>
+                <span
+                  v-for="(slot, i) in business.studyMode.lectureSchedule"
+                  :key="i"
+                  class="inline-flex items-center gap-1 rounded-md bg-white/80 px-2 py-0.5 text-xs font-semibold text-slate-700 border border-amber-200/60 shadow-xs"
+                >
+                  <span class="font-bold text-amber-900">{{ slot.day }}:</span> {{ slot.startTime }} - {{ slot.endTime }}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       <!-- Resource library: shown regardless of whether a page has been designed. -->
-      <section class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
+      <section class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
         <NuxtLink
           :to="`/library/${business.slug}`"
           class="flex items-center justify-between gap-4 p-4 rounded-2xl border border-slate-200 hover:border-brand-300 hover:bg-brand-50/30 transition-colors"
@@ -173,7 +214,7 @@
 <script setup lang="ts">
 import { computed, reactive, ref, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
-import { Building2, MapPin, Phone, Mail, Globe } from 'lucide-vue-next';
+import { Building2, MapPin, Phone, Mail, Globe, GraduationCap, Clock } from 'lucide-vue-next';
 import PageBlock from '~/components/business/PageBlock.vue';
 import ApplyModal from '~/components/business/ApplyModal.vue';
 import { businessesApi, type Business, type BusinessOpening } from '@/api_factory/modules/businesses';

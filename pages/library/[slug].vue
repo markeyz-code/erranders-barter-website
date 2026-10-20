@@ -61,29 +61,84 @@
       </div>
     </div>
 
-    <!-- Protected viewer: watermark, no download, no copy -->
-    <div v-if="active" class="fixed inset-0 z-50 bg-slate-900/80 p-3 sm:p-6 flex flex-col">
+    <!-- Protected viewer: dynamic watermark, anti-screenshot, no download, no copy -->
+    <div
+      v-if="active"
+      class="fixed inset-0 z-50 bg-slate-950/90 p-3 sm:p-6 flex flex-col backdrop-blur-sm"
+      @keydown.capture="handleKeyDown"
+    >
       <div class="flex items-center justify-between mb-2">
-        <p class="text-sm font-bold text-white truncate">{{ active.title }}</p>
-        <button class="px-3 py-1.5 rounded-lg bg-white/15 text-white text-xs font-bold" @click="close">Close</button>
+        <div class="flex items-center gap-2 min-w-0">
+          <ShieldAlert class="w-4 h-4 text-emerald-400 shrink-0" />
+          <p class="text-sm font-bold text-white truncate">{{ active.title }}</p>
+          <span class="hidden sm:inline-flex px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 text-[10px] font-bold tracking-wide uppercase">
+            Encrypted DRM Stream
+          </span>
+        </div>
+        <button class="px-3.5 py-1.5 rounded-lg bg-white/15 hover:bg-white/25 text-white text-xs font-bold transition-colors" @click="close">
+          Close
+        </button>
       </div>
+
+      <!-- Security notification banner if shortcut was blocked -->
+      <transition
+        enter-active-class="transition duration-200 ease-out"
+        enter-from-class="opacity-0 -translate-y-2"
+        enter-to-class="opacity-100 translate-y-0"
+        leave-active-class="transition duration-150 ease-in"
+        leave-from-class="opacity-100 translate-y-0"
+        leave-to-class="opacity-0 -translate-y-2"
+      >
+        <div
+          v-if="securityAlert"
+          class="mb-2 px-3 py-1.5 rounded-lg bg-red-500/90 text-white text-xs font-bold flex items-center justify-between shadow-lg"
+        >
+          <span>⚠️ {{ securityAlert }}</span>
+          <button class="text-white/80 hover:text-white ml-2" @click="securityAlert = ''">✕</button>
+        </div>
+      </transition>
 
       <div
         class="relative flex-1 bg-white rounded-xl overflow-hidden select-none"
-        @contextmenu.prevent
-        @copy.prevent
-        @cut.prevent
+        @contextmenu.prevent="onBlockedAction('Right-click context menu disabled')"
+        @copy.prevent="onBlockedAction('Copying disabled by DRM')"
+        @cut.prevent="onBlockedAction('Cutting disabled by DRM')"
         @dragstart.prevent
       >
-        <!-- The watermark repeats so a partial screenshot still carries the address. -->
-        <div class="absolute inset-0 pointer-events-none z-10 overflow-hidden">
+        <!-- Anti-capture screen blackout overlay when window loses focus (e.g. Snipping tool, Cmd+Shift+4, screen grabber) -->
+        <div
+          v-if="isWindowBlurred"
+          class="absolute inset-0 z-40 bg-slate-950 flex flex-col items-center justify-center p-6 text-center"
+        >
+          <div class="w-12 h-12 rounded-2xl bg-amber-500/10 text-amber-400 flex items-center justify-center mb-3 ring-1 ring-amber-500/20">
+            <Lock class="w-6 h-6" />
+          </div>
+          <p class="text-base font-bold text-white">Viewing Paused For Security</p>
+          <p class="text-xs text-slate-400 max-w-sm mt-1">
+            Display is protected. Return focus to this browser tab to resume reading.
+          </p>
+        </div>
+
+        <!-- The watermark repeats and tiles across the document so every snippet carries proof of ownership -->
+        <div class="absolute inset-0 pointer-events-none z-20 overflow-hidden select-none">
           <div
-            v-for="n in 12"
+            v-for="n in 20"
             :key="n"
-            class="absolute text-slate-900/10 font-black whitespace-nowrap"
-            :style="{ top: `${(n - 1) * 9}%`, left: `${(n % 3) * 18}%`, transform: 'rotate(-24deg)' }"
+            class="absolute text-slate-900/[0.08] font-black text-sm tracking-widest whitespace-nowrap select-none"
+            :style="{
+              top: `${((n - 1) * 7.5)}%`,
+              left: `${((n % 4) * 22) - 10}%`,
+              transform: 'rotate(-24deg)'
+            }"
           >
-            {{ data?.watermark }} · {{ data?.watermark }}
+            {{ data?.watermark }} · DO NOT SNAP OR DISTRIBUTE · {{ sessionTimestamp }}
+          </div>
+
+          <!-- Dynamic floating watermark pill -->
+          <div
+            class="absolute bottom-4 right-4 bg-slate-900/40 backdrop-blur-md px-3 py-1 rounded-full text-[10px] font-mono font-bold text-white/70 border border-white/10"
+          >
+            ID: {{ data?.viewerEmail || 'Student' }} · Protected
           </div>
         </div>
 
@@ -102,17 +157,20 @@
         />
       </div>
 
-      <p class="mt-2 text-[11px] text-slate-300 text-center">
-        Watermarked for {{ data?.watermark }}. Downloading and copying are disabled.
-      </p>
+      <div class="mt-2.5 flex items-center justify-between text-[11px] text-slate-400">
+        <span>Watermarked for {{ data?.watermark || data?.viewerEmail }}.</span>
+        <span class="flex items-center gap-1 font-semibold text-slate-400">
+          <ShieldAlert class="w-3.5 h-3.5 text-amber-400" /> Screen capture & sharing strictly prohibited
+        </span>
+      </div>
     </div>
   </main>
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue';
+import { computed, onMounted, onBeforeUnmount, ref } from 'vue';
 import { useRoute } from 'vue-router';
-import { ChevronLeft, Lock, FolderX, FileText, PlayCircle, Link as LinkIcon } from 'lucide-vue-next';
+import { ChevronLeft, Lock, FolderX, FileText, PlayCircle, Link as LinkIcon, ShieldAlert } from 'lucide-vue-next';
 import { businessesApi } from '@/api_factory/modules/businesses';
 
 /**
@@ -121,7 +179,7 @@ import { businessesApi } from '@/api_factory/modules/businesses';
  * The API decides what is returned: an email that was never granted gets an empty list, so
  * there is nothing to guard here on the client. What this page adds is the handling —
  * a repeating watermark of the student's own address, no context menu, no copy and no
- * download attribute, which makes a leak traceable rather than impossible.
+ * download attribute, anti-capture window-blur shielding, and print suppression.
  */
 
 definePageMeta({ layout: 'default' });
@@ -134,6 +192,10 @@ const loading = ref(true);
 const signedIn = ref(false);
 const active = ref<any>(null);
 
+const isWindowBlurred = ref(false);
+const securityAlert = ref('');
+const sessionTimestamp = ref('');
+
 const resources = computed<any[]>(() => data.value?.resources ?? []);
 
 const load = async () => {
@@ -141,6 +203,7 @@ const load = async () => {
   try {
     if (typeof window !== 'undefined') {
       signedIn.value = Boolean(window.localStorage.getItem('barter_token'));
+      sessionTimestamp.value = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
     }
     if (!signedIn.value) return;
     const res = await businessesApi.getResources(slug.value);
@@ -152,8 +215,73 @@ const load = async () => {
   }
 };
 
+const onBlockedAction = (reason: string) => {
+  securityAlert.value = reason;
+  setTimeout(() => {
+    if (securityAlert.value === reason) securityAlert.value = '';
+  }, 3500);
+};
+
+const handleWindowBlur = () => {
+  if (active.value) {
+    isWindowBlurred.value = true;
+  }
+};
+
+const handleWindowFocus = () => {
+  isWindowBlurred.value = false;
+};
+
+const handleKeyDown = (e: KeyboardEvent) => {
+  if (!active.value) return;
+
+  const isMac = typeof navigator !== 'undefined' && /Mac|iPod|iPhone|iPad/.test(navigator.platform);
+  const cmdOrCtrl = isMac ? e.metaKey : e.ctrlKey;
+
+  // Intercept PrintScreen
+  if (e.key === 'PrintScreen') {
+    e.preventDefault();
+    onBlockedAction('Screenshot blocked by DRM');
+    return;
+  }
+
+  // Intercept Ctrl/Cmd + P (Print)
+  if (cmdOrCtrl && (e.key === 'p' || e.key === 'P')) {
+    e.preventDefault();
+    onBlockedAction('Printing disabled for secure resources');
+    return;
+  }
+
+  // Intercept Ctrl/Cmd + S (Save)
+  if (cmdOrCtrl && (e.key === 's' || e.key === 'S')) {
+    e.preventDefault();
+    onBlockedAction('Saving disabled by DRM');
+    return;
+  }
+
+  // Intercept Ctrl/Cmd + C (Copy)
+  if (cmdOrCtrl && (e.key === 'c' || e.key === 'C')) {
+    e.preventDefault();
+    onBlockedAction('Content copying disabled');
+    return;
+  }
+
+  // Intercept DevTools shortcuts
+  if ((cmdOrCtrl && e.shiftKey && (e.key === 'I' || e.key === 'i' || e.key === 'C' || e.key === 'c')) || e.key === 'F12') {
+    e.preventDefault();
+    onBlockedAction('Inspector disabled');
+    return;
+  }
+
+  // Escape closes viewer
+  if (e.key === 'Escape') {
+    close();
+  }
+};
+
 const open = (resource: any) => {
   active.value = resource;
+  isWindowBlurred.value = false;
   if (typeof document !== 'undefined') {
     // Printing would leave an unwatermarked copy on paper.
     document.body.style.overflow = 'hidden';
@@ -162,8 +290,35 @@ const open = (resource: any) => {
 
 const close = () => {
   active.value = null;
+  isWindowBlurred.value = false;
+  securityAlert.value = '';
   if (typeof document !== 'undefined') document.body.style.overflow = '';
 };
 
-onMounted(load);
+onMounted(() => {
+  load();
+  if (typeof window !== 'undefined') {
+    window.addEventListener('blur', handleWindowBlur);
+    window.addEventListener('focus', handleWindowFocus);
+    window.addEventListener('keydown', handleKeyDown, true);
+  }
+});
+
+onBeforeUnmount(() => {
+  if (typeof window !== 'undefined') {
+    window.removeEventListener('blur', handleWindowBlur);
+    window.removeEventListener('focus', handleWindowFocus);
+    window.removeEventListener('keydown', handleKeyDown, true);
+  }
+  if (typeof document !== 'undefined') document.body.style.overflow = '';
+});
 </script>
+
+<style>
+@media print {
+  body, html {
+    display: none !important;
+    visibility: hidden !important;
+  }
+}
+</style>

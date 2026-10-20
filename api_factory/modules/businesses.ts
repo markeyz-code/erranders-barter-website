@@ -30,6 +30,19 @@ export interface BusinessOpening {
   isOpen: boolean;
 }
 
+export interface StudyModeSchedule {
+  day: string;
+  startTime: string;
+  endTime: string;
+}
+
+export interface StudyModeConfig {
+  isActive: boolean;
+  notice?: string;
+  autoReply?: string;
+  lectureSchedule?: StudyModeSchedule[];
+}
+
 export interface Business {
   _id: string;
   ownerId?: string;
@@ -46,6 +59,9 @@ export interface Business {
   isVerified: boolean;
   rating?: number;
   totalJobs?: number;
+  businessType?: string;
+  templateId?: string;
+  studyMode?: StudyModeConfig;
   staff?: BusinessStaff[];
   openings?: BusinessOpening[];
 }

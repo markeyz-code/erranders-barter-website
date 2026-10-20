@@ -1,11 +1,10 @@
 <template>
   <main class="min-h-screen bg-white pb-16">
     <div class="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 pt-10">
-      <p class="text-xs font-black uppercase tracking-wider text-brand-600 mb-1">For businesses</p>
-      <h1 class="text-3xl font-extrabold text-slate-900">Run your business on Declutter</h1>
+      <p class="text-xs font-black uppercase tracking-wider text-brand-600 mb-1">For student businesses & hustles</p>
+      <h1 class="text-3xl font-extrabold text-slate-900">Run your student business on Declutter</h1>
       <p class="mt-2 text-slate-500 font-medium">
-        Fumigation, laundry, moving crews, cleaning — get a page, a subdomain, staff management,
-        recruitment and a payout ledger, all in one place.
+        Tutorial centers, nail techs, jewelry sellers, barbers, campus bakers, tech repair — get an instant branded storefront, your own subdomain, DRM protected resource vault, Study Guard, and business dashboard.
       </p>
 
       <!-- The three things this actually gives them, not marketing fluff -->
@@ -63,13 +62,25 @@
         </label>
 
         <label class="block">
-          <span class="text-xs font-bold text-slate-600">Category</span>
+          <span class="text-xs font-bold text-slate-600">Category / Type of Hustle</span>
           <input
             v-model="form.category"
             type="text"
             class="mt-1.5 w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-brand-500"
-            placeholder="fumigation"
+            placeholder="e.g. nail tech, tutorial center, jewelry, barbing…"
           />
+          <div class="mt-2 flex flex-wrap gap-1.5">
+            <button
+              v-for="h in POPULAR_HUSTLES"
+              :key="h.value"
+              type="button"
+              class="px-2 py-0.5 rounded-lg text-xs font-semibold border transition-all cursor-pointer"
+              :class="form.category.toLowerCase() === h.value ? 'bg-brand-50 border-brand-400 text-brand-700 font-bold' : 'bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100'"
+              @click="form.category = h.value"
+            >
+              {{ h.label }}
+            </button>
+          </div>
         </label>
 
         <label class="block">
@@ -130,6 +141,20 @@ const BENEFITS = [
   { icon: Users, title: 'Staff', body: 'Add the people who work for you.' },
   { icon: Briefcase, title: 'Recruitment', body: 'Post open roles on your page.' },
   { icon: Wallet, title: 'Payouts', body: 'See gross, commission and net.' },
+];
+
+const POPULAR_HUSTLES = [
+  { label: '📚 Tutorial Center', value: 'tutorial center' },
+  { label: '💅 Nail Tech / Lashes', value: 'nail tech' },
+  { label: '💍 Jewelry & Beads', value: 'jewelry' },
+  { label: '✂️ Barbing & Grooming', value: 'barbing' },
+  { label: '🍰 Campus Baker / Food', value: 'baking' },
+  { label: '📱 Tech & Gadget Repair', value: 'tech repairs' },
+  { label: '👗 Fashion Design / Thrift', value: 'fashion' },
+  { label: '💇‍♀️ Hair Styling & Braids', value: 'hair styling' },
+  { label: '🧺 Laundry & Ironing', value: 'laundry' },
+  { label: '📸 Photography & Media', value: 'photography' },
+  { label: '🧹 Cleaning & Moving', value: 'cleaning' },
 ];
 
 const form = reactive({
