@@ -101,6 +101,13 @@ export const businessesApi = {
       { params },
     ),
 
+  /** POST /businesses/:slug/openings/:openingId/apply — public, no account needed. */
+  applyToOpening: (
+    slug: string,
+    openingId: string,
+    payload: { name: string; email: string; phone?: string; message?: string },
+  ) => GATEWAY_ENDPOINT.post(`/businesses/${slug}/openings/${openingId}/apply`, payload),
+
   /** GET /businesses/:slug — public page. */
   getBySlug: (slug: string) => GATEWAY_ENDPOINT.get<BusinessPublic>(`/businesses/${slug}`),
 

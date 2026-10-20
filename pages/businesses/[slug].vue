@@ -69,14 +69,24 @@
 
         <div v-else class="space-y-3">
           <div v-for="role in openings" :key="role._id" class="rounded-2xl border border-slate-200 p-4">
-            <div class="flex flex-wrap items-center gap-2">
-              <p class="font-bold text-slate-900">{{ role.title }}</p>
-              <span class="px-2 py-0.5 rounded-md bg-slate-100 text-slate-600 text-[11px] font-bold capitalize">
-                {{ role.type.replace('_', ' ') }}
-              </span>
-              <span v-if="role.pay" class="text-xs font-bold text-brand-600">{{ role.pay }}</span>
+            <div class="flex flex-wrap items-start justify-between gap-2">
+              <div class="min-w-0">
+                <div class="flex flex-wrap items-center gap-2">
+                  <p class="font-bold text-slate-900">{{ role.title }}</p>
+                  <span class="px-2 py-0.5 rounded-md bg-slate-100 text-slate-600 text-[11px] font-bold capitalize">
+                    {{ role.type.replace('_', ' ') }}
+                  </span>
+                  <span v-if="role.pay" class="text-xs font-bold text-brand-600">{{ role.pay }}</span>
+                </div>
+                <p v-if="role.description" class="mt-1.5 text-sm text-slate-600">{{ role.description }}</p>
+              </div>
+              <button
+                class="px-3 py-1.5 rounded-lg bg-slate-900 text-white text-xs font-bold hover:bg-slate-800 shrink-0"
+                @click="openApply(role)"
+              >
+                Apply
+              </button>
             </div>
-            <p v-if="role.description" class="mt-1.5 text-sm text-slate-600">{{ role.description }}</p>
           </div>
         </div>
 
@@ -84,14 +94,42 @@
           To apply, message {{ business.name }} on Declutter — they'll arrange the rest with you.
         </p>
       </section>
+
+      <!-- Apply -->
+      <div v-if="applyFor" class="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4" @click.self="closeApply">
+        <div class="bg-white rounded-2xl max-w-md w-full p-5">
+          <h3 class="text-lg font-extrabold text-slate-900">Apply · {{ applyFor.title }}</h3>
+          <p class="text-xs text-slate-500 mt-0.5">{{ business?.name }}</p>
+
+          <div v-if="applied" class="mt-4 p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-center">
+            <CheckCircle2 class="w-8 h-8 text-emerald-600 mx-auto mb-2" />
+            <p class="text-sm font-bold text-slate-900">Application sent</p>
+            <p class="text-xs text-slate-600 mt-1">{{ business?.name }} will review it and contact you.</p>
+          </div>
+
+          <form v-else class="mt-4 space-y-3" @submit.prevent="submitApplication">
+            <input v-model="applyForm.name" placeholder="Your name" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm" />
+            <input v-model="applyForm.email" type="email" placeholder="Email" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm" />
+            <input v-model="applyForm.phone" placeholder="Phone (optional)" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm" />
+            <textarea v-model="applyForm.message" rows="3" placeholder="Why you're a good fit (optional)" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm" />
+            <p v-if="applyError" class="text-xs font-bold text-red-600">{{ applyError }}</p>
+            <div class="flex gap-2">
+              <button type="submit" class="flex-1 py-2.5 rounded-xl bg-brand-600 text-white text-sm font-bold disabled:opacity-40" :disabled="!canApply">
+                {{ submittingApplication ? 'Sending…' : 'Send application' }}
+              </button>
+              <button type="button" class="px-4 py-2.5 rounded-xl border border-slate-200 text-sm font-bold" @click="closeApply">Cancel</button>
+            </div>
+          </form>
+        </div>
+      </div>
     </template>
   </main>
 </template>
 
 <script setup lang="ts">
-import { computed, ref, onMounted } from 'vue';
+import { computed, reactive, ref, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
-import { Building2, MapPin, Phone, Mail, Globe } from 'lucide-vue-next';
+import { Building2, MapPin, Phone, Mail, Globe, CheckCircle2 } from 'lucide-vue-next';
 import { businessesApi, type Business, type BusinessOpening } from '@/api_factory/modules/businesses';
 
 /**
@@ -113,6 +151,47 @@ const business = ref<Business | null>(null);
 const openings = ref<BusinessOpening[]>([]);
 const loading = ref(true);
 const error = ref('');
+
+// ── Applying for a role (public, no account needed) ────────────────────────
+const applyFor = ref<BusinessOpening | null>(null);
+const applyForm = reactive({ name: '', email: '', phone: '', message: '' });
+const applyError = ref('');
+const submittingApplication = ref(false);
+const applied = ref(false);
+
+const canApply = computed(
+  () => applyForm.name.trim().length > 1 && /^\S+@\S+\.\S+$/.test(applyForm.email.trim()) && !submittingApplication.value,
+);
+
+const openApply = (role: BusinessOpening) => {
+  applyFor.value = role;
+  applyError.value = '';
+  applied.value = false;
+};
+
+const closeApply = () => {
+  applyFor.value = null;
+  applyForm.name = applyForm.email = applyForm.phone = applyForm.message = '';
+};
+
+const submitApplication = async () => {
+  if (!canApply.value || !applyFor.value) return;
+  submittingApplication.value = true;
+  applyError.value = '';
+  try {
+    await businessesApi.applyToOpening(slug.value, applyFor.value._id, {
+      name: applyForm.name.trim(),
+      email: applyForm.email.trim(),
+      phone: applyForm.phone.trim() || undefined,
+      message: applyForm.message.trim() || undefined,
+    });
+    applied.value = true;
+  } catch (err: any) {
+    applyError.value = err?.response?.data?.message || 'Could not send your application.';
+  } finally {
+    submittingApplication.value = false;
+  }
+};
 
 const load = async () => {
   loading.value = true;
