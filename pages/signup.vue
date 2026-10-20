@@ -1,6 +1,19 @@
 <template>
   <div class="h-screen w-full overflow-hidden flex bg-white">
-    <!-- Form Side (Self-contained scroll, page never scrolls) -->
+    <!-- Image Side (Left - Fixed full viewport) -->
+    <div class="hidden lg:block lg:w-1/2 h-full relative bg-slate-950 shrink-0 overflow-hidden">
+      <img src="/img/student_business_auth.jpg" alt="Nigerian campus students" class="absolute inset-0 w-full h-full object-cover opacity-60 mix-blend-luminosity scale-105" />
+      <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/60 to-slate-900/40"></div>
+      <div class="absolute bottom-16 left-12 right-12">
+        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-brand-500/20 text-brand-300 border border-brand-500/30 text-xs font-bold mb-3">
+          Verified Student Network
+        </span>
+        <h2 class="text-4xl xl:text-5xl font-black text-white mb-3 leading-tight">Join the<br/>Movement.</h2>
+        <p class="text-base text-slate-300 font-medium">Over 5,000 Nigerian students buy, sell, declutter hostels, and run campus businesses on our network.</p>
+      </div>
+    </div>
+
+    <!-- Form Side (Right - Self-contained scroll) -->
     <div class="w-full lg:w-1/2 h-full overflow-y-auto flex justify-center p-4 sm:p-8 lg:p-10 bg-white">
       <div class="w-full max-w-lg my-auto py-6">
         <NuxtLink to="/" class="flex justify-center items-center gap-2 mb-6">
@@ -11,7 +24,7 @@
         <h1 class="text-2xl sm:text-3xl text-center font-black text-slate-900 mb-1.5">Create Account</h1>
         <p class="text-xs sm:text-sm text-slate-500 text-center font-medium mb-6">Join the Decluttered student network to start trading & decluttering.</p>
 
-        <button @click="googleLogin" class="w-full flex items-center justify-center gap-2.5 bg-white border border-slate-200 text-slate-700 font-bold py-3 rounded-xl hover:bg-slate-50 transition-colors mb-5 shadow-2xs text-xs sm:text-sm">
+        <button @click="googleLogin" class="w-full flex items-center justify-center gap-2.5 bg-white border border-slate-200 text-slate-700 font-bold py-3 rounded-xl hover:bg-slate-50 transition-colors mb-5 shadow-2xs text-xs sm:text-sm cursor-pointer">
           <img src="https://www.google.com/favicon.ico" class="w-4 h-4" />
           Sign up with Google
         </button>
@@ -64,7 +77,7 @@
             <CustomInput v-model="form.password" label="Create Password" type="password" placeholder="••••••••" icon="Lock" :required="true" />
           </div>
           
-          <button type="submit" :disabled="loading || !form.firstName || !form.lastName || !form.whatsappNumber || !form.level || !form.university || !form.hostel || !form.email || !form.password" class="w-full bg-brand-600 text-white font-bold py-3.5 rounded-xl hover:bg-brand-700 transition-colors mt-2 disabled:opacity-50 disabled:cursor-not-allowed shadow-md shadow-brand-500/20 text-sm">
+          <button type="submit" :disabled="loading || !form.firstName || !form.lastName || !form.whatsappNumber || !form.level || !form.university || !form.hostel || !form.email || !form.password" class="w-full bg-brand-600 text-white font-bold py-3.5 rounded-xl hover:bg-brand-700 transition-colors mt-2 disabled:opacity-50 disabled:cursor-not-allowed shadow-md shadow-brand-500/20 text-sm cursor-pointer">
             {{ loading ? 'Creating Account...' : 'Create Account' }}
           </button>
         </form>
@@ -74,16 +87,6 @@
         <p class="text-center mt-5 text-slate-500 font-medium text-xs">
           Already have an account? <NuxtLink to="/login" class="text-brand-600 font-bold hover:underline">Log in</NuxtLink>
         </p>
-      </div>
-    </div>
-
-    <!-- Image Side (Fixed to full viewport, does not move or shift) -->
-    <div class="hidden lg:block lg:w-1/2 h-full relative bg-brand-900 shrink-0 overflow-hidden">
-      <img src="~/assets/img/campus.jpg" class="absolute inset-0 w-full h-full object-cover opacity-80 mix-blend-overlay" />
-      <div class="absolute inset-0 bg-gradient-to-t from-brand-900/90 via-brand-900/30 to-transparent"></div>
-      <div class="absolute bottom-16 left-12 right-12">
-        <h2 class="text-4xl xl:text-5xl font-black text-white mb-3 leading-tight">Join the<br/>Movement.</h2>
-        <p class="text-base text-brand-100 font-medium">Over 5,000 Nigerian students have successfully traded on our network.</p>
       </div>
     </div>
   </div>
