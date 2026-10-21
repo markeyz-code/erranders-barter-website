@@ -5,64 +5,18 @@
     <CatchUpBanner />
 
     <!-- ── Dynamic Hero: Search First, Visual Feed, Zero Long Reading ── -->
-    <!-- ── Hero Section (Simple, Clean & Automatic - Just Like Student Web App) ── -->
-    <section class="relative bg-white border-b border-slate-100 pt-8 pb-12 px-4 sm:px-6 lg:px-8 overflow-hidden text-center">
-      <!-- Soft dot background grid -->
-      <div class="absolute inset-0 bg-[radial-gradient(#e2e8f0_1.5px,transparent_1.5px)] [background-size:24px_24px] opacity-70 pointer-events-none"></div>
-
-      <div class="max-w-4xl mx-auto relative z-10 space-y-5">
-        
-        <!-- Top Pill Badge -->
-        <div>
-          <NuxtLink
-            to="/declutter"
-            class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-brand-50 border border-brand-200/80 text-brand-700 text-xs sm:text-sm font-semibold hover:bg-brand-100/70 transition-colors shadow-2xs"
-          >
-            <Zap class="w-3.5 h-3.5 fill-current text-brand-600" />
-            <span>Turn Clutter into Cash ⚡</span>
-          </NuxtLink>
-        </div>
-
-        <!-- Automatic Ease-In / Ease-Out Rotating Heading (No buttons, fully automatic) -->
-        <div class="relative h-[80px] sm:h-[100px] md:h-[115px] overflow-hidden flex items-center justify-center">
-          <TransitionGroup name="hero-slide" tag="div" class="w-full">
-            <h1 
-              :key="currentHeadingIndex"
-              class="absolute inset-0 flex flex-col items-center justify-center text-3xl sm:text-4xl md:text-5xl lg:text-[52px] font-black tracking-tight leading-[1.12] text-slate-900 px-4"
-            >
-              <div class="max-w-3xl mx-auto text-center" v-html="heroHeadings[currentHeadingIndex].text"></div>
-            </h1>
-          </TransitionGroup>
-        </div>
-
-        <!-- Rotating Slang Subtitle -->
-        <div class="h-7 overflow-hidden text-xs sm:text-sm font-semibold text-slate-500 flex items-center justify-center px-4">
-          <Transition name="fade-sub" mode="out-in">
-            <span :key="currentSlangIndex" class="inline-flex items-center gap-2 text-center text-slate-600">
-              {{ slangSlogans[currentSlangIndex] }}
-            </span>
-          </Transition>
-        </div>
-
-        <!-- Quick Action Buttons -->
-        <div class="flex items-center justify-center gap-3 pt-1">
-          <NuxtLink
-            to="/sell"
-            class="px-6 py-3.5 rounded-2xl bg-brand-600 hover:bg-brand-500 text-white font-black text-xs sm:text-sm transition-all shadow-md shadow-brand-600/20 active:scale-95 flex items-center gap-2"
-          >
-            <Tag class="w-4 h-4" />
-            <span>Sell Room Items</span>
-          </NuxtLink>
-
-          <NuxtLink
-            to="/declutter"
-            class="px-6 py-3.5 rounded-2xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs sm:text-sm transition-all shadow-sm active:scale-95 flex items-center gap-2"
-          >
-            <Package class="w-4 h-4 text-brand-400" />
-            <span>1-Click Declutter</span>
-          </NuxtLink>
-        </div>
-
+    <!-- Network-wide hero: same design as Erranders For Business. -->
+    <HeroStage
+      title="Declutter"
+      :lines="heroLines"
+      :subtitle="slangSlogans[currentSlangIndex]"
+      eyebrow="Turn clutter into cash"
+      eyebrow-href="/declutter"
+      primary-label="Sell room items"
+      primary-to="/sell"
+      secondary-label="1-click declutter"
+      secondary-to="/declutter"
+    >
         <!-- Live Omnibox Search -->
         <div class="max-w-3xl mx-auto pt-2">
           <form class="flex items-center gap-2" @submit.prevent="submitSearch">
@@ -96,9 +50,7 @@
             </button>
           </div>
         </div>
-
-      </div>
-    </section>
+    </HeroStage>
 
     <!-- ── Live Fast Filter Tabs (Sticky/Quick-jump) ── -->
     <div class="sticky top-16 z-30 bg-white/95 backdrop-blur-md border-b border-slate-200/90 shadow-2xs">
@@ -623,6 +575,20 @@ const heroHeadings = [
   { text: 'Escrow protected. <span class="text-brand-600">100% safe.</span> 🛡️' },
   { text: 'Save 70% on <span class="text-brand-600">room essentials</span> 🔥' },
 ];
+
+/**
+ * The shared hero renders plain text, so the headings are stripped of their markup here
+ * rather than inline in the template (an inline regex with angle brackets confuses the
+ * template parser).
+ */
+const heroLines = computed(() =>
+  heroHeadings.map((heading) =>
+    heading.text
+      .replace(/<[^>]+>/g, '')
+      .replace(/[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}]/gu, '')
+      .trim(),
+  ),
+);
 
 const slangSlogans = [
   "Book porters & van pickups in 60s 🚚",
