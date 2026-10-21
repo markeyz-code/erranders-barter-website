@@ -4,40 +4,164 @@
     <!-- Top Catch-Up Announcement (New items since last visit) -->
     <CatchUpBanner />
 
-    <!-- ── Dynamic Hero: Search First, Visual Feed, Zero Long Reading ── -->
-    <!-- Network-wide hero: same design as Erranders For Business. -->
-    <HeroStage
-      title="Declutter"
-      :lines="heroLines"
-      :subtitle="slangSlogans[currentSlangIndex]"
-      eyebrow="Turn clutter into cash"
-      eyebrow-href="/declutter"
-      primary-label="Sell room items"
-      primary-to="/sell"
-      secondary-label="1-click declutter"
-      secondary-to="/declutter"
-    >
+    <!-- ── Dynamic Hero: Exciting Multilingual Typewriting Design (Pidgin, Yorùbá, Igbo, Hausa) ── -->
+    <section class="relative bg-gradient-to-b from-slate-50/70 via-white to-white border-b border-slate-100 py-14 sm:py-20 md:py-24 px-4 sm:px-6 lg:px-8 overflow-hidden text-center">
+      <!-- Soft dot background grid & organic ambient blooms -->
+      <div class="absolute inset-0 bg-[radial-gradient(#e2e8f0_1.5px,transparent_1.5px)] [background-size:24px_24px] opacity-75 pointer-events-none"></div>
+      <div class="absolute -top-24 -left-24 w-96 h-96 bg-brand-500/10 rounded-full blur-3xl pointer-events-none"></div>
+      <div class="absolute -bottom-24 -right-24 w-96 h-96 bg-amber-400/10 rounded-full blur-3xl pointer-events-none"></div>
+
+      <!-- ═══ DESKTOP-ONLY FLOATING ORGANIC HERO IMAGES (Strictly hidden on Mobile) ═══ -->
+      <!-- Card 1: Top Right Floating Photo (Students decluttering fridge and books) -->
+      <div class="hidden lg:block absolute top-10 right-4 xl:right-12 z-20 group cursor-pointer transition-all duration-500 hover:scale-105">
+        <div class="relative w-44 h-44 xl:w-52 xl:h-52 drop-shadow-2xl">
+          <div class="w-full h-full overflow-hidden rounded-[2.5rem] border-4 border-white shadow-xl bg-slate-100">
+            <img
+              src="/img/hero_declutter_room.jpg"
+              alt="Students decluttering hostel room on campus"
+              class="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-115"
+            />
+          </div>
+          <!-- Cute Top Badge -->
+          <div class="absolute -top-3 -right-2 px-2.5 py-1 rounded-full bg-emerald-500 text-white text-[10px] font-black shadow-md flex items-center gap-1">
+            <span>✨</span> Verified Deal
+          </div>
+          <!-- Micro Caption Pill -->
+          <div class="absolute -bottom-3 left-1/2 -translate-x-1/2 whitespace-nowrap px-3.5 py-1.5 bg-white/95 backdrop-blur-md rounded-full border border-slate-200/90 shadow-md text-xs font-black text-slate-800 flex items-center gap-1.5 transition-transform group-hover:scale-105">
+            <span class="w-2 h-2 rounded-full bg-brand-500 animate-pulse"></span>
+            <span>📦 Hostel Clearance Cashout</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card 2: Bottom Left Floating Photo (Instant Escrow Deals) -->
+      <div class="hidden lg:block absolute bottom-8 left-4 xl:left-12 z-20 group cursor-pointer transition-all duration-500 hover:scale-105">
+        <div class="relative w-36 h-36 xl:w-44 xl:h-44 drop-shadow-xl">
+          <div class="w-full h-full overflow-hidden rounded-[2.2rem] border-3 border-white shadow-lg bg-slate-100">
+            <img
+              src="/img/hero_declutter_room.jpg"
+              alt="Declutter appliances and books"
+              class="w-full h-full object-cover object-bottom transition-transform duration-700 ease-out group-hover:scale-110"
+            />
+          </div>
+          <!-- Micro Caption Pill -->
+          <div class="absolute -bottom-3 left-1/2 -translate-x-1/2 whitespace-nowrap px-3 py-1 bg-white/95 backdrop-blur-md rounded-full border border-slate-200/90 shadow-md text-[11px] font-black text-slate-800 flex items-center gap-1.5">
+            <span class="text-amber-500">💰</span>
+            <span>Instant Escrow Payout</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="max-w-5xl mx-auto relative z-10 space-y-6">
+        <!-- Top Eyebrow Badge & Language Switcher -->
+        <div class="flex flex-col sm:flex-row items-center justify-center gap-3">
+          <NuxtLink
+            to="/declutter"
+            class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-brand-50 border border-brand-200/80 text-brand-700 text-xs sm:text-sm font-bold shadow-2xs hover:bg-brand-100/70 transition-colors"
+          >
+            <Zap class="w-3.5 h-3.5 fill-current text-brand-600 animate-pulse" />
+            <span>⚡ Turn Clutter into Cash ⚡</span>
+          </NuxtLink>
+
+          <!-- Interactive Language Tabs -->
+          <div class="flex items-center gap-1 bg-slate-100/90 p-1 rounded-full border border-slate-200/80 backdrop-blur-xs">
+            <button
+              v-for="lang in languageOptions"
+              :key="lang.id"
+              @click="selectLanguage(lang.id)"
+              :class="[
+                activeLangFilter === lang.id
+                  ? 'bg-slate-900 text-white shadow-xs font-bold'
+                  : 'text-slate-600 hover:text-slate-900 font-semibold hover:bg-white/60'
+              ]"
+              class="px-2.5 py-1 rounded-full text-[11px] sm:text-xs transition-all flex items-center gap-1 cursor-pointer"
+            >
+              <span>{{ lang.flag }}</span>
+              <span>{{ lang.label }}</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Main Power Headline -->
+        <h1 class="text-3xl sm:text-5xl md:text-6xl lg:text-[62px] font-black tracking-tight text-slate-900 leading-[1.1] max-w-4xl mx-auto">
+          Turn your room clutter into
+          <span class="text-transparent bg-clip-text bg-gradient-to-r from-brand-600 via-[#FF5C1A] to-amber-500">
+            cash sharp-sharp
+          </span> 🔥
+        </h1>
+
+        <!-- High-Impact Multilingual Typewriter Text Container -->
+        <div class="max-w-3xl mx-auto py-3">
+          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold border transition-colors mb-2.5 shadow-2xs" :class="currentPhrase.badgeClass">
+            <span>{{ currentPhrase.flag }}</span>
+            <span class="uppercase tracking-wider font-mono text-[10px]">{{ currentPhrase.lang }}</span>
+            <span class="opacity-40">•</span>
+            <span class="text-[11px] font-semibold">Campus Vibe</span>
+          </div>
+
+          <div class="min-h-[4.25rem] sm:min-h-[3.75rem] flex items-center justify-center px-4">
+            <p class="text-lg sm:text-2xl md:text-3xl font-extrabold text-slate-800 tracking-tight font-heading leading-snug">
+              <span>{{ typedText }}</span>
+              <span class="inline-block w-0.5 sm:w-1 h-6 sm:h-7 bg-brand-600 ml-1.5 animate-pulse align-middle"></span>
+            </p>
+          </div>
+        </div>
+
+        <!-- Campus Subtitle with Escrow Guarantee -->
+        <p class="max-w-2xl mx-auto text-sm sm:text-base font-medium text-slate-600 leading-relaxed">
+          Why keep wetin you no dey use? Sell your mattress, fridge, fan, gadgets or textbooks to verified students on campus with instant Escrow security.
+          <strong class="text-slate-800 font-bold block sm:inline"> Kò sí wàhálà, no stories!</strong>
+        </p>
+
+        <!-- Quick Action CTA Buttons -->
+        <div class="flex flex-wrap items-center justify-center gap-3 pt-2">
+          <NuxtLink
+            to="/sell"
+            class="group px-7 py-3.5 rounded-2xl bg-brand-600 hover:bg-brand-500 text-white font-black text-sm transition-all shadow-md shadow-brand-600/25 active:scale-95 flex items-center gap-2.5"
+          >
+            <Tag class="w-4 h-4" />
+            <span>Sell Room Items</span>
+            <ArrowRight class="w-4 h-4 transition-transform group-hover:translate-x-1" />
+          </NuxtLink>
+
+          <NuxtLink
+            to="/declutter"
+            class="px-7 py-3.5 rounded-2xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-sm transition-all shadow-sm active:scale-95 flex items-center gap-2.5"
+          >
+            <Package class="w-4 h-4 text-brand-400" />
+            <span>1-Click Declutter</span>
+          </NuxtLink>
+
+          <a
+            href="#swap-section"
+            class="px-5 py-3.5 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-sm transition-all border border-slate-200 flex items-center gap-2"
+          >
+            <ArrowRightLeft class="w-4 h-4 text-slate-500" />
+            <span>Swap Essentials</span>
+          </a>
+        </div>
+
         <!-- Live Omnibox Search -->
-        <div class="max-w-3xl mx-auto pt-2">
+        <div class="max-w-3xl mx-auto pt-4">
           <form class="flex items-center gap-2" @submit.prevent="submitSearch">
             <div class="relative flex-1">
               <Search class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
               <input
                 v-model="searchInput"
                 type="text"
-                class="w-full bg-slate-50 hover:bg-white focus:bg-white border border-slate-300 focus:border-brand-600 rounded-2xl pl-12 pr-4 py-3.5 text-sm sm:text-base font-semibold text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-4 focus:ring-brand-600/10 transition-all shadow-sm"
+                class="w-full bg-white hover:bg-slate-50 focus:bg-white border border-slate-300 focus:border-brand-600 rounded-2xl pl-12 pr-4 py-3.5 text-sm sm:text-base font-semibold text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-4 focus:ring-brand-600/10 transition-all shadow-sm"
                 placeholder="Search hostel movers, electricians, painters, mini-fridges, fans, textbooks..."
               />
             </div>
             <button
               type="submit"
-              class="bg-slate-900 hover:bg-brand-600 text-white font-black px-6 py-3.5 rounded-2xl text-sm transition-all shrink-0 active:scale-95 shadow-sm"
+              class="bg-slate-900 hover:bg-brand-600 text-white font-black px-6 py-3.5 rounded-2xl text-sm transition-all shrink-0 active:scale-95 shadow-sm cursor-pointer"
             >
               Search
             </button>
           </form>
 
-          <!-- Quick Discovery Pills -->
+          <!-- Quick Discovery Pills (Fumigation removed) -->
           <div class="mt-4 flex items-center justify-center gap-2 overflow-x-auto pb-1 no-scrollbar">
             <span class="text-xs font-bold text-slate-400 uppercase tracking-wider shrink-0 mr-1">Popular:</span>
             <button
@@ -50,7 +174,28 @@
             </button>
           </div>
         </div>
-    </HeroStage>
+
+        <!-- Social Proof & Trust Strip -->
+        <div class="mt-10 pt-8 border-t border-slate-200/80 max-w-4xl mx-auto grid grid-cols-2 sm:grid-cols-4 gap-4 text-center">
+          <div class="p-2">
+            <p class="text-xl sm:text-2xl font-black text-slate-900 font-mono tracking-tight">₦4.8M+</p>
+            <p class="text-[10px] sm:text-[11px] font-bold text-slate-500 uppercase tracking-wider mt-0.5">Cashed Out by Students</p>
+          </div>
+          <div class="p-2">
+            <p class="text-xl sm:text-2xl font-black text-slate-900 font-mono tracking-tight">1,950+</p>
+            <p class="text-[10px] sm:text-[11px] font-bold text-slate-500 uppercase tracking-wider mt-0.5">Room Items Traded</p>
+          </div>
+          <div class="p-2">
+            <p class="text-xl sm:text-2xl font-black text-emerald-600 font-mono tracking-tight">100%</p>
+            <p class="text-[10px] sm:text-[11px] font-bold text-slate-500 uppercase tracking-wider mt-0.5">Escrow Safe (No Stories)</p>
+          </div>
+          <div class="p-2">
+            <p class="text-xl sm:text-2xl font-black text-brand-600 font-mono tracking-tight">&lt; 2 Hours</p>
+            <p class="text-[10px] sm:text-[11px] font-bold text-slate-500 uppercase tracking-wider mt-0.5">Average Deal Speed</p>
+          </div>
+        </div>
+      </div>
+    </section>
 
     <!-- ── Live Fast Filter Tabs (Sticky/Quick-jump) ── -->
     <div class="sticky top-16 z-30 bg-white/95 backdrop-blur-md border-b border-slate-200/90 shadow-2xs">
@@ -421,7 +566,7 @@
             Book Services & Skills
           </h2>
           <p class="text-xs sm:text-sm text-slate-500 font-medium">
-            Hostel fumigation, moving porters, repairs & campus gigs.
+            Hostel moving porters, electricians, painters, repairs & campus gigs.
           </p>
         </div>
 
@@ -472,10 +617,10 @@
       </div>
     </section>
 
-    <!-- ── SECTION 6: PARTNER BUSINESS SPOTLIGHT (Concise, Clean & Non-Wordy) ── -->
+    <!-- ── SECTION 6: PARTNER BUSINESS SPOTLIGHT (Hostel Fumigation & Move Partners) - COMMENTED OUT AS REQUESTED ── -->
+    <!--
     <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 mb-10">
       <div class="p-6 sm:p-8 rounded-3xl bg-white text-slate-900 border border-slate-200/90 shadow-sm relative overflow-hidden">
-        <!-- Soft dot grid -->
         <div class="absolute inset-0 bg-[radial-gradient(#e2e8f0_1.5px,transparent_1.5px)] [background-size:20px_20px] opacity-60 pointer-events-none"></div>
 
         <div class="relative z-10 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
@@ -521,6 +666,7 @@
         </div>
       </div>
     </section>
+    -->
 
 
   </div>
@@ -541,7 +687,7 @@ import { formatPriceLabel } from '@/composables/modules/services/useServiceForma
 useSeoMeta({
   title: 'Decluttered by Erranders - Instant Campus Marketplace, Deals & Gigs',
   description:
-    'Discover items mapped to buy, live sold out deals, swaps, interactive reels, and campus services like room fumigation and moving porters.',
+    'Discover items mapped to buy, live sold out deals, swaps, interactive reels, and campus services like hostel moving porters, electricians, and painters.',
 });
 
 const router = useRouter();
@@ -554,67 +700,202 @@ const campusStats = ref({
 });
 
 const popularSearches = [
-  'Hostel Movers', 'Hostel Electrician', 'Room Painter', 'Mini Fridge', 'Standing Fan', 'Fumigation', 'Hot Plate', 'Gas Cylinder', 'Mattress'
+  'Hostel Movers', 'Hostel Electrician', 'Room Painter', 'Mini Fridge', 'Standing Fan', 'Study Desk', 'Hot Plate', 'Gas Cylinder', 'Mattress'
 ];
 
-const currentHeadingIndex = ref(0);
-const currentSlangIndex = ref(0);
-let rotationTimer: any = null;
+interface MultilingualPhrase {
+  text: string;
+  lang: 'Pidgin' | 'Yorùbá' | 'Igbo' | 'Hausa';
+  flag: string;
+  badgeClass: string;
+}
 
-const heroHeadings = [
-  { text: 'Sell your room stuff. <span class="text-brand-600">Get paid today.</span> 💰' },
-  { text: 'Book movers, painters & <span class="text-brand-600">electricians</span> ⚡' },
-  { text: 'Swap items. <span class="text-brand-600">No cash needed.</span> 🔄' },
-  { text: 'Clutter → Cash. <span class="text-brand-600">In 2 hours.</span> 📦' },
-  { text: 'Room fumigation <span class="text-brand-600">booked in 60s</span> ✨' },
-  { text: 'Graduating? <span class="text-brand-600">Cash out ₦50k+</span> 🎓' },
-  { text: 'No stress. <span class="text-brand-600">Chop life!</span> 🇳🇬' },
-  { text: 'Kò sí wàhálà — <span class="text-brand-600">buy & sell easy</span> 🤝' },
-  { text: 'Nwanne, <span class="text-brand-600">mee ego sharp!</span> 🚀' },
-  { text: 'Ba wahala! <span class="text-brand-600">Move & cash out.</span> 🏃‍♂️' },
-  { text: 'Escrow protected. <span class="text-brand-600">100% safe.</span> 🛡️' },
-  { text: 'Save 70% on <span class="text-brand-600">room essentials</span> 🔥' },
+const languageOptions = [
+  { id: 'all', label: 'All Vibes', flag: '🇳🇬' },
+  { id: 'Pidgin', label: 'Pidgin', flag: '🇳🇬' },
+  { id: 'Yorùbá', label: 'Yorùbá', flag: '🟢' },
+  { id: 'Igbo', label: 'Igbo', flag: '🟡' },
+  { id: 'Hausa', label: 'Hausa', flag: '🔵' },
 ];
 
-/**
- * The shared hero renders plain text, so the headings are stripped of their markup here
- * rather than inline in the template (an inline regex with angle brackets confuses the
- * template parser).
- */
-const heroLines = computed(() =>
-  heroHeadings.map((heading) =>
-    heading.text
-      .replace(/<[^>]+>/g, '')
-      .replace(/[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}]/gu, '')
-      .trim(),
-  ),
-);
+const activeLangFilter = ref<'all' | 'Pidgin' | 'Yorùbá' | 'Igbo' | 'Hausa'>('all');
 
-const slangSlogans = [
-  "Book porters & van pickups in 60s 🚚",
-  "Electrician dey delay? Book handymen now ⚡",
-  "Cash out ₦40k+ before holidays 💰",
-  "Buy, sell & swap with students 🤝",
-  "Save 70% on room essentials 🔄",
-  "1-Click Declutter clears your room 📦",
-  "Earn ₦15k+ daily on campus 🛠️",
-  "Escrow protected. No stories 🛡️",
-  "Fumigation & painting in 24hrs ✨",
-  "Mattress, fridge, fan — all listed 🏠",
+const multilingualPhrases: MultilingualPhrase[] = [
+  // Pidgin
+  {
+    text: "No dey carry old fridge enter new semester! Sell am sharp-sharp, chop life! 🇳🇬",
+    lang: "Pidgin",
+    flag: "🇳🇬",
+    badgeClass: "bg-emerald-50 text-emerald-800 border-emerald-200/80",
+  },
+  {
+    text: "Turn your room clutter to urgent 2k and raw cash within 2 hours! 💸",
+    lang: "Pidgin",
+    flag: "🇳🇬",
+    badgeClass: "bg-emerald-50 text-emerald-800 border-emerald-200/80",
+  },
+  {
+    text: "Why you go dey keep wetin you no dey use? Sell am, flex campus! ⚡",
+    lang: "Pidgin",
+    flag: "🇳🇬",
+    badgeClass: "bg-emerald-50 text-emerald-800 border-emerald-200/80",
+  },
+  {
+    text: "Graduating or moving hostel? Cash out ₦50,000+ from room items today! 📦",
+    lang: "Pidgin",
+    flag: "🇳🇬",
+    badgeClass: "bg-emerald-50 text-emerald-800 border-emerald-200/80",
+  },
+  {
+    text: "Escrow dey protect every kobo — 100% safe, zero stories, zero scam! 🛡️",
+    lang: "Pidgin",
+    flag: "🇳🇬",
+    badgeClass: "bg-emerald-50 text-emerald-800 border-emerald-200/80",
+  },
+  // Yorùbá
+  {
+    text: "Kò sí wàhálà rárá — ta àwọn nǹkan yàrá rẹ lẹ́sẹ̀kẹsẹ̀ kí o gba owó! 💰",
+    lang: "Yorùbá",
+    flag: "🟢",
+    badgeClass: "bg-amber-50 text-amber-800 border-amber-200/80",
+  },
+  {
+    text: "Ẹ gbọ́ o! Mattress, fan, fridge — ta gbogbo rẹ fún students lónìí! ✨",
+    lang: "Yorùbá",
+    flag: "🟢",
+    badgeClass: "bg-amber-50 text-amber-800 border-amber-200/80",
+  },
+  {
+    text: "Oya na! Declutter room ẹ kíákíá, kí o chop life lórí campus láìsí stress! 🚀",
+    lang: "Yorùbá",
+    flag: "🟢",
+    badgeClass: "bg-amber-50 text-amber-800 border-amber-200/80",
+  },
+  {
+    text: "Owo nlá ń bọ̀! Ra àti ta nǹkan hostel pẹ̀lú ìbàlẹ̀ ọkàn tó péye! 🤝",
+    lang: "Yorùbá",
+    flag: "🟢",
+    badgeClass: "bg-amber-50 text-amber-800 border-amber-200/80",
+  },
+  {
+    text: "Awa campus hustlers kò ní give up — sell your room items, gba alert! 🔥",
+    lang: "Yorùbá",
+    flag: "🟢",
+    badgeClass: "bg-amber-50 text-amber-800 border-amber-200/80",
+  },
+  // Igbo
+  {
+    text: "Nwanne, mee ego sharp sharp! Ere ihe na ime room gị taa n'enweghị nsogbu! 🚀",
+    lang: "Igbo",
+    flag: "🟡",
+    badgeClass: "bg-purple-50 text-purple-800 border-purple-200/80",
+  },
+  {
+    text: "Kedu ihe ị na-eche? Turn old textbooks & electronics into direct bank alert! 📱",
+    lang: "Igbo",
+    flag: "🟡",
+    badgeClass: "bg-purple-50 text-purple-800 border-purple-200/80",
+  },
+  {
+    text: "Onye ọbụla na-eme cash out — zụta ma ree ihe hostel n'udo na nchekwa! 💰",
+    lang: "Igbo",
+    flag: "🟡",
+    badgeClass: "bg-purple-50 text-purple-800 border-purple-200/80",
+  },
+  {
+    text: "Ego mbata dị ọsọ ọsọ — swap ihe ị na-adịghị eji maka ihe ị chọrọ taa! 🔄",
+    lang: "Igbo",
+    flag: "🟡",
+    badgeClass: "bg-purple-50 text-purple-800 border-purple-200/80",
+  },
+  {
+    text: "Ihe anyị na-ekwu bụ ego ziri ezi — no stories, safe escrow payment! 🛡️",
+    lang: "Igbo",
+    flag: "🟡",
+    badgeClass: "bg-purple-50 text-purple-800 border-purple-200/80",
+  },
+  // Hausa
+  {
+    text: "Ba wahala ko kadan! Sayar da kayan dakin ka ka samu kudi yanzu nan! 🏃‍♂️",
+    lang: "Hausa",
+    flag: "🔵",
+    badgeClass: "bg-blue-50 text-blue-800 border-blue-200/80",
+  },
+  {
+    text: "Kudi a hannu nan da nan! Share daki, samun kudi mai kyau a campus! 💰",
+    lang: "Hausa",
+    flag: "🔵",
+    badgeClass: "bg-blue-50 text-blue-800 border-blue-200/80",
+  },
+  {
+    text: "Kasuwanci mai sauki da riba tsakanin dalibai — sayarwa ba damuwa ko kadan! 🤝",
+    lang: "Hausa",
+    flag: "🔵",
+    badgeClass: "bg-blue-50 text-blue-800 border-blue-200/80",
+  },
+  {
+    text: "Duk abin da baka bukata a daki, mayar dashi kudi cikin gaggawa yau! ⚡",
+    lang: "Hausa",
+    flag: "🔵",
+    badgeClass: "bg-blue-50 text-blue-800 border-blue-200/80",
+  },
+  {
+    text: "Tabbataccen tsaro da escrow — babu asara ko yaudara ko kadan a Erranders! 🛡️",
+    lang: "Hausa",
+    flag: "🔵",
+    badgeClass: "bg-blue-50 text-blue-800 border-blue-200/80",
+  },
 ];
 
-const startHeadingRotation = () => {
-  stopHeadingRotation();
-  rotationTimer = setInterval(() => {
-    currentHeadingIndex.value = (currentHeadingIndex.value + 1) % heroHeadings.length;
-    currentSlangIndex.value = (currentSlangIndex.value + 1) % slangSlogans.length;
-  }, 3200);
+const activePhrases = computed(() => {
+  if (activeLangFilter.value === 'all') return multilingualPhrases;
+  return multilingualPhrases.filter(p => p.lang === activeLangFilter.value);
+});
+
+const currentPhraseIndex = ref(0);
+const typedText = ref('');
+const isDeleting = ref(false);
+let typewriterTimeout: any = null;
+
+const currentPhrase = computed<MultilingualPhrase>(() => {
+  const list = activePhrases.value;
+  return list[currentPhraseIndex.value % list.length] || multilingualPhrases[0];
+});
+
+const selectLanguage = (langId: any) => {
+  activeLangFilter.value = langId;
+  currentPhraseIndex.value = 0;
+  typedText.value = '';
+  isDeleting.value = false;
+  if (typewriterTimeout) clearTimeout(typewriterTimeout);
+  runTypewriter();
 };
 
-const stopHeadingRotation = () => {
-  if (rotationTimer) {
-    clearInterval(rotationTimer);
-    rotationTimer = null;
+const runTypewriter = () => {
+  const phrase = currentPhrase.value.text;
+  const currentLength = typedText.value.length;
+
+  if (!isDeleting.value) {
+    if (currentLength < phrase.length) {
+      typedText.value = phrase.slice(0, currentLength + 1);
+      typewriterTimeout = setTimeout(runTypewriter, 35);
+    } else {
+      // Completed typing, pause to let user read
+      typewriterTimeout = setTimeout(() => {
+        isDeleting.value = true;
+        runTypewriter();
+      }, 2600);
+    }
+  } else {
+    if (currentLength > 0) {
+      typedText.value = phrase.slice(0, currentLength - 1);
+      typewriterTimeout = setTimeout(runTypewriter, 18);
+    } else {
+      // Completed deleting, move to next phrase
+      isDeleting.value = false;
+      currentPhraseIndex.value = (currentPhraseIndex.value + 1) % activePhrases.value.length;
+      typewriterTimeout = setTimeout(runTypewriter, 400);
+    }
   }
 };
 
@@ -731,12 +1012,15 @@ onMounted(() => {
     .catch(() => { reels.value = []; })
     .finally(() => { loading.reels = false; });
 
-  // Start automatic rotating heading & slang subtitle (Just like student web app)
-  startHeadingRotation();
+  // Start typewriter engine with multilingual excitement
+  runTypewriter();
 });
 
 onUnmounted(() => {
-  stopHeadingRotation();
+  if (typewriterTimeout) {
+    clearTimeout(typewriterTimeout);
+    typewriterTimeout = null;
+  }
 });
 </script>
 
