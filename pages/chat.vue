@@ -1,64 +1,228 @@
 <template>
-  <main class="h-screen h-[100dvh] max-h-[100dvh] w-full bg-white flex flex-col overflow-hidden relative">
+  <main class="fixed inset-0 h-[100dvh] max-h-[100dvh] w-full bg-white flex flex-col overflow-hidden select-none">
     
-    <!-- Call Overlay -->
-    <div v-if="activeCall" class="fixed inset-0 bg-slate-900 z-[100] flex flex-col items-center justify-center text-white">
-      <div v-if="callType === 'video'" class="absolute inset-0 z-0">
-        <video ref="remoteVideo" autoplay playsinline class="w-full h-full object-cover"></video>
-        <video ref="localVideo" autoplay playsinline muted class="absolute bottom-6 right-6 w-32 h-48 bg-black rounded-xl object-cover shadow-xl border-2 border-slate-700"></video>
-      </div>
+    <!-- Call Interface (No Heavy Overlays, Tap to Swap Bigger Area on Video Calls) -->
+    <div v-if="activeCall" class="fixed inset-0 bg-slate-950 z-[100] flex flex-col overflow-hidden select-none">
       
-      <div v-if="callType === 'voice'" class="w-32 h-32 bg-slate-800 rounded-full mb-6 flex items-center justify-center animate-pulse z-10 mt-auto">
-        <span class="text-4xl font-bold text-slate-400">?</span>
+      <!-- Video Call Mode -->
+      <div v-if="callType === 'video'" class="relative w-full h-full inset-0">
+        
+        <!-- Video 1: Remote Video -->
+        <div
+          @click="isRemoteMain ? null : setVideoFocus('remote')"
+          :class="[
+            isRemoteMain
+              ? 'fixed inset-0 w-full h-full z-0 bg-slate-950 flex items-center justify-center'
+              : 'fixed top-4 right-4 sm:top-6 sm:right-6 w-28 h-40 sm:w-36 sm:h-52 z-30 rounded-2xl shadow-2xl border-2 border-white/90 overflow-hidden cursor-pointer active:scale-95 hover:border-brand-400 transition-all duration-300'
+          ]"
+        >
+          <video
+            ref="remoteVideo"
+            autoplay
+            playsinline
+            class="w-full h-full object-cover pointer-events-none"
+          ></video>
+          <!-- PiP overlay badge when smaller -->
+          <div
+            v-if="!isRemoteMain"
+            class="absolute bottom-1.5 left-1/2 -translate-x-1/2 bg-black/65 backdrop-blur-xs text-white text-[9px] font-black px-2 py-0.5 rounded-full pointer-events-none flex items-center gap-1 shadow-sm whitespace-nowrap"
+          >
+            <ArrowRightLeft class="w-2.5 h-2.5" />
+            <span>Tap for bigger</span>
+          </div>
+          <div
+            v-if="!isRemoteMain"
+            class="absolute top-1.5 left-1.5 bg-black/65 backdrop-blur-xs text-white text-[9px] font-bold px-1.5 py-0.5 rounded-md pointer-events-none"
+          >
+            {{ headerTitle }}
+          </div>
+        </div>
+
+        <!-- Video 2: Local Camera Video -->
+        <div
+          @click="!isRemoteMain ? null : setVideoFocus('local')"
+          :class="[
+            !isRemoteMain
+              ? 'fixed inset-0 w-full h-full z-0 bg-slate-950 flex items-center justify-center'
+              : 'fixed top-4 right-4 sm:top-6 sm:right-6 w-28 h-40 sm:w-36 sm:h-52 z-30 rounded-2xl shadow-2xl border-2 border-white/90 overflow-hidden cursor-pointer active:scale-95 hover:border-brand-400 transition-all duration-300'
+          ]"
+        >
+          <video
+            ref="localVideo"
+            autoplay
+            playsinline
+            muted
+            class="w-full h-full object-cover pointer-events-none"
+          ></video>
+          <!-- PiP overlay badge when smaller -->
+          <div
+            v-if="isRemoteMain"
+            class="absolute bottom-1.5 left-1/2 -translate-x-1/2 bg-black/65 backdrop-blur-xs text-white text-[9px] font-black px-2 py-0.5 rounded-full pointer-events-none flex items-center gap-1 shadow-sm whitespace-nowrap"
+          >
+            <ArrowRightLeft class="w-2.5 h-2.5" />
+            <span>Tap for bigger</span>
+          </div>
+          <div
+            v-if="isRemoteMain"
+            class="absolute top-1.5 left-1.5 bg-black/65 backdrop-blur-xs text-white text-[9px] font-bold px-1.5 py-0.5 rounded-md pointer-events-none"
+          >
+            You
+          </div>
+        </div>
+
+        <!-- Floating Top Status Pill (No Dark Full-Width Overlay) -->
+        <div class="fixed top-5 left-1/2 -translate-x-1/2 z-30 flex items-center gap-2 px-4 py-1.5 rounded-full bg-black/50 backdrop-blur-md text-white text-xs font-bold border border-white/15 shadow-xl">
+          <span class="w-2 h-2 rounded-full" :class="callStatus === 'Connected' ? 'bg-green-400 animate-pulse' : 'bg-amber-400 animate-ping'"></span>
+          <span>{{ callStatus }}</span>
+          <span class="opacity-40">•</span>
+          <span class="text-[11px] text-slate-300 font-medium">Tap small video to swap</span>
+        </div>
+
+        <!-- Floating Bottom Call Control Bar (Minimalist, Floating, No Murky Overlay) -->
+        <div class="fixed bottom-8 left-1/2 -translate-x-1/2 z-40 flex items-center gap-4 bg-black/50 backdrop-blur-md px-6 py-3 rounded-full border border-white/15 shadow-2xl">
+          <!-- Flip who is in bigger area -->
+          <button
+            type="button"
+            @click.stop="toggleVideoFocus"
+            class="w-12 h-12 rounded-full bg-white/15 hover:bg-white/25 active:scale-95 text-white flex items-center justify-center transition-all cursor-pointer"
+            title="Swap video focus"
+          >
+            <ArrowRightLeft class="w-5 h-5" />
+          </button>
+
+          <!-- Toggle Audio Mute -->
+          <button
+            type="button"
+            @click.stop="toggleAudioMute"
+            class="w-12 h-12 rounded-full flex items-center justify-center transition-all cursor-pointer active:scale-95"
+            :class="isAudioMuted ? 'bg-amber-500 text-white' : 'bg-white/15 hover:bg-white/25 text-white'"
+            title="Mute microphone"
+          >
+            <MicOff v-if="isAudioMuted" class="w-5 h-5" />
+            <Mic v-else class="w-5 h-5" />
+          </button>
+
+          <!-- Incoming Call Answer Button -->
+          <button
+            v-if="callStatus === 'Incoming Call...'"
+            type="button"
+            @click.stop="answerCall"
+            class="w-14 h-14 bg-green-500 hover:bg-green-600 rounded-full flex items-center justify-center text-white transition-all shadow-lg shadow-green-500/30 active:scale-95 animate-bounce cursor-pointer"
+            title="Answer call"
+          >
+            <Phone class="w-6 h-6" />
+          </button>
+
+          <!-- End Call Button -->
+          <button
+            type="button"
+            @click.stop="endCall"
+            class="w-14 h-14 bg-red-600 hover:bg-red-700 rounded-full flex items-center justify-center text-white transition-all shadow-lg shadow-red-600/30 active:scale-95 cursor-pointer"
+            title="End call"
+          >
+            <PhoneOff class="w-6 h-6" />
+          </button>
+        </div>
+
       </div>
 
-      <div class="relative z-10 flex flex-col items-center justify-center text-center mt-auto mb-10 bg-gradient-to-t from-black/80 to-transparent p-8 w-full">
-        <h2 class="text-2xl font-bold mb-2">{{ callStatus }}</h2>
+      <!-- Voice Call Mode (No Heavy Overlay) -->
+      <div v-else-if="callType === 'voice'" class="relative w-full h-full flex flex-col items-center justify-between p-8 sm:p-12 z-10 bg-gradient-to-b from-slate-900 via-slate-900 to-slate-950">
         
-        <div class="flex items-center gap-6 mt-8">
-          <button v-if="callStatus === 'Incoming Call...'" @click="answerCall" class="w-16 h-16 bg-green-500 rounded-full flex items-center justify-center hover:bg-green-600 transition-colors shadow-lg shadow-green-500/20">
+        <!-- Top Status -->
+        <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 backdrop-blur-md text-white text-xs font-bold border border-white/10 mt-6">
+          <span class="w-2 h-2 rounded-full" :class="callStatus === 'Connected' ? 'bg-green-400 animate-pulse' : 'bg-amber-400 animate-ping'"></span>
+          <span>{{ callStatus }}</span>
+        </div>
+
+        <!-- Center Caller Avatar & Audio Pulse -->
+        <div class="flex flex-col items-center text-center space-y-4 my-auto">
+          <div class="relative">
+            <div class="w-32 h-32 sm:w-40 sm:h-40 rounded-full bg-brand-500/20 animate-ping absolute inset-0"></div>
+            <div class="w-32 h-32 sm:w-40 sm:h-40 rounded-full bg-brand-600 text-white flex items-center justify-center font-black text-4xl sm:text-5xl shadow-2xl border-4 border-white/20 relative z-10">
+              {{ headerInitial }}
+            </div>
+          </div>
+          <div>
+            <h2 class="text-2xl sm:text-3xl font-black text-white tracking-tight">{{ headerTitle }}</h2>
+            <p class="text-xs sm:text-sm font-semibold text-slate-400 mt-1">Decluttered Escrow Voice Call</p>
+          </div>
+        </div>
+
+        <!-- Voice Call Bottom Controls (Clean, Minimalist) -->
+        <div class="flex items-center gap-5 mb-8">
+          <!-- Toggle Audio Mute -->
+          <button
+            type="button"
+            @click.stop="toggleAudioMute"
+            class="w-14 h-14 rounded-full flex items-center justify-center transition-all cursor-pointer active:scale-95"
+            :class="isAudioMuted ? 'bg-amber-500 text-white' : 'bg-white/15 hover:bg-white/25 text-white'"
+            title="Mute microphone"
+          >
+            <MicOff v-if="isAudioMuted" class="w-6 h-6" />
+            <Mic v-else class="w-6 h-6" />
+          </button>
+
+          <!-- Incoming Answer -->
+          <button
+            v-if="callStatus === 'Incoming Call...'"
+            type="button"
+            @click.stop="answerCall"
+            class="w-16 h-16 bg-green-500 hover:bg-green-600 rounded-full flex items-center justify-center text-white transition-all shadow-lg shadow-green-500/30 active:scale-95 animate-bounce cursor-pointer"
+            title="Answer call"
+          >
             <Phone class="w-7 h-7" />
           </button>
-          <button @click="endCall" class="w-16 h-16 bg-red-500 rounded-full flex items-center justify-center hover:bg-red-600 transition-colors shadow-lg shadow-red-500/20">
+
+          <!-- End Call -->
+          <button
+            type="button"
+            @click.stop="endCall"
+            class="w-16 h-16 bg-red-600 hover:bg-red-700 rounded-full flex items-center justify-center text-white transition-all shadow-lg shadow-red-600/30 active:scale-95 cursor-pointer"
+            title="End call"
+          >
             <PhoneOff class="w-7 h-7" />
           </button>
         </div>
+
       </div>
+
     </div>
 
-    <div class="flex flex-col h-full w-full">
-      <div class="bg-white overflow-hidden flex flex-col h-full w-full relative">
-        
-        <!-- Header -->
-        <div class="p-4 border-b border-slate-100 flex items-center justify-between bg-white shadow-sm z-10 relative">
+    <!-- Main Chat Workspace (Strict Flex Column: Fixed Header, Scrollable Body, Fixed Footer) -->
+    <div class="flex flex-col h-full w-full overflow-hidden relative">
+      
+      <!-- Fixed Header (Never scrolls with chat) -->
+      <header class="shrink-0 z-20 bg-white border-b border-slate-100 shadow-xs">
+        <div class="p-3 sm:p-4 flex items-center justify-between">
           <div class="flex items-center gap-3">
-            <button @click="router.back()" class="p-2 hover:bg-slate-100 rounded-full transition-colors">
+            <button @click="router.back()" class="p-2 hover:bg-slate-100 rounded-full transition-colors cursor-pointer">
               <ArrowLeft class="w-5 h-5 text-slate-600" />
             </button>
-            <div class="w-10 h-10 bg-brand-100 rounded-full flex items-center justify-center text-brand-700 font-bold border border-brand-200">
+            <div class="w-10 h-10 bg-brand-100 rounded-full flex items-center justify-center text-brand-700 font-bold border border-brand-200 shrink-0">
               {{ headerInitial }}
             </div>
             <div>
               <h2 class="font-bold text-slate-900 leading-tight">{{ headerTitle }}</h2>
-              <p class="text-sm font-bold flex items-center gap-1" :class="isConnected ? 'text-green-500' : 'text-slate-400'">
+              <p class="text-xs sm:text-sm font-bold flex items-center gap-1" :class="isConnected ? 'text-green-500' : 'text-slate-400'">
                 <span class="w-2 h-2 rounded-full block" :class="isConnected ? 'bg-green-500 animate-pulse' : 'bg-slate-300'"></span>
                 {{ isConnected ? 'Online' : 'Connecting...' }}
               </p>
             </div>
           </div>
           
-          <div v-if="activeChatId" class="flex items-center gap-2 text-slate-500">
-            <button @click="startCall('voice')" class="p-2 hover:bg-slate-100 rounded-full transition-colors">
+          <div v-if="activeChatId" class="flex items-center gap-1 sm:gap-2 text-slate-500">
+            <button @click="startCall('voice')" class="p-2 hover:bg-slate-100 rounded-full transition-colors cursor-pointer" title="Voice Call">
               <Phone class="w-5 h-5 text-brand-600" />
             </button>
-            <button @click="startCall('video')" class="p-2 hover:bg-slate-100 rounded-full transition-colors">
+            <button @click="startCall('video')" class="p-2 hover:bg-slate-100 rounded-full transition-colors cursor-pointer" title="Video Call">
               <Video class="w-5 h-5 text-brand-600" />
             </button>
           </div>
         </div>
 
         <!-- Escrow Anti-Circumvention Protection Banner -->
-        <div v-if="activeChatId && !conversationUnavailable" class="bg-amber-50/90 border-b border-amber-200/80 px-4 py-2 flex items-center justify-between text-xs text-amber-950">
+        <div v-if="activeChatId && !conversationUnavailable" class="bg-amber-50/90 border-t border-amber-200/80 px-3 sm:px-4 py-2 flex items-center justify-between text-xs text-amber-950">
           <div class="flex items-center gap-2">
             <ShieldCheck class="w-4 h-4 text-emerald-600 shrink-0" />
             <span class="font-medium text-[11px] sm:text-xs">
@@ -69,15 +233,16 @@
             Pay via Escrow 🔒
           </NuxtLink>
         </div>
-        
-        <!-- Network Upload Indicator -->
-        <div v-if="isUploading" class="absolute top-[72px] left-1/2 -translate-x-1/2 z-20 bg-slate-900 text-white px-4 py-2 rounded-full text-xs font-bold flex items-center gap-2 shadow-xl shadow-slate-900/20">
-          <Loader2 class="w-3 h-3 animate-spin" />
-          Sending Media...
-        </div>
-        
-        <!-- Chat Area -->
-        <div class="flex-1 p-3 sm:p-4 overflow-y-auto bg-slate-50 flex flex-col gap-3 sm:gap-4 relative" ref="chatContainer" @click="showActionTray = false; showEmojis = false">
+      </header>
+
+      <!-- Network Upload Indicator -->
+      <div v-if="isUploading" class="absolute top-[80px] left-1/2 -translate-x-1/2 z-30 bg-slate-900 text-white px-4 py-2 rounded-full text-xs font-bold flex items-center gap-2 shadow-xl shadow-slate-900/20">
+        <Loader2 class="w-3 h-3 animate-spin" />
+        Sending Media...
+      </div>
+
+      <!-- Chat Area (ONLY SCROLLABLE BODY: flex-1 min-h-0 overflow-y-auto overscroll-contain) -->
+      <div class="flex-1 min-h-0 overflow-y-auto overscroll-contain bg-slate-50 p-3 sm:p-4 flex flex-col gap-3 sm:gap-4 relative" ref="chatContainer" @click="showActionTray = false; showEmojis = false">
           <!-- No conversation resolved from the URL -->
           <div v-if="conversationUnavailable" class="flex-1 flex flex-col items-center justify-center text-center gap-4">
             <div class="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center">
@@ -135,28 +300,30 @@
           </div>
         </div>
         
-        <!-- Active Reply Banner -->
-        <div v-if="replyingTo" class="bg-slate-100 p-3 border-t border-slate-200 flex items-center justify-between">
-          <div class="text-sm text-slate-600 truncate border-l-4 border-brand-500 pl-2">
-            <span class="font-bold text-brand-600 block">Replying to</span>
-            {{ replyPreview(replyingTo) }}
-          </div>
-          <button @click="replyingTo = null" class="text-slate-400 hover:text-slate-600"><X class="w-4 h-4"/></button>
-        </div>
-
-        <!-- Attachment Preview -->
-        <div v-if="pendingAsset" class="bg-slate-100 p-3 border-t border-slate-200 flex items-center justify-between">
-          <div class="flex items-center gap-3">
-            <div class="w-12 h-12 bg-slate-200 rounded-lg flex items-center justify-center overflow-hidden">
-              <img :src="pendingAsset" class="w-full h-full object-cover" />
+        <!-- Fixed Footer (Never scrolls with page/chat) -->
+        <footer class="shrink-0 z-20 bg-white border-t border-slate-100 relative">
+          <!-- Active Reply Banner -->
+          <div v-if="replyingTo" class="bg-slate-100 p-3 border-b border-slate-200 flex items-center justify-between">
+            <div class="text-sm text-slate-600 truncate border-l-4 border-brand-500 pl-2">
+              <span class="font-bold text-brand-600 block">Replying to</span>
+              {{ replyPreview(replyingTo) }}
             </div>
-            <span class="text-sm font-bold text-slate-600">Attachment Ready</span>
+            <button @click="replyingTo = null" class="text-slate-400 hover:text-slate-600"><X class="w-4 h-4"/></button>
           </div>
-          <button @click="cancelAttachment" class="text-slate-400 hover:text-slate-600"><X class="w-4 h-4"/></button>
-        </div>
-        
-        <!-- Plus Action Tray (Preview option for Camera, File Upload, Emojis, Voice Note) -->
-        <Transition name="tray-slide">
+
+          <!-- Attachment Preview -->
+          <div v-if="pendingAsset" class="bg-slate-100 p-3 border-b border-slate-200 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+              <div class="w-12 h-12 bg-slate-200 rounded-lg flex items-center justify-center overflow-hidden">
+                <img :src="pendingAsset" class="w-full h-full object-cover" />
+              </div>
+              <span class="text-sm font-bold text-slate-600">Attachment Ready</span>
+            </div>
+            <button @click="cancelAttachment" class="text-slate-400 hover:text-slate-600"><X class="w-4 h-4"/></button>
+          </div>
+          
+          <!-- Plus Action Tray (Preview option for Camera, File Upload, Emojis, Voice Note) -->
+          <Transition name="tray-slide">
           <div
             v-if="showActionTray"
             class="bg-white border-t border-slate-200/90 shadow-2xl p-3 sm:p-5 z-20 backdrop-blur-md"
@@ -311,37 +478,37 @@
 
           </form>
         </div>
+      </footer>
 
-        <!-- Camera Overlay -->
-        <div v-if="showCamera" class="absolute inset-0 bg-black z-50 flex flex-col">
-          <div class="flex items-center justify-between p-4 bg-gradient-to-b from-black/60 to-transparent absolute top-0 w-full z-10">
-            <button @click="stopCamera" class="text-white p-2 rounded-full bg-black/40 hover:bg-black/60 backdrop-blur">
-              <X class="w-6 h-6" />
-            </button>
-            <button @click="switchCamera" class="text-white p-2 rounded-full bg-black/40 hover:bg-black/60 backdrop-blur">
-              <RefreshCw class="w-6 h-6" />
-            </button>
-          </div>
-          
-          <video ref="videoElement" class="w-full h-full object-cover flex-1" autoplay playsinline></video>
-          <canvas ref="canvasElement" class="hidden"></canvas>
-          
-          <div class="absolute bottom-0 w-full p-8 bg-gradient-to-t from-black/80 to-transparent flex justify-center items-center">
-            <button @click="capturePhoto" :disabled="isUploading" class="w-20 h-20 rounded-full border-4 border-white/80 flex items-center justify-center p-1 active:scale-95 transition-transform disabled:opacity-50">
-              <div v-if="isUploading" class="w-10 h-10 border-4 border-white border-t-transparent rounded-full animate-spin"></div>
-              <div v-else class="w-full h-full bg-white rounded-full"></div>
-            </button>
-          </div>
+      <!-- Camera Overlay -->
+      <div v-if="showCamera" class="absolute inset-0 bg-black z-50 flex flex-col">
+        <div class="flex items-center justify-between p-4 bg-gradient-to-b from-black/60 to-transparent absolute top-0 w-full z-10">
+          <button @click="stopCamera" class="text-white p-2 rounded-full bg-black/40 hover:bg-black/60 backdrop-blur">
+            <X class="w-6 h-6" />
+          </button>
+          <button @click="switchCamera" class="text-white p-2 rounded-full bg-black/40 hover:bg-black/60 backdrop-blur">
+            <RefreshCw class="w-6 h-6" />
+          </button>
         </div>
-
+        
+        <video ref="videoElement" class="w-full h-full object-cover flex-1" autoplay playsinline></video>
+        <canvas ref="canvasElement" class="hidden"></canvas>
+        
+        <div class="absolute bottom-0 w-full p-8 bg-gradient-to-t from-black/80 to-transparent flex justify-center items-center">
+          <button @click="capturePhoto" :disabled="isUploading" class="w-20 h-20 rounded-full border-4 border-white/80 flex items-center justify-center p-1 active:scale-95 transition-transform disabled:opacity-50">
+            <div v-if="isUploading" class="w-10 h-10 border-4 border-white border-t-transparent rounded-full animate-spin"></div>
+            <div v-else class="w-full h-full bg-white rounded-full"></div>
+          </button>
+        </div>
       </div>
+
     </div>
   </main>
 </template>
 
 <script setup>
 import { useCustomToast } from '@/composables/core/useCustomToast';
-import { ArrowLeft, Send, Paperclip, Mic, X, Reply, Phone, Video, Smile, Loader2, PhoneOff, Camera, RefreshCw, MessageSquare, Plus } from 'lucide-vue-next'
+import { ArrowLeft, Send, Paperclip, Mic, X, Reply, Phone, Video, Smile, Loader2, PhoneOff, Camera, RefreshCw, MessageSquare, Plus, ArrowRightLeft, MicOff, ShieldCheck } from 'lucide-vue-next'
 import { ref, computed, watch, onMounted, onUnmounted, nextTick } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useAuth } from '~/composables/useAuth'
@@ -430,6 +597,33 @@ const callType = ref('voice')
 const remoteVideo = ref(null)
 const localVideo = ref(null)
 const config = { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] }
+
+const isRemoteMain = ref(true)
+const isAudioMuted = ref(false)
+
+const setVideoFocus = (target) => {
+  if (target === 'remote') {
+    isRemoteMain.value = true
+  } else if (target === 'local') {
+    isRemoteMain.value = false
+  } else {
+    isRemoteMain.value = !isRemoteMain.value
+  }
+}
+
+const toggleVideoFocus = () => {
+  isRemoteMain.value = !isRemoteMain.value
+}
+
+const toggleAudioMute = () => {
+  if (localStream.value) {
+    const audioTrack = localStream.value.getAudioTracks()[0]
+    if (audioTrack) {
+      audioTrack.enabled = !audioTrack.enabled
+      isAudioMuted.value = !audioTrack.enabled
+    }
+  }
+}
 
 const recordingSeconds = ref(0)
 let recordingTimer = null
@@ -524,6 +718,8 @@ const attachCallListeners = () => {
   s.on('call-offer', async (data) => {
     callType.value = data.type
     activeCall.value = true
+    isRemoteMain.value = true
+    isAudioMuted.value = false
     callStatus.value = 'Incoming Call...'
     peerConnection.value = new RTCPeerConnection(config)
     
@@ -825,6 +1021,8 @@ const startCall = async (type) => {
   }
   callType.value = type
   activeCall.value = true
+  isRemoteMain.value = true
+  isAudioMuted.value = false
   callStatus.value = 'Calling...'
   
   try {
@@ -861,6 +1059,8 @@ const startCall = async (type) => {
 
 const answerCall = async () => {
   callStatus.value = 'Connecting...'
+  isRemoteMain.value = true
+  isAudioMuted.value = false
   try {
     localStream.value = await navigator.mediaDevices.getUserMedia({ video: callType.value === 'video', audio: true })
     if (callType.value === 'video') nextTick(() => { if (localVideo.value) localVideo.value.srcObject = localStream.value })
@@ -884,6 +1084,8 @@ const endCall = () => {
 
 const cleanupCall = () => {
   activeCall.value = false
+  isRemoteMain.value = true
+  isAudioMuted.value = false
   if (localStream.value) localStream.value.getTracks().forEach(t => t.stop())
   if (peerConnection.value) peerConnection.value.close()
   localStream.value = null
