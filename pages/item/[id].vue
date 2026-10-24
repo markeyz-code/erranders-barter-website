@@ -123,7 +123,8 @@
           
           <div class="space-y-4 mb-6">
             <!-- Location (Hidden before payment to prevent bypass of the web app) -->
-            <div v-if="canViewSellerPickupAndContacts" class="flex items-center justify-between text-emerald-800 font-medium text-sm bg-emerald-50 p-3.5 rounded-xl border border-emerald-200">
+            <!-- 1. Buyer has finalised payment: UNLOCKED -->
+            <div v-if="hasFinalisedPayment" class="flex items-center justify-between text-emerald-800 font-medium text-sm bg-emerald-50 p-3.5 rounded-xl border border-emerald-200">
               <div class="flex items-center gap-2.5">
                 <MapPin class="w-4 h-4 text-emerald-600 flex-shrink-0" />
                 <span>Pickup Location: <strong class="text-emerald-950">{{ item.location }}</strong></span>
@@ -131,12 +132,37 @@
               <span class="px-2 py-0.5 bg-emerald-200/80 text-emerald-800 text-[10px] font-black rounded uppercase">Unlocked</span>
             </div>
 
-            <div v-else class="flex items-center justify-between text-slate-600 font-medium text-sm bg-slate-50 p-3.5 rounded-xl border border-dashed border-slate-300">
+            <!-- 2. Seller viewing their own listing: SELLER PREVIEW with clear notice that exact address is hidden from buyers -->
+            <div v-else-if="isOwner" class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-slate-700 font-medium text-sm bg-slate-50 p-3.5 rounded-xl border border-slate-200">
               <div class="flex items-center gap-2.5">
-                <Lock class="w-4 h-4 text-amber-500 flex-shrink-0" />
-                <span>Campus Pickup: <strong class="text-slate-700">🔒 Revealed after payment finalised</strong></span>
+                <MapPin class="w-4 h-4 text-brand-600 flex-shrink-0" />
+                <div>
+                  <span>Your Pickup Location: <strong class="text-slate-900">{{ item.location }}</strong></span>
+                  <span class="block text-xs text-slate-500 font-normal mt-0.5">🔒 Hidden from buyers until payment is made in Escrow</span>
+                </div>
               </div>
-              <span class="px-2 py-0.5 bg-amber-100 text-amber-800 text-[10px] font-black rounded uppercase">Escrow Protected</span>
+              <span class="px-2.5 py-1 bg-slate-200 text-slate-700 text-[10px] font-black rounded-lg uppercase tracking-wider self-start sm:self-auto shrink-0">Seller Preview</span>
+            </div>
+
+            <!-- 3. Prospective Buyer (Item NOT paid for): Exact address locked -->
+            <div v-else class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-slate-700 font-medium text-sm bg-amber-50/70 p-4 rounded-2xl border border-amber-200/90 shadow-2xs">
+              <div class="flex items-start sm:items-center gap-3">
+                <div class="w-8 h-8 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center shrink-0 mt-0.5 sm:mt-0">
+                  <Lock class="w-4 h-4" />
+                </div>
+                <div>
+                  <div class="flex items-center gap-1.5 font-bold text-slate-900">
+                    <span>Pickup Location:</span>
+                    <span class="text-amber-800">{{ getGeneralCampusLocation(item.location) }}</span>
+                  </div>
+                  <p class="text-xs text-amber-800/90 font-medium mt-0.5 leading-snug">
+                    🔒 You need to pay inside the app to see the exact pickup location of this item.
+                  </p>
+                </div>
+              </div>
+              <span class="px-2.5 py-1 bg-amber-200/80 text-amber-900 text-[10px] font-black rounded-lg uppercase tracking-wider shrink-0 self-start sm:self-auto">
+                Locked Until Payment
+              </span>
             </div>
             
             <div>
@@ -163,13 +189,17 @@
                 </p>
               </div>
             </NuxtLink>
-            <div class="text-right" v-if="canViewSellerPickupAndContacts && item.sellerId.hostel">
+            <div class="text-right" v-if="hasFinalisedPayment && item.sellerId.hostel">
               <p class="text-xs font-bold text-slate-400 uppercase">Hostel</p>
               <p class="font-bold text-slate-900">{{ item.sellerId.hostel }}</p>
             </div>
-            <div class="text-right" v-else-if="!canViewSellerPickupAndContacts">
-              <p class="text-xs font-bold text-slate-400 uppercase">Campus Location</p>
-              <p class="text-xs font-bold text-amber-600 flex items-center justify-end gap-1">
+            <div class="text-right" v-else-if="isOwner && item.sellerId.hostel">
+              <p class="text-xs font-bold text-slate-400 uppercase">Hostel (Your Listing)</p>
+              <p class="font-bold text-slate-900">{{ item.sellerId.hostel }}</p>
+            </div>
+            <div class="text-right" v-else>
+              <p class="text-xs font-bold text-slate-400 uppercase">Exact Address</p>
+              <p class="text-xs font-bold text-amber-700 flex items-center justify-end gap-1">
                 <Lock class="w-3 h-3" /> Locked until payment
               </p>
             </div>
@@ -208,7 +238,7 @@
             <div class="text-xs text-amber-900 space-y-1">
               <p class="font-bold">Student Escrow Anti-Scam Notice</p>
               <p class="text-amber-800/90 leading-relaxed">
-                Exact pickup room and seller contact details are locked until your payment is finalised in escrow. This ensures students cannot bypass the platform or fall victim to payment scams.
+                Exact pickup room number and seller contact details are locked. You need to pay inside the app through Escrow to see the exact location of this item. This prevents scams and protects your money until you inspect your item.
               </p>
             </div>
           </div>
@@ -356,6 +386,21 @@ const userEscrowTx = ref(null)
 const canViewSellerPickupAndContacts = computed(() => {
   return isOwner.value || hasFinalisedPayment.value
 })
+
+const getGeneralCampusLocation = (loc) => {
+  if (!loc) return 'Campus Pickup';
+  // Strip room numbers, flat numbers, block numbers, digits
+  const cleaned = String(loc)
+    .replace(/(?:room|rm|block|door|flat|no\.?|apt|apartment)\s*#?\d+[a-z]?/gi, '')
+    .replace(/,\s*,/g, ',')
+    .replace(/,\s*$/g, '')
+    .trim();
+
+  if (!cleaned || /^\d+$/.test(cleaned)) {
+    return 'Campus Pickup';
+  }
+  return `${cleaned} (Exact address locked)`;
+}
 
 const checkEscrowStatus = async () => {
   if (!isLoggedIn.value || !route.params.id) {

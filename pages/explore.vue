@@ -603,7 +603,7 @@
             <!-- Location -->
             <p class="text-[11px] sm:text-xs text-slate-500 font-medium flex items-center gap-1 truncate">
               <MapPin class="w-3 h-3 flex-shrink-0 text-slate-400" />
-              <span class="truncate">{{ item.location || 'Campus Wide' }}</span>
+              <span class="truncate">{{ getPublicLocation(item.location) }}</span>
             </p>
           </div>
         </NuxtLink>
@@ -943,6 +943,16 @@ import { itemsApi, categoriesApi } from '~/composables/useApi'
 import { useCustomToast } from '@/composables/core/useCustomToast'
 
 const route = useRoute()
+
+const getPublicLocation = (loc) => {
+  if (!loc) return 'Campus Wide'
+  const cleaned = String(loc)
+    .replace(/(?:room|rm|block|door|flat|no\.?|apt|apartment)\s*#?\d+[a-z]?/gi, '')
+    .replace(/,\s*,/g, ',')
+    .replace(/,\s*$/g, '')
+    .trim()
+  return cleaned && !/^\d+$/.test(cleaned) ? cleaned : 'Campus Pickup'
+}
 const router = useRouter()
 const searchQuery = computed(() => route.query.q || '')
 const localSearchQuery = ref(route.query.q || '')

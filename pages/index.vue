@@ -239,7 +239,7 @@
             <div class="mt-2 sm:mt-3 pt-2 border-t border-slate-100 flex items-center justify-between text-[10px] sm:text-[11px] text-slate-500">
               <span class="flex items-center gap-1 truncate font-medium">
                 <MapPin class="w-3 h-3 text-slate-400 shrink-0" />
-                <span class="truncate">{{ item.location || 'Campus' }}</span>
+                <span class="truncate">{{ getPublicLocation(item.location) }}</span>
               </span>
               <span class="text-brand-600 font-bold shrink-0 hidden sm:inline">View →</span>
             </div>
@@ -307,7 +307,7 @@
                 {{ item.soldAgo || 'Recently' }}
               </span>
             </div>
-            <p class="text-[10px] text-slate-400 mt-1 truncate"><MapPin class="w-3 h-3 inline -mt-0.5" /> {{ item.location || 'Campus Wide' }}</p>
+            <p class="text-[10px] text-slate-400 mt-1 truncate"><MapPin class="w-3 h-3 inline -mt-0.5" /> {{ getPublicLocation(item.location) }}</p>
           </div>
         </div>
 
@@ -1018,6 +1018,16 @@ const servicePriceLabel = (service: any): string =>
   formatPriceLabel(service?.priceType, service?.price);
 
 const naira = (n?: number) => (typeof n === 'number' && !isNaN(n) ? `₦${Number(n).toLocaleString('en-NG')}` : '₦0');
+
+const getPublicLocation = (loc?: string): string => {
+  if (!loc) return 'Campus';
+  const cleaned = loc
+    .replace(/(?:room|rm|block|door|flat|no\.?|apt|apartment)\s*#?\d+[a-z]?/gi, '')
+    .replace(/,\s*,/g, ',')
+    .replace(/,\s*$/g, '')
+    .trim();
+  return cleaned && !/^\d+$/.test(cleaned) ? cleaned : 'Campus Pickup';
+};
 
 // Every rail renders exactly what the API returned. No sample inventory is ever
 // substituted: a student must never see an item that nobody is actually selling,

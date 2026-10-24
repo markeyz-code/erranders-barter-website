@@ -1,6 +1,6 @@
 <template>
   <div class="min-h-screen bg-slate-50 py-8 sm:py-12">
-    <div class="max-w-4xl mx-auto px-4 sm:px-6">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6">
       
       <!-- Back Button -->
       <button 
