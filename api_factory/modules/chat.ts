@@ -26,8 +26,8 @@ export interface ChatUser {
   email?: string;
 }
 
-/** Matches `enum: ['text', 'image', 'voice']` in backend/src/chat/schemas/message.schema.ts */
-export type ChatMessageType = 'text' | 'image' | 'voice';
+/** Matches `enum: ['text', 'image', 'voice', 'video', 'file']` in backend/src/chat/schemas/message.schema.ts */
+export type ChatMessageType = 'text' | 'image' | 'voice' | 'video' | 'file';
 
 /** Matches backend/src/chat/schemas/message.schema.ts (timestamps: true). */
 export interface ChatMessage {

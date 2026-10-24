@@ -204,7 +204,15 @@
             </div>
             <div>
               <h2 class="font-bold text-slate-900 leading-tight">{{ headerTitle }}</h2>
-              <p class="text-xs sm:text-sm font-bold flex items-center gap-1" :class="isConnected ? 'text-green-500' : 'text-slate-400'">
+              <p v-if="isRemoteTyping" class="text-xs sm:text-sm font-bold text-brand-600 flex items-center gap-1.5 animate-pulse">
+                <span class="w-2 h-2 rounded-full bg-brand-500 animate-ping"></span>
+                typing...
+              </p>
+              <p v-else-if="remoteMediaUploading?.isUploading" class="text-xs sm:text-sm font-bold text-amber-600 flex items-center gap-1.5 animate-pulse">
+                <Loader2 class="w-3 h-3 animate-spin text-amber-600" />
+                uploading {{ remoteMediaUploading.assetType || 'media' }}...
+              </p>
+              <p v-else class="text-xs sm:text-sm font-bold flex items-center gap-1" :class="isConnected ? 'text-green-500' : 'text-slate-400'">
                 <span class="w-2 h-2 rounded-full block" :class="isConnected ? 'bg-green-500 animate-pulse' : 'bg-slate-300'"></span>
                 {{ isConnected ? 'Online' : 'Connecting...' }}
               </p>
@@ -235,10 +243,10 @@
         </div>
       </header>
 
-      <!-- Network Upload Indicator -->
+      <!-- Network Upload Indicator (Top Floating Pill for Sender) -->
       <div v-if="isUploading" class="absolute top-[80px] left-1/2 -translate-x-1/2 z-30 bg-slate-900 text-white px-4 py-2 rounded-full text-xs font-bold flex items-center gap-2 shadow-xl shadow-slate-900/20">
-        <Loader2 class="w-3 h-3 animate-spin" />
-        Sending Media...
+        <Loader2 class="w-3.5 h-3.5 animate-spin text-brand-400" />
+        <span>{{ uploadingLabel || 'Sending Media...' }}</span>
       </div>
 
       <!-- Chat Area (ONLY SCROLLABLE BODY: flex-1 min-h-0 overflow-y-auto overscroll-contain) -->
@@ -261,7 +269,7 @@
             <Loader2 class="w-6 h-6 text-slate-400 animate-spin" />
           </div>
 
-          <div v-else-if="!messages.length" class="flex-1 flex items-center justify-center text-center">
+          <div v-else-if="!messages.length && !isUploading && !remoteMediaUploading?.isUploading" class="flex-1 flex items-center justify-center text-center">
             <p class="text-slate-500 font-medium">No messages yet — say hello.</p>
           </div>
 
@@ -284,11 +292,23 @@
               
               <div v-if="msg.type === 'image' && msg.assetUrl">
                 <img :src="msg.assetUrl" class="w-full max-w-[250px] rounded-xl object-cover mb-2 bg-black/5" loading="lazy" />
+                <span v-if="msg.content && msg.content !== '📷 Photo sent'" class="block mt-1">{{ msg.content }}</span>
+              </div>
+
+              <div v-else-if="msg.type === 'video' && msg.assetUrl">
+                <video :src="msg.assetUrl" controls playsinline class="w-full max-w-[280px] rounded-xl object-cover mb-2 bg-black/5"></video>
                 <span v-if="msg.content" class="block mt-1">{{ msg.content }}</span>
               </div>
 
-              <div v-else-if="msg.type === 'voice' && msg.assetUrl" class="flex items-center gap-2">
+              <div v-else-if="(msg.type === 'voice' || msg.type === 'audio') && msg.assetUrl" class="flex items-center gap-2">
                 <audio :src="msg.assetUrl" controls class="h-10 w-[200px] sm:w-[250px] outline-none filter drop-shadow-sm"></audio>
+              </div>
+
+              <div v-else-if="msg.type === 'file' && msg.assetUrl" class="flex items-center gap-2">
+                <a :href="msg.assetUrl" target="_blank" download class="underline font-bold text-xs flex items-center gap-1.5 py-1">
+                  <Paperclip class="w-4 h-4 shrink-0" />
+                  <span>{{ msg.content || 'Download attached file' }}</span>
+                </a>
               </div>
 
               <div v-else class="whitespace-pre-wrap">{{ msg.content }}</div>
@@ -297,6 +317,38 @@
             <p :class="isMine(msg) ? 'text-right mr-1' : 'ml-1'" class="text-[10px] text-slate-400 font-bold mt-1">
               {{ formatTime(msg.createdAt) }}
             </p>
+          </div>
+
+          <!-- SENDER IN-FLIGHT ASSET LOADER (Sender sees their file/voice/video is uploading) -->
+          <div v-if="isUploading" class="self-end max-w-[85%] sm:max-w-md bg-brand-50 border border-brand-200/90 rounded-2xl rounded-tr-xs p-3.5 shadow-sm flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-brand-100 text-brand-600 flex items-center justify-center shrink-0">
+              <Loader2 class="w-5 h-5 animate-spin text-brand-600" />
+            </div>
+            <div>
+              <p class="text-xs font-bold text-slate-800">{{ uploadingLabel || 'Sending asset...' }}</p>
+              <p class="text-[11px] text-brand-600 font-semibold animate-pulse">Uploading file to chat...</p>
+            </div>
+          </div>
+
+          <!-- RECEIVER INCOMING ASSET LOADER (Receiver sees other party is uploading an asset) -->
+          <div v-if="remoteMediaUploading?.isUploading" class="self-start max-w-[85%] sm:max-w-md bg-white border border-amber-200/90 rounded-2xl rounded-tl-xs p-3.5 shadow-sm flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-amber-50 border border-amber-200 text-amber-600 flex items-center justify-center shrink-0">
+              <Loader2 class="w-5 h-5 animate-spin text-amber-600" />
+            </div>
+            <div>
+              <p class="text-xs font-bold text-slate-800">{{ headerTitle }} is sending {{ remoteMediaUploading.assetType || 'a file' }}...</p>
+              <p class="text-[11px] text-amber-600 font-semibold animate-pulse">Incoming asset arriving shortly</p>
+            </div>
+          </div>
+
+          <!-- TYPING INDICATOR (Receiver sees other party is typing) -->
+          <div v-if="isRemoteTyping" class="self-start flex items-center gap-2.5 bg-white border border-slate-200/90 rounded-2xl rounded-tl-xs px-3.5 py-2 shadow-xs">
+            <div class="flex items-center gap-1">
+              <span class="w-2 h-2 rounded-full bg-brand-500 animate-bounce" style="animation-delay: 0ms"></span>
+              <span class="w-2 h-2 rounded-full bg-brand-500 animate-bounce" style="animation-delay: 150ms"></span>
+              <span class="w-2 h-2 rounded-full bg-brand-500 animate-bounce" style="animation-delay: 300ms"></span>
+            </div>
+            <span class="text-xs font-bold text-slate-500">{{ headerTitle }} is typing...</span>
           </div>
         </div>
         
@@ -433,7 +485,7 @@
             >
               <Plus class="w-5 h-5 transition-transform duration-200" :class="{ 'rotate-45': showActionTray }" />
             </button>
-            <input type="file" ref="fileInput" @change="handleFile" accept="image/*" class="hidden" />
+            <input type="file" ref="fileInput" @change="handleFile" accept="image/*,video/*,audio/*,.pdf,.doc,.docx" class="hidden" />
 
             <!-- While Recording: Voice Bar -->
             <div v-if="isRecording" class="flex-1 bg-red-50 border border-red-200 rounded-2xl flex items-center justify-between px-3 sm:px-4 py-2 min-h-[44px] animate-pulse">
@@ -453,7 +505,7 @@
                 placeholder="Type a message..." 
                 class="w-full bg-transparent text-[16px] sm:text-sm text-slate-900 placeholder:text-slate-400 outline-none resize-none max-h-32 py-1 leading-relaxed"
                 rows="1"
-                @input="resizeTextarea"
+                @input="handleInput"
                 @keydown.enter.exact.prevent="sendMessage"
                 ref="messageInput"
               ></textarea>
@@ -552,6 +604,47 @@ const messageInput = ref(null)
 const fileInput = ref(null)
 const isRecording = ref(false)
 const isUploading = ref(false)
+const uploadingLabel = ref('')
+const isRemoteTyping = ref(false)
+const remoteMediaUploading = ref(null)
+let typingDebounceTimer = null
+let remoteTypingTimeout = null
+let remoteMediaTimeout = null
+
+const handleInput = (e) => {
+  resizeTextarea(e)
+  emitTyping(true)
+}
+
+const emitTyping = (isTyping) => {
+  if (!socket.value || !activeChatId.value) return
+  socket.value.emit('typing', { chatId: activeChatId.value, isTyping })
+  
+  if (isTyping) {
+    if (typingDebounceTimer) clearTimeout(typingDebounceTimer)
+    typingDebounceTimer = setTimeout(() => {
+      emitTyping(false)
+    }, 2500)
+  } else {
+    if (typingDebounceTimer) {
+      clearTimeout(typingDebounceTimer)
+      typingDebounceTimer = null
+    }
+  }
+}
+
+const setLocalUploading = (uploading, type = 'file', label = 'Sending file...') => {
+  isUploading.value = uploading
+  uploadingLabel.value = uploading ? label : ''
+  if (socket.value && activeChatId.value) {
+    socket.value.emit('media-uploading', {
+      chatId: activeChatId.value,
+      isUploading: uploading,
+      assetType: type,
+    })
+  }
+}
+
 const showEmojis = ref(false)
 const showActionTray = ref(false)
 const loadingConversation = ref(true)
@@ -701,6 +794,9 @@ onMounted(async () => {
 onUnmounted(() => {
   stopCamera()
   if (recordingTimer) clearInterval(recordingTimer)
+  if (typingDebounceTimer) clearTimeout(typingDebounceTimer)
+  if (remoteTypingTimeout) clearTimeout(remoteTypingTimeout)
+  if (remoteMediaTimeout) clearTimeout(remoteMediaTimeout)
   if (mediaStreamRef) mediaStreamRef.getTracks().forEach((track) => track.stop())
   const s = socket.value
   if (s) {
@@ -708,6 +804,10 @@ onUnmounted(() => {
     s.off('call-answer')
     s.off('call-ice-candidate')
     s.off('call-end')
+    s.off('user-typing')
+    s.off('typing')
+    s.off('stopTyping')
+    s.off('media-uploading')
   }
 })
 
@@ -755,6 +855,54 @@ const attachCallListeners = () => {
 
   s.on('call-end', () => {
     cleanupCall()
+  })
+
+  s.on('user-typing', (data) => {
+    if (String(data.chatId) === String(activeChatId.value)) {
+      isRemoteTyping.value = !!data.isTyping
+      if (data.isTyping) {
+        if (remoteTypingTimeout) clearTimeout(remoteTypingTimeout)
+        remoteTypingTimeout = setTimeout(() => {
+          isRemoteTyping.value = false
+        }, 4000)
+        nextTick(() => scrollToBottom())
+      }
+    }
+  })
+
+  s.on('typing', (data) => {
+    if (String(data.chatId) === String(activeChatId.value)) {
+      isRemoteTyping.value = true
+      if (remoteTypingTimeout) clearTimeout(remoteTypingTimeout)
+      remoteTypingTimeout = setTimeout(() => {
+        isRemoteTyping.value = false
+      }, 4000)
+      nextTick(() => scrollToBottom())
+    }
+  })
+
+  s.on('stopTyping', (data) => {
+    if (String(data.chatId) === String(activeChatId.value)) {
+      isRemoteTyping.value = false
+    }
+  })
+
+  s.on('media-uploading', (data) => {
+    if (String(data.chatId) === String(activeChatId.value)) {
+      if (data.isUploading) {
+        remoteMediaUploading.value = {
+          isUploading: true,
+          assetType: data.assetType || 'file'
+        }
+        if (remoteMediaTimeout) clearTimeout(remoteMediaTimeout)
+        remoteMediaTimeout = setTimeout(() => {
+          remoteMediaUploading.value = null
+        }, 45000)
+        nextTick(() => scrollToBottom())
+      } else {
+        remoteMediaUploading.value = null
+      }
+    }
   })
 }
 
@@ -904,7 +1052,7 @@ const startRecording = async () => {
         return
       }
 
-      isUploading.value = true
+      setLocalUploading(true, 'voice note', 'Sending voice note...')
       try {
         const res = await upload_api.uploadFile(audioBlob, 'audio')
         const url = res?.data?.url || res?.data?.data?.url
@@ -918,7 +1066,7 @@ const startRecording = async () => {
           toastType: 'error'
         })
       } finally {
-        isUploading.value = false
+        setLocalUploading(false)
       }
     }
 
@@ -961,12 +1109,23 @@ const sendMessage = async (e) => {
   if (!newMessage.value.trim() && !pendingFile.value) return
   if (!activeChatId.value) return
 
-  let uploadedUrl = ''
+  emitTyping(false)
 
-  if (pendingFile.value) {
-    isUploading.value = true
+  const fileToSend = pendingFile.value
+  let uploadedUrl = ''
+  let messageType = 'text'
+
+  if (fileToSend) {
+    const mime = fileToSend.type || ''
+    const isVideo = mime.startsWith('video/')
+    const isAudio = mime.startsWith('audio/')
+    const isImage = mime.startsWith('image/')
+    const assetKind = isVideo ? 'video' : isAudio ? 'audio' : isImage ? 'photo' : 'file'
+    messageType = isVideo ? 'video' : isAudio ? 'voice' : isImage ? 'image' : 'file'
+
+    setLocalUploading(true, assetKind, `Sending ${assetKind}...`)
     try {
-      const res = await upload_api.uploadFile(pendingFile.value, 'image')
+      const res = await upload_api.uploadFile(fileToSend, isVideo ? 'video' : isAudio ? 'audio' : 'image')
       uploadedUrl = res?.data?.url || res?.data?.data?.url || ''
       if (!uploadedUrl) throw new Error('No URL returned from the upload server')
     } catch (err) {
@@ -976,13 +1135,14 @@ const sendMessage = async (e) => {
         message: err?.response?.data?.message || err?.message || 'Could not upload the attachment.',
         toastType: 'error'
       })
-      isUploading.value = false
+      setLocalUploading(false)
       return
+    } finally {
+      setLocalUploading(false)
     }
-    isUploading.value = false
   }
 
-  const content = newMessage.value.trim()
+  const content = newMessage.value.trim() || (fileToSend ? (fileToSend.name || 'Attachment') : '')
   const replyTo = replyingTo.value?._id
 
   // Warn student if message appears to bypass escrow with phone numbers or direct bank transfers
@@ -1005,7 +1165,7 @@ const sendMessage = async (e) => {
 
   try {
     await sendChatMessage(content, {
-      type: uploadedUrl ? 'image' : 'text',
+      type: uploadedUrl ? messageType : 'text',
       assetUrl: uploadedUrl || undefined,
       replyTo,
     })
@@ -1156,7 +1316,7 @@ const capturePhoto = async () => {
     
     const file = new File([blob], `photo_${Date.now()}.jpg`, { type: 'image/jpeg' });
     
-    isUploading.value = true;
+    setLocalUploading(true, 'photo', 'Sending captured photo...');
     try {
       const res = await upload_api.uploadFile(file, 'image');
       const url = res?.data?.url || res?.data?.data?.url;
@@ -1167,13 +1327,18 @@ const capturePhoto = async () => {
       console.error('Failed to upload captured photo', err);
       showToast({ title: 'Upload Failed', message: 'Failed to upload photo. Please try again.', toastType: 'error' });
     } finally {
-      isUploading.value = false;
+      setLocalUploading(false);
     }
   }, 'image/jpeg', 0.8);
 }
 
-// Keep the view pinned to the newest message.
-watch(messages, async () => { await nextTick(); scrollToBottom() }, { deep: true })
+// Keep the view pinned to the newest message and clear transient live indicators.
+watch(messages, async () => {
+  isRemoteTyping.value = false;
+  remoteMediaUploading.value = null;
+  await nextTick();
+  scrollToBottom();
+}, { deep: true })
 </script>
 
 <style scoped>

@@ -136,6 +136,24 @@
                     </p>
                   </div>
                 </div>
+
+                <!-- Incoming Media Loader -->
+                <div v-if="remoteMediaUploading?.isUploading" class="flex w-full justify-start">
+                  <div class="max-w-[85%] rounded-[1.5rem] rounded-bl-sm px-4 py-2.5 bg-amber-50 border border-amber-200 text-amber-900 flex items-center gap-2">
+                    <Loader2 class="w-4 h-4 animate-spin text-amber-600 shrink-0" />
+                    <span class="text-xs font-semibold">Incoming {{ remoteMediaUploading.assetType || 'file' }}...</span>
+                  </div>
+                </div>
+
+                <!-- Typing indicator -->
+                <div v-if="isRemoteTyping" class="flex w-full justify-start">
+                  <div class="rounded-[1.5rem] rounded-bl-sm px-3.5 py-2 bg-gray-100 text-gray-600 flex items-center gap-1.5 shadow-xs">
+                    <span class="w-1.5 h-1.5 rounded-full bg-brand-500 animate-bounce" style="animation-delay: 0ms"></span>
+                    <span class="w-1.5 h-1.5 rounded-full bg-brand-500 animate-bounce" style="animation-delay: 150ms"></span>
+                    <span class="w-1.5 h-1.5 rounded-full bg-brand-500 animate-bounce" style="animation-delay: 300ms"></span>
+                    <span class="text-xs font-medium text-gray-500 ml-1">typing...</span>
+                  </div>
+                </div>
               </div>
               <div ref="messageContainer"></div>
             </template>
@@ -152,6 +170,7 @@
                 type="text"
                 placeholder="Write a message..."
                 class="flex-1 bg-transparent text-gray-800 placeholder-gray-400 text-[15px] focus:outline-none py-2"
+                @input="handleWidgetInput"
                 @keyup.enter="handleSend"
                 :disabled="sending"
               />
@@ -212,8 +231,8 @@
 </template>
 
 <script setup lang="ts">
-import { X, ArrowRight, MessageSquare, Paperclip, ChevronLeft } from 'lucide-vue-next'
-import { onMounted, ref, computed, watch, nextTick } from 'vue'
+import { X, ArrowRight, MessageSquare, Paperclip, ChevronLeft, Loader2 } from 'lucide-vue-next'
+import { onMounted, onUnmounted, ref, computed, watch, nextTick } from 'vue'
 import { useChat } from '@/composables/modules/chat/useChat'
 import type { Chat, ChatMessage } from '@/composables/modules/chat/useChat'
 import { upload_api } from '@/api_factory/modules/upload'
@@ -230,6 +249,7 @@ const {
   sending,
   incomingMessageTrigger,
   isConnected,
+  socket,
   connectSocket,
   joinActiveChat,
   loadChats,
@@ -248,6 +268,11 @@ const fileInput = ref<HTMLInputElement | null>(null)
 const messageContainer = ref<HTMLDivElement | null>(null)
 const uploadingMedia = ref(false)
 const unreadCount = ref(0)
+const isRemoteTyping = ref(false)
+const remoteMediaUploading = ref<{ isUploading: boolean; assetType?: string } | null>(null)
+let typingDebounceTimer: any = null
+let remoteTypingTimeout: any = null
+let remoteMediaTimeout: any = null
 
 const showChatWidget = computed(() => true)
 
@@ -264,6 +289,8 @@ const headerSubtitle = computed(() => {
     const count = chats.value.length
     return `${count} conversation${count === 1 ? '' : 's'}`
   }
+  if (isRemoteTyping.value) return 'typing…'
+  if (remoteMediaUploading.value?.isUploading) return `uploading ${remoteMediaUploading.value.assetType || 'media'}…`
   return isConnected.value ? 'Connected' : 'Connecting…'
 })
 
@@ -296,11 +323,35 @@ const openConversation = async (chat: Chat) => {
 const closeChat = () => {
   activeChatId.value = null
   messages.value = []
+  isRemoteTyping.value = false
+  remoteMediaUploading.value = null
+}
+
+const handleWidgetInput = () => {
+  emitTyping(true)
+}
+
+const emitTyping = (isTyping: boolean) => {
+  if (!socket.value || !activeChatId.value) return
+  socket.value.emit('typing', { chatId: activeChatId.value, isTyping })
+  
+  if (isTyping) {
+    if (typingDebounceTimer) clearTimeout(typingDebounceTimer)
+    typingDebounceTimer = setTimeout(() => {
+      emitTyping(false)
+    }, 2500)
+  } else {
+    if (typingDebounceTimer) {
+      clearTimeout(typingDebounceTimer)
+      typingDebounceTimer = null
+    }
+  }
 }
 
 const handleSend = async () => {
   const text = draft.value.trim()
   if (!text || sending.value) return
+  emitTyping(false)
   draft.value = ''
   try {
     await sendMessage(text)
@@ -320,6 +371,13 @@ const handleFileUpload = async (event: Event) => {
   if (!file || !activeChatId.value) return
 
   uploadingMedia.value = true
+  if (socket.value && activeChatId.value) {
+    socket.value.emit('media-uploading', {
+      chatId: activeChatId.value,
+      isUploading: true,
+      assetType: file.type.startsWith('image/') ? 'photo' : 'file',
+    })
+  }
   try {
     const res: any = await upload_api.uploadFile(file, 'image')
     const url = res?.data?.url || res?.data?.data?.url
@@ -334,8 +392,64 @@ const handleFileUpload = async (event: Event) => {
     })
   } finally {
     uploadingMedia.value = false
+    if (socket.value && activeChatId.value) {
+      socket.value.emit('media-uploading', {
+        chatId: activeChatId.value,
+        isUploading: false,
+      })
+    }
     if (input) input.value = ''
   }
+}
+
+const attachWidgetSocketListeners = () => {
+  const s = socket.value
+  if (!s) return
+
+  s.on('user-typing', (data: any) => {
+    if (String(data.chatId) === String(activeChatId.value)) {
+      isRemoteTyping.value = !!data.isTyping
+      if (data.isTyping) {
+        if (remoteTypingTimeout) clearTimeout(remoteTypingTimeout)
+        remoteTypingTimeout = setTimeout(() => {
+          isRemoteTyping.value = false
+        }, 4000)
+      }
+    }
+  })
+
+  s.on('typing', (data: any) => {
+    if (String(data.chatId) === String(activeChatId.value)) {
+      isRemoteTyping.value = true
+      if (remoteTypingTimeout) clearTimeout(remoteTypingTimeout)
+      remoteTypingTimeout = setTimeout(() => {
+        isRemoteTyping.value = false
+      }, 4000)
+    }
+  })
+
+  s.on('stopTyping', (data: any) => {
+    if (String(data.chatId) === String(activeChatId.value)) {
+      isRemoteTyping.value = false
+    }
+  })
+
+  s.on('media-uploading', (data: any) => {
+    if (String(data.chatId) === String(activeChatId.value)) {
+      if (data.isUploading) {
+        remoteMediaUploading.value = {
+          isUploading: true,
+          assetType: data.assetType || 'file'
+        }
+        if (remoteMediaTimeout) clearTimeout(remoteMediaTimeout)
+        remoteMediaTimeout = setTimeout(() => {
+          remoteMediaUploading.value = null
+        }, 45000)
+      } else {
+        remoteMediaUploading.value = null
+      }
+    }
+  })
 }
 
 watch(incomingMessageTrigger, () => {
@@ -348,6 +462,7 @@ watch(isOpen, async (open) => {
   if (!isLoggedIn.value) return
   connectSocket()
   joinActiveChat()
+  attachWidgetSocketListeners()
   await Promise.all([ensureMyUserId(), loadChats()])
 })
 
@@ -355,6 +470,8 @@ watch(isOpen, async (open) => {
 watch(
   messages,
   async () => {
+    isRemoteTyping.value = false
+    remoteMediaUploading.value = null
     await nextTick()
     if (messageContainer.value) {
       messageContainer.value.scrollTop = messageContainer.value.scrollHeight
@@ -366,8 +483,22 @@ watch(
 onMounted(() => {
   if (!isLoggedIn.value) return
   connectSocket()
+  attachWidgetSocketListeners()
   void ensureMyUserId()
   void loadChats()
+})
+
+onUnmounted(() => {
+  if (typingDebounceTimer) clearTimeout(typingDebounceTimer)
+  if (remoteTypingTimeout) clearTimeout(remoteTypingTimeout)
+  if (remoteMediaTimeout) clearTimeout(remoteMediaTimeout)
+  const s = socket.value
+  if (s) {
+    s.off('user-typing')
+    s.off('typing')
+    s.off('stopTyping')
+    s.off('media-uploading')
+  }
 })
 </script>
 

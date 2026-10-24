@@ -15,18 +15,57 @@
       </div>
 
       <form v-else class="mt-4 space-y-3" @submit.prevent="submit">
-        <label class="block">
-          <span class="text-xs font-bold text-slate-600">What is wrong?</span>
-          <select v-model="reason" class="mt-1 w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm">
-            <option value="misrepresented">The item is not as described</option>
-            <option value="scam">This looks like a scam</option>
-            <option value="counterfeit">Counterfeit or fake</option>
-            <option value="prohibited">Prohibited or illegal item</option>
-            <option value="no_response">The seller is not responding</option>
-            <option value="abusive">Abusive behaviour</option>
-            <option value="other">Something else</option>
-          </select>
-        </label>
+        <div class="relative">
+          <span class="text-xs font-bold text-slate-600 block mb-1">What is wrong?</span>
+          
+          <!-- Dropdown Trigger -->
+          <button
+            type="button"
+            @click="isDropdownOpen = !isDropdownOpen"
+            class="w-full bg-slate-50 hover:bg-slate-100/90 border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm flex items-center justify-between text-slate-900 font-semibold focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all cursor-pointer text-left"
+            :class="{ 'ring-2 ring-brand-500/20 border-brand-500 bg-white': isDropdownOpen }"
+          >
+            <span class="truncate">{{ selectedReasonLabel }}</span>
+            <ChevronDown
+              class="w-4 h-4 text-slate-400 shrink-0 ml-2 transition-transform duration-200"
+              :class="{ 'rotate-180 text-brand-600': isDropdownOpen }"
+            />
+          </button>
+
+          <!-- Backdrop to close dropdown on click outside -->
+          <div
+            v-if="isDropdownOpen"
+            class="fixed inset-0 z-20"
+            @click="isDropdownOpen = false"
+          ></div>
+
+          <!-- Dropdown Options Panel -->
+          <Transition
+            enter-active-class="transition duration-150 ease-out"
+            enter-from-class="transform scale-95 opacity-0 -translate-y-1"
+            enter-to-class="transform scale-100 opacity-100 translate-y-0"
+            leave-active-class="transition duration-100 ease-in"
+            leave-from-class="transform scale-100 opacity-100 translate-y-0"
+            leave-to-class="transform scale-95 opacity-0 -translate-y-1"
+          >
+            <div
+              v-if="isDropdownOpen"
+              class="absolute left-0 right-0 z-30 mt-1.5 bg-white border border-slate-200 rounded-xl shadow-xl overflow-hidden py-1 max-h-60 overflow-y-auto ring-1 ring-black/5"
+            >
+              <button
+                v-for="opt in reasons"
+                :key="opt.value"
+                type="button"
+                @click="selectReason(opt.value)"
+                class="w-full text-left px-3.5 py-2.5 text-sm flex items-center justify-between transition-colors cursor-pointer"
+                :class="reason === opt.value ? 'bg-brand-50 text-brand-700 font-bold' : 'text-slate-700 hover:bg-slate-50 font-medium'"
+              >
+                <span>{{ opt.label }}</span>
+                <Check v-if="reason === opt.value" class="w-4 h-4 text-brand-600 shrink-0 ml-2" />
+              </button>
+            </div>
+          </Transition>
+        </div>
 
         <label class="block">
           <span class="text-xs font-bold text-slate-600">What happened?</span>
@@ -62,8 +101,8 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, ref, watch } from 'vue';
-import { CheckCircle2 } from 'lucide-vue-next';
+import { reactive, ref, computed, watch } from 'vue';
+import { CheckCircle2, ChevronDown, Check } from 'lucide-vue-next';
 import { supportApi } from '@/api_factory/modules/support';
 
 /**
@@ -78,7 +117,30 @@ const props = defineProps<{
 
 defineEmits<{ (e: 'close'): void }>();
 
+const isDropdownOpen = ref(false);
+
+const reasons = [
+  { value: 'misrepresented', label: 'The item is not as described' },
+  { value: 'scam', label: 'This looks like a scam' },
+  { value: 'counterfeit', label: 'Counterfeit or fake' },
+  { value: 'prohibited', label: 'Prohibited or illegal item' },
+  { value: 'no_response', label: 'The seller is not responding' },
+  { value: 'abusive', label: 'Abusive behaviour' },
+  { value: 'other', label: 'Something else' },
+];
+
 const reason = ref('misrepresented');
+
+const selectedReasonLabel = computed(() => {
+  const match = reasons.find((r) => r.value === reason.value);
+  return match ? match.label : 'Select a reason';
+});
+
+const selectReason = (val: string) => {
+  reason.value = val;
+  isDropdownOpen.value = false;
+};
+
 const details = ref('');
 const error = ref('');
 const submitting = ref(false);
@@ -91,6 +153,7 @@ watch(
     error.value = '';
     sent.value = false;
     reason.value = 'misrepresented';
+    isDropdownOpen.value = false;
   },
 );
 
