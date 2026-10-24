@@ -12,8 +12,8 @@
       <div class="absolute -bottom-24 -right-24 w-96 h-96 bg-amber-400/10 rounded-full blur-3xl pointer-events-none"></div>
 
       <div class="max-w-5xl mx-auto relative z-10 space-y-6">
-        <!-- Top Eyebrow Badge & Language Switcher -->
-        <div class="flex flex-col sm:flex-row items-center justify-center gap-3">
+        <!-- Top Eyebrow Badge -->
+        <div class="flex items-center justify-center">
           <NuxtLink
             to="/declutter"
             class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-brand-50 border border-brand-200/80 text-brand-700 text-xs sm:text-sm font-bold shadow-2xs hover:bg-brand-100/70 transition-colors"
@@ -21,48 +21,27 @@
             <Zap class="w-3.5 h-3.5 fill-current text-brand-600 animate-pulse" />
             <span>⚡ Turn Clutter into Cash ⚡</span>
           </NuxtLink>
-
-          <!-- Interactive Language Tabs -->
-          <div class="flex items-center gap-1 bg-slate-100/90 p-1 rounded-full border border-slate-200/80 backdrop-blur-xs">
-            <button
-              v-for="lang in languageOptions"
-              :key="lang.id"
-              @click="selectLanguage(lang.id)"
-              :class="[
-                activeLangFilter === lang.id
-                  ? 'bg-slate-900 text-white shadow-xs font-bold'
-                  : 'text-slate-600 hover:text-slate-900 font-semibold hover:bg-white/60'
-              ]"
-              class="px-2.5 py-1 rounded-full text-[11px] sm:text-xs transition-all flex items-center gap-1 cursor-pointer"
-            >
-              <span>{{ lang.flag }}</span>
-              <span>{{ lang.label }}</span>
-            </button>
-          </div>
         </div>
 
         <!-- Main Power Headline -->
         <h1 class="text-3xl sm:text-5xl md:text-6xl lg:text-[62px] font-black tracking-tight text-slate-900 leading-[1.1] max-w-4xl mx-auto">
           Turn your room clutter into
-          <span class="text-transparent bg-clip-text bg-gradient-to-r from-brand-600 via-[#FF5C1A] to-amber-500">
+          <span class="text-[#FF5C1A]">
             cash sharp-sharp
           </span> 🔥
         </h1>
 
-        <!-- High-Impact Multilingual Typewriter Text Container -->
-        <div class="max-w-3xl mx-auto py-3">
-          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold border transition-colors mb-2.5 shadow-2xs" :class="currentPhrase.badgeClass">
-            <span>{{ currentPhrase.flag }}</span>
-            <span class="uppercase tracking-wider font-mono text-[10px]">{{ currentPhrase.lang }}</span>
-            <span class="opacity-40">•</span>
-            <span class="text-[11px] font-semibold">Campus Vibe</span>
-          </div>
-
+        <!-- Smooth Fade In / Fade Out Campus Slogan Container (No handwriting) -->
+        <div class="max-w-3xl mx-auto py-2">
           <div class="min-h-[4.25rem] sm:min-h-[3.75rem] flex items-center justify-center px-4">
-            <p class="text-lg sm:text-2xl md:text-3xl font-extrabold text-slate-800 tracking-tight font-heading leading-snug">
-              <span>{{ typedText }}</span>
-              <span class="inline-block w-0.5 sm:w-1 h-6 sm:h-7 bg-brand-600 ml-1.5 animate-pulse align-middle"></span>
-            </p>
+            <Transition name="phrase-fade" mode="out-in">
+              <p
+                :key="currentPhraseIndex"
+                class="text-lg sm:text-2xl md:text-3xl font-extrabold text-slate-800 tracking-tight font-heading leading-snug"
+              >
+                {{ currentPhrase.text }}
+              </p>
+            </Transition>
           </div>
         </div>
 
@@ -286,6 +265,148 @@
       </div>
     </section>
 
+    <!-- ── SECTION: ALREADY UPLOADED 1-CLICK DECLUTTER PRODUCTS ── -->
+    <section id="declutter-products" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-14 border-b border-slate-100">
+      <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-8">
+        <div>
+          <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-brand-50 border border-brand-200 text-brand-700 text-xs font-black uppercase tracking-wider mb-2">
+            <Zap class="w-3.5 h-3.5 text-brand-600 fill-current" />
+            <span>Mapped Campus Clearances</span>
+          </div>
+          <h2 class="text-2xl sm:text-3xl lg:text-4xl font-black text-slate-900 tracking-tight">
+            Already Uploaded 1-Click Declutter Deals
+          </h2>
+          <p class="text-xs sm:text-sm text-slate-500 font-medium max-w-2xl mt-1.5 leading-relaxed">
+            Live items mapped from students clearing hostel rooms. Buy verified essentials or grab room boxes with instant bundle discounts and student porter assistance.
+          </p>
+        </div>
+
+        <div class="flex items-center gap-2 shrink-0">
+          <NuxtLink
+            to="/explore?declutter=true"
+            class="px-4 py-2.5 rounded-xl bg-brand-50 hover:bg-brand-100 text-brand-700 border border-brand-200 font-black text-xs sm:text-sm transition-colors flex items-center gap-1.5 shadow-2xs"
+          >
+            <span>Explore All Declutter Deals ({{ displayDeclutterItems.length }})</span>
+            <ArrowRight class="w-4 h-4" />
+          </NuxtLink>
+        </div>
+      </div>
+
+      <!-- Loading State -->
+      <div v-if="loading.declutter && !displayDeclutterItems.length" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
+        <div v-for="n in 4" :key="n" class="bg-slate-50 rounded-3xl p-4 border border-slate-100 animate-pulse space-y-3">
+          <div class="aspect-4/3 bg-slate-200 rounded-2xl"></div>
+          <div class="h-4 bg-slate-200 rounded-md w-3/4"></div>
+          <div class="h-3 bg-slate-200 rounded-md w-1/2"></div>
+        </div>
+      </div>
+
+      <!-- Declutter Products Grid -->
+      <div v-else-if="displayDeclutterItems.length" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
+        <div
+          v-for="item in displayDeclutterItems"
+          :key="item._id"
+          class="group bg-white rounded-3xl border border-slate-200/90 shadow-xs hover:shadow-xl hover:border-brand-400 transition-all duration-300 flex flex-col justify-between overflow-hidden relative"
+        >
+          <!-- Thumbnail & Badges -->
+          <div class="relative aspect-4/3 bg-slate-100 overflow-hidden">
+            <img
+              :src="imageOf(item)"
+              :alt="item.title"
+              class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+              loading="lazy"
+            />
+
+            <!-- Top Left: 1-Click Declutter Badge -->
+            <div class="absolute top-2.5 left-2.5 flex items-center gap-1 px-2.5 py-1 rounded-full bg-slate-900/90 backdrop-blur-xs text-white text-[10px] font-black shadow-xs">
+              <Zap class="w-2.5 h-2.5 text-amber-400 fill-current" />
+              <span>1-Click Declutter</span>
+            </div>
+
+            <!-- Top Right: Bundle Discount Badge -->
+            <div
+              v-if="item.bundleDiscountPercent || item.groupName"
+              class="absolute top-2.5 right-2.5 px-2 py-0.5 rounded-full bg-emerald-600 text-white text-[10px] font-black shadow-xs"
+            >
+              {{ item.bundleDiscountPercent ? `${item.bundleDiscountPercent}% Bundle Off` : 'Clearance Box' }}
+            </div>
+
+            <!-- Bottom Left: Hostel Location -->
+            <div
+              v-if="item.location"
+              class="absolute bottom-2.5 left-2.5 flex items-center gap-1 px-2 py-0.5 rounded-lg bg-white/95 backdrop-blur-xs text-slate-800 text-[10px] font-bold shadow-xs border border-slate-100"
+            >
+              <MapPin class="w-3 h-3 text-brand-600 shrink-0" />
+              <span class="truncate max-w-[140px]">{{ item.location }}</span>
+            </div>
+          </div>
+
+          <!-- Card Content -->
+          <div class="p-4 sm:p-5 flex-1 flex flex-col justify-between space-y-3">
+            <div>
+              <!-- Seller Row & Condition -->
+              <div class="flex items-center justify-between text-xs text-slate-500 mb-1.5">
+                <span class="inline-block px-2 py-0.5 rounded-md bg-slate-100 text-slate-700 text-[10px] font-bold">
+                  {{ item.condition || 'Good Condition' }}
+                </span>
+                <span v-if="item.sellerId" class="text-[11px] font-medium text-slate-500 truncate max-w-[120px]">
+                  by {{ item.sellerId.firstName || 'Student' }}
+                </span>
+              </div>
+
+              <!-- Item Title -->
+              <NuxtLink :to="`/item/${item._id}`" class="block">
+                <h3 class="font-black text-slate-900 text-sm sm:text-base group-hover:text-brand-600 transition-colors line-clamp-1 leading-snug">
+                  {{ item.title }}
+                </h3>
+              </NuxtLink>
+
+              <!-- Description preview -->
+              <p v-if="item.description" class="text-xs text-slate-500 line-clamp-2 mt-1 leading-relaxed">
+                {{ item.description }}
+              </p>
+            </div>
+
+            <!-- Price and CTA -->
+            <div class="pt-2 border-t border-slate-100 flex items-center justify-between gap-2">
+              <div>
+                <div class="text-base sm:text-lg font-black text-slate-900 leading-none">
+                  {{ naira(item.price) }}
+                </div>
+                <div v-if="item.bundleDiscountPercent" class="text-[11px] text-slate-400 line-through font-semibold mt-0.5">
+                  {{ naira(Math.round(item.price / (1 - item.bundleDiscountPercent / 100))) }}
+                </div>
+              </div>
+
+              <NuxtLink
+                :to="`/item/${item._id}`"
+                class="px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-brand-600 text-white font-bold text-xs transition-colors shrink-0 flex items-center gap-1 shadow-xs"
+              >
+                <span>Buy Item</span>
+                <ArrowRight class="w-3.5 h-3.5" />
+              </NuxtLink>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Empty State -->
+      <div v-else class="text-center py-12 px-4 bg-slate-50 rounded-3xl border border-dashed border-slate-200">
+        <Package class="w-10 h-10 text-slate-300 mx-auto mb-2" />
+        <h3 class="text-sm font-bold text-slate-700">No Declutter Items Live Yet</h3>
+        <p class="text-xs text-slate-500 mt-1 max-w-sm mx-auto">
+          Be the first student to map and clear out your hostel room items in 1 click!
+        </p>
+        <NuxtLink
+          to="/declutter"
+          class="inline-flex items-center gap-2 mt-4 px-4 py-2 rounded-xl bg-brand-600 text-white text-xs font-bold shadow-xs hover:bg-brand-500 transition-colors"
+        >
+          <span>Launch 1-Click Declutter</span>
+          <ArrowRight class="w-3.5 h-3.5" />
+        </NuxtLink>
+      </div>
+    </section>
+
     <!-- ── Live Fast Filter Tabs (Sticky/Quick-jump) ── -->
     <div class="sticky top-16 z-30 bg-white/95 backdrop-blur-md border-b border-slate-200/90 shadow-2xs">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2.5 flex items-center justify-between gap-4">
@@ -307,6 +428,10 @@
 
         <!-- Quick Jump Links -->
         <div class="hidden md:flex items-center gap-3 shrink-0 text-xs font-bold">
+          <a href="#declutter-products" class="text-brand-600 hover:text-brand-700 flex items-center gap-1">
+            <Zap class="w-3 h-3 fill-current" /> Declutter Deals
+          </a>
+          <span class="text-slate-300">•</span>
           <a href="#buy-section" class="text-slate-500 hover:text-brand-600">Items to Buy</a>
           <span class="text-slate-300">•</span>
           <a href="#sold-section" class="text-slate-500 hover:text-brand-600">Just Sold</a>
@@ -835,16 +960,6 @@ interface MultilingualPhrase {
   badgeClass: string;
 }
 
-const languageOptions = [
-  { id: 'all', label: 'All Vibes', flag: '🇳🇬' },
-  { id: 'Pidgin', label: 'Pidgin', flag: '🇳🇬' },
-  { id: 'Yorùbá', label: 'Yorùbá', flag: '🟢' },
-  { id: 'Igbo', label: 'Igbo', flag: '🟡' },
-  { id: 'Hausa', label: 'Hausa', flag: '🔵' },
-];
-
-const activeLangFilter = ref<'all' | 'Pidgin' | 'Yorùbá' | 'Igbo' | 'Hausa'>('all');
-
 const multilingualPhrases: MultilingualPhrase[] = [
   // Pidgin
   {
@@ -972,61 +1087,24 @@ const multilingualPhrases: MultilingualPhrase[] = [
   },
 ];
 
-const activePhrases = computed(() => {
-  if (activeLangFilter.value === 'all') return multilingualPhrases;
-  return multilingualPhrases.filter(p => p.lang === activeLangFilter.value);
-});
-
 const currentPhraseIndex = ref(0);
-const typedText = ref('');
-const isDeleting = ref(false);
-let typewriterTimeout: any = null;
+let phraseRotationTimer: any = null;
 
 const currentPhrase = computed<MultilingualPhrase>(() => {
-  const list = activePhrases.value;
-  return list[currentPhraseIndex.value % list.length] || multilingualPhrases[0];
+  return multilingualPhrases[currentPhraseIndex.value % multilingualPhrases.length] || multilingualPhrases[0];
 });
 
-const selectLanguage = (langId: any) => {
-  activeLangFilter.value = langId;
-  currentPhraseIndex.value = 0;
-  typedText.value = '';
-  isDeleting.value = false;
-  if (typewriterTimeout) clearTimeout(typewriterTimeout);
-  runTypewriter();
-};
-
-const runTypewriter = () => {
-  const phrase = currentPhrase.value.text;
-  const currentLength = typedText.value.length;
-
-  if (!isDeleting.value) {
-    if (currentLength < phrase.length) {
-      typedText.value = phrase.slice(0, currentLength + 1);
-      typewriterTimeout = setTimeout(runTypewriter, 35);
-    } else {
-      // Completed typing, pause to let user read
-      typewriterTimeout = setTimeout(() => {
-        isDeleting.value = true;
-        runTypewriter();
-      }, 2600);
-    }
-  } else {
-    if (currentLength > 0) {
-      typedText.value = phrase.slice(0, currentLength - 1);
-      typewriterTimeout = setTimeout(runTypewriter, 18);
-    } else {
-      // Completed deleting, move to next phrase
-      isDeleting.value = false;
-      currentPhraseIndex.value = (currentPhraseIndex.value + 1) % activePhrases.value.length;
-      typewriterTimeout = setTimeout(runTypewriter, 400);
-    }
-  }
+const startPhraseRotation = () => {
+  if (phraseRotationTimer) clearInterval(phraseRotationTimer);
+  phraseRotationTimer = setInterval(() => {
+    currentPhraseIndex.value = (currentPhraseIndex.value + 1) % multilingualPhrases.length;
+  }, 3800);
 };
 
 /** Tab counts are the real number of rows each rail is showing, never a guess. */
 const filterTabs = computed(() => [
   { id: 'all', label: 'All Marketplace', icon: Sparkles },
+  { id: 'declutter', label: '1-Click Declutter', icon: Zap, count: declutterItems.value.length || displayDeclutterItems.value.length },
   { id: 'buy', label: 'Items to Buy', icon: ShoppingBag, count: toBuy.value.length },
   { id: 'sold', label: 'Just Sold Out', icon: Flame, count: justSold.value.length },
   { id: 'swap', label: 'Swaps', icon: ArrowRightLeft, count: toSwap.value.length },
@@ -1035,13 +1113,14 @@ const filterTabs = computed(() => [
 ]);
 
 // State arrays from API
+const declutterItems = ref<any[]>([]);
 const toBuy = ref<any[]>([]);
 const justSold = ref<any[]>([]);
 const toSwap = ref<any[]>([]);
 const services = ref<any[]>([]);
 const reels = ref<any[]>([]);
 
-const loading = reactive({ items: true, sold: true, swaps: true, services: true, reels: true });
+const loading = reactive({ items: true, declutter: true, sold: true, swaps: true, services: true, reels: true });
 
 const unwrap = (res: any): any[] => {
   const body = res?.data;
@@ -1068,6 +1147,15 @@ const naira = (n?: number) => (typeof n === 'number' && !isNaN(n) ? `₦${Number
 // Every rail renders exactly what the API returned. No sample inventory is ever
 // substituted: a student must never see an item that nobody is actually selling,
 // because it cannot be opened or bought.
+const displayDeclutterItems = computed(() => {
+  if (declutterItems.value.length > 0) return declutterItems.value.slice(0, 8);
+  const tagged = toBuy.value.filter(
+    (item) => item.tags?.includes('declutter') || item.batchId
+  );
+  if (tagged.length > 0) return tagged.slice(0, 8);
+  return toBuy.value.slice(0, 8);
+});
+
 const displayToBuy = computed(() => toBuy.value.slice(0, 8));
 const displayJustSold = computed(() => justSold.value);
 const displayToSwap = computed(() => toSwap.value.slice(0, 6));
@@ -1085,6 +1173,16 @@ const quickSearch = (term: string) => {
 };
 
 onMounted(() => {
+  // Fetch Already Uploaded 1-Click Declutter Items
+  itemsApi
+    .list({ declutter: true, limit: 12 })
+    .then((r) => {
+      const data = unwrap(r);
+      if (data.length) declutterItems.value = data;
+    })
+    .catch(() => { declutterItems.value = []; })
+    .finally(() => { loading.declutter = false; });
+
   // Fetch Items to Buy
   itemsApi
     .list({ type: 'sell', status: 'active', limit: 12 })
@@ -1137,20 +1235,36 @@ onMounted(() => {
     .catch(() => { reels.value = []; })
     .finally(() => { loading.reels = false; });
 
-  // Start typewriter engine with multilingual excitement
-  runTypewriter();
+  // Start smooth slogan rotation with fade-in and fade-out
+  startPhraseRotation();
 });
 
 onUnmounted(() => {
-  if (typewriterTimeout) {
-    clearTimeout(typewriterTimeout);
-    typewriterTimeout = null;
+  if (phraseRotationTimer) {
+    clearInterval(phraseRotationTimer);
+    phraseRotationTimer = null;
   }
 });
 </script>
 
 <style scoped>
-/* ── Hero Heading Rotation (Exact smooth ease-in / ease-out from student web app) ── */
+/* ── Hero Campus Slogan Fade In / Fade Out ── */
+.phrase-fade-enter-active,
+.phrase-fade-leave-active {
+  transition: opacity 0.45s cubic-bezier(0.4, 0, 0.2, 1), transform 0.45s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.phrase-fade-enter-from {
+  opacity: 0;
+  transform: translateY(8px);
+}
+
+.phrase-fade-leave-to {
+  opacity: 0;
+  transform: translateY(-8px);
+}
+
+/* ── Hero Heading Rotation ── */
 .hero-slide-enter-active,
 .hero-slide-leave-active {
   transition: all 0.75s cubic-bezier(0.16, 1, 0.3, 1);
