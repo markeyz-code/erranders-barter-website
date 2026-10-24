@@ -121,7 +121,7 @@
               </div>
               
               <!-- State: Negotiation -->
-              <div v-if="tx.status === 'held_in_escrow' && tx.proposedDeliveryFee > 0" class="bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200/60 rounded-3xl p-6 sm:p-8 shadow-inner relative overflow-hidden">
+              <div v-if="(tx.status === 'held_in_escrow' || tx.status === 'pending_negotiation') && (tx.proposedDeliveryFee > 0 || tx.status === 'pending_negotiation')" class="bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200/60 rounded-3xl p-6 sm:p-8 shadow-inner relative overflow-hidden">
                 <div class="absolute -right-4 -top-4 w-24 h-24 bg-amber-500/10 rounded-full blur-2xl"></div>
                 <div class="absolute -left-4 -bottom-4 w-24 h-24 bg-orange-500/10 rounded-full blur-2xl"></div>
                 
@@ -131,15 +131,19 @@
                       <Handshake class="w-5 h-5 text-amber-600" />
                     </div>
                     <div>
-                      <h4 class="text-lg font-black text-amber-900 tracking-tight">Delivery Offer Received!</h4>
-                      <p class="text-sm font-bold text-amber-700/80">An errand ninja wants to negotiate the delivery fee.</p>
+                      <h4 class="text-lg font-black text-amber-900 tracking-tight">Delivery Offer & Negotiation</h4>
+                      <p class="text-sm font-bold text-amber-700/80">
+                        {{ tx.status === 'pending_negotiation' ? 'Custom Errand negotiation in progress. Concluding will trigger Paystack payment.' : 'An errand ninja wants to negotiate the delivery fee.' }}
+                      </p>
                     </div>
                   </div>
                   
                   <div class="flex flex-col sm:flex-row items-center gap-4 bg-white/60 p-4 rounded-2xl border border-amber-100 mb-6 backdrop-blur-sm">
                     <div class="flex-1 text-center sm:text-left">
-                      <span class="text-xs font-bold text-amber-600 uppercase tracking-widest block mb-1">Ninja's Offer</span>
-                      <span class="text-3xl font-black text-amber-900">₦{{ tx.proposedDeliveryFee.toLocaleString() }}</span>
+                      <span class="text-xs font-bold text-amber-600 uppercase tracking-widest block mb-1">
+                        {{ tx.proposedDeliveryFee ? "Ninja's Offer" : "Current Runner Fee" }}
+                      </span>
+                      <span class="text-3xl font-black text-amber-900">₦{{ Number(tx.proposedDeliveryFee || tx.deliveryFee || 500).toLocaleString() }}</span>
                     </div>
                     <div class="hidden sm:block w-px h-12 bg-amber-200/50"></div>
                     <div class="flex-1 w-full relative">
@@ -152,7 +156,7 @@
                     <button @click="acceptNegotiation(tx._id)" :disabled="actionLoading === tx._id" class="flex-1 bg-amber-500 text-white font-black px-6 py-4 rounded-xl hover:bg-amber-600 transition-all hover:-translate-y-0.5 hover:shadow-lg hover:shadow-amber-500/30 disabled:opacity-50 active:scale-95 text-center flex items-center justify-center gap-2">
                       <CheckCircle2 class="w-5 h-5" v-if="actionLoading !== tx._id" />
                       <Loader2 class="w-5 h-5 animate-spin" v-else />
-                      Accept Offer
+                      {{ tx.status === 'pending_negotiation' ? 'Accept & Pay via Paystack' : 'Accept Offer' }}
                     </button>
                     <button @click="counterNegotiation(tx._id)" :disabled="actionLoading === tx._id || !counterAmounts[tx._id]" class="flex-1 bg-white text-amber-600 border-2 border-amber-200 font-black px-6 py-4 rounded-xl hover:bg-amber-50 transition-all hover:-translate-y-0.5 disabled:opacity-50 active:scale-95 text-center flex items-center justify-center">
                       <Loader2 class="w-5 h-5 animate-spin mr-2" v-if="actionLoading === tx._id" />
@@ -248,8 +252,14 @@ import {
   Handshake, Navigation, MapPin, Unlock, Loader2, MessageCircle 
 } from 'lucide-vue-next'
 
+useHead({
+  script: [
+    { src: 'https://js.paystack.co/v1/inline.js', async: true }
+  ]
+})
+
 const router = useRouter()
-const { isLoggedIn } = useAuth()
+const { user, isLoggedIn } = useAuth()
 const transactions = ref([])
 const loading = ref(true)
 const actionLoading = ref(null)
@@ -273,6 +283,9 @@ const fetchTransactions = async () => {
 }
 
 const getStatusBadge = (tx) => {
+  if (tx.status === 'pending_negotiation') {
+    return { text: 'Negotiating Delivery', class: 'bg-amber-100 text-amber-800 border border-amber-300', icon: Handshake }
+  }
   if (tx.status === 'held_in_escrow') {
     if (tx.proposedDeliveryFee > 0) return { text: 'Negotiating', class: 'bg-amber-100 text-amber-700', icon: Handshake }
     if (tx.erranderOrderId) return { text: 'In Transit', class: 'bg-blue-100 text-blue-700', icon: Navigation }
@@ -303,17 +316,60 @@ const releaseFunds = async (id) => {
 const acceptNegotiation = async (id) => {
   actionLoading.value = id
   try {
-    const { error } = await escrowApi.acceptNegotiation(id)
+    const tx = transactions.value.find(t => t._id === id)
+    const { data, error } = await escrowApi.acceptNegotiation(id)
     if (error) {
       useCustomToast().showToast({ title: 'Notice', message: error, toastType: "error" })
-    } else {
-      useCustomToast().showToast({ title: 'Success', message: 'Rider bid accepted!', toastType: "success" })
-      await fetchTransactions()
+      actionLoading.value = null
+      return
     }
+
+    const resData = data?.data || data || {}
+    const requiresPayment = resData.requiresPayment || tx?.status === 'pending_negotiation' || !tx?.paymentReference
+
+    if (requiresPayment) {
+      // Trigger Paystack inline for the negotiated concluded fee
+      const totalToPay = resData.totalAmountToPay || resData.amount || tx?.amount
+      const concludedFee = resData.concludedFee || tx?.proposedDeliveryFee || tx?.deliveryFee
+
+      const runtimeConfig = useRuntimeConfig()
+      const paystackKey = runtimeConfig.public.paystackPublicKey || 'pk_test_e3bcb144aaf2804f21581969dffaa563ae467ed4'
+
+      const handler = window.PaystackPop.setup({
+        key: paystackKey,
+        email: user.value?.email || 'customer@erranders.org',
+        amount: Math.round(totalToPay * 100),
+        currency: 'NGN',
+        ref: 'ESCROW_' + Math.floor((Math.random() * 1000000000) + 1),
+        callback: async (payResponse) => {
+          try {
+            await escrowApi.confirmPayment(id, {
+              paymentReference: payResponse.reference,
+              negotiatedFee: concludedFee
+            })
+            useCustomToast().showToast({ title: 'Payment Confirmed! 🚀', message: 'Custom Errand delivery is live!', toastType: "success" })
+            await fetchTransactions()
+          } catch (e) {
+            useCustomToast().showToast({ title: 'Payment Notice', message: 'Could not record payment.', toastType: "error" })
+          } finally {
+            actionLoading.value = null
+          }
+        },
+        onClose: () => {
+          actionLoading.value = null
+        }
+      })
+
+      handler.openIframe()
+      return
+    }
+
+    useCustomToast().showToast({ title: 'Success', message: 'Delivery offer accepted!', toastType: "success" })
+    await fetchTransactions()
   } catch (err) {
     useCustomToast().showToast({ title: 'Notice', message: 'Failed to accept bid.', toastType: "error" })
   } finally {
-    actionLoading.value = null
+    if (!actionLoading.value) actionLoading.value = null
   }
 }
 

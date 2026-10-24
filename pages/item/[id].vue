@@ -327,11 +327,97 @@
       </div>
       <button
         v-if="item"
-        class="mt-6 inline-flex items-center gap-1.5 text-xs font-bold text-slate-400 hover:text-red-600"
+        class="mt-6 inline-flex items-center gap-1.5 text-xs font-bold text-slate-400 hover:text-red-600 transition-colors"
         @click="reportOpen = true"
       >
         <Flag class="w-3.5 h-3.5" /> Report this listing
       </button>
+
+      <!-- Other Related Products Section (Keeps users engaged on platform to keep using declutter) -->
+      <section v-if="relatedItems.length > 0" class="mt-14 pt-10 border-t border-slate-200">
+        <div class="flex items-center justify-between mb-6">
+          <div>
+            <div class="flex items-center gap-2 mb-1.5">
+              <span class="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-brand-50 text-brand-700 border border-brand-200/60">
+                Keep Exploring
+              </span>
+              <span class="text-xs font-bold text-slate-400">Campus Deals</span>
+            </div>
+            <h2 class="text-xl sm:text-2xl font-black text-slate-900 tracking-tight flex items-center gap-2">
+              <span>Other Related Products</span>
+              <Sparkles class="w-5 h-5 text-brand-600 hidden sm:inline" />
+            </h2>
+            <p class="text-xs sm:text-sm text-slate-500 font-medium mt-0.5">
+              More student declutter bargains, swaps, and campus listings you might like
+            </p>
+          </div>
+          <NuxtLink to="/explore" class="hidden sm:inline-flex items-center gap-1.5 px-4 py-2 bg-slate-100 hover:bg-brand-50 text-slate-700 hover:text-brand-600 font-bold text-xs rounded-xl transition-all">
+            <span>Explore All</span>
+            <ArrowRight class="w-4 h-4" />
+          </NuxtLink>
+        </div>
+
+        <!-- 2 Per Row on Mobile, 3 on Tablet, 4 on Desktop -->
+        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-6">
+          <NuxtLink 
+            v-for="rel in relatedItems" 
+            :key="rel._id" 
+            :to="'/item/' + rel._id" 
+            class="group block bg-white border border-slate-200 rounded-2xl overflow-hidden hover:border-brand-500 hover:shadow-lg hover:shadow-slate-200/50 transition-all duration-300"
+          >
+            <!-- Image Section -->
+            <div class="aspect-[4/3] w-full bg-slate-100 overflow-hidden relative">
+              <img 
+                :src="rel.images?.[0] || '/no-image.png'" 
+                :alt="rel.title" 
+                class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
+              />
+
+              <!-- Type Badge -->
+              <div class="absolute top-2 left-2 flex items-center gap-1 z-10 flex-wrap">
+                <span 
+                  class="px-2 py-0.5 rounded-full text-[9px] uppercase tracking-wider font-black border backdrop-blur"
+                  :class="rel.type === 'swap' ? 'bg-amber-50/90 text-amber-700 border-amber-200' : 'bg-white/95 text-slate-800 border-slate-200 shadow-2xs'"
+                >
+                  {{ rel.type === 'swap' ? 'Swap' : 'Buy' }}
+                </span>
+                <span v-if="rel.batchId" class="px-1.5 py-0.5 rounded-full text-[9px] font-black bg-brand-600 text-white shadow-2xs">
+                  Declutter
+                </span>
+              </div>
+            </div>
+
+            <!-- Content Section -->
+            <div class="p-3 sm:p-4">
+              <div class="flex items-baseline justify-between gap-1 mb-1">
+                <span class="font-black text-brand-600 text-xs sm:text-base">
+                  {{ rel.type === 'swap' ? 'Swap Item' : '₦' + Number(rel.price || 0).toLocaleString() }}
+                </span>
+                <span v-if="rel.category" class="text-[10px] font-bold text-slate-400 truncate max-w-[80px]">
+                  {{ rel.category?.name || rel.category }}
+                </span>
+              </div>
+
+              <h4 class="font-bold text-slate-900 text-xs sm:text-sm line-clamp-1 group-hover:text-brand-600 transition-colors">
+                {{ rel.title }}
+              </h4>
+
+              <div class="flex items-center gap-1 text-[11px] text-slate-500 font-medium mt-1.5 truncate">
+                <MapPin class="w-3 h-3 text-slate-400 shrink-0" />
+                <span class="truncate">{{ getGeneralCampusLocation(rel.location) }}</span>
+              </div>
+            </div>
+          </NuxtLink>
+        </div>
+
+        <!-- Mobile Explore All Button -->
+        <div class="mt-6 sm:hidden text-center">
+          <NuxtLink to="/explore" class="inline-flex items-center justify-center gap-2 w-full py-3 bg-brand-50 border border-brand-200 text-brand-700 font-bold text-xs rounded-xl hover:bg-brand-100 transition-colors">
+            <span>Explore All Campus Listings</span>
+            <ArrowRight class="w-4 h-4" />
+          </NuxtLink>
+        </div>
+      </section>
 
       <ReportModal :target="reportTarget" @close="reportOpen = false" />
 
@@ -347,8 +433,25 @@
   </main>
 </template>
 <script setup>
-import { ArrowLeft, MapPin, ShieldCheck, MessageCircle, ShoppingCart, Lock, Maximize, X, PlayCircle, Repeat, Briefcase, AlertTriangle, RotateCcw } from 'lucide-vue-next'
-import { ref, onMounted, computed } from 'vue'
+import { 
+  ArrowLeft, 
+  MapPin, 
+  ShieldCheck, 
+  MessageCircle, 
+  ShoppingCart, 
+  Lock, 
+  Maximize, 
+  X, 
+  PlayCircle, 
+  Repeat, 
+  Briefcase, 
+  AlertTriangle, 
+  RotateCcw,
+  Sparkles,
+  ArrowRight,
+  Flag
+} from 'lucide-vue-next'
+import { ref, onMounted, computed, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { itemsApi, offersApi, escrowApi } from '~/composables/useApi'
 import { optimizeVideoUrl, optimizeImageUrl } from '~/composables/useMediaOptimize'
@@ -356,7 +459,6 @@ import { optimizeVideoUrl, optimizeImageUrl } from '~/composables/useMediaOptimi
 import AuthModal from '~/components/AuthModal.vue'
 import ProposeSwapModal from '~/components/ProposeSwapModal.vue'
 import ReportModal from '~/components/ReportModal.vue'
-import { Flag } from 'lucide-vue-next'
 
 import { useAuth } from '~/composables/useAuth'
 
@@ -556,12 +658,73 @@ const fetchItem = async () => {
 
     mediaGallery.value = gallery
     activeMedia.value = gallery[0]
+
+    // Fetch related products to keep user engaged on platform
+    fetchRelatedItems()
   } catch (err) {
     console.error(err)
   } finally {
     loading.value = false
   }
 }
+
+const relatedItems = ref([])
+const loadingRelated = ref(false)
+
+const fetchRelatedItems = async () => {
+  if (!item.value) return
+  loadingRelated.value = true
+  try {
+    const currentId = String(item.value._id || route.params.id)
+    const categoryParam = item.value.category?._id || (typeof item.value.category === 'string' ? item.value.category : null)
+    
+    let found = []
+    if (categoryParam) {
+      try {
+        const { data } = await itemsApi.list({ category: categoryParam, limit: 10, status: 'active' })
+        const list = data?.data || data || []
+        found = list.filter(it => String(it._id) !== currentId)
+      } catch (e) {
+        // fallback
+      }
+    }
+
+    if (found.length < 4) {
+      try {
+        const { data } = await itemsApi.list({ limit: 12, status: 'active' })
+        const generalList = data?.data || data || []
+        const combined = [...found]
+        for (const it of generalList) {
+          if (String(it._id) !== currentId && !combined.some(x => String(x._id) === String(it._id))) {
+            combined.push(it)
+          }
+        }
+        found = combined
+      } catch (e) {
+        // fallback
+      }
+    }
+
+    relatedItems.value = found.slice(0, 8)
+  } catch (err) {
+    console.error('Failed to fetch related items:', err)
+  } finally {
+    loadingRelated.value = false
+  }
+}
+
+watch(() => route.params.id, (newId) => {
+  if (newId) {
+    if (typeof window !== 'undefined') {
+      window.scrollTo({ top: 0, behavior: 'smooth' })
+    }
+    fetchItem()
+    if (isLoggedIn.value) {
+      fetchMyOffers()
+      checkEscrowStatus()
+    }
+  }
+})
 
 onMounted(() => {
   fetchItem()
