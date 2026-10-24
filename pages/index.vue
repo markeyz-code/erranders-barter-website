@@ -1,14 +1,15 @@
 <template>
   <div class="min-h-screen bg-white font-sans text-slate-900 pb-20 selection:bg-brand-500 selection:text-white">
     
-    <!-- ── Dynamic Hero: Exciting Multilingual Typewriting Design (Pidgin, Yorùbá, Igbo, Hausa) ── -->
-    <section class="relative bg-gradient-to-b from-slate-50/70 via-white to-white border-b border-slate-100 pt-28 sm:pt-32 md:pt-36 pb-14 sm:pb-20 md:pb-24 px-4 sm:px-6 lg:px-8 overflow-hidden text-center">
+    <!-- ── Dynamic Hero: Full-Height Immersive Showcase ── -->
+    <section class="relative bg-gradient-to-b from-slate-50/90 via-white to-white border-b border-slate-100 min-h-[100dvh] flex flex-col justify-between pt-24 sm:pt-28 md:pt-32 pb-6 sm:pb-8 px-4 sm:px-6 lg:px-8 overflow-hidden text-center">
       <!-- Soft dot background grid & organic ambient blooms -->
       <div class="absolute inset-0 bg-[radial-gradient(#e2e8f0_1.5px,transparent_1.5px)] [background-size:24px_24px] opacity-75 pointer-events-none"></div>
       <div class="absolute -top-24 -left-24 w-96 h-96 bg-brand-500/10 rounded-full blur-3xl pointer-events-none"></div>
       <div class="absolute -bottom-24 -right-24 w-96 h-96 bg-amber-400/10 rounded-full blur-3xl pointer-events-none"></div>
 
-      <div class="max-w-5xl mx-auto relative z-10 space-y-5">
+      <!-- Main Central Core -->
+      <div class="max-w-4xl w-full mx-auto relative z-10 flex-1 flex flex-col justify-center items-center my-auto space-y-4 sm:space-y-6 py-4">
         <!-- Top Eyebrow Badge -->
         <div class="flex items-center justify-center">
           <NuxtLink
@@ -21,111 +22,116 @@
         </div>
 
         <!-- Main Power Headline -->
-        <h1 class="text-3xl sm:text-5xl md:text-6xl font-black tracking-tight text-slate-900 leading-[1.12] max-w-4xl mx-auto">
+        <h1 class="text-3xl sm:text-5xl md:text-6xl font-black tracking-tight text-slate-900 leading-[1.14] max-w-3xl mx-auto">
           Turn your room clutter into
           <span class="text-[#FF5C1A]">cash sharp-sharp</span> 🔥
         </h1>
 
         <!-- Clean, punchy subtitle with Escrow Guarantee -->
-        <p class="max-w-2xl mx-auto text-sm sm:text-base font-medium text-slate-600 leading-relaxed">
+        <p class="max-w-xl mx-auto text-xs sm:text-base font-medium text-slate-500 sm:text-slate-600 leading-relaxed px-2">
           Buy, sell, and swap room essentials with verified campus students. Instant Escrow security — zero stories!
         </p>
 
         <!-- Live Omnibox Search -->
-        <div class="max-w-3xl mx-auto pt-1">
+        <div class="max-w-2xl w-full mx-auto pt-1 sm:pt-2">
           <form class="flex items-center gap-2" @submit.prevent="submitSearch">
             <div class="relative flex-1">
-              <Search class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+              <Search class="absolute left-4 top-1/2 -translate-y-1/2 w-4 sm:w-5 h-4 sm:h-5 text-slate-400" />
               <input
                 v-model="searchInput"
                 type="text"
-                class="w-full bg-white hover:bg-slate-50 focus:bg-white border border-slate-300 focus:border-brand-600 rounded-2xl pl-12 pr-4 py-3.5 text-sm sm:text-base font-semibold text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-4 focus:ring-brand-600/10 transition-all shadow-sm"
+                class="w-full bg-white hover:bg-slate-50 focus:bg-white border border-slate-200 focus:border-brand-600 rounded-2xl pl-11 sm:pl-12 pr-4 py-3 sm:py-3.5 text-xs sm:text-base font-semibold text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-4 focus:ring-brand-600/10 transition-all shadow-sm"
                 placeholder="Search hostel movers, electricians, mini-fridges, fans, textbooks..."
               />
             </div>
             <button
               type="submit"
-              class="bg-slate-900 hover:bg-brand-600 text-white font-black px-6 py-3.5 rounded-2xl text-sm transition-all shrink-0 active:scale-95 shadow-sm cursor-pointer"
+              class="bg-slate-900 hover:bg-brand-600 text-white font-black px-5 sm:px-6 py-3 sm:py-3.5 rounded-2xl text-xs sm:text-sm transition-all shrink-0 active:scale-95 shadow-sm cursor-pointer"
             >
               Search
             </button>
           </form>
         </div>
 
-        <!-- Creative Quick Actions Hub (Buy, Sell, Swap, Offer Service, 1-Click Declutter) -->
-        <div class="pt-3 max-w-4xl mx-auto">
-          <div class="flex items-center justify-center gap-2 sm:gap-3 flex-wrap">
-            <!-- Buy -->
-            <NuxtLink
-              to="/explore"
-              class="group px-3 sm:px-4 py-2 sm:py-2.5 rounded-2xl bg-white hover:bg-slate-50 border border-slate-200/90 hover:border-slate-300 transition-all shadow-2xs hover:shadow-md flex items-center gap-2 active:scale-95"
-            >
-              <span class="w-7 h-7 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center group-hover:scale-110 transition-transform">
-                <ShoppingBag class="w-4 h-4" />
-              </span>
-              <div class="text-left">
-                <span class="text-xs sm:text-sm font-black text-slate-800 block leading-tight">Buy</span>
-                <span class="text-[10px] text-slate-400 font-semibold hidden sm:block">Campus Deals</span>
-              </div>
-            </NuxtLink>
+        <!-- ── Sleek Action Launchpad (5-Pillar Symmetrical Grid) ── -->
+        <div class="w-full max-w-2xl mx-auto pt-3 sm:pt-5">
+          <div class="bg-white/85 backdrop-blur-xl border border-slate-200/90 rounded-2xl sm:rounded-3xl p-1.5 sm:p-2.5 shadow-lg shadow-slate-900/5">
+            <div class="grid grid-cols-5 gap-1 sm:gap-2">
+              <!-- 1. Buy -->
+              <NuxtLink
+                to="/explore"
+                class="group flex flex-col items-center justify-center p-2 sm:p-2.5 rounded-xl sm:rounded-2xl hover:bg-slate-50/90 transition-all active:scale-95"
+              >
+                <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-sky-50 text-sky-600 border border-sky-100 flex items-center justify-center group-hover:scale-110 group-hover:bg-sky-100 transition-all shadow-2xs">
+                  <ShoppingBag class="w-5 h-5 sm:w-6 sm:h-6" />
+                </div>
+                <span class="text-[11px] sm:text-xs font-black text-slate-900 mt-1.5 leading-tight">Buy</span>
+                <span class="text-[9px] text-slate-400 font-semibold hidden md:block">Campus Deals</span>
+              </NuxtLink>
 
-            <!-- Sell -->
-            <NuxtLink
-              to="/sell"
-              class="group px-3 sm:px-4 py-2 sm:py-2.5 rounded-2xl bg-white hover:bg-brand-50/40 border border-brand-200/80 hover:border-brand-400 transition-all shadow-2xs hover:shadow-md flex items-center gap-2 active:scale-95"
-            >
-              <span class="w-7 h-7 rounded-xl bg-[#FF5C1A] text-white flex items-center justify-center group-hover:scale-110 transition-transform shadow-xs">
-                <Tag class="w-4 h-4" />
-              </span>
-              <div class="text-left">
-                <span class="text-xs sm:text-sm font-black text-brand-600 block leading-tight">Sell</span>
-                <span class="text-[10px] text-brand-400 font-semibold hidden sm:block">Make Cash</span>
-              </div>
-            </NuxtLink>
+              <!-- 2. Sell (High energy CTA) -->
+              <NuxtLink
+                to="/sell"
+                class="group flex flex-col items-center justify-center p-2 sm:p-2.5 rounded-xl sm:rounded-2xl bg-[#FF5C1A]/5 hover:bg-[#FF5C1A]/10 border border-[#FF5C1A]/20 transition-all active:scale-95 relative"
+              >
+                <span class="absolute -top-1.5 px-1.5 py-0.2 rounded-full bg-[#FF5C1A] text-white text-[7px] sm:text-[8px] font-black uppercase tracking-wider hidden sm:block">Cash Out</span>
+                <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-[#FF5C1A] text-white flex items-center justify-center group-hover:scale-110 shadow-sm shadow-[#FF5C1A]/30 transition-all">
+                  <Tag class="w-5 h-5 sm:w-6 sm:h-6" />
+                </div>
+                <span class="text-[11px] sm:text-xs font-black text-[#FF5C1A] mt-1.5 leading-tight">Sell</span>
+                <span class="text-[9px] text-[#FF5C1A]/70 font-semibold hidden md:block">Make Cash</span>
+              </NuxtLink>
 
-            <!-- Swap -->
-            <NuxtLink
-              to="/swap"
-              class="group px-3 sm:px-4 py-2 sm:py-2.5 rounded-2xl bg-white hover:bg-purple-50/40 border border-slate-200/90 hover:border-purple-300 transition-all shadow-2xs hover:shadow-md flex items-center gap-2 active:scale-95"
-            >
-              <span class="w-7 h-7 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center group-hover:scale-110 transition-transform">
-                <ArrowRightLeft class="w-4 h-4" />
-              </span>
-              <div class="text-left">
-                <span class="text-xs sm:text-sm font-black text-slate-800 block leading-tight">Swap</span>
-                <span class="text-[10px] text-slate-400 font-semibold hidden sm:block">Trade Items</span>
-              </div>
-            </NuxtLink>
+              <!-- 3. Swap -->
+              <NuxtLink
+                to="/swap"
+                class="group flex flex-col items-center justify-center p-2 sm:p-2.5 rounded-xl sm:rounded-2xl hover:bg-purple-50/50 transition-all active:scale-95"
+              >
+                <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-purple-50 text-purple-600 border border-purple-100 flex items-center justify-center group-hover:scale-110 group-hover:bg-purple-100 transition-all shadow-2xs">
+                  <ArrowRightLeft class="w-5 h-5 sm:w-6 sm:h-6" />
+                </div>
+                <span class="text-[11px] sm:text-xs font-black text-slate-900 mt-1.5 leading-tight">Swap</span>
+                <span class="text-[9px] text-slate-400 font-semibold hidden md:block">Trade Items</span>
+              </NuxtLink>
 
-            <!-- Offer Service -->
-            <NuxtLink
-              to="/become-a-provider"
-              class="group px-3 sm:px-4 py-2 sm:py-2.5 rounded-2xl bg-white hover:bg-emerald-50/40 border border-slate-200/90 hover:border-emerald-300 transition-all shadow-2xs hover:shadow-md flex items-center gap-2 active:scale-95"
-            >
-              <span class="w-7 h-7 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center group-hover:scale-110 transition-transform">
-                <Wrench class="w-4 h-4" />
-              </span>
-              <div class="text-left">
-                <span class="text-xs sm:text-sm font-black text-slate-800 block leading-tight">Offer Service</span>
-                <span class="text-[10px] text-slate-400 font-semibold hidden sm:block">Movers & Pros</span>
-              </div>
-            </NuxtLink>
+              <!-- 4. 1-Click Declutter (Star Feature) -->
+              <NuxtLink
+                to="/declutter"
+                class="group flex flex-col items-center justify-center p-2 sm:p-2.5 rounded-xl sm:rounded-2xl bg-slate-900 text-white hover:bg-slate-800 transition-all active:scale-95 relative shadow-sm"
+              >
+                <span class="absolute -top-1.5 px-1.5 py-0.2 rounded-full bg-amber-400 text-slate-950 text-[7px] sm:text-[8px] font-black uppercase tracking-wider hidden sm:block">Fast Box</span>
+                <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-white/10 text-amber-400 flex items-center justify-center group-hover:scale-110 transition-all">
+                  <Zap class="w-5 h-5 sm:w-6 sm:h-6 fill-current" />
+                </div>
+                <span class="text-[10px] sm:text-xs font-black text-white mt-1.5 leading-tight truncate">Declutter</span>
+                <span class="text-[9px] text-slate-300 font-semibold hidden md:block">Room Boxes</span>
+              </NuxtLink>
 
-            <!-- 1-Click Declutter -->
-            <NuxtLink
-              to="/declutter"
-              class="group px-3 sm:px-4 py-2 sm:py-2.5 rounded-2xl bg-slate-900 hover:bg-slate-800 border border-slate-800 text-white transition-all shadow-2xs hover:shadow-md flex items-center gap-2 active:scale-95"
-            >
-              <span class="w-7 h-7 rounded-xl bg-brand-500/20 text-brand-400 flex items-center justify-center group-hover:scale-110 transition-transform">
-                <Zap class="w-4 h-4 fill-current" />
-              </span>
-              <div class="text-left">
-                <span class="text-xs sm:text-sm font-black text-white block leading-tight">1-Click Declutter</span>
-                <span class="text-[10px] text-slate-300 font-semibold hidden sm:block">Room Boxes</span>
-              </div>
-            </NuxtLink>
+              <!-- 5. Offer Service -->
+              <NuxtLink
+                to="/become-a-provider"
+                class="group flex flex-col items-center justify-center p-2 sm:p-2.5 rounded-xl sm:rounded-2xl hover:bg-emerald-50/50 transition-all active:scale-95"
+              >
+                <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-emerald-50 text-emerald-600 border border-emerald-100 flex items-center justify-center group-hover:scale-110 group-hover:bg-emerald-100 transition-all shadow-2xs">
+                  <Wrench class="w-5 h-5 sm:w-6 sm:h-6" />
+                </div>
+                <span class="text-[11px] sm:text-xs font-black text-slate-900 mt-1.5 leading-tight">Services</span>
+                <span class="text-[9px] text-slate-400 font-semibold hidden md:block">Movers & Pros</span>
+              </NuxtLink>
+            </div>
           </div>
         </div>
+      </div>
+
+      <!-- Bottom Scroll Cue -->
+      <div class="relative z-10 pt-3 pb-1 flex flex-col items-center justify-center shrink-0">
+        <a
+          href="#declutter-section"
+          class="inline-flex items-center gap-1.5 text-[11px] sm:text-xs font-bold text-slate-400 hover:text-[#FF5C1A] transition-colors group cursor-pointer"
+        >
+          <span>Explore campus room clearances</span>
+          <ChevronDown class="w-3.5 h-3.5 text-slate-400 group-hover:text-[#FF5C1A] animate-bounce" />
+        </a>
       </div>
     </section>
 
@@ -1027,7 +1033,7 @@ import { onMounted, onUnmounted, reactive, ref, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import {
   Search, ShoppingBag, Tag, Package, ShieldCheck, MapPin, Clock, ArrowRight, ArrowRightLeft,
-  Flame, Play as PlayIcon, Wrench, CheckCircle2, ExternalLink, Heart, Sparkles, Zap, Folder, Share2, X
+  Flame, Play as PlayIcon, Wrench, CheckCircle2, ExternalLink, Heart, Sparkles, Zap, Folder, Share2, X, ChevronDown
 } from 'lucide-vue-next';
 import { itemsApi } from '@/api_factory/modules/items';
 import { servicesApi, type Service } from '@/api_factory/modules/services';
