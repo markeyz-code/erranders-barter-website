@@ -30,9 +30,9 @@
         </form>
       </div>
 
-      <!-- Hostel Movement Season Spotlight -->
+      <!-- Hostel Movement Season Spotlight (Commented out) -->
+      <!--
       <div class="mb-8 grid grid-cols-1 md:grid-cols-3 gap-4">
-        <!-- Fumigation Card -->
         <NuxtLink
           to="/fumigation"
           class="p-5 rounded-3xl bg-gradient-to-r from-emerald-950 via-slate-900 to-emerald-900 text-white border border-emerald-500/30 flex items-center justify-between gap-4 group hover:shadow-xl hover:shadow-emerald-950/20 transition-all"
@@ -48,12 +48,11 @@
               Certified human-safe chemicals + trained student crew. From ₦14,000.
             </p>
           </div>
-          <div class="shrink-0 w-10 h-10 rounded-2xl bg-emerald-500 text-slate-950 flex items-center justify-center font-black text-lg group-hover:scale-105 transition-transform shadow-md">
+          <div class="shrink-0 w-10 h-10 rounded-2xl bg-emerald-50 text-slate-950 flex items-center justify-center font-black text-lg group-hover:scale-105 transition-transform shadow-md">
             →
           </div>
         </NuxtLink>
 
-        <!-- Movers Card -->
         <NuxtLink
           to="/movers"
           class="p-5 rounded-3xl bg-gradient-to-r from-amber-950 via-slate-900 to-amber-900 text-white border border-amber-500/30 flex items-center justify-between gap-4 group hover:shadow-xl hover:shadow-amber-950/20 transition-all"
@@ -74,7 +73,6 @@
           </div>
         </NuxtLink>
 
-        <!-- Business Mini-Admin Card -->
         <NuxtLink
           to="/become-a-business"
           class="p-5 rounded-3xl bg-gradient-to-r from-purple-950 via-slate-900 to-slate-900 text-white border border-purple-500/30 flex items-center justify-between gap-4 group hover:shadow-xl hover:shadow-purple-950/20 transition-all"
@@ -95,6 +93,7 @@
           </div>
         </NuxtLink>
       </div>
+      -->
 
       <!-- Filters -->
       <div class="flex flex-wrap items-center gap-2 sm:gap-3 mb-4">

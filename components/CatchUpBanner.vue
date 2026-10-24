@@ -1,53 +1,105 @@
 <template>
   <div>
-    <!-- Interactive Sticky Floating Banner -->
+    <!-- Interactive Sticky Floating Banner (Top on mobile so it doesn't block bottom nav/chat, Bottom on desktop) -->
     <Transition
       enter-active-class="transform transition ease-out duration-300"
-      enter-from-class="translate-y-12 opacity-0"
+      enter-from-class="-translate-y-6 sm:translate-y-12 opacity-0"
       enter-to-class="translate-y-0 opacity-100"
       leave-active-class="transform transition ease-in duration-200"
       leave-from-class="translate-y-0 opacity-100"
-      leave-to-class="translate-y-12 opacity-0"
+      leave-to-class="-translate-y-6 sm:translate-y-12 opacity-0"
     >
+      <!-- State 1: Full Floating Alert Card (Top on Mobile, Bottom-Right on Desktop) -->
       <div
-        v-if="hasMissedListings && !isCatchUpModalOpen"
-        class="fixed bottom-5 left-4 right-4 sm:left-auto sm:right-6 sm:max-w-md z-40 bg-slate-900/95 backdrop-blur-md text-white p-4 rounded-3xl shadow-2xl border border-slate-700/80 flex items-center justify-between gap-3 animate-in fade-in"
+        v-if="hasMissedListings && !isCatchUpModalOpen && !isMinimized"
+        class="fixed top-24 left-3 right-3 sm:top-auto sm:bottom-6 sm:left-auto sm:right-6 sm:max-w-md z-40 bg-slate-950/92 backdrop-blur-xl text-white p-3.5 sm:p-4 rounded-2xl sm:rounded-3xl shadow-2xl border border-amber-500/35 flex items-center justify-between gap-3 animate-in fade-in relative overflow-hidden"
       >
-        <div class="flex items-center gap-3 min-w-0">
-          <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-brand-600 to-amber-500 flex items-center justify-center shrink-0 shadow-sm text-lg">
+        <!-- Golden Ambient Glow -->
+        <div class="absolute -top-10 -right-10 w-28 h-28 bg-amber-500/20 rounded-full blur-2xl pointer-events-none"></div>
+
+        <div class="flex items-center gap-3 min-w-0 z-10">
+          <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-amber-500 to-brand-500 flex items-center justify-center shrink-0 shadow-md text-slate-950 text-base font-black">
             ⚡
           </div>
           <div class="min-w-0">
-            <div class="flex items-center gap-1.5">
-              <span class="text-[10px] font-black uppercase tracking-wider text-amber-400 bg-amber-400/10 px-1.5 py-0.5 rounded">
+            <div class="flex items-center gap-1.5 flex-wrap">
+              <span class="inline-flex items-center gap-1 text-[10px] font-black uppercase tracking-wider text-amber-400 bg-amber-400/15 border border-amber-400/30 px-1.5 py-0.5 rounded-md">
+                <span class="w-1.5 h-1.5 rounded-full bg-amber-400 animate-ping"></span>
                 What you missed
               </span>
-              <span class="text-xs text-slate-400 font-medium">· Since {{ formattedSinceTime }}</span>
+              <span class="text-[11px] text-slate-400 font-medium">· Since {{ formattedSinceTime }}</span>
             </div>
             <p class="text-xs sm:text-sm font-extrabold text-white truncate mt-0.5">
-              <strong>{{ missedCount }} new listings</strong> just dropped!
+              <span class="text-amber-300 font-black">{{ missedCount }} new deals</span> just dropped!
             </p>
           </div>
         </div>
 
-        <div class="flex items-center gap-1.5 shrink-0">
+        <div class="flex items-center gap-1.5 shrink-0 z-10">
+          <!-- Catch Up Action Button -->
           <button
             type="button"
             @click="openCatchUpModal"
-            class="px-3.5 py-2 rounded-xl bg-gradient-to-r from-amber-500 to-brand-600 hover:from-amber-400 hover:to-brand-500 text-slate-950 font-black text-xs shadow-md transition-all active:scale-95 flex items-center gap-1"
+            class="px-3 sm:px-3.5 py-2 rounded-xl bg-gradient-to-r from-amber-400 to-brand-500 hover:from-amber-300 hover:to-brand-400 active:scale-95 text-slate-950 font-black text-xs shadow-md transition-all flex items-center gap-1 cursor-pointer whitespace-nowrap"
           >
             <span>Catch Up</span>
             <ArrowRight class="w-3.5 h-3.5" />
           </button>
+
+          <!-- Minimize to subtle micro pill -->
+          <button
+            type="button"
+            @click="isMinimized = true"
+            class="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 active:scale-90 text-slate-300 hover:text-white border border-white/15 flex items-center justify-center transition-all cursor-pointer"
+            title="Minimize"
+          >
+            <Minimize2 class="w-3.5 h-3.5" />
+          </button>
+
+          <!-- High-Contrast Prominent Close Button (X) -->
           <button
             type="button"
             @click="dismissCatchUp"
-            class="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
-            title="Dismiss"
+            class="w-8 h-8 rounded-full bg-red-500/20 hover:bg-red-500/30 active:scale-90 text-red-300 hover:text-white border border-red-500/30 flex items-center justify-center transition-all cursor-pointer shadow-xs"
+            title="Close and dismiss"
           >
             <X class="w-4 h-4" />
           </button>
         </div>
+      </div>
+
+      <!-- State 2: Minimized Micro Floating Badge (Zero footprint on mobile!) -->
+      <div
+        v-else-if="hasMissedListings && !isCatchUpModalOpen && isMinimized"
+        class="fixed top-24 right-3 sm:top-auto sm:bottom-6 sm:right-6 z-40 bg-slate-950/90 backdrop-blur-md text-white px-3 py-1.5 rounded-full shadow-2xl border border-amber-500/40 flex items-center gap-2 hover:border-amber-400 transition-all animate-in fade-in"
+      >
+        <button
+          type="button"
+          @click="openCatchUpModal"
+          class="flex items-center gap-1.5 text-xs font-black cursor-pointer group"
+        >
+          <span class="w-2 h-2 rounded-full bg-amber-400 animate-ping"></span>
+          <span class="text-amber-400 group-hover:text-amber-300">⚡ {{ missedCount }} new</span>
+          <span class="text-[10px] text-slate-400 font-medium">Catch Up</span>
+        </button>
+
+        <button
+          type="button"
+          @click="isMinimized = false"
+          class="p-1 text-slate-400 hover:text-white transition-colors cursor-pointer"
+          title="Expand"
+        >
+          <Maximize2 class="w-3 h-3" />
+        </button>
+
+        <button
+          type="button"
+          @click="dismissCatchUp"
+          class="w-5 h-5 rounded-full bg-white/10 hover:bg-red-500/30 text-slate-400 hover:text-red-300 flex items-center justify-center transition-all cursor-pointer"
+          title="Dismiss completely"
+        >
+          <X class="w-3 h-3" />
+        </button>
       </div>
     </Transition>
 
@@ -216,8 +268,10 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
-import { ArrowRight, X, Clock } from 'lucide-vue-next';
+import { ArrowRight, X, Clock, Minimize2, Maximize2 } from 'lucide-vue-next';
 import { useSessionTracker } from '~/composables/useSessionTracker';
+
+const isMinimized = ref(false);
 
 const {
   hasMissedListings,
