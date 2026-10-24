@@ -54,8 +54,16 @@
           </div>
           
           <div v-else-if="myItems.length === 0" class="bg-slate-50 p-6 rounded-2xl border border-slate-200 text-center">
-            <p class="text-slate-600 font-medium mb-4">You don't have any items listed yet.</p>
-            <NuxtLink to="/swap" class="text-brand-600 font-bold hover:underline">List an item first</NuxtLink>
+            <div class="w-12 h-12 bg-amber-50 text-amber-600 rounded-full flex items-center justify-center mx-auto mb-3 border border-amber-200">
+              <Repeat class="w-6 h-6" />
+            </div>
+            <h4 class="text-sm font-black text-slate-900 mb-1">No items in your inventory</h4>
+            <p class="text-xs text-slate-500 font-medium mb-4 max-w-xs mx-auto">
+              You haven't posted any items yet to offer for this swap. List an item on Decluttered first to propose trades!
+            </p>
+            <NuxtLink to="/swap" class="inline-flex items-center gap-1.5 px-4 py-2.5 bg-brand-600 hover:bg-brand-700 text-white font-black text-xs rounded-xl shadow-xs transition-colors">
+              <Repeat class="w-3.5 h-3.5" /> Post an Item to Swap
+            </NuxtLink>
           </div>
           
           <div v-else class="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-60 overflow-y-auto pr-2">
@@ -174,6 +182,7 @@ import { X, Check, Repeat, Loader2, ArrowRightLeft, ThumbsUp, AlertTriangle, Spa
 import CustomSelect from '~/components/CustomSelect.vue'
 import { ref, watch, computed } from 'vue'
 import { itemsApi, offersApi } from '~/composables/useApi'
+import { useAuth } from '~/composables/useAuth'
 
 const props = defineProps({
   isOpen: Boolean,
@@ -200,7 +209,7 @@ const formattedCashAmount = computed({
 })
 const submitting = ref(false)
 
-const { user } = useAuth()
+const { user, token, isLoggedIn } = useAuth()
 
 // Gamification Metrics
 const mySelectedItemObj = computed(() => {
@@ -243,21 +252,27 @@ const fairnessBadge = computed(() => {
 })
 
 watch(() => props.isOpen, async (newVal) => {
-  if (newVal && user.value) {
+  if (newVal) {
     // Reset form
     selectedItemId.value = null
     topUpDirection.value = 'none'
     cashAmount.value = ''
+    myItems.value = []
     
-    // Fetch user's items
+    // Fetch logged-in user's own items using the authenticated myListings API
     loadingItems.value = true
     try {
-      const { data } = await itemsApi.list({ sellerId: user.value._id })
-      if (data) {
-        myItems.value = data.items || data
-      }
+      const { data } = await itemsApi.myListings()
+      const list = Array.isArray(data) ? data : (data?.items || [])
+      // Filter only active items and exclude the target item itself
+      myItems.value = list.filter(item => 
+        item && 
+        (item.status === 'active' || !item.status) &&
+        String(item._id) !== String(props.targetItem?._id)
+      )
     } catch (e) {
-      console.error(e)
+      console.error('Failed to load user listings for swap proposal:', e)
+      myItems.value = []
     } finally {
       loadingItems.value = false
     }
