@@ -121,6 +121,10 @@
 
         <!-- Quick Jump Links -->
         <div class="hidden md:flex items-center gap-3 shrink-0 text-xs font-bold">
+          <a href="#declutter-section" class="text-brand-600 hover:text-brand-700 font-black flex items-center gap-1">
+            <Zap class="w-3.5 h-3.5 fill-current" /> 1-Click Declutter
+          </a>
+          <span class="text-slate-300">•</span>
           <a href="#buy-section" class="text-slate-500 hover:text-brand-600">Items to Buy</a>
           <span class="text-slate-300">•</span>
           <a href="#sold-section" class="text-slate-500 hover:text-brand-600">Just Sold</a>
@@ -136,40 +140,41 @@
       </div>
     </div>
 
-    <!-- ── SECTION 1: MARKETPLACE DEALS (2-Per-Row Responsive Mobile Feed) ── -->
-    <section id="buy-section" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-8">
+    <!-- ── SECTION 1: 1-CLICK DECLUTTER DEALS (Mapped 1-Click Products - 4 Items Max) ── -->
+    <section id="declutter-section" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-4">
       <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-3 mb-6">
         <div>
           <div class="inline-flex items-center gap-1.5 text-xs font-bold text-brand-600 uppercase tracking-wider mb-1">
-            <component :is="activeTabMeta.icon" class="w-4 h-4" />
-            <span>{{ activeTabMeta.subtitle }}</span>
+            <Zap class="w-4 h-4 fill-current text-brand-600" />
+            <span>1-Click Room Clearances</span>
           </div>
-          <h2 class="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
-            {{ activeTabMeta.title }}
+          <h2 class="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight flex items-center gap-2">
+            <span>1-Click Declutter Deals</span>
+            <span class="px-2 py-0.5 rounded-full text-[10px] font-black bg-brand-50 text-brand-700 border border-brand-200">Hot Deals</span>
           </h2>
           <p class="text-xs sm:text-sm text-slate-500 font-medium">
-            {{ activeTabMeta.description }}
+            Room clearance boxes and fast-moving items mapped directly from student hostels.
           </p>
         </div>
 
         <NuxtLink
-          :to="activeTabMeta.exploreLink"
+          to="/explore?declutter=true"
           class="inline-flex items-center gap-1 text-xs sm:text-sm font-bold text-brand-600 hover:text-brand-700 hover:underline shrink-0"
         >
-          <span>{{ activeTabMeta.exploreText }}</span>
+          <span>Explore All Declutter Deals</span>
           <ArrowRight class="w-4 h-4" />
         </NuxtLink>
       </div>
 
       <!-- Loading State -->
-      <div v-if="loading.items && !displayedMarketplaceItems.length" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-6">
-        <div v-for="i in 8" :key="i" class="rounded-2xl sm:rounded-3xl bg-white border border-slate-200 p-3 h-64 sm:h-72 animate-pulse" />
+      <div v-if="loading.declutter && !displayDeclutterItems.length" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-6">
+        <div v-for="i in 4" :key="i" class="rounded-2xl sm:rounded-3xl bg-white border border-slate-200 p-3 h-64 sm:h-72 animate-pulse" />
       </div>
 
-      <!-- Optimized 2-Per-Row Items Grid (Mobile: 2 cols, Tablet: 3 cols, Desktop: 4 cols) -->
+      <!-- 4 Items Max: 2 cols on mobile, 4 cols on desktop -->
       <div v-else class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-6">
         <NuxtLink
-          v-for="item in displayedMarketplaceItems"
+          v-for="item in displayDeclutterItems"
           :key="item._id"
           :to="`/item/${item._id}`"
           class="group rounded-2xl sm:rounded-3xl bg-white border border-slate-200/90 hover:border-brand-500 hover:shadow-xl hover:shadow-brand-500/10 transition-all duration-300 flex flex-col overflow-hidden relative"
@@ -182,24 +187,12 @@
               class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
               loading="lazy"
             />
-            <!-- Badges Top Left -->
             <div class="absolute top-2 left-2 flex items-center gap-1 flex-wrap">
-              <span
-                v-if="item.tags?.includes('declutter') || item.batchId || activeCategory === 'declutter'"
-                class="px-2 py-0.5 rounded-full text-[9px] sm:text-[10px] font-black bg-brand-600 text-white shadow-xs flex items-center gap-0.5"
-              >
+              <span class="px-2 py-0.5 rounded-full text-[9px] sm:text-[10px] font-black bg-brand-600 text-white shadow-xs flex items-center gap-0.5">
                 <Zap class="w-2.5 h-2.5 fill-current" />
-                <span>Declutter</span>
-              </span>
-              <span
-                v-else
-                class="px-2 py-0.5 rounded-full text-[9px] sm:text-[10px] font-black bg-white/95 text-slate-800 shadow-2xs backdrop-blur-md"
-              >
-                {{ item.condition || (item.type === 'swap' ? 'Swap' : 'Verified') }}
+                <span>1-Click Declutter</span>
               </span>
             </div>
-
-            <!-- Discount or Escrow Badge -->
             <span
               v-if="item.bundleDiscountPercent"
               class="absolute top-2 right-2 px-1.5 py-0.5 rounded-full text-[9px] sm:text-[10px] font-black bg-emerald-600 text-white shadow-xs"
@@ -207,14 +200,13 @@
               {{ item.bundleDiscountPercent }}% Off
             </span>
             <span
-              v-else
               class="absolute bottom-2 right-2 px-1.5 py-0.5 rounded-md text-[8px] sm:text-[9px] font-black bg-slate-900/80 text-white backdrop-blur-md"
             >
               <ShieldCheck class="w-2.5 h-2.5 inline -mt-0.5" /> Escrow
             </span>
           </div>
 
-          <!-- Item Body -->
+          <!-- Body -->
           <div class="p-2.5 sm:p-4 flex-1 flex flex-col justify-between">
             <div>
               <div class="flex items-baseline justify-between gap-1 mb-1">
@@ -227,7 +219,92 @@
                 >
                   {{ naira(Math.round(item.price / (1 - item.bundleDiscountPercent / 100))) }}
                 </span>
-                <span v-else-if="item.originalPrice" class="text-[10px] sm:text-xs text-slate-400 line-through">
+              </div>
+              <h3 class="font-bold text-xs sm:text-sm text-slate-900 group-hover:text-brand-600 transition-colors line-clamp-2 leading-snug">
+                {{ item.title }}
+              </h3>
+            </div>
+
+            <div class="mt-2 sm:mt-3 pt-2 border-t border-slate-100 flex items-center justify-between text-[10px] sm:text-[11px] text-slate-500">
+              <span class="flex items-center gap-1 truncate font-medium">
+                <MapPin class="w-3 h-3 text-slate-400 shrink-0" />
+                <span class="truncate">{{ getPublicLocation(item.location) }}</span>
+              </span>
+              <span class="text-brand-600 font-bold shrink-0 hidden sm:inline">View Deal →</span>
+            </div>
+          </div>
+        </NuxtLink>
+      </div>
+    </section>
+
+    <!-- ── SECTION 2: ITEMS TO BUY (Campus Marketplace Feed - 4 Items Max) ── -->
+    <section id="buy-section" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-3 mb-6">
+        <div>
+          <div class="inline-flex items-center gap-1.5 text-xs font-bold text-brand-600 uppercase tracking-wider mb-1">
+            <ShoppingBag class="w-4 h-4" />
+            <span>Ready to Buy</span>
+          </div>
+          <h2 class="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
+            Items Mapped to Buy
+          </h2>
+          <p class="text-xs sm:text-sm text-slate-500 font-medium">
+            Room essentials and verified student gear listed across campus.
+          </p>
+        </div>
+
+        <NuxtLink
+          to="/explore"
+          class="inline-flex items-center gap-1 text-xs sm:text-sm font-bold text-brand-600 hover:text-brand-700 hover:underline shrink-0"
+        >
+          <span>Browse All Marketplace Items</span>
+          <ArrowRight class="w-4 h-4" />
+        </NuxtLink>
+      </div>
+
+      <!-- Loading State -->
+      <div v-if="loading.items && !displayToBuy.length" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-6">
+        <div v-for="i in 4" :key="i" class="rounded-2xl sm:rounded-3xl bg-white border border-slate-200 p-3 h-64 sm:h-72 animate-pulse" />
+      </div>
+
+      <!-- 4 Items Max: 2 cols on mobile, 4 cols on desktop -->
+      <div v-else class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-6">
+        <NuxtLink
+          v-for="item in displayToBuy"
+          :key="item._id"
+          :to="`/item/${item._id}`"
+          class="group rounded-2xl sm:rounded-3xl bg-white border border-slate-200/90 hover:border-brand-500 hover:shadow-xl hover:shadow-brand-500/10 transition-all duration-300 flex flex-col overflow-hidden relative"
+        >
+          <!-- Image Container -->
+          <div class="aspect-[4/3] bg-slate-100 overflow-hidden relative">
+            <img
+              :src="imageOf(item)"
+              :alt="item.title"
+              class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+              loading="lazy"
+            />
+            <div class="absolute top-2 left-2 flex items-center gap-1 flex-wrap">
+              <span
+                class="px-2 py-0.5 rounded-full text-[9px] sm:text-[10px] font-black bg-white/95 text-slate-800 shadow-2xs backdrop-blur-md"
+              >
+                {{ item.condition || 'Verified' }}
+              </span>
+            </div>
+            <span
+              class="absolute bottom-2 right-2 px-1.5 py-0.5 rounded-md text-[8px] sm:text-[9px] font-black bg-slate-900/80 text-white backdrop-blur-md"
+            >
+              <ShieldCheck class="w-2.5 h-2.5 inline -mt-0.5" /> Escrow
+            </span>
+          </div>
+
+          <!-- Body -->
+          <div class="p-2.5 sm:p-4 flex-1 flex flex-col justify-between">
+            <div>
+              <div class="flex items-baseline justify-between gap-1 mb-1">
+                <span class="text-sm sm:text-lg font-black text-brand-600">
+                  {{ naira(item.price) }}
+                </span>
+                <span v-if="item.originalPrice" class="text-[10px] sm:text-xs text-slate-400 line-through">
                   {{ naira(item.originalPrice) }}
                 </span>
               </div>
@@ -545,7 +622,7 @@
     </section>
 
     <!-- ── SECTION: 1-CLICK CAMPUS ROOM DECLUTTER SYSTEM (MOVED TO BOTTOM) ── -->
-    <section id="declutter-section" class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-16 border-t border-slate-100">
+    <section id="declutter-system" class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-16 border-t border-slate-100">
       <!-- Section Header -->
       <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
         <div>
@@ -1033,19 +1110,19 @@ const getPublicLocation = (loc?: string): string => {
 // substituted: a student must never see an item that nobody is actually selling,
 // because it cannot be opened or bought.
 const displayDeclutterItems = computed(() => {
-  if (declutterItems.value.length > 0) return declutterItems.value.slice(0, 8);
+  if (declutterItems.value.length > 0) return declutterItems.value.slice(0, 4);
   const tagged = toBuy.value.filter(
     (item) => item.tags?.includes('declutter') || item.batchId
   );
-  if (tagged.length > 0) return tagged.slice(0, 8);
-  return toBuy.value.slice(0, 8);
+  if (tagged.length > 0) return tagged.slice(0, 4);
+  return toBuy.value.slice(0, 4);
 });
 
-const displayToBuy = computed(() => toBuy.value.slice(0, 8));
-const displayJustSold = computed(() => justSold.value);
-const displayToSwap = computed(() => toSwap.value.slice(0, 6));
-const displayReels = computed(() => reels.value);
-const displayServices = computed(() => services.value);
+const displayToBuy = computed(() => toBuy.value.slice(0, 4));
+const displayJustSold = computed(() => justSold.value.slice(0, 4));
+const displayToSwap = computed(() => toSwap.value.slice(0, 3));
+const displayReels = computed(() => reels.value.slice(0, 4));
+const displayServices = computed(() => services.value.slice(0, 4));
 
 const displayedMarketplaceItems = computed(() => {
   if (activeCategory.value === 'declutter') {
@@ -1064,7 +1141,7 @@ const displayedMarketplaceItems = computed(() => {
     if (!item?._id || seen.has(item._id)) return false;
     seen.add(item._id);
     return true;
-  }).slice(0, 12);
+  }).slice(0, 4);
 });
 
 const activeTabMeta = computed(() => {
@@ -1110,8 +1187,17 @@ const activeTabMeta = computed(() => {
 
 const selectCategoryTab = (tabId: string) => {
   activeCategory.value = tabId;
-  if (tabId === 'sold') {
+  if (tabId === 'declutter') {
+    const el = document.getElementById('declutter-section');
+    if (el) el.scrollIntoView({ behavior: 'smooth' });
+  } else if (tabId === 'buy') {
+    const el = document.getElementById('buy-section');
+    if (el) el.scrollIntoView({ behavior: 'smooth' });
+  } else if (tabId === 'sold') {
     const el = document.getElementById('sold-section');
+    if (el) el.scrollIntoView({ behavior: 'smooth' });
+  } else if (tabId === 'swap') {
+    const el = document.getElementById('swap-section');
     if (el) el.scrollIntoView({ behavior: 'smooth' });
   } else if (tabId === 'reels') {
     const el = document.getElementById('reels-section');
