@@ -311,6 +311,43 @@
                 </a>
               </div>
 
+              <!-- Call Record Bubble (Saved in Chat Thread for Both Parties) -->
+              <div v-else-if="msg.type === 'call'" class="flex items-center gap-3 py-1">
+                <div
+                  :class="[
+                    isMissedCall(msg.content)
+                      ? 'bg-red-500/15 text-red-500 border border-red-500/20'
+                      : isMine(msg)
+                        ? 'bg-white/20 text-white'
+                        : 'bg-emerald-50 text-emerald-600 border border-emerald-200/60'
+                  ]"
+                  class="w-10 h-10 rounded-full flex items-center justify-center shrink-0"
+                >
+                  <PhoneMissed v-if="isMissedCall(msg.content)" class="w-5 h-5 text-red-500" />
+                  <Video v-else-if="isVideoCall(msg.content)" class="w-5 h-5" />
+                  <Phone v-else class="w-5 h-5" />
+                </div>
+                <div class="flex-1 min-w-0">
+                  <p
+                    class="font-extrabold text-xs sm:text-sm leading-tight flex items-center gap-1.5"
+                    :class="isMissedCall(msg.content) ? (isMine(msg) ? 'text-white' : 'text-red-600') : ''"
+                  >
+                    <span>{{ msg.content }}</span>
+                  </p>
+                  <p class="text-[10px] opacity-75 font-semibold mt-0.5">
+                    {{ isMissedCall(msg.content) ? 'No answer • Tap Call back to retry' : 'Decluttered Escrow Call' }}
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  @click="startCall(isVideoCall(msg.content) ? 'video' : 'voice')"
+                  :class="isMine(msg) ? 'bg-white/20 hover:bg-white/30 text-white border border-white/20' : 'bg-brand-50 hover:bg-brand-100 text-brand-700 border border-brand-200'"
+                  class="text-[11px] font-bold px-3 py-1.5 rounded-full cursor-pointer transition-all active:scale-95 shrink-0 shadow-xs"
+                >
+                  Call back
+                </button>
+              </div>
+
               <div v-else class="whitespace-pre-wrap">{{ msg.content }}</div>
 
             </div>
@@ -560,7 +597,8 @@
 
 <script setup>
 import { useCustomToast } from '@/composables/core/useCustomToast';
-import { ArrowLeft, Send, Paperclip, Mic, X, Reply, Phone, Video, Smile, Loader2, PhoneOff, Camera, RefreshCw, MessageSquare, Plus, ArrowRightLeft, MicOff, ShieldCheck } from 'lucide-vue-next'
+import { ArrowLeft, Send, Paperclip, Mic, X, Reply, Phone, Video, Smile, Loader2, PhoneOff, PhoneMissed, Camera, RefreshCw, MessageSquare, Plus, ArrowRightLeft, MicOff, ShieldCheck } from 'lucide-vue-next'
+import { startRingtone, startRingbackTone, stopRingtone, initAudioUnlock } from '@/composables/core/useSound'
 import { ref, computed, watch, onMounted, onUnmounted, nextTick } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useAuth } from '~/composables/useAuth'
@@ -691,6 +729,41 @@ const remoteVideo = ref(null)
 const localVideo = ref(null)
 const config = { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] }
 
+const callStartTime = ref(null)
+const hasLoggedCall = ref(false)
+const callInitiator = ref(false)
+
+const isMissedCall = (content) => /missed|declined/i.test(content || '')
+const isVideoCall = (content) => /video/i.test(content || '')
+const formatCallDuration = (sec) => {
+  const m = Math.floor(sec / 60)
+  const s = sec % 60
+  return `${m}:${s < 10 ? '0' : ''}${s}`
+}
+
+const recordCallEvent = async (statusOverride) => {
+  if (hasLoggedCall.value || !activeChatId.value) return
+  hasLoggedCall.value = true
+
+  let summary = ''
+  if (statusOverride) {
+    summary = statusOverride
+  } else if (callStartTime.value) {
+    const elapsed = Math.max(1, Math.floor((Date.now() - callStartTime.value) / 1000))
+    summary = `${callType.value === 'video' ? 'Video' : 'Voice'} call • ${formatCallDuration(elapsed)}`
+  } else {
+    summary = `Missed ${callType.value === 'video' ? 'video' : 'voice'} call`
+  }
+
+  try {
+    await sendChatMessage(summary, {
+      type: 'call',
+    })
+  } catch (err) {
+    console.debug('Failed to record call event', err)
+  }
+}
+
 const isRemoteMain = ref(true)
 const isAudioMuted = ref(false)
 
@@ -759,6 +832,7 @@ onMounted(async () => {
 
   connectSocket()
   attachCallListeners()
+  initAudioUnlock()
 
   try {
     await ensureMyUserId()
@@ -783,15 +857,53 @@ onMounted(async () => {
     scrollToBottom()
   }
 
-  // Auto-start call if requested via query parameter
-  if (route.query.call === 'voice' || route.query.call === 'video') {
-    setTimeout(() => {
-      startCall(route.query.call)
-    }, 1000)
+  // Check for pending incoming call answered from GlobalIncomingCallModal
+  const pending = typeof window !== 'undefined' ? window.__PENDING_CALL_OFFER__ : null
+  if (pending && String(pending.chatId) === String(activeChatId.value)) {
+    delete window.__PENDING_CALL_OFFER__
+    callType.value = pending.type
+    activeCall.value = true
+    isRemoteMain.value = true
+    isAudioMuted.value = false
+    callStatus.value = 'Connecting...'
+    callInitiator.value = false
+    hasLoggedCall.value = false
+    
+    try {
+      peerConnection.value = new RTCPeerConnection(config)
+      peerConnection.value.ontrack = (event) => {
+        remoteStream.value = event.streams[0]
+        if (pending.type === 'video') nextTick(() => { if (remoteVideo.value) remoteVideo.value.srcObject = remoteStream.value })
+        else {
+          const audio = new Audio()
+          audio.srcObject = remoteStream.value
+          audio.play()
+        }
+      }
+      peerConnection.value.onicecandidate = (event) => {
+        if (event.candidate && socket.value) {
+          socket.value.emit('call-ice-candidate', { chatId: activeChatId.value, candidate: event.candidate })
+        }
+      }
+      if (pending.offer) {
+        await peerConnection.value.setRemoteDescription(new RTCSessionDescription(pending.offer))
+        await answerCall()
+      }
+    } catch (err) {
+      console.error('Failed to answer pending incoming call', err)
+    }
+  } else if (route.query.call === 'voice' || route.query.call === 'video') {
+    // Auto-start call if requested via query parameter and not auto-answering
+    if (route.query.autoAnswer !== 'true') {
+      setTimeout(() => {
+        startCall(route.query.call)
+      }, 1000)
+    }
   }
 })
 
 onUnmounted(() => {
+  stopRingtone()
   stopCamera()
   if (recordingTimer) clearInterval(recordingTimer)
   if (typingDebounceTimer) clearTimeout(typingDebounceTimer)
@@ -821,6 +933,13 @@ const attachCallListeners = () => {
     isRemoteMain.value = true
     isAudioMuted.value = false
     callStatus.value = 'Incoming Call...'
+    callStartTime.value = null
+    hasLoggedCall.value = false
+    callInitiator.value = false
+
+    // Ring out audibly with melodic chime and vibration
+    startRingtone()
+
     peerConnection.value = new RTCPeerConnection(config)
     
     peerConnection.value.ontrack = (event) => {
@@ -843,8 +962,10 @@ const attachCallListeners = () => {
   })
 
   s.on('call-answer', async (data) => {
+    stopRingtone()
     await peerConnection.value.setRemoteDescription(new RTCSessionDescription(data.answer))
     callStatus.value = 'Connected'
+    callStartTime.value = Date.now()
   })
 
   s.on('call-ice-candidate', async (data) => {
@@ -854,6 +975,10 @@ const attachCallListeners = () => {
   })
 
   s.on('call-end', () => {
+    stopRingtone()
+    if (callInitiator.value && !hasLoggedCall.value) {
+      recordCallEvent()
+    }
     cleanupCall()
   })
 
@@ -1179,11 +1304,18 @@ const startCall = async (type) => {
     showToast({ title: 'Notice', message: 'Still connecting to chat. Please try again in a moment.', toastType: 'error' })
     return
   }
+  initAudioUnlock()
   callType.value = type
   activeCall.value = true
   isRemoteMain.value = true
   isAudioMuted.value = false
   callStatus.value = 'Calling...'
+  callStartTime.value = null
+  hasLoggedCall.value = false
+  callInitiator.value = true
+
+  // Play ringback tone so caller hears phone ringing out
+  startRingbackTone()
   
   try {
     localStream.value = await navigator.mediaDevices.getUserMedia({ video: type === 'video', audio: true })
@@ -1210,14 +1342,21 @@ const startCall = async (type) => {
     
     const offer = await peerConnection.value.createOffer()
     await peerConnection.value.setLocalDescription(offer)
-    socket.value.emit('call-offer', { chatId: activeChatId.value, offer, type })
+    socket.value.emit('call-offer', {
+      chatId: activeChatId.value,
+      offer,
+      type,
+      callerName: activeChat.value ? (otherParticipant(activeChat.value)?.firstName || 'Trader') : 'Trader'
+    })
   } catch (err) {
+    stopRingtone()
     showToast({ title: 'Notice', message: "Camera/Microphone permissions denied.", toastType: "error" })
     cleanupCall()
   }
 }
 
 const answerCall = async () => {
+  stopRingtone()
   callStatus.value = 'Connecting...'
   isRemoteMain.value = true
   isAudioMuted.value = false
@@ -1231,21 +1370,29 @@ const answerCall = async () => {
     await peerConnection.value.setLocalDescription(answer)
     socket.value.emit('call-answer', { chatId: activeChatId.value, answer })
     callStatus.value = 'Connected'
+    callStartTime.value = Date.now()
   } catch (err) {
+    stopRingtone()
     showToast({ title: 'Notice', message: "Camera/Microphone permissions denied.", toastType: "error" })
     endCall()
   }
 }
 
 const endCall = () => {
+  stopRingtone()
   if (socket.value) socket.value.emit('call-end', { chatId: activeChatId.value })
+  if (!hasLoggedCall.value) {
+    recordCallEvent()
+  }
   cleanupCall()
 }
 
 const cleanupCall = () => {
+  stopRingtone()
   activeCall.value = false
   isRemoteMain.value = true
   isAudioMuted.value = false
+  callStartTime.value = null
   if (localStream.value) localStream.value.getTracks().forEach(t => t.stop())
   if (peerConnection.value) peerConnection.value.close()
   localStream.value = null

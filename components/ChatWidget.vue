@@ -124,7 +124,21 @@
                       controls
                       class="h-8 w-full mb-1 custom-audio"
                     />
-                    <p v-if="message.content" class="whitespace-pre-wrap leading-relaxed text-[14px]">
+                    <div v-if="message.type === 'call'" class="flex items-center gap-2.5 py-0.5">
+                      <div
+                        class="w-8 h-8 rounded-full flex items-center justify-center shrink-0"
+                        :class="isMine(message) ? 'bg-white/20 text-white' : 'bg-slate-200 text-slate-700'"
+                      >
+                        <PhoneMissed v-if="/missed|declined/i.test(message.content || '')" class="w-4 h-4 text-red-500" />
+                        <Video v-else-if="/video/i.test(message.content || '')" class="w-4 h-4" />
+                        <Phone v-else class="w-4 h-4" />
+                      </div>
+                      <div>
+                        <p class="font-bold text-xs">{{ message.content }}</p>
+                        <p class="text-[10px] opacity-75">Decluttered call</p>
+                      </div>
+                    </div>
+                    <p v-else-if="message.content" class="whitespace-pre-wrap leading-relaxed text-[14px]">
                       {{ message.content }}
                     </p>
                     <p
@@ -231,7 +245,7 @@
 </template>
 
 <script setup lang="ts">
-import { X, ArrowRight, MessageSquare, Paperclip, ChevronLeft, Loader2 } from 'lucide-vue-next'
+import { X, ArrowRight, MessageSquare, Paperclip, ChevronLeft, Loader2, Phone, PhoneMissed, Video } from 'lucide-vue-next'
 import { onMounted, onUnmounted, ref, computed, watch, nextTick } from 'vue'
 import { useChat } from '@/composables/modules/chat/useChat'
 import type { Chat, ChatMessage } from '@/composables/modules/chat/useChat'
