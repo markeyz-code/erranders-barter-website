@@ -66,7 +66,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, watch, onMounted, onUnmounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { Phone, PhoneOff, Video } from 'lucide-vue-next'
 import { useChat } from '@/composables/modules/chat/useChat'
@@ -93,10 +93,14 @@ const declineCall = () => {
     clearTimeout(ringTimeout)
     ringTimeout = null
   }
-  if (socket.value && incomingCall.value) {
-    socket.value.emit('call-end', { chatId: incomingCall.value.chatId })
-  }
+  const chatId = incomingCall.value?.chatId
   incomingCall.value = null
+  if (typeof window !== 'undefined') {
+    delete (window as any).__PENDING_CALL_OFFER__
+  }
+  if (socket.value && chatId) {
+    socket.value.emit('call-end', { chatId })
+  }
 }
 
 const acceptCall = () => {
@@ -123,17 +127,14 @@ const acceptCall = () => {
   router.push(`/chat?chatId=${callData.chatId}&call=${callData.type}&autoAnswer=true`)
 }
 
-onMounted(() => {
-  // Proactively unlock AudioContext on the first mobile gesture so ringtone rings out
-  initAudioUnlock()
-  connectSocket()
-
-  const s = socket.value
+const attachSocketListeners = (s: any) => {
   if (!s) return
+  s.off('incoming-call')
+  s.off('call-end')
 
   s.on('incoming-call', (data: any) => {
-    // If user is already on chat page in an active call, let chat.vue handle it
-    if (route.path === '/chat' && String(data.chatId) === String(activeChatId.value)) {
+    // If user is already on chat page in active conversation with this chatId, let chat.vue handle it
+    if (route.path === '/chat' && activeChatId.value && String(data?.chatId || '') === String(activeChatId.value)) {
       return
     }
 
@@ -157,16 +158,33 @@ onMounted(() => {
   })
 
   s.on('call-end', (data: any) => {
-    if (incomingCall.value && String(data.chatId) === String(incomingCall.value.chatId)) {
-      stopRingtone()
-      if (ringTimeout) {
-        clearTimeout(ringTimeout)
-        ringTimeout = null
-      }
-      incomingCall.value = null
+    // Unconditionally dismiss modal and silence ringtone on any call-end
+    stopRingtone()
+    if (ringTimeout) {
+      clearTimeout(ringTimeout)
+      ringTimeout = null
+    }
+    incomingCall.value = null
+    if (typeof window !== 'undefined') {
+      delete (window as any).__PENDING_CALL_OFFER__
     }
   })
+}
+
+onMounted(() => {
+  initAudioUnlock()
+  connectSocket()
+  if (socket.value) {
+    attachSocketListeners(socket.value)
+  }
 })
+
+// Watch socket reactively so listeners are guaranteed to attach whenever socket connects/reconnects
+watch(socket, (s) => {
+  if (s) {
+    attachSocketListeners(s)
+  }
+}, { immediate: true })
 
 onUnmounted(() => {
   stopRingtone()

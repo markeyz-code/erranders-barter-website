@@ -187,6 +187,9 @@
 
       </div>
 
+      <!-- Native audio element for bulletproof iOS Safari WebRTC voice call playback -->
+      <audio ref="remoteAudio" autoplay playsinline class="hidden"></audio>
+
     </div>
 
     <!-- Main Chat Workspace (Strict Flex Column: Fixed Header, Scrollable Body, Fixed Footer) -->
@@ -727,6 +730,8 @@ const callStatus = ref('')
 const callType = ref('voice')
 const remoteVideo = ref(null)
 const localVideo = ref(null)
+const remoteAudio = ref(null)
+let callTimeoutTimer = null
 const config = { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] }
 
 const callStartTime = ref(null)
@@ -874,11 +879,12 @@ onMounted(async () => {
       peerConnection.value.ontrack = (event) => {
         remoteStream.value = event.streams[0]
         if (pending.type === 'video') nextTick(() => { if (remoteVideo.value) remoteVideo.value.srcObject = remoteStream.value })
-        else {
-          const audio = new Audio()
-          audio.srcObject = remoteStream.value
-          audio.play()
-        }
+        nextTick(() => {
+          if (remoteAudio.value) {
+            remoteAudio.value.srcObject = remoteStream.value
+            remoteAudio.value.play().catch(() => {})
+          }
+        })
       }
       peerConnection.value.onicecandidate = (event) => {
         if (event.candidate && socket.value) {
@@ -927,6 +933,11 @@ const attachCallListeners = () => {
   const s = socket.value
   if (!s) return
 
+  s.off('call-offer')
+  s.off('call-answer')
+  s.off('call-ice-candidate')
+  s.off('call-end')
+
   s.on('call-offer', async (data) => {
     callType.value = data.type
     activeCall.value = true
@@ -945,11 +956,12 @@ const attachCallListeners = () => {
     peerConnection.value.ontrack = (event) => {
       remoteStream.value = event.streams[0]
       if (data.type === 'video') nextTick(() => { if (remoteVideo.value) remoteVideo.value.srcObject = remoteStream.value })
-      else {
-        const audio = new Audio()
-        audio.srcObject = remoteStream.value
-        audio.play()
-      }
+      nextTick(() => {
+        if (remoteAudio.value) {
+          remoteAudio.value.srcObject = remoteStream.value
+          remoteAudio.value.play().catch(() => {})
+        }
+      })
     }
     
     peerConnection.value.onicecandidate = (event) => {
@@ -962,6 +974,10 @@ const attachCallListeners = () => {
   })
 
   s.on('call-answer', async (data) => {
+    if (callTimeoutTimer) {
+      clearTimeout(callTimeoutTimer)
+      callTimeoutTimer = null
+    }
     stopRingtone()
     await peerConnection.value.setRemoteDescription(new RTCSessionDescription(data.answer))
     callStatus.value = 'Connected'
@@ -975,6 +991,10 @@ const attachCallListeners = () => {
   })
 
   s.on('call-end', () => {
+    if (callTimeoutTimer) {
+      clearTimeout(callTimeoutTimer)
+      callTimeoutTimer = null
+    }
     stopRingtone()
     if (callInitiator.value && !hasLoggedCall.value) {
       recordCallEvent()
@@ -1030,6 +1050,11 @@ const attachCallListeners = () => {
     }
   })
 }
+
+// Watch socket reactively to guarantee call listeners are attached when socket connects
+watch(socket, (s) => {
+  if (s) attachCallListeners()
+}, { immediate: true })
 
 const scrollToBottom = async () => {
   await nextTick()
@@ -1316,6 +1341,15 @@ const startCall = async (type) => {
 
   // Play ringback tone so caller hears phone ringing out
   startRingbackTone()
+
+  // Auto-timeout if call is not answered within 35 seconds
+  if (callTimeoutTimer) clearTimeout(callTimeoutTimer)
+  callTimeoutTimer = setTimeout(() => {
+    if (activeCall.value && (!callStartTime.value || callStatus.value === 'Calling...')) {
+      showToast({ title: 'Call Unanswered', message: 'No answer from trader.', toastType: 'warning' })
+      endCall()
+    }
+  }, 35000)
   
   try {
     localStream.value = await navigator.mediaDevices.getUserMedia({ video: type === 'video', audio: true })
@@ -1327,11 +1361,12 @@ const startCall = async (type) => {
     peerConnection.value.ontrack = (event) => {
       remoteStream.value = event.streams[0]
       if (type === 'video') nextTick(() => { if (remoteVideo.value) remoteVideo.value.srcObject = remoteStream.value })
-      else {
-        const audio = new Audio()
-        audio.srcObject = remoteStream.value
-        audio.play()
-      }
+      nextTick(() => {
+        if (remoteAudio.value) {
+          remoteAudio.value.srcObject = remoteStream.value
+          remoteAudio.value.play().catch(() => {})
+        }
+      })
     }
     
     peerConnection.value.onicecandidate = (event) => {
@@ -1349,6 +1384,10 @@ const startCall = async (type) => {
       callerName: activeChat.value ? (otherParticipant(activeChat.value)?.firstName || 'Trader') : 'Trader'
     })
   } catch (err) {
+    if (callTimeoutTimer) {
+      clearTimeout(callTimeoutTimer)
+      callTimeoutTimer = null
+    }
     stopRingtone()
     showToast({ title: 'Notice', message: "Camera/Microphone permissions denied.", toastType: "error" })
     cleanupCall()
@@ -1356,6 +1395,10 @@ const startCall = async (type) => {
 }
 
 const answerCall = async () => {
+  if (callTimeoutTimer) {
+    clearTimeout(callTimeoutTimer)
+    callTimeoutTimer = null
+  }
   stopRingtone()
   callStatus.value = 'Connecting...'
   isRemoteMain.value = true
@@ -1379,8 +1422,15 @@ const answerCall = async () => {
 }
 
 const endCall = () => {
+  if (callTimeoutTimer) {
+    clearTimeout(callTimeoutTimer)
+    callTimeoutTimer = null
+  }
   stopRingtone()
-  if (socket.value) socket.value.emit('call-end', { chatId: activeChatId.value })
+  const currentChatId = activeChatId.value
+  if (socket.value && currentChatId) {
+    socket.value.emit('call-end', { chatId: currentChatId })
+  }
   if (!hasLoggedCall.value) {
     recordCallEvent()
   }
@@ -1388,16 +1438,29 @@ const endCall = () => {
 }
 
 const cleanupCall = () => {
+  if (callTimeoutTimer) {
+    clearTimeout(callTimeoutTimer)
+    callTimeoutTimer = null
+  }
   stopRingtone()
   activeCall.value = false
+  callStatus.value = ''
   isRemoteMain.value = true
   isAudioMuted.value = false
   callStartTime.value = null
+  if (remoteAudio.value) {
+    try {
+      remoteAudio.value.srcObject = null
+    } catch {}
+  }
   if (localStream.value) localStream.value.getTracks().forEach(t => t.stop())
   if (peerConnection.value) peerConnection.value.close()
   localStream.value = null
   remoteStream.value = null
   peerConnection.value = null
+  if (typeof window !== 'undefined') {
+    delete window.__PENDING_CALL_OFFER__
+  }
 }
 // --- Camera Logic ---
 const showCamera = ref(false)
