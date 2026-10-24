@@ -3,6 +3,9 @@
     <Transition name="call-pop">
       <div
         v-if="incomingCall"
+        @touchstart.passive="handleUserTouchRing"
+        @pointerdown="handleUserTouchRing"
+        @click="handleUserTouchRing"
         class="fixed inset-0 z-[99999999] bg-black/75 backdrop-blur-md flex items-center justify-center p-4 select-none"
       >
         <div class="bg-slate-900 border border-white/15 text-white rounded-3xl max-w-sm w-full p-6 sm:p-8 flex flex-col items-center text-center shadow-2xl relative overflow-hidden">
@@ -36,7 +39,7 @@
             <!-- Decline Call -->
             <button
               type="button"
-              @click="declineCall"
+              @click.stop="declineCall"
               class="flex flex-col items-center gap-2 group cursor-pointer"
             >
               <div class="w-16 h-16 rounded-full bg-red-600 hover:bg-red-700 active:scale-95 text-white flex items-center justify-center shadow-lg shadow-red-600/30 transition-all">
@@ -48,7 +51,7 @@
             <!-- Answer Call -->
             <button
               type="button"
-              @click="acceptCall"
+              @click.stop="acceptCall"
               class="flex flex-col items-center gap-2 group cursor-pointer"
             >
               <div class="w-16 h-16 rounded-full bg-emerald-500 hover:bg-emerald-600 active:scale-95 text-white flex items-center justify-center shadow-lg shadow-emerald-500/40 transition-all animate-bounce">
@@ -87,6 +90,12 @@ const { socket, connectSocket, activeChatId } = useChat()
 const incomingCall = ref<IncomingCallPayload | null>(null)
 let ringTimeout: any = null
 
+const handleUserTouchRing = () => {
+  if (incomingCall.value) {
+    startRingtone()
+  }
+}
+
 const declineCall = () => {
   stopRingtone()
   if (ringTimeout) {
@@ -123,8 +132,8 @@ const acceptCall = () => {
     }
   }
 
-  // Route directly to chat with autoAnswer parameter
-  router.push(`/chat?chatId=${callData.chatId}&call=${callData.type}&autoAnswer=true`)
+  // Route directly to chat with autoAnswer parameter and timestamp for reactivity
+  router.push(`/chat?chatId=${callData.chatId}&call=${callData.type}&autoAnswer=true&ts=${Date.now()}`)
 }
 
 const attachSocketListeners = (s: any) => {

@@ -2,13 +2,16 @@
  * High-reliability audio and ringtone synthesizer with dual-engine architecture:
  * 1. HTML5 Audio with in-memory synthesized WAV blobs (bypasses iOS Safari Web Audio suspension)
  * 2. Web Audio API synthesizer for rich layered harmonics
- * Works 100% offline, zero network requests, zero external MP3 dependencies, and works reliably on iPhone / iOS Safari.
+ * Works 100% offline, zero network requests, zero external MP3 dependencies, and works reliably on iPhone / iOS Safari and Android.
  */
 
 let audioCtx: AudioContext | null = null
 let ringtoneInterval: any = null
 let ringbackInterval: any = null
 let activeOscillators: OscillatorNode[] = []
+
+let ringtoneGainNode: GainNode | null = null
+let ringbackGainNode: GainNode | null = null
 
 let ringAudio: HTMLAudioElement | null = null
 let ringbackAudio: HTMLAudioElement | null = null
@@ -152,85 +155,7 @@ const ensureAudioElements = () => {
   }
 }
 
-/**
- * Unlocks iOS Safari and mobile browser audio restrictions on the first touch/click.
- * Once HTML5 audio elements are played inside a user gesture, iOS Safari permanently
- * permits unprompted audio playback from WebSocket events.
- */
-export const initAudioUnlock = () => {
-  if (typeof window === 'undefined') return
-  if (isUnlocked) return
-  ensureAudioElements()
-
-  /**
-   * Bless the audio elements inside a user gesture so iOS Safari permits later playback
-   * from a WebSocket event.
-   *
-   * It used to call play() on the ringtone, ringback and notification elements at their
-   * normal volume, on touchstart, touchend *and* click, with the listeners never removed.
-   * That meant every tap on the site played three sounds — the "noise on load" people
-   * heard was the first click after a refresh.
-   *
-   * Now the elements are played muted once, and the listeners are removed afterwards.
-   */
-  const silentPlay = (el: HTMLAudioElement | null) => {
-    if (!el) return
-    const previousVolume = el.volume
-    const restore = () => {
-      el.muted = false
-      el.volume = previousVolume || 1
-    }
-    try {
-      el.muted = true
-      el.volume = 0
-      el.currentTime = 0
-      el.play()
-        .then(() => {
-          el.pause()
-          el.currentTime = 0
-          restore()
-        })
-        .catch(restore)
-    } catch {
-      restore()
-    } finally {
-      // Belt and braces: whatever happens to that promise, the element must not stay
-      // muted, or the ringtone is silent for the rest of the session.
-      window.setTimeout(restore, 400)
-    }
-  }
-
-  const unlock = () => {
-    try {
-      const ctx = getAudioContext()
-      if (ctx && ctx.state === 'suspended') void ctx.resume()
-    } catch {}
-
-    // Never touch the elements that are legitimately playing.
-    if (!isRingtoneActive && !isRingbackActive) {
-      silentPlay(ringAudio)
-      silentPlay(ringbackAudio)
-    }
-    silentPlay(notificationAudio)
-
-    isUnlocked = true
-    removeListeners()
-  }
-
-  const removeListeners = () => {
-    window.removeEventListener('touchstart', unlock)
-    window.removeEventListener('touchend', unlock)
-    window.removeEventListener('pointerdown', unlock)
-    window.removeEventListener('click', unlock)
-  }
-
-  window.addEventListener('touchstart', unlock, { passive: true })
-  window.addEventListener('touchend', unlock, { passive: true })
-  window.addEventListener('pointerdown', unlock, { passive: true })
-  window.addEventListener('click', unlock, { passive: true })
-}
-
-const getAudioContext = (): AudioContext | null => {
+export const getAudioContext = (): AudioContext | null => {
   if (typeof window === 'undefined') return null
   try {
     if (!audioCtx) {
@@ -239,9 +164,6 @@ const getAudioContext = (): AudioContext | null => {
         audioCtx = new AudioCtx()
       }
     }
-    if (audioCtx && audioCtx.state === 'suspended') {
-      void audioCtx.resume()
-    }
     return audioCtx
   } catch (e) {
     return null
@@ -249,7 +171,64 @@ const getAudioContext = (): AudioContext | null => {
 }
 
 /**
- * Plays a modern notification chime (works on iPhone and desktop).
+ * Unlocks iOS Safari and mobile browser audio restrictions on touch/click.
+ * Uses an inaudible 1-sample buffer on Web Audio API + momentary unmuted touch on audio elements.
+ */
+export const initAudioUnlock = () => {
+  if (typeof window === 'undefined') return
+  ensureAudioElements()
+
+  const unlockContext = () => {
+    try {
+      const ctx = getAudioContext()
+      if (ctx) {
+        if (ctx.state === 'suspended') {
+          void ctx.resume()
+        }
+        // Play silent 1-sample buffer to satisfy iOS WebKit gesture requirement
+        const buffer = ctx.createBuffer(1, 1, 22050)
+        const source = ctx.createBufferSource()
+        source.buffer = buffer
+        source.connect(ctx.destination)
+        source.start(0)
+      }
+    } catch {}
+
+    // Momentary inaudible unmuted playback unlocks HTML5 Audio on Safari without staying muted
+    if (!isUnlocked) {
+      const prime = (el: HTMLAudioElement | null) => {
+        if (!el) return
+        try {
+          el.muted = false
+          el.volume = 0.001
+          const p = el.play()
+          if (p !== undefined) {
+            p.then(() => {
+              el.pause()
+              el.currentTime = 0
+              el.volume = 1
+            }).catch(() => {})
+          }
+        } catch {}
+      }
+      if (!isRingtoneActive && !isRingbackActive) {
+        prime(ringAudio)
+        prime(ringbackAudio)
+      }
+      prime(notificationAudio)
+      isUnlocked = true
+    }
+  }
+
+  window.addEventListener('touchstart', unlockContext, { passive: true })
+  window.addEventListener('touchend', unlockContext, { passive: true })
+  window.addEventListener('pointerdown', unlockContext, { passive: true })
+  window.addEventListener('click', unlockContext, { passive: true })
+  window.addEventListener('keydown', unlockContext, { passive: true })
+}
+
+/**
+ * Plays a modern notification chime (works on iPhone, Android, and desktop).
  */
 export const playNotificationSound = () => {
   if (typeof window === 'undefined') return
@@ -266,7 +245,8 @@ export const playNotificationSound = () => {
   // 2. Play Web Audio API synthesized layer
   try {
     const ctx = getAudioContext()
-    if (ctx && ctx.state !== 'suspended') {
+    if (ctx) {
+      if (ctx.state === 'suspended') void ctx.resume()
       const now = ctx.currentTime
 
       const osc1 = ctx.createOscillator()
@@ -303,7 +283,7 @@ export const playNotificationSound = () => {
 
 /**
  * Starts continuous looping ringtone for incoming calls.
- * Works on iPhone / iOS Safari via pre-blessed HTML5 audio and Web Audio synthesis.
+ * Works on iPhone / iOS Safari & Android via dual HTML5 audio and Web Audio synthesis.
  */
 export const startRingtone = () => {
   if (typeof window === 'undefined') return
@@ -315,15 +295,13 @@ export const startRingtone = () => {
   if (ringAudio) {
     try {
       ringAudio.loop = true
-      // A silent element is indistinguishable from a broken feature, so never inherit
-      // whatever mute state an earlier unlock attempt left behind.
       ringAudio.muted = false
       ringAudio.volume = 1
       ringAudio.currentTime = 0
       const promise = ringAudio.play()
       if (promise !== undefined) {
         promise.catch((err) => {
-          console.debug('ringAudio play caught, will unlock on first tap', err)
+          console.debug('ringAudio autoplay held pending user tap', err)
         })
       }
     } catch (e) {}
@@ -331,10 +309,18 @@ export const startRingtone = () => {
 
   // 2. Layered Web Audio Synthesis Engine
   const playWebAudioCycle = () => {
+    if (!isRingtoneActive) return
     try {
       const ctx = getAudioContext()
       if (!ctx) return
       if (ctx.state === 'suspended') void ctx.resume()
+
+      if (!ringtoneGainNode) {
+        ringtoneGainNode = ctx.createGain()
+        ringtoneGainNode.gain.setValueAtTime(0.35, ctx.currentTime)
+        ringtoneGainNode.connect(ctx.destination)
+      }
+
       const now = ctx.currentTime
       const notes = [659.25, 830.61, 987.77, 1318.51]
 
@@ -346,7 +332,7 @@ export const startRingtone = () => {
         gain.gain.setValueAtTime(0.35, now + idx * 0.14)
         gain.gain.exponentialRampToValueAtTime(0.0001, now + idx * 0.14 + 0.3)
         osc.connect(gain)
-        gain.connect(ctx.destination)
+        if (ringtoneGainNode) gain.connect(ringtoneGainNode)
         osc.start(now + idx * 0.14)
         osc.stop(now + idx * 0.14 + 0.3)
         activeOscillators.push(osc)
@@ -360,7 +346,7 @@ export const startRingtone = () => {
         gain.gain.setValueAtTime(0.35, now + 0.7 + idx * 0.12)
         gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.7 + idx * 0.12 + 0.28)
         osc.connect(gain)
-        gain.connect(ctx.destination)
+        if (ringtoneGainNode) gain.connect(ringtoneGainNode)
         osc.start(now + 0.7 + idx * 0.12)
         osc.stop(now + 0.7 + idx * 0.12 + 0.28)
         activeOscillators.push(osc)
@@ -390,6 +376,7 @@ export const startRingtone = () => {
 
 /**
  * Starts continuous ringback tone for caller while calling out.
+ * Aggressively resumes audio and plays harmonic 440Hz+480Hz dial ring with HTML5 Audio backup.
  */
 export const startRingbackTone = () => {
   if (typeof window === 'undefined') return
@@ -404,33 +391,47 @@ export const startRingbackTone = () => {
       ringbackAudio.muted = false
       ringbackAudio.volume = 1
       ringbackAudio.currentTime = 0
-      ringbackAudio.play().catch(() => {})
+      const promise = ringbackAudio.play()
+      if (promise !== undefined) {
+        promise.catch((err) => {
+          console.debug('ringbackAudio play caught', err)
+        })
+      }
     } catch {}
   }
 
-  // 2. Layered Web Audio Synthesis
+  // 2. Layered Web Audio Synthesis with instant master gain control
   const playWebAudioRingback = () => {
+    if (!isRingbackActive) return
     try {
       const ctx = getAudioContext()
-      if (!ctx || ctx.state === 'suspended') return
-      const now = ctx.currentTime
+      if (!ctx) return
+      if (ctx.state === 'suspended') void ctx.resume()
 
+      if (!ringbackGainNode) {
+        ringbackGainNode = ctx.createGain()
+        ringbackGainNode.gain.setValueAtTime(0.22, ctx.currentTime)
+        ringbackGainNode.connect(ctx.destination)
+      }
+
+      const now = ctx.currentTime
       const osc1 = ctx.createOscillator()
       const osc2 = ctx.createOscillator()
-      const gain = ctx.createGain()
+      const pulseGain = ctx.createGain()
 
       osc1.type = 'sine'
       osc1.frequency.setValueAtTime(440, now)
       osc2.type = 'sine'
       osc2.frequency.setValueAtTime(480, now)
 
-      gain.gain.setValueAtTime(0.12, now)
-      gain.gain.setValueAtTime(0.12, now + 1.2)
-      gain.gain.exponentialRampToValueAtTime(0.0001, now + 1.25)
+      pulseGain.gain.setValueAtTime(0.001, now)
+      pulseGain.gain.exponentialRampToValueAtTime(0.18, now + 0.05)
+      pulseGain.gain.setValueAtTime(0.18, now + 1.15)
+      pulseGain.gain.exponentialRampToValueAtTime(0.0001, now + 1.25)
 
-      osc1.connect(gain)
-      osc2.connect(gain)
-      gain.connect(ctx.destination)
+      osc1.connect(pulseGain)
+      osc2.connect(pulseGain)
+      if (ringbackGainNode) pulseGain.connect(ringbackGainNode)
 
       osc1.start(now)
       osc2.start(now)
@@ -446,31 +447,50 @@ export const startRingbackTone = () => {
     if (isRingbackActive) {
       playWebAudioRingback()
     }
-  }, 3000)
+  }, 3200)
 }
 
 /**
- * Stops all active ringtones and vibrations immediately.
+ * Stops all active ringtones, ringback tones, and vibrations immediately.
+ * Bulletproof: cuts master gain nodes in 0ms, stops HTML5 audio, cancels intervals.
  */
 export const stopRingtone = () => {
   isRingtoneActive = false
   isRingbackActive = false
 
-  // 1. Stop HTML5 Audio Elements
+  // 1. Immediately mute and disconnect master gains for 0ms cutoff
+  if (ringtoneGainNode) {
+    try {
+      ringtoneGainNode.gain.setValueAtTime(0, audioCtx ? audioCtx.currentTime : 0)
+      ringtoneGainNode.disconnect()
+    } catch {}
+    ringtoneGainNode = null
+  }
+  if (ringbackGainNode) {
+    try {
+      ringbackGainNode.gain.setValueAtTime(0, audioCtx ? audioCtx.currentTime : 0)
+      ringbackGainNode.disconnect()
+    } catch {}
+    ringbackGainNode = null
+  }
+
+  // 2. Stop HTML5 Audio Elements
   if (ringAudio) {
     try {
+      ringAudio.loop = false
       ringAudio.pause()
       ringAudio.currentTime = 0
     } catch {}
   }
   if (ringbackAudio) {
     try {
+      ringbackAudio.loop = false
       ringbackAudio.pause()
       ringbackAudio.currentTime = 0
     } catch {}
   }
 
-  // 2. Stop Web Audio Intervals & Oscillators
+  // 3. Stop Web Audio Intervals & Oscillators
   if (ringtoneInterval) {
     clearInterval(ringtoneInterval)
     ringtoneInterval = null
@@ -487,10 +507,15 @@ export const stopRingtone = () => {
   })
   activeOscillators = []
 
-  // 3. Stop Vibration
+  // 4. Stop Vibration
   if (typeof navigator !== 'undefined' && 'vibrate' in navigator) {
     try {
       navigator.vibrate(0)
     } catch {}
   }
 }
+
+/**
+ * Alias for stopRingtone to guarantee caller audio always stops when call connects.
+ */
+export const stopRingbackTone = stopRingtone
