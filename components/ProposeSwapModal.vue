@@ -50,22 +50,23 @@
         <div class="mb-6">
           <div class="flex items-center justify-between mb-2.5">
             <label class="block text-sm font-black text-slate-900">
-              1. {{ offerMode === 'upload' ? 'Upload the item you want to swap with:' : 'Select an item from your inventory:' }}
+              1. {{ offerMode === 'upload' ? 'List the item you want to swap with:' : 'Select an item from your inventory:' }}
             </label>
-            <!-- Toggle if user has inventory items -->
-            <div v-if="myItems.length > 0" class="flex items-center gap-1 bg-slate-100 p-0.5 rounded-xl border border-slate-200">
+            <!-- Toggle between Upload & Inventory -->
+            <div class="flex items-center gap-1 bg-slate-100 p-0.5 rounded-xl border border-slate-200">
               <button
                 type="button"
                 @click="offerMode = 'upload'"
-                class="px-2.5 py-1 text-[11px] font-black rounded-lg transition-all"
+                class="px-2.5 py-1 text-[11px] font-black rounded-lg transition-all flex items-center gap-1 cursor-pointer"
                 :class="offerMode === 'upload' ? 'bg-white text-brand-600 shadow-xs' : 'text-slate-500 hover:text-slate-800'"
               >
-                Upload Item
+                <Plus class="w-3 h-3" /> List Item to Swap
               </button>
               <button
+                v-if="myItems.length > 0"
                 type="button"
                 @click="offerMode = 'inventory'"
-                class="px-2.5 py-1 text-[11px] font-black rounded-lg transition-all"
+                class="px-2.5 py-1 text-[11px] font-black rounded-lg transition-all cursor-pointer"
                 :class="offerMode === 'inventory' ? 'bg-white text-brand-600 shadow-xs' : 'text-slate-500 hover:text-slate-800'"
               >
                 My Inventory ({{ myItems.length }})
@@ -73,13 +74,22 @@
             </div>
           </div>
 
-          <!-- Section A: Upload the Item You Want to Swap With (Direct In-Modal Upload) -->
+          <!-- Section A: List the Item You Want to Swap (In-Modal Form) -->
           <div v-if="offerMode === 'upload'" class="space-y-4 bg-slate-50/80 border border-slate-200 rounded-2xl p-4 sm:p-5">
-            <div class="flex items-center justify-between pb-1 border-b border-slate-200/60">
-              <p class="text-xs text-slate-600 font-medium">
-                Enter your item details and photo to send this swap proposal directly to the trader.
-              </p>
+            <div class="flex items-center justify-between pb-2 border-b border-slate-200/70">
+              <div class="flex items-center gap-2">
+                <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                <span class="text-xs font-black text-slate-900 uppercase tracking-wide">
+                  List Item to Swap
+                </span>
+              </div>
+              <span class="text-[10px] font-black uppercase text-emerald-700 bg-emerald-50 border border-emerald-200 px-2.5 py-0.5 rounded-full shrink-0">
+                Swap Listing Only (Not for Sale)
+              </span>
             </div>
+            <p class="text-xs text-slate-600 font-medium -mt-1">
+              Enter your item details below. This will list it for swap and immediately submit your offer to {{ targetItem?.sellerId?.firstName || 'the trader' }} — no need to leave this page!
+            </p>
 
             <!-- Item Title -->
             <div>
@@ -177,12 +187,33 @@
             </div>
           </div>
 
-          <!-- Section B: Choose From My Inventory (If user has items) -->
+          <!-- Section B: Choose From My Inventory -->
           <div v-else class="space-y-3">
             <div v-if="loadingItems" class="py-8 flex justify-center">
               <Loader2 class="w-8 h-8 text-brand-500 animate-spin" />
             </div>
 
+            <!-- Empty Inventory State with Direct Button to List Item to Swap -->
+            <div v-else-if="myItems.length === 0" class="bg-slate-50 border border-slate-200 rounded-2xl p-6 text-center space-y-3">
+              <div class="w-12 h-12 bg-amber-50 text-amber-600 rounded-full flex items-center justify-center mx-auto border border-amber-200">
+                <Repeat class="w-6 h-6" />
+              </div>
+              <div>
+                <h4 class="text-sm font-black text-slate-900">You don't have any items listed yet</h4>
+                <p class="text-xs text-slate-500 font-medium mt-1 max-w-sm mx-auto">
+                  No need to leave this page! Click the button below to list the item you want to swap right here (for swap only, not for sale).
+                </p>
+              </div>
+              <button
+                type="button"
+                @click="offerMode = 'upload'"
+                class="inline-flex items-center gap-2 px-5 py-2.5 bg-brand-600 hover:bg-brand-700 text-white font-black text-xs rounded-xl shadow-md transition-all active:scale-95 cursor-pointer"
+              >
+                <Plus class="w-4 h-4" /> List Item to Swap
+              </button>
+            </div>
+
+            <!-- Inventory Grid -->
             <div v-else class="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-60 overflow-y-auto pr-2">
               <div 
                 v-for="myItem in myItems" 
@@ -282,11 +313,11 @@
         <button 
           @click="submitOffer" 
           :disabled="!canSubmit || submitting"
-          class="bg-brand-600 text-white font-black px-8 py-3 rounded-xl hover:bg-brand-700 transition-colors flex items-center gap-2 disabled:opacity-50 cursor-pointer"
+          class="bg-brand-600 text-white font-black px-8 py-3 rounded-xl hover:bg-brand-700 transition-colors flex items-center gap-2 disabled:opacity-50 cursor-pointer shadow-md shadow-brand-600/20"
         >
           <Loader2 v-if="submitting" class="w-5 h-5 animate-spin" />
           <Repeat v-else class="w-5 h-5" />
-          {{ submitting ? 'Sending Offer...' : 'Send Official Offer' }}
+          {{ submitting ? 'Submitting Swap Offer...' : (offerMode === 'upload' ? 'List Item & Send Swap Offer' : 'Send Official Offer') }}
         </button>
       </div>
 
@@ -296,7 +327,7 @@
 
 <script setup>
 import { useCustomToast } from '@/composables/core/useCustomToast';
-import { X, Check, Repeat, Loader2, ArrowRightLeft, ThumbsUp, AlertTriangle, Sparkles, MapPin, User as UserIcon, ShieldCheck, Upload } from 'lucide-vue-next'
+import { X, Check, Repeat, Loader2, ArrowRightLeft, ThumbsUp, AlertTriangle, Sparkles, MapPin, User as UserIcon, ShieldCheck, Upload, Plus } from 'lucide-vue-next'
 import CustomSelect from '~/components/CustomSelect.vue'
 import { ref, watch, computed } from 'vue'
 import { itemsApi, offersApi } from '~/composables/useApi'
