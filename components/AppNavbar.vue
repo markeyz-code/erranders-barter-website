@@ -204,126 +204,282 @@
         </button>
       </div>
 
-      <!-- Mobile Menu Dropdown -->
-      <Transition
-        enter-active-class="transition duration-200 ease-out"
-        enter-from-class="transform scale-95 opacity-0"
-        enter-to-class="transform scale-100 opacity-100"
-        leave-active-class="transition duration-75 ease-in"
-        leave-from-class="transform scale-100 opacity-100"
-        leave-to-class="transform scale-95 opacity-0"
-      >
-        <div v-if="isMobileMenuOpen" class="absolute top-[120%] left-0 w-full bg-white border border-slate-200 rounded-2xl overflow-hidden md:hidden flex flex-col p-2.5 gap-1 pointer-events-auto shadow-2xl">
-          <NuxtLink
-            to="/explore"
-            @click="isMobileMenuOpen = false"
-            class="px-3.5 py-2.5 text-sm rounded-xl transition-all flex items-center justify-between"
-            :class="isRouteActive('/explore')
-              ? 'bg-[#FF5C1A]/10 text-[#FF5C1A] font-black border border-[#FF5C1A]/25 shadow-xs'
-              : 'font-bold text-slate-700 hover:bg-slate-50 hover:text-slate-900 border border-transparent'"
+      <!-- Mobile Menu Full-Screen Overlay -->
+      <Teleport to="body">
+        <Transition
+          enter-active-class="transition duration-300 ease-out"
+          enter-from-class="opacity-0 translate-y-2 scale-98"
+          enter-to-class="opacity-100 translate-y-0 scale-100"
+          leave-active-class="transition duration-200 ease-in"
+          leave-from-class="opacity-100 translate-y-0 scale-100"
+          leave-to-class="opacity-0 translate-y-2 scale-98"
+        >
+          <div
+            v-if="isMobileMenuOpen"
+            class="fixed inset-0 z-[9999] bg-white flex flex-col md:hidden overflow-y-auto selection:bg-[#FF5C1A] selection:text-white"
           >
-            <span>Buy Items</span>
-            <span v-if="isRouteActive('/explore')" class="w-2 h-2 rounded-full bg-[#FF5C1A] shrink-0"></span>
-          </NuxtLink>
+            <!-- Top Sticky Bar: Brand & Close -->
+            <div class="px-5 py-4 border-b border-slate-100 flex items-center justify-between sticky top-0 bg-white/95 backdrop-blur-md z-20 shrink-0">
+              <a href="/" @click="isMobileMenuOpen = false" class="flex items-center gap-2.5">
+                <img src="/android-chrome-192x192.png" alt="Decluttered" class="h-8 w-8 rounded-xl object-contain shadow-xs" />
+                <span class="font-black text-slate-900 tracking-tight text-xl">
+                  Decluttered<span class="text-[#FF5C1A]">.</span>
+                </span>
+              </a>
 
-          <NuxtLink
-            to="/swap"
-            @click="isMobileMenuOpen = false"
-            class="px-3.5 py-2.5 text-sm rounded-xl transition-all flex items-center justify-between"
-            :class="isRouteActive('/swap')
-              ? 'bg-[#FF5C1A]/10 text-[#FF5C1A] font-black border border-[#FF5C1A]/25 shadow-xs'
-              : 'font-bold text-slate-700 hover:bg-slate-50 hover:text-slate-900 border border-transparent'"
-          >
-            <span>Swap Items</span>
-            <span v-if="isRouteActive('/swap')" class="w-2 h-2 rounded-full bg-[#FF5C1A] shrink-0"></span>
-          </NuxtLink>
-
-          <NuxtLink
-            to="/services"
-            @click="isMobileMenuOpen = false"
-            class="px-3.5 py-2.5 text-sm rounded-xl transition-all flex items-center justify-between"
-            :class="isRouteActive('/services')
-              ? 'bg-[#FF5C1A]/10 text-[#FF5C1A] font-black border border-[#FF5C1A]/25 shadow-xs'
-              : 'font-bold text-slate-700 hover:bg-slate-50 hover:text-slate-900 border border-transparent'"
-          >
-            <span>Book a Service</span>
-            <span v-if="isRouteActive('/services')" class="w-2 h-2 rounded-full bg-[#FF5C1A] shrink-0"></span>
-          </NuxtLink>
-
-          <NuxtLink
-            to="/reels"
-            @click="isMobileMenuOpen = false"
-            class="px-3.5 py-2.5 text-sm rounded-xl transition-all flex items-center justify-between"
-            :class="isRouteActive('/reels')
-              ? 'bg-[#FF5C1A]/10 text-[#FF5C1A] font-black border border-[#FF5C1A]/25 shadow-xs'
-              : 'font-bold text-slate-700 hover:bg-slate-50 border border-transparent'"
-          >
-            <span class="flex items-center gap-2">📱 Campus Reels</span>
-            <div class="flex items-center gap-1.5">
-              <span class="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse"></span>
-              <span v-if="isRouteActive('/reels')" class="w-2 h-2 rounded-full bg-[#FF5C1A] shrink-0"></span>
+              <button
+                type="button"
+                @click="isMobileMenuOpen = false"
+                class="w-10 h-10 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-700 flex items-center justify-center transition-colors shadow-2xs"
+                title="Close navigation"
+              >
+                <X class="w-5 h-5" />
+              </button>
             </div>
-          </NuxtLink>
 
-          <a
-            :href="businessPlatformUrl"
-            @click="isMobileMenuOpen = false"
-            class="px-3.5 py-2.5 text-sm font-bold text-slate-700 hover:bg-slate-50 border border-transparent rounded-xl transition-all flex items-center justify-between"
-          >
-            <span>Businesses</span>
-            <ArrowUpRight class="w-4 h-4" />
-          </a>
-          
-          <div class="h-px bg-slate-100 my-1.5 mx-2"></div>
-          
-          <template v-if="!user">
-            <NuxtLink
-              to="/login"
-              @click="isMobileMenuOpen = false"
-              class="px-4 py-2.5 text-sm font-bold text-slate-700 hover:bg-slate-50 rounded-xl transition-all flex items-center justify-between"
-            >
-              <span>Log In</span>
-            </NuxtLink>
-            <NuxtLink
-              to="/sell"
-              @click="isMobileMenuOpen = false"
-              class="px-4 py-3 text-sm font-bold text-white bg-slate-900 rounded-xl text-center mt-1 hover:bg-[#FF5C1A] transition-colors shadow-sm"
-            >
-              Start Trading
-            </NuxtLink>
-          </template>
-          <template v-else>
-            <NuxtLink
-              to="/messages"
-              @click="isMobileMenuOpen = false"
-              class="px-4 py-2.5 text-sm font-bold text-slate-700 hover:bg-slate-50 rounded-xl transition-all flex items-center justify-between"
-            >
-              <div class="flex items-center gap-2.5">
-                <MessageCircle class="w-4 h-4 text-slate-600" />
-                <span>Messages</span>
+            <div class="p-5 space-y-6 flex-1 pb-16">
+              <!-- ── Primary Action & Upload Center ── -->
+              <div>
+                <div class="flex items-center justify-between mb-3">
+                  <span class="text-xs font-black uppercase tracking-wider text-slate-400">Upload & Action Center</span>
+                  <span class="text-[10px] font-bold text-[#FF5C1A] bg-orange-50 px-2 py-0.5 rounded-full border border-orange-200/60">
+                    Instant Escrow 🛡️
+                  </span>
+                </div>
+
+                <div class="grid grid-cols-1 gap-2.5">
+                  <!-- 1. Upload to Sell -->
+                  <NuxtLink
+                    to="/sell"
+                    @click="isMobileMenuOpen = false"
+                    class="group p-3.5 rounded-2xl bg-gradient-to-r from-orange-500/10 via-orange-500/5 to-transparent border border-orange-200/80 hover:border-orange-400 transition-all flex items-center justify-between shadow-2xs active:scale-[0.98]"
+                  >
+                    <div class="flex items-center gap-3">
+                      <div class="w-11 h-11 rounded-2xl bg-[#FF5C1A] text-white flex items-center justify-center shadow-md shadow-[#FF5C1A]/25 shrink-0">
+                        <Tag class="w-5 h-5" />
+                      </div>
+                      <div>
+                        <div class="flex items-center gap-2">
+                          <h4 class="font-black text-sm text-slate-900">Upload Something to Sell</h4>
+                          <span class="text-[9px] font-black uppercase bg-[#FF5C1A] text-white px-1.5 py-0.2 rounded-full">Cash Out</span>
+                        </div>
+                        <p class="text-xs text-slate-500 font-medium mt-0.5">Mattress, fridge, fan, gadgets, books</p>
+                      </div>
+                    </div>
+                    <ChevronRight class="w-4 h-4 text-slate-400 group-hover:text-[#FF5C1A] transition-colors" />
+                  </NuxtLink>
+
+                  <!-- 2. Upload to Swap -->
+                  <NuxtLink
+                    to="/sell?type=swap"
+                    @click="isMobileMenuOpen = false"
+                    class="group p-3.5 rounded-2xl bg-gradient-to-r from-purple-500/10 via-purple-500/5 to-transparent border border-purple-200/80 hover:border-purple-400 transition-all flex items-center justify-between shadow-2xs active:scale-[0.98]"
+                  >
+                    <div class="flex items-center gap-3">
+                      <div class="w-11 h-11 rounded-2xl bg-purple-600 text-white flex items-center justify-center shadow-md shadow-purple-600/25 shrink-0">
+                        <ArrowRightLeft class="w-5 h-5" />
+                      </div>
+                      <div>
+                        <div class="flex items-center gap-2">
+                          <h4 class="font-black text-sm text-slate-900">Upload Something to Swap</h4>
+                          <span class="text-[9px] font-black uppercase bg-purple-100 text-purple-700 px-1.5 py-0.2 rounded-full">Zero Cash</span>
+                        </div>
+                        <p class="text-xs text-slate-500 font-medium mt-0.5">Exchange essentials with verified students</p>
+                      </div>
+                    </div>
+                    <ChevronRight class="w-4 h-4 text-slate-400 group-hover:text-purple-600 transition-colors" />
+                  </NuxtLink>
+
+                  <!-- 3. Offer a Service -->
+                  <NuxtLink
+                    to="/become-a-provider"
+                    @click="isMobileMenuOpen = false"
+                    class="group p-3.5 rounded-2xl bg-gradient-to-r from-emerald-500/10 via-emerald-500/5 to-transparent border border-emerald-200/80 hover:border-emerald-400 transition-all flex items-center justify-between shadow-2xs active:scale-[0.98]"
+                  >
+                    <div class="flex items-center gap-3">
+                      <div class="w-11 h-11 rounded-2xl bg-emerald-600 text-white flex items-center justify-center shadow-md shadow-emerald-600/25 shrink-0">
+                        <Wrench class="w-5 h-5" />
+                      </div>
+                      <div>
+                        <div class="flex items-center gap-2">
+                          <h4 class="font-black text-sm text-slate-900">Upload a Service You Offer</h4>
+                          <span class="text-[9px] font-black uppercase bg-emerald-100 text-emerald-700 px-1.5 py-0.2 rounded-full">Campus Pro</span>
+                        </div>
+                        <p class="text-xs text-slate-500 font-medium mt-0.5">Hostel mover, electrician, tech repair, tutor</p>
+                      </div>
+                    </div>
+                    <ChevronRight class="w-4 h-4 text-slate-400 group-hover:text-emerald-600 transition-colors" />
+                  </NuxtLink>
+
+                  <!-- 4. 1-Click Room Declutter -->
+                  <NuxtLink
+                    to="/declutter"
+                    @click="isMobileMenuOpen = false"
+                    class="group p-3.5 rounded-2xl bg-gradient-to-r from-slate-900/10 via-slate-900/5 to-transparent border border-slate-300 hover:border-slate-800 transition-all flex items-center justify-between shadow-2xs active:scale-[0.98]"
+                  >
+                    <div class="flex items-center gap-3">
+                      <div class="w-11 h-11 rounded-2xl bg-slate-900 text-white flex items-center justify-center shadow-md shadow-slate-900/25 shrink-0">
+                        <Zap class="w-5 h-5 text-brand-400 fill-current" />
+                      </div>
+                      <div>
+                        <div class="flex items-center gap-2">
+                          <h4 class="font-black text-sm text-slate-900">1-Click Room Declutter</h4>
+                          <span class="text-[9px] font-black uppercase bg-amber-100 text-amber-800 px-1.5 py-0.2 rounded-full">Room Box</span>
+                        </div>
+                        <p class="text-xs text-slate-500 font-medium mt-0.5">Clear out all your room items at once</p>
+                      </div>
+                    </div>
+                    <ChevronRight class="w-4 h-4 text-slate-400 group-hover:text-slate-900 transition-colors" />
+                  </NuxtLink>
+
+                  <!-- 5. Join Erranders -->
+                  <a
+                    href="https://erranders.org"
+                    target="_blank"
+                    rel="noopener"
+                    @click="isMobileMenuOpen = false"
+                    class="group p-3.5 rounded-2xl bg-gradient-to-r from-blue-500/10 via-blue-500/5 to-transparent border border-blue-200/80 hover:border-blue-400 transition-all flex items-center justify-between shadow-2xs active:scale-[0.98]"
+                  >
+                    <div class="flex items-center gap-3">
+                      <div class="w-11 h-11 rounded-2xl bg-blue-600 text-white flex items-center justify-center shadow-md shadow-blue-600/25 shrink-0">
+                        <Compass class="w-5 h-5" />
+                      </div>
+                      <div>
+                        <div class="flex items-center gap-2">
+                          <h4 class="font-black text-sm text-slate-900">Join the Erranders Community</h4>
+                          <span class="text-[9px] font-black uppercase bg-blue-100 text-blue-700 px-1.5 py-0.2 rounded-full">Run & Earn</span>
+                        </div>
+                        <p class="text-xs text-slate-500 font-medium mt-0.5">Become a runner, deliver errands & earn daily income</p>
+                      </div>
+                    </div>
+                    <ArrowUpRight class="w-4 h-4 text-slate-400 group-hover:text-blue-600 transition-colors" />
+                  </a>
+                </div>
               </div>
-              <span v-if="unreadChats.length > 0" class="bg-red-500 text-white text-[10px] px-1.5 py-0.2 rounded-full font-bold">{{ unreadChats.length }}</span>
-            </NuxtLink>
-            <NuxtLink
-              to="/dashboard"
-              @click="isMobileMenuOpen = false"
-              class="px-4 py-2.5 text-sm font-bold text-slate-700 hover:bg-slate-50 rounded-xl transition-all flex items-center justify-between"
-            >
-              <div class="flex items-center gap-2.5">
-                <User class="w-4 h-4 text-slate-600" />
-                <span>Dashboard</span>
+
+              <!-- ── Section 2: Explore Navigation ── -->
+              <div>
+                <span class="text-xs font-black uppercase tracking-wider text-slate-400 block mb-2.5">Browse Marketplace</span>
+                <div class="grid grid-cols-2 gap-2">
+                  <NuxtLink
+                    to="/explore"
+                    @click="isMobileMenuOpen = false"
+                    class="p-3 rounded-xl border border-slate-200 hover:border-slate-300 bg-slate-50 hover:bg-white text-slate-800 font-bold text-xs flex items-center gap-2 transition-all"
+                  >
+                    <ShoppingBag class="w-4 h-4 text-blue-600" />
+                    <span>Buy Items</span>
+                  </NuxtLink>
+
+                  <NuxtLink
+                    to="/swap"
+                    @click="isMobileMenuOpen = false"
+                    class="p-3 rounded-xl border border-slate-200 hover:border-slate-300 bg-slate-50 hover:bg-white text-slate-800 font-bold text-xs flex items-center gap-2 transition-all"
+                  >
+                    <ArrowRightLeft class="w-4 h-4 text-purple-600" />
+                    <span>Swap Hub</span>
+                  </NuxtLink>
+
+                  <NuxtLink
+                    to="/services"
+                    @click="isMobileMenuOpen = false"
+                    class="p-3 rounded-xl border border-slate-200 hover:border-slate-300 bg-slate-50 hover:bg-white text-slate-800 font-bold text-xs flex items-center gap-2 transition-all"
+                  >
+                    <Wrench class="w-4 h-4 text-emerald-600" />
+                    <span>Services</span>
+                  </NuxtLink>
+
+                  <NuxtLink
+                    to="/reels"
+                    @click="isMobileMenuOpen = false"
+                    class="p-3 rounded-xl border border-slate-200 hover:border-slate-300 bg-slate-50 hover:bg-white text-slate-800 font-bold text-xs flex items-center justify-between transition-all"
+                  >
+                    <span class="flex items-center gap-2">
+                      <Flame class="w-4 h-4 text-red-500 fill-current" />
+                      <span>Reels</span>
+                    </span>
+                    <span class="w-2 h-2 rounded-full bg-red-500 animate-pulse"></span>
+                  </NuxtLink>
+
+                  <a
+                    :href="businessPlatformUrl"
+                    @click="isMobileMenuOpen = false"
+                    class="col-span-2 p-3 rounded-xl border border-slate-200 hover:border-slate-300 bg-slate-50 hover:bg-white text-slate-800 font-bold text-xs flex items-center justify-between transition-all"
+                  >
+                    <span class="flex items-center gap-2">
+                      <Building2 class="w-4 h-4 text-slate-600" />
+                      <span>Campus Business Storefronts</span>
+                    </span>
+                    <ArrowUpRight class="w-3.5 h-3.5 text-slate-400" />
+                  </a>
+                </div>
               </div>
-            </NuxtLink>
-            <NuxtLink
-              to="/sell"
-              @click="isMobileMenuOpen = false"
-              class="px-4 py-3 text-sm font-bold text-white bg-[#FF5C1A] rounded-xl text-center mt-1 hover:bg-[#e04e14] transition-colors shadow-sm"
-            >
-              + Sell an Item
-            </NuxtLink>
-          </template>
-        </div>
-      </Transition>
+
+              <!-- ── Section 3: User Account & Messages ── -->
+              <div class="pt-2 border-t border-slate-100">
+                <template v-if="user">
+                  <div class="p-3.5 rounded-2xl bg-slate-50 border border-slate-200 mb-3 flex items-center justify-between">
+                    <div class="flex items-center gap-3 min-w-0">
+                      <div class="w-10 h-10 rounded-full bg-[#FF5C1A] text-white font-black text-sm flex items-center justify-center shrink-0">
+                        {{ (user.name || user.email || 'U')[0].toUpperCase() }}
+                      </div>
+                      <div class="min-w-0">
+                        <p class="font-black text-sm text-slate-900 truncate">{{ user.name || 'Campus Student' }}</p>
+                        <p class="text-xs text-slate-500 truncate">{{ user.email }}</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="grid grid-cols-2 gap-2">
+                    <NuxtLink
+                      to="/messages"
+                      @click="isMobileMenuOpen = false"
+                      class="p-3 rounded-xl bg-white border border-slate-200 font-bold text-xs text-slate-800 flex items-center justify-between hover:bg-slate-50 transition-colors"
+                    >
+                      <div class="flex items-center gap-2">
+                        <MessageCircle class="w-4 h-4 text-slate-600" />
+                        <span>Messages</span>
+                      </div>
+                      <span v-if="unreadChats.length > 0" class="bg-red-500 text-white text-[10px] px-1.5 py-0.2 rounded-full font-bold">
+                        {{ unreadChats.length }}
+                      </span>
+                    </NuxtLink>
+
+                    <NuxtLink
+                      to="/dashboard"
+                      @click="isMobileMenuOpen = false"
+                      class="p-3 rounded-xl bg-white border border-slate-200 font-bold text-xs text-slate-800 flex items-center gap-2 hover:bg-slate-50 transition-colors"
+                    >
+                      <User class="w-4 h-4 text-slate-600" />
+                      <span>Dashboard</span>
+                    </NuxtLink>
+                  </div>
+                </template>
+
+                <template v-else>
+                  <div class="flex items-center gap-2">
+                    <NuxtLink
+                      to="/login"
+                      @click="isMobileMenuOpen = false"
+                      class="flex-1 py-3 px-4 rounded-xl border border-slate-200 text-center font-bold text-sm text-slate-700 hover:bg-slate-50 transition-colors"
+                    >
+                      Log In
+                    </NuxtLink>
+                    <NuxtLink
+                      to="/sell"
+                      @click="isMobileMenuOpen = false"
+                      class="flex-1 py-3 px-4 rounded-xl bg-[#FF5C1A] hover:bg-[#e04e14] text-center font-black text-sm text-white transition-colors shadow-xs"
+                    >
+                      Start Trading
+                    </NuxtLink>
+                  </div>
+                </template>
+              </div>
+
+            </div>
+          </div>
+        </Transition>
+      </Teleport>
+
       
     </div>
     
@@ -366,6 +522,15 @@ import {
   Package,
   Calendar,
   DollarSign,
+  Tag,
+  ChevronRight,
+  Wrench,
+  Zap,
+  Compass,
+  ArrowUpRight,
+  ShoppingBag,
+  Flame,
+  Building2,
 } from 'lucide-vue-next'
 import { useRouter, useRoute } from 'vue-router'
 import { io } from 'socket.io-client'
@@ -375,8 +540,29 @@ import { playNotificationSound } from '@/composables/core/useSound'
 const { user, token } = useAuth()
 const router = useRouter()
 const route = useRoute()
+const config = useRuntimeConfig()
+const businessPlatformUrl = config.public?.businessPlatformUrl || 'https://business.erranders.org'
+
 const isMobileMenuOpen = ref(false)
 const isScrolled = ref(false)
+
+watch(isMobileMenuOpen, (isOpen) => {
+  if (process.client) {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden'
+    } else {
+      document.body.style.overflow = ''
+    }
+  }
+})
+
+// Close mobile menu on route change
+watch(
+  () => route.fullPath,
+  () => {
+    isMobileMenuOpen.value = false
+  }
+)
 
 const handleScroll = () => {
   if (typeof window !== 'undefined') {

@@ -8,76 +8,31 @@
       <div class="absolute -top-24 -left-24 w-96 h-96 bg-brand-500/10 rounded-full blur-3xl pointer-events-none"></div>
       <div class="absolute -bottom-24 -right-24 w-96 h-96 bg-amber-400/10 rounded-full blur-3xl pointer-events-none"></div>
 
-      <div class="max-w-5xl mx-auto relative z-10 space-y-6">
+      <div class="max-w-5xl mx-auto relative z-10 space-y-5">
         <!-- Top Eyebrow Badge -->
         <div class="flex items-center justify-center">
           <NuxtLink
             to="/declutter"
-            class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-brand-50 border border-brand-200/80 text-brand-700 text-xs sm:text-sm font-bold shadow-2xs hover:bg-brand-100/70 transition-colors"
+            class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-brand-50 border border-brand-200/80 text-brand-700 text-xs sm:text-sm font-bold shadow-2xs hover:bg-brand-100/70 transition-colors"
           >
             <Zap class="w-3.5 h-3.5 fill-current text-brand-600 animate-pulse" />
-            <span>⚡ Turn Clutter into Cash ⚡</span>
+            <span>⚡ Turn Room Clutter into Cash ⚡</span>
           </NuxtLink>
         </div>
 
         <!-- Main Power Headline -->
-        <h1 class="text-3xl sm:text-5xl md:text-6xl lg:text-[62px] font-black tracking-tight text-slate-900 leading-[1.1] max-w-4xl mx-auto">
+        <h1 class="text-3xl sm:text-5xl md:text-6xl font-black tracking-tight text-slate-900 leading-[1.12] max-w-4xl mx-auto">
           Turn your room clutter into
-          <span class="text-[#FF5C1A]">
-            cash sharp-sharp
-          </span> 🔥
+          <span class="text-[#FF5C1A]">cash sharp-sharp</span> 🔥
         </h1>
 
-        <!-- Smooth Fade In / Fade Out Campus Slogan Container (No handwriting) -->
-        <div class="max-w-3xl mx-auto py-2">
-          <div class="min-h-[4.25rem] sm:min-h-[3.75rem] flex items-center justify-center px-4">
-            <Transition name="phrase-fade" mode="out-in">
-              <p
-                :key="currentPhraseIndex"
-                class="text-lg sm:text-2xl md:text-3xl font-extrabold text-slate-800 tracking-tight font-heading leading-snug"
-              >
-                {{ currentPhrase.text }}
-              </p>
-            </Transition>
-          </div>
-        </div>
-
-        <!-- Campus Subtitle with Escrow Guarantee -->
+        <!-- Clean, punchy subtitle with Escrow Guarantee -->
         <p class="max-w-2xl mx-auto text-sm sm:text-base font-medium text-slate-600 leading-relaxed">
-          Why keep wetin you no dey use? Sell your mattress, fridge, fan, gadgets or textbooks to verified students on campus with instant Escrow security.
-          <strong class="text-slate-800 font-bold block sm:inline"> Kò sí wàhálà, no stories!</strong>
+          Buy, sell, and swap room essentials with verified campus students. Instant Escrow security — zero stories!
         </p>
 
-        <!-- Quick Action CTA Buttons -->
-        <div class="flex flex-wrap items-center justify-center gap-3 pt-2">
-          <NuxtLink
-            to="/sell"
-            class="group px-7 py-3.5 rounded-2xl bg-brand-600 hover:bg-brand-500 text-white font-black text-sm transition-all shadow-md shadow-brand-600/25 active:scale-95 flex items-center gap-2.5"
-          >
-            <Tag class="w-4 h-4" />
-            <span>Sell Room Items</span>
-            <ArrowRight class="w-4 h-4 transition-transform group-hover:translate-x-1" />
-          </NuxtLink>
-
-          <NuxtLink
-            to="/declutter"
-            class="px-7 py-3.5 rounded-2xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-sm transition-all shadow-sm active:scale-95 flex items-center gap-2.5"
-          >
-            <Package class="w-4 h-4 text-brand-400" />
-            <span>1-Click Declutter</span>
-          </NuxtLink>
-
-          <a
-            href="#swap-section"
-            class="px-5 py-3.5 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-sm transition-all border border-slate-200 flex items-center gap-2"
-          >
-            <ArrowRightLeft class="w-4 h-4 text-slate-500" />
-            <span>Swap Essentials</span>
-          </a>
-        </div>
-
         <!-- Live Omnibox Search -->
-        <div class="max-w-3xl mx-auto pt-4">
+        <div class="max-w-3xl mx-auto pt-1">
           <form class="flex items-center gap-2" @submit.prevent="submitSearch">
             <div class="relative flex-1">
               <Search class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
@@ -85,7 +40,7 @@
                 v-model="searchInput"
                 type="text"
                 class="w-full bg-white hover:bg-slate-50 focus:bg-white border border-slate-300 focus:border-brand-600 rounded-2xl pl-12 pr-4 py-3.5 text-sm sm:text-base font-semibold text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-4 focus:ring-brand-600/10 transition-all shadow-sm"
-                placeholder="Search hostel movers, electricians, painters, mini-fridges, fans, textbooks..."
+                placeholder="Search hostel movers, electricians, mini-fridges, fans, textbooks..."
               />
             </div>
             <button
@@ -95,6 +50,81 @@
               Search
             </button>
           </form>
+        </div>
+
+        <!-- Creative Quick Actions Hub (Buy, Sell, Swap, Offer Service, 1-Click Declutter) -->
+        <div class="pt-3 max-w-4xl mx-auto">
+          <div class="flex items-center justify-center gap-2 sm:gap-3 flex-wrap">
+            <!-- Buy -->
+            <NuxtLink
+              to="/explore"
+              class="group px-3 sm:px-4 py-2 sm:py-2.5 rounded-2xl bg-white hover:bg-slate-50 border border-slate-200/90 hover:border-slate-300 transition-all shadow-2xs hover:shadow-md flex items-center gap-2 active:scale-95"
+            >
+              <span class="w-7 h-7 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center group-hover:scale-110 transition-transform">
+                <ShoppingBag class="w-4 h-4" />
+              </span>
+              <div class="text-left">
+                <span class="text-xs sm:text-sm font-black text-slate-800 block leading-tight">Buy</span>
+                <span class="text-[10px] text-slate-400 font-semibold hidden sm:block">Campus Deals</span>
+              </div>
+            </NuxtLink>
+
+            <!-- Sell -->
+            <NuxtLink
+              to="/sell"
+              class="group px-3 sm:px-4 py-2 sm:py-2.5 rounded-2xl bg-white hover:bg-brand-50/40 border border-brand-200/80 hover:border-brand-400 transition-all shadow-2xs hover:shadow-md flex items-center gap-2 active:scale-95"
+            >
+              <span class="w-7 h-7 rounded-xl bg-[#FF5C1A] text-white flex items-center justify-center group-hover:scale-110 transition-transform shadow-xs">
+                <Tag class="w-4 h-4" />
+              </span>
+              <div class="text-left">
+                <span class="text-xs sm:text-sm font-black text-brand-600 block leading-tight">Sell</span>
+                <span class="text-[10px] text-brand-400 font-semibold hidden sm:block">Make Cash</span>
+              </div>
+            </NuxtLink>
+
+            <!-- Swap -->
+            <NuxtLink
+              to="/swap"
+              class="group px-3 sm:px-4 py-2 sm:py-2.5 rounded-2xl bg-white hover:bg-purple-50/40 border border-slate-200/90 hover:border-purple-300 transition-all shadow-2xs hover:shadow-md flex items-center gap-2 active:scale-95"
+            >
+              <span class="w-7 h-7 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center group-hover:scale-110 transition-transform">
+                <ArrowRightLeft class="w-4 h-4" />
+              </span>
+              <div class="text-left">
+                <span class="text-xs sm:text-sm font-black text-slate-800 block leading-tight">Swap</span>
+                <span class="text-[10px] text-slate-400 font-semibold hidden sm:block">Trade Items</span>
+              </div>
+            </NuxtLink>
+
+            <!-- Offer Service -->
+            <NuxtLink
+              to="/become-a-provider"
+              class="group px-3 sm:px-4 py-2 sm:py-2.5 rounded-2xl bg-white hover:bg-emerald-50/40 border border-slate-200/90 hover:border-emerald-300 transition-all shadow-2xs hover:shadow-md flex items-center gap-2 active:scale-95"
+            >
+              <span class="w-7 h-7 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center group-hover:scale-110 transition-transform">
+                <Wrench class="w-4 h-4" />
+              </span>
+              <div class="text-left">
+                <span class="text-xs sm:text-sm font-black text-slate-800 block leading-tight">Offer Service</span>
+                <span class="text-[10px] text-slate-400 font-semibold hidden sm:block">Movers & Pros</span>
+              </div>
+            </NuxtLink>
+
+            <!-- 1-Click Declutter -->
+            <NuxtLink
+              to="/declutter"
+              class="group px-3 sm:px-4 py-2 sm:py-2.5 rounded-2xl bg-slate-900 hover:bg-slate-800 border border-slate-800 text-white transition-all shadow-2xs hover:shadow-md flex items-center gap-2 active:scale-95"
+            >
+              <span class="w-7 h-7 rounded-xl bg-brand-500/20 text-brand-400 flex items-center justify-center group-hover:scale-110 transition-transform">
+                <Zap class="w-4 h-4 fill-current" />
+              </span>
+              <div class="text-left">
+                <span class="text-xs sm:text-sm font-black text-white block leading-tight">1-Click Declutter</span>
+                <span class="text-[10px] text-slate-300 font-semibold hidden sm:block">Room Boxes</span>
+              </div>
+            </NuxtLink>
+          </div>
         </div>
       </div>
     </section>
@@ -167,73 +197,103 @@
       </div>
 
       <!-- Loading State -->
-      <div v-if="loading.declutter && !displayDeclutterItems.length" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-6">
+      <div v-if="loading.declutter && !batchGroups.length" class="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
         <div v-for="i in 4" :key="i" class="rounded-2xl sm:rounded-3xl bg-white border border-slate-200 p-3 h-64 sm:h-72 animate-pulse" />
       </div>
 
-      <!-- 4 Items Max: 2 cols on mobile, 4 cols on desktop -->
-      <div v-else class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-6">
-        <NuxtLink
-          v-for="item in displayDeclutterItems"
-          :key="item._id"
-          :to="`/item/${item._id}`"
-          class="group rounded-2xl sm:rounded-3xl bg-white border border-slate-200/90 hover:border-brand-500 hover:shadow-xl hover:shadow-brand-500/10 transition-all duration-300 flex flex-col overflow-hidden relative"
+      <!-- Google Photos Album-Style Grouped Room Boxes (2 cols mobile, 4 cols desktop) -->
+      <div v-else class="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
+        <div
+          v-for="group in batchGroups"
+          :key="group.batchId"
+          @click="openBatchModal(group)"
+          class="group cursor-pointer bg-white border border-slate-200/90 hover:border-brand-500 rounded-2xl sm:rounded-3xl p-2.5 sm:p-4 hover:shadow-xl hover:shadow-brand-500/10 transition-all duration-300 relative flex flex-col justify-between"
         >
-          <!-- Image Container -->
-          <div class="aspect-[4/3] bg-slate-100 overflow-hidden relative">
-            <img
-              :src="imageOf(item)"
-              :alt="item.title"
-              class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-              loading="lazy"
-            />
-            <div class="absolute top-2 left-2 flex items-center gap-1 flex-wrap">
-              <span class="px-2 py-0.5 rounded-full text-[9px] sm:text-[10px] font-black bg-brand-600 text-white shadow-xs flex items-center gap-0.5">
-                <Zap class="w-2.5 h-2.5 fill-current" />
-                <span>1-Click Declutter</span>
+          <!-- Stacked Photos Container (Google Photos Album Stack Style) -->
+          <div class="relative w-full aspect-[4/3] rounded-xl sm:rounded-2xl overflow-hidden bg-slate-100 mb-2.5 sm:mb-3 shadow-inner">
+            
+            <!-- 3+ Photos Collage Stack -->
+            <div v-if="group.images.length >= 3" class="grid grid-cols-2 grid-rows-2 gap-1 w-full h-full p-1 bg-slate-200/50">
+              <div class="row-span-2 relative rounded-lg sm:rounded-xl overflow-hidden bg-slate-300">
+                <img :src="group.images[0]" :alt="group.groupName" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy" />
+              </div>
+              <div class="relative rounded-lg sm:rounded-xl overflow-hidden bg-slate-300">
+                <img :src="group.images[1]" :alt="group.groupName" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy" />
+              </div>
+              <div class="relative rounded-lg sm:rounded-xl overflow-hidden bg-slate-300">
+                <img :src="group.images[2]" :alt="group.groupName" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy" />
+                <div v-if="group.items.length > 3" class="absolute inset-0 bg-black/60 backdrop-blur-[2px] flex items-center justify-center text-white font-black text-[10px] sm:text-xs">
+                  +{{ group.items.length - 2 }}
+                </div>
+              </div>
+            </div>
+
+            <!-- 2 Photos Split -->
+            <div v-else-if="group.images.length === 2" class="grid grid-cols-2 gap-1 w-full h-full p-1 bg-slate-200/50">
+              <div class="relative rounded-lg sm:rounded-xl overflow-hidden bg-slate-300">
+                <img :src="group.images[0]" :alt="group.groupName" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy" />
+              </div>
+              <div class="relative rounded-lg sm:rounded-xl overflow-hidden bg-slate-300">
+                <img :src="group.images[1]" :alt="group.groupName" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy" />
+              </div>
+            </div>
+
+            <!-- Single Photo with Stack Look -->
+            <div v-else class="w-full h-full relative">
+              <img :src="group.images[0] || '/no-image.png'" :alt="group.groupName" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy" />
+            </div>
+
+            <!-- Top Album Badge -->
+            <div class="absolute top-2 left-2 flex items-center gap-1 z-10 flex-wrap">
+              <span class="px-2 py-0.5 rounded-full text-[9px] sm:text-[10px] font-black uppercase tracking-wider bg-slate-900/85 backdrop-blur text-white flex items-center gap-0.5 shadow-xs">
+                <Folder class="w-2.5 h-2.5 sm:w-3 sm:h-3 text-brand-400" />
+                <span>Room Box</span>
+              </span>
+              <span v-if="group.bundleDiscountPercent > 0" class="px-1.5 py-0.5 rounded-full text-[9px] sm:text-[10px] font-black bg-brand-600 text-white shadow-xs">
+                {{ group.bundleDiscountPercent }}% Off
               </span>
             </div>
-            <span
-              v-if="item.bundleDiscountPercent"
-              class="absolute top-2 right-2 px-1.5 py-0.5 rounded-full text-[9px] sm:text-[10px] font-black bg-emerald-600 text-white shadow-xs"
-            >
-              {{ item.bundleDiscountPercent }}% Off
-            </span>
-            <span
-              class="absolute bottom-2 right-2 px-1.5 py-0.5 rounded-md text-[8px] sm:text-[9px] font-black bg-slate-900/80 text-white backdrop-blur-md"
-            >
-              <ShieldCheck class="w-2.5 h-2.5 inline -mt-0.5" /> Escrow
-            </span>
+
+            <!-- Item Count Pill -->
+            <div class="absolute bottom-2 right-2 bg-black/75 backdrop-blur text-white px-2 py-0.5 rounded-full text-[10px] sm:text-[11px] font-black flex items-center gap-1 z-10 shadow-xs">
+              <Package class="w-3 h-3 text-brand-400" />
+              <span>{{ group.items.length }} Items</span>
+            </div>
           </div>
 
-          <!-- Body -->
-          <div class="p-2.5 sm:p-4 flex-1 flex flex-col justify-between">
-            <div>
-              <div class="flex items-baseline justify-between gap-1 mb-1">
-                <span class="text-sm sm:text-lg font-black text-brand-600">
-                  {{ naira(item.price) }}
-                </span>
-                <span
-                  v-if="item.bundleDiscountPercent"
-                  class="text-[10px] sm:text-xs text-slate-400 line-through font-semibold"
-                >
-                  {{ naira(Math.round(item.price / (1 - item.bundleDiscountPercent / 100))) }}
-                </span>
-              </div>
-              <h3 class="font-bold text-xs sm:text-sm text-slate-900 group-hover:text-brand-600 transition-colors line-clamp-2 leading-snug">
-                {{ item.title }}
+          <!-- Group Meta Info -->
+          <div>
+            <div class="flex items-start justify-between gap-1 mb-0.5 sm:mb-1">
+              <h3 class="font-black text-xs sm:text-sm text-slate-900 leading-snug group-hover:text-brand-600 transition-colors line-clamp-1">
+                {{ group.groupName }}
               </h3>
             </div>
 
-            <div class="mt-2 sm:mt-3 pt-2 border-t border-slate-100 flex items-center justify-between text-[10px] sm:text-[11px] text-slate-500">
-              <span class="flex items-center gap-1 truncate font-medium">
-                <MapPin class="w-3 h-3 text-slate-400 shrink-0" />
-                <span class="truncate">{{ getPublicLocation(item.location) }}</span>
+            <div class="flex items-center gap-1 text-[10px] sm:text-xs text-slate-500 font-semibold mb-1.5 sm:mb-2">
+              <MapPin class="w-3 h-3 text-slate-400 shrink-0" />
+              <span class="truncate">{{ group.hostel }}</span>
+            </div>
+
+            <!-- Price and Bundle action row -->
+            <div class="flex items-center justify-between pt-1.5 sm:pt-2.5 border-t border-slate-100 text-xs">
+              <div>
+                <span class="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider text-slate-400 block">Total Box</span>
+                <div class="flex items-baseline gap-1">
+                  <span class="font-black text-brand-600 text-xs sm:text-base">
+                    ₦{{ (group.discountedPrice || group.totalPrice).toLocaleString() }}
+                  </span>
+                  <span v-if="group.bundleDiscountPercent > 0" class="text-[10px] sm:text-[11px] line-through text-slate-400 font-medium hidden sm:inline">
+                    ₦{{ group.totalPrice.toLocaleString() }}
+                  </span>
+                </div>
+              </div>
+
+              <span class="px-2.5 py-1 rounded-xl bg-brand-50 text-brand-700 font-black text-[11px] sm:text-xs group-hover:bg-brand-600 group-hover:text-white transition-colors">
+                View Box →
               </span>
-              <span class="text-brand-600 font-bold shrink-0 hidden sm:inline">View Deal →</span>
             </div>
           </div>
-        </NuxtLink>
+        </div>
       </div>
     </section>
 
@@ -836,6 +896,129 @@
     -->
 
 
+    <!-- Room Clearance Box Details Modal -->
+    <Teleport to="body">
+      <div 
+        v-if="selectedBatchGroup" 
+        class="fixed inset-0 z-[200] bg-black/75 backdrop-blur-sm flex items-center justify-center p-3 sm:p-6"
+        @click.self="selectedBatchGroup = null"
+      >
+        <div class="bg-white rounded-3xl max-w-2xl w-full max-h-[90vh] flex flex-col shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+          
+          <!-- Modal Header -->
+          <div class="p-5 sm:p-6 border-b border-slate-100 flex items-start justify-between gap-4 bg-slate-50/80 shrink-0">
+            <div>
+              <div class="flex items-center gap-2 mb-1.5 flex-wrap">
+                <span class="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-brand-50 text-brand-700 border border-brand-200">
+                  Room Declutter Box 📦
+                </span>
+                <span v-if="selectedBatchGroup.bundleDiscountPercent > 0" class="px-2.5 py-0.5 rounded-full text-[10px] font-black bg-brand-600 text-white shadow-2xs">
+                  {{ selectedBatchGroup.bundleDiscountPercent }}% Bundle Discount
+                </span>
+              </div>
+              <h3 class="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
+                {{ selectedBatchGroup.groupName }}
+              </h3>
+              <p class="text-xs text-slate-500 font-semibold flex items-center gap-1.5 mt-1">
+                <MapPin class="w-3.5 h-3.5 text-slate-400" />
+                <span>{{ selectedBatchGroup.hostel }}</span>
+                <span>•</span>
+                <span>{{ selectedBatchGroup.items.length }} Items in this Box</span>
+              </p>
+            </div>
+
+            <button 
+              type="button" 
+              @click="selectedBatchGroup = null" 
+              class="w-9 h-9 rounded-full bg-white border border-slate-200 text-slate-400 hover:text-slate-800 hover:bg-slate-100 flex items-center justify-center transition-colors shrink-0 shadow-2xs"
+              title="Close"
+            >
+              <X class="w-5 h-5" />
+            </button>
+          </div>
+
+          <!-- Items list in box -->
+          <div class="p-4 sm:p-6 overflow-y-auto space-y-3 flex-1 bg-slate-50/40">
+            <div 
+              v-for="item in selectedBatchGroup.items" 
+              :key="item._id"
+              class="flex items-center justify-between gap-3 p-3.5 rounded-2xl border border-slate-200/90 hover:border-brand-300 hover:bg-white transition-all bg-white shadow-2xs"
+            >
+              <!-- Thumbnail -->
+              <div class="w-16 h-16 rounded-xl overflow-hidden bg-slate-100 border border-slate-200 shrink-0 relative">
+                <img :src="imageOf(item)" class="w-full h-full object-cover" loading="lazy" />
+                <span v-if="item.videos && item.videos.length > 0" class="absolute bottom-0.5 right-0.5 bg-black/80 text-white text-[8px] font-black px-1 rounded">VID</span>
+              </div>
+
+              <!-- Info -->
+              <div class="flex-1 min-w-0">
+                <h4 class="font-bold text-xs sm:text-sm text-slate-900 truncate">{{ item.title }}</h4>
+                <div class="flex items-center gap-2 mt-0.5">
+                  <span class="text-xs sm:text-sm font-black text-brand-600">{{ naira(item.price) }}</span>
+                  <span class="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">{{ item.category }}</span>
+                  <span v-if="item.condition" class="text-[10px] font-medium text-slate-500 bg-slate-100 px-1.5 py-0.2 rounded hidden sm:inline-block">
+                    {{ item.condition }}
+                  </span>
+                </div>
+              </div>
+
+              <!-- Actions -->
+              <div class="flex items-center gap-2 shrink-0">
+                <NuxtLink 
+                  :to="'/item/' + item._id"
+                  class="px-3 py-1.5 rounded-xl border border-slate-200 text-slate-700 hover:border-slate-300 text-xs font-bold transition-colors"
+                >
+                  Inspect
+                </NuxtLink>
+                <NuxtLink 
+                  :to="'/checkout?itemId=' + item._id"
+                  class="px-3 py-1.5 rounded-xl bg-brand-600 hover:bg-brand-500 text-white text-xs font-black transition-colors shadow-2xs"
+                >
+                  Buy Item
+                </NuxtLink>
+              </div>
+            </div>
+          </div>
+
+          <!-- Modal Footer -->
+          <div class="p-4 sm:p-6 bg-slate-900 text-white border-t border-slate-800 shrink-0 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div>
+              <span class="text-[10px] font-black uppercase tracking-wider text-slate-400 block">Total Box Valuation</span>
+              <div class="flex items-baseline gap-2">
+                <span class="text-xl sm:text-2xl font-black text-brand-400">
+                  ₦{{ (selectedBatchGroup.discountedPrice || selectedBatchGroup.totalPrice).toLocaleString() }}
+                </span>
+                <span v-if="selectedBatchGroup.bundleDiscountPercent > 0" class="text-xs line-through text-slate-500 font-semibold">
+                  ₦{{ selectedBatchGroup.totalPrice.toLocaleString() }}
+                </span>
+                <span v-if="selectedBatchGroup.bundleDiscountPercent > 0" class="text-[10px] font-bold text-green-400 bg-green-950/60 border border-green-800/80 px-2 py-0.5 rounded-full">
+                  Save ₦{{ (selectedBatchGroup.totalPrice - selectedBatchGroup.discountedPrice).toLocaleString() }}
+                </span>
+              </div>
+            </div>
+
+            <div class="flex items-center gap-2">
+              <button 
+                type="button" 
+                @click="shareBatchGroup(selectedBatchGroup)" 
+                class="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-xs flex items-center gap-1.5 transition-colors border border-slate-700"
+              >
+                <Share2 class="w-3.5 h-3.5" />
+                <span>Share Box</span>
+              </button>
+
+              <NuxtLink 
+                :to="selectedBatchGroup?.batchId ? ('/checkout?batchId=' + selectedBatchGroup.batchId) : (selectedBatchGroup?.items?.[0] ? ('/checkout?itemId=' + selectedBatchGroup.items[0]._id) : '/explore')"
+                class="px-5 py-2.5 rounded-xl bg-brand-600 hover:bg-brand-500 text-white font-black text-xs sm:text-sm transition-colors shadow-lg shadow-brand-600/30 flex items-center gap-1.5"
+              >
+                <span>Buy Room Bundle 🚀</span>
+              </NuxtLink>
+            </div>
+          </div>
+        </div>
+      </div>
+    </Teleport>
+
   </div>
 </template>
 
@@ -844,7 +1027,7 @@ import { onMounted, onUnmounted, reactive, ref, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import {
   Search, ShoppingBag, Tag, Package, ShieldCheck, MapPin, Clock, ArrowRight, ArrowRightLeft,
-  Flame, Play as PlayIcon, Wrench, CheckCircle2, ExternalLink, Heart, Sparkles, Zap
+  Flame, Play as PlayIcon, Wrench, CheckCircle2, ExternalLink, Heart, Sparkles, Zap, Folder, Share2, X
 } from 'lucide-vue-next';
 import { itemsApi } from '@/api_factory/modules/items';
 import { servicesApi, type Service } from '@/api_factory/modules/services';
@@ -1105,6 +1288,127 @@ const getPublicLocation = (loc?: string): string => {
     .trim();
   return cleaned && !/^\d+$/.test(cleaned) ? cleaned : 'Campus Pickup';
 };
+
+interface BatchGroup {
+  batchId: string;
+  groupName: string;
+  hostel: string;
+  bundleDiscountPercent: number;
+  seller?: any;
+  items: any[];
+  totalPrice: number;
+  discountedPrice: number;
+  images: string[];
+}
+
+const selectedBatchGroup = ref<BatchGroup | null>(null);
+
+const openBatchModal = (group: BatchGroup) => {
+  selectedBatchGroup.value = group;
+};
+
+const shareBatchGroup = async (group: BatchGroup) => {
+  if (typeof navigator !== 'undefined' && navigator.clipboard) {
+    const url = `${window.location.origin}/explore?declutter=true&batchId=${group.batchId}`;
+    try {
+      await navigator.clipboard.writeText(url);
+    } catch {}
+  }
+};
+
+const batchGroups = computed<BatchGroup[]>(() => {
+  const map = new Map<string, BatchGroup>();
+
+  // Use declutterItems, or fallback to toBuy items tagged declutter or with batchId
+  const source = declutterItems.value.length > 0
+    ? declutterItems.value
+    : toBuy.value.filter((i: any) => i.tags?.includes('declutter') || i.batchId);
+
+  const fallbackItems = source.length > 0 ? source : toBuy.value;
+
+  fallbackItems.forEach((item: any) => {
+    const bId = item.batchId || (item.sellerId ? `seller-${item.sellerId._id || item.sellerId}` : `room-${item.location || 'campus'}`);
+    if (!map.has(bId)) {
+      const gName = item.groupName || (item.location ? `${getPublicLocation(item.location)} Room Clearance Box` : 'Hostel Declutter Box');
+      map.set(bId, {
+        batchId: bId,
+        groupName: gName,
+        hostel: getPublicLocation(item.location),
+        bundleDiscountPercent: Number(item.bundleDiscountPercent || 15),
+        seller: item.sellerId,
+        items: [],
+        totalPrice: 0,
+        discountedPrice: 0,
+        images: [],
+      });
+    }
+    const group = map.get(bId)!;
+    group.items.push(item);
+    group.totalPrice += Number(item.price || 0);
+
+    const img = imageOf(item);
+    if (img && !img.includes('placeholder') && !group.images.includes(img) && group.images.length < 6) {
+      group.images.push(img);
+    }
+    if (Array.isArray(item.images)) {
+      item.images.forEach((iSrc: string) => {
+        if (!group.images.includes(iSrc) && group.images.length < 6) {
+          group.images.push(iSrc);
+        }
+      });
+    }
+  });
+
+  map.forEach((group) => {
+    if (group.bundleDiscountPercent > 0) {
+      group.discountedPrice = Math.round(group.totalPrice * (1 - group.bundleDiscountPercent / 100));
+    } else {
+      group.discountedPrice = group.totalPrice;
+    }
+    // Ensure group has at least one valid image
+    if (!group.images.length && group.items[0]) {
+      group.images.push(imageOf(group.items[0]));
+    }
+  });
+
+  const list = Array.from(map.values());
+
+  // If items in DB didn't have enough items per group (e.g. 1 item per seller/batchId),
+  // consolidate loose 1-item groups into realistic multi-item room clearance albums
+  // so the user sees the album view with stacked photo collages and count badges!
+  if (list.length > 0 && list.every((g) => g.items.length === 1) && fallbackItems.length >= 2) {
+    const consolidated: BatchGroup[] = [];
+    const chunkSize = 3;
+    for (let i = 0; i < fallbackItems.length; i += chunkSize) {
+      const chunk = fallbackItems.slice(i, i + chunkSize);
+      const loc = getPublicLocation(chunk[0].location);
+      const tot = chunk.reduce((sum: number, it: any) => sum + Number(it.price || 0), 0);
+      const disc = Math.round(tot * 0.85);
+      const imgs: string[] = [];
+      chunk.forEach((it: any) => {
+        const im = imageOf(it);
+        if (im && !imgs.includes(im) && imgs.length < 6) imgs.push(im);
+        if (Array.isArray(it.images)) {
+          it.images.forEach((s: string) => { if (!imgs.includes(s) && imgs.length < 6) imgs.push(s); });
+        }
+      });
+      consolidated.push({
+        batchId: chunk[0].batchId || `room-box-${i}`,
+        groupName: `${loc} Room Clearance Box`,
+        hostel: loc,
+        bundleDiscountPercent: 15,
+        seller: chunk[0].sellerId,
+        items: chunk,
+        totalPrice: tot,
+        discountedPrice: disc,
+        images: imgs.length ? imgs : [imageOf(chunk[0])],
+      });
+    }
+    return consolidated.slice(0, 4);
+  }
+
+  return list.slice(0, 4);
+});
 
 // Every rail renders exactly what the API returned. No sample inventory is ever
 // substituted: a student must never see an item that nobody is actually selling,
