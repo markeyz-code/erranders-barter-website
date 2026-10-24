@@ -135,6 +135,8 @@
               {{ fairnessBadge.text }}
             </span>
           </div>
+        </div>
+
         <!-- Swap Protection & Escrow Fee Note -->
         <div class="mt-4 bg-emerald-50/70 p-3 rounded-xl border border-emerald-200/80 flex items-center justify-between text-xs" v-if="selectedItemId">
           <div class="flex items-center gap-2 text-emerald-900 font-medium">

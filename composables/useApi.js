@@ -1,1 +1,1 @@
-export * from '~/api_factory/index'
+export * from '../api_factory/index';
