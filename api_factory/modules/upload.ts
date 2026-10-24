@@ -30,7 +30,11 @@ export const upload_api = {
       formData.append('file', file, `media-${Date.now()}.${ext}`);
     }
 
-    const endpoint = resourceType === 'image' ? '/upload/image' : '/upload/video';
+    const endpoint = resourceType === 'image' 
+      ? '/upload/image' 
+      : resourceType === 'audio'
+      ? '/upload/audio'
+      : '/upload/video';
     return GATEWAY_ENDPOINT_WITH_AUTH_FORM_DATA.post(endpoint, formData, {
       onUploadProgress,
       timeout: 180000,

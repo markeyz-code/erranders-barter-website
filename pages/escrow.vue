@@ -49,8 +49,9 @@
             <!-- Header Section -->
             <div class="p-6 sm:p-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-6 border-b border-slate-100">
               <div class="flex items-start gap-4">
-                <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-brand-50 to-brand-100 flex items-center justify-center shrink-0 border border-brand-200/50">
-                  <Package class="w-6 h-6 text-brand-600" />
+                <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-brand-50 to-brand-100 flex items-center justify-center shrink-0 border border-brand-200/50 overflow-hidden">
+                  <img v-if="tx.item?.images?.[0]" :src="tx.item.images[0]" class="w-full h-full object-cover" />
+                  <Package v-else class="w-7 h-7 text-brand-600" />
                 </div>
                 <div>
                   <div class="flex items-center gap-3 mb-1">
@@ -60,7 +61,7 @@
                     </span>
                     <span class="text-xs font-bold text-slate-400 uppercase tracking-widest">ID: {{ tx._id.slice(-6) }}</span>
                   </div>
-                  <h3 class="text-xl font-black text-slate-900">Item: {{ tx.itemId.slice(-6) }}</h3>
+                  <h3 class="text-xl font-black text-slate-900">{{ tx.item?.title || ('Item #' + tx.itemId.slice(-6)) }}</h3>
                 </div>
               </div>
               <div class="text-left md:text-right w-full md:w-auto bg-slate-50 md:bg-transparent p-4 md:p-0 rounded-2xl md:rounded-none">
@@ -71,6 +72,53 @@
 
             <!-- Body Section -->
             <div class="p-6 sm:p-8 bg-slate-50/50">
+
+              <!-- Unlocked Pickup & Contact Details (Revealed once payment is made and held in escrow) -->
+              <div v-if="tx.status === 'held_in_escrow' || tx.status === 'released'" class="mb-6 bg-white border border-slate-200 rounded-2xl p-5 shadow-sm">
+                <div class="flex items-center justify-between mb-3 border-b border-slate-100 pb-2">
+                  <div class="flex items-center gap-2">
+                    <div class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping"></div>
+                    <span class="text-xs font-black uppercase tracking-wider text-emerald-800">
+                      {{ tx.status === 'released' ? 'Order Finalised' : 'Payment Held in Escrow — Details Unlocked' }}
+                    </span>
+                  </div>
+                  <NuxtLink :to="'/chat?sellerId=' + tx.sellerId + '&itemId=' + tx.itemId" class="text-xs font-bold text-brand-600 hover:text-brand-800 flex items-center gap-1">
+                    <MessageCircle class="w-3.5 h-3.5" /> Chat Seller
+                  </NuxtLink>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs">
+                  <div class="bg-slate-50 p-3 rounded-xl border border-slate-100">
+                    <span class="text-slate-400 font-bold block uppercase text-[10px] mb-1">Seller</span>
+                    <p class="font-black text-slate-900 text-sm">
+                      {{ tx.seller?.firstName ? `${tx.seller.firstName} ${tx.seller.lastName || ''}` : 'Verified Campus Seller' }}
+                    </p>
+                    <p v-if="tx.seller?.phone" class="text-slate-600 font-bold mt-1">
+                      📞 <a :href="'tel:' + tx.seller.phone" class="hover:underline text-brand-600">{{ tx.seller.phone }}</a>
+                    </p>
+                  </div>
+
+                  <div class="bg-slate-50 p-3 rounded-xl border border-slate-100">
+                    <span class="text-slate-400 font-bold block uppercase text-[10px] mb-1">Pickup Location</span>
+                    <p class="font-black text-slate-900 text-sm">
+                      {{ tx.item?.location || 'Campus Pickup' }}
+                    </p>
+                    <p v-if="tx.seller?.hostel" class="text-slate-500 font-medium mt-1">
+                      Hostel: {{ tx.seller.hostel }}
+                    </p>
+                  </div>
+
+                  <div class="bg-slate-50 p-3 rounded-xl border border-slate-100">
+                    <span class="text-slate-400 font-bold block uppercase text-[10px] mb-1">Fulfillment Mode</span>
+                    <p class="font-black text-slate-900 text-sm capitalize">
+                      {{ tx.deliveryMethod || 'Self Pickup' }}
+                    </p>
+                    <p class="text-emerald-600 font-bold mt-1">
+                      {{ tx.status === 'released' ? 'Funds Released' : 'Release funds only after receiving item' }}
+                    </p>
+                  </div>
+                </div>
+              </div>
               
               <!-- State: Negotiation -->
               <div v-if="tx.status === 'held_in_escrow' && tx.proposedDeliveryFee > 0" class="bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200/60 rounded-3xl p-6 sm:p-8 shadow-inner relative overflow-hidden">
@@ -197,7 +245,7 @@ import { useRouter } from 'vue-router'
 import { escrowApi } from '~/composables/useApi'
 import { 
   ArrowLeft, ShieldAlert, Package, Lock, CheckCircle2, AlertOctagon, 
-  Handshake, Navigation, MapPin, Unlock, Loader2 
+  Handshake, Navigation, MapPin, Unlock, Loader2, MessageCircle 
 } from 'lucide-vue-next'
 
 const router = useRouter()

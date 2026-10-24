@@ -1015,76 +1015,7 @@ const loadReels = async () => {
         isLiked: false,
       }));
 
-      const specialMovementReels = [
-        {
-          _id: 'special-blender-reel',
-          title: 'Kenwood 2-in-1 Heavy Duty Blender + 2L Stainless Electric Kettle',
-          description: 'Tested working video with sound! Blends smoothies and beans effortlessly. Graduating and decluttering room in Mariere.',
-          price: 38000,
-          priceType: 'fixed',
-          type: 'sell',
-          category: 'Home & Appliances',
-          location: 'Mariere Hall, Room 310',
-          images: ['https://images.unsplash.com/photo-1586023492125-27b2c045efd7?auto=format&fit=crop&q=80&w=800'],
-          videos: [],
-          sellerId: {
-            _id: 'bob-b-seller',
-            firstName: 'Bob',
-            lastName: 'B.',
-            hostel: 'Mariere Hall, Room 310',
-            university: 'UNILAG',
-            isVerified: true,
-            avatar: '',
-          },
-          condition: 'Good Condition',
-          likesCount: 15,
-          commentsCount: 0,
-          repostsCount: 3,
-          isLiked: false,
-        },
-        {
-          _id: 'special-fumigation-reel',
-          title: 'Hostel Room 314 Bedbug & Fogging Makeover',
-          description: 'Never sleep on infested mattresses! Certified human-safe chemical partner + trained student applicator hands. 100% Escrow protected eradication.',
-          price: 14000,
-          priceType: 'fixed',
-          type: 'service',
-          category: 'Hostel Fumigation',
-          location: 'Moremi & Jaja Halls',
-          images: ['https://images.unsplash.com/photo-1581578731548-c64695cc6952?auto=format&fit=crop&q=80&w=800'],
-          videos: [],
-          sellerId: { _id: 'fumigation-partner-id', firstName: 'Decluttered', lastName: 'Pest Lab', hostel: 'Moremi & Jaja', isVerified: true },
-          isService: true,
-          isFumigation: true,
-          condition: 'Hospital Grade',
-          likesCount: 382,
-          commentsCount: 29,
-          repostsCount: 45,
-          isLiked: false,
-        },
-        {
-          _id: 'special-mover-reel',
-          title: 'Moremi 4th Floor Fridge & Bed Stair Haul',
-          description: '2-Man student muscle crew with heavy-duty hand trolley and stair climber straps. Zero broken items, zero wahala.',
-          price: 3000,
-          priceType: 'fixed',
-          type: 'service',
-          category: 'Hostel Movers',
-          location: 'Moremi, Fagunwa & New Hall',
-          images: ['https://images.unsplash.com/photo-1600585154526-990dced4db0d?auto=format&fit=crop&q=80&w=800'],
-          videos: [],
-          sellerId: { _id: 'mover-team-id', firstName: 'Campus', lastName: 'Movers Team', hostel: 'Campus Wide', isVerified: true },
-          isService: true,
-          isMover: true,
-          condition: 'Verified Muscle',
-          likesCount: 215,
-          commentsCount: 14,
-          repostsCount: 19,
-          isLiked: false,
-        }
-      ];
-
-      allReels.value = [...specialMovementReels, ...formattedItems, ...formattedServices];
+      allReels.value = [...formattedItems, ...formattedServices];
     } catch {
       allReels.value = [];
     }

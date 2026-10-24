@@ -77,13 +77,13 @@
             </div>
 
             <!-- Preset Inventory Cards Grid -->
+            <!-- Preset Inventory Cards Grid -->
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-              <button
+              <div
                 v-for="preset in presets"
                 :key="preset.id"
-                type="button"
                 @click="togglePreset(preset)"
-                class="p-3.5 rounded-2xl border text-left transition-all flex items-start gap-3 relative group"
+                class="p-3.5 rounded-2xl border text-left transition-all flex items-start gap-3 relative group cursor-pointer"
                 :class="[
                   isPresetSelected(preset.id)
                     ? 'bg-brand-50/70 border-brand-500 shadow-xs ring-2 ring-brand-500/20'
@@ -107,16 +107,60 @@
                       {{ preset.title }}
                     </p>
                   </div>
-                  <div class="flex items-center gap-2 mt-1">
-                    <span class="text-xs font-black text-brand-600">
-                      ₦{{ preset.price.toLocaleString() }}
-                    </span>
+
+                  <!-- Price & Category with Inline Edit Option -->
+                  <div class="flex items-center flex-wrap gap-2 mt-1.5">
+                    <!-- Editing Mode -->
+                    <div
+                      v-if="editingPresetId === preset.id"
+                      class="flex items-center gap-1.5 bg-white px-2 py-1 rounded-lg border border-brand-500 shadow-xs"
+                      @click.stop
+                    >
+                      <span class="text-xs font-black text-brand-600">₦</span>
+                      <input
+                        type="number"
+                        :value="preset.price"
+                        @input="updatePresetPrice(preset, ($event.target as HTMLInputElement).value)"
+                        @click.stop
+                        @keydown.enter.stop="editingPresetId = null"
+                        class="w-20 px-1 py-0.5 text-xs font-black text-slate-900 bg-slate-50 border border-slate-300 rounded focus:outline-none focus:border-brand-600"
+                        placeholder="Price"
+                        min="0"
+                        step="500"
+                        autofocus
+                      />
+                      <button
+                        type="button"
+                        @click.stop="editingPresetId = null"
+                        class="px-2 py-0.5 bg-brand-600 text-white text-[10px] font-bold rounded hover:bg-brand-700 transition-colors"
+                        title="Done editing price"
+                      >
+                        Done
+                      </button>
+                    </div>
+
+                    <!-- Normal Display with Edit Price Option -->
+                    <div v-else class="flex items-center gap-1.5">
+                      <span class="text-xs font-black text-brand-600">
+                        ₦{{ preset.price.toLocaleString() }}
+                      </span>
+                      <button
+                        type="button"
+                        @click.stop="startEditPresetPrice(preset.id)"
+                        class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-slate-100 hover:bg-brand-100 text-slate-600 hover:text-brand-700 text-[10px] font-bold transition-colors"
+                        title="Edit price if your item's value differs"
+                      >
+                        <Pencil class="w-2.5 h-2.5" />
+                        <span>Edit Price</span>
+                      </button>
+                    </div>
+
                     <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
                       {{ preset.category }}
                     </span>
                   </div>
                 </div>
-              </button>
+              </div>
             </div>
 
             <!-- Add Custom Item Button -->
@@ -363,8 +407,7 @@
                 <textarea
                   v-model="batchNotes"
                   rows="2"
-                  placeholder="e.g. Available for inspection every evening from 4 PM. Call or chat before coming."
-                  class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-xs text-slate-800 placeholder:text-slate-400 focus:outline-none focus:bg-white focus:border-brand-600 focus:ring-2 focus:ring-brand-600/10 resize-none transition-all"
+                  class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-xs text-slate-800 focus:outline-none focus:bg-white focus:border-brand-600 focus:ring-2 focus:ring-brand-600/10 resize-none transition-all"
                 />
               </div>
             </div>
@@ -430,7 +473,7 @@
               <label for="mover-checkbox" class="text-xs text-slate-700 cursor-pointer flex-1">
                 <span class="font-black text-slate-900 block">Dispatch Verified Hostel Moving Porter</span>
                 <span class="text-slate-500 font-medium block mt-0.5">
-                  Auto-book top-rated campus mover <strong>Chidi Okonkwo (₦3,500/hr)</strong> to assist with lifting trunks and transporting furniture down the stairs.
+                  Request a verified campus logistics mover to assist with lifting trunks and transporting furniture down hostel stairs.
                 </span>
               </label>
             </div>
@@ -512,7 +555,7 @@
           </div>
           <div v-if="includeMover" class="flex justify-between pt-1 border-t border-slate-200 text-brand-700 font-bold">
             <span>Moving Porter:</span>
-            <span>Chidi Okonkwo Requested</span>
+            <span>Campus Mover Requested</span>
           </div>
         </div>
 
@@ -558,6 +601,7 @@ import {
   Video,
   X,
   Loader2,
+  Pencil,
 } from 'lucide-vue-next';
 import { itemsApi } from '@/api_factory/modules/items';
 import { bookingsApi } from '@/api_factory/modules/bookings';
@@ -590,7 +634,7 @@ interface DeclutterItem {
 const router = useRouter();
 const { user } = useAuth();
 
-const presets = [
+const presets = ref([
   {
     id: 'mattress',
     title: 'Orthopedic / Spring Mattress (Standard Student Bed)',
@@ -655,7 +699,22 @@ const presets = [
     condition: 'Like New',
     image: 'https://images.unsplash.com/photo-1507473885765-e6ed057f782c?auto=format&fit=crop&q=80&w=800',
   },
-];
+]);
+
+const editingPresetId = ref<string | null>(null);
+
+const startEditPresetPrice = (presetId: string) => {
+  editingPresetId.value = presetId;
+};
+
+const updatePresetPrice = (preset: typeof presets.value[0], val: string | number) => {
+  const numeric = Math.max(0, Number(val) || 0);
+  preset.price = numeric;
+  const active = activeItems.value.find((item) => item.presetId === preset.id);
+  if (active) {
+    active.price = numeric;
+  }
+};
 
 const urgencies = [
   { id: '48h', label: 'Next 48h ⚡' },
@@ -679,31 +738,10 @@ const conditionOptions = [
 ];
 
 // Active State
-const activeItems = ref<DeclutterItem[]>([
-  {
-    tempId: 'init-mattress',
-    presetId: 'mattress',
-    title: 'Orthopedic / Spring Mattress (Standard Student Bed)',
-    price: 18000,
-    category: 'Furniture',
-    condition: 'Good Condition',
-    images: ['https://images.unsplash.com/photo-1584100936595-c0654b55a2e2?auto=format&fit=crop&q=80&w=800'],
-    videos: [],
-  },
-  {
-    tempId: 'init-fan',
-    presetId: 'fan',
-    title: 'Standing Rechargeable / Oxford Speed Fan',
-    price: 16000,
-    category: 'Appliances',
-    condition: 'Good Condition',
-    images: ['https://images.unsplash.com/photo-1585338107529-13afc5f02586?auto=format&fit=crop&q=80&w=800'],
-    videos: [],
-  },
-]);
+const activeItems = ref<DeclutterItem[]>([]);
 
-const hostelName = ref('Moremi Hall, Room 204');
-const groupName = ref('Room 204 Declutter Sale');
+const hostelName = ref(user.value?.hostel || '');
+const groupName = ref('');
 const urgency = ref('48h');
 const batchNotes = ref('');
 const bundleDiscount = ref(15);
@@ -768,7 +806,7 @@ const isPresetSelected = (id: string) => {
   return activeItems.value.some((item) => item.presetId === id);
 };
 
-const togglePreset = (preset: typeof presets[0]) => {
+const togglePreset = (preset: typeof presets.value[0]) => {
   const index = activeItems.value.findIndex((item) => item.presetId === preset.id);
   if (index >= 0) {
     activeItems.value.splice(index, 1);
@@ -787,7 +825,7 @@ const togglePreset = (preset: typeof presets[0]) => {
 };
 
 const selectAll = () => {
-  activeItems.value = presets.map((p) => ({
+  activeItems.value = presets.value.map((p) => ({
     tempId: `preset-${p.id}-${Date.now()}`,
     presetId: p.id,
     title: p.title,

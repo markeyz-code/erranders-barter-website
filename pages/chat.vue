@@ -56,6 +56,19 @@
             </button>
           </div>
         </div>
+
+        <!-- Escrow Anti-Circumvention Protection Banner -->
+        <div v-if="activeChatId && !conversationUnavailable" class="bg-amber-50/90 border-b border-amber-200/80 px-4 py-2 flex items-center justify-between text-xs text-amber-950">
+          <div class="flex items-center gap-2">
+            <ShieldCheck class="w-4 h-4 text-emerald-600 shrink-0" />
+            <span class="font-medium text-[11px] sm:text-xs">
+              <strong class="font-black">Escrow Protected:</strong> Direct room pickup coordinates unlock after payment is secured in Escrow. Do not transfer money outside the app.
+            </span>
+          </div>
+          <NuxtLink v-if="activeChat?.item" :to="'/checkout?itemId=' + (activeChat.item._id || activeChat.item)" class="px-2.5 py-1 bg-brand-600 text-white rounded-lg font-black hover:bg-brand-700 transition-colors shrink-0 ml-2 text-[11px]">
+            Pay via Escrow 🔒
+          </NuxtLink>
+        </div>
         
         <!-- Network Upload Indicator -->
         <div v-if="isUploading" class="absolute top-[72px] left-1/2 -translate-x-1/2 z-20 bg-slate-900 text-white px-4 py-2 rounded-full text-xs font-bold flex items-center gap-2 shadow-xl shadow-slate-900/20">
@@ -155,19 +168,31 @@
         <div v-if="!conversationUnavailable" class="p-3 bg-white border-t border-slate-100 relative">
           <form @submit.prevent="sendMessage" class="flex items-end gap-2">
             
-            <button type="button" @click="showEmojis = !showEmojis" class="p-3 text-slate-400 hover:text-brand-600 bg-slate-50 hover:bg-brand-50 rounded-full transition-colors shrink-0 mb-0.5">
+            <button v-if="!isRecording" type="button" @click="showEmojis = !showEmojis" class="p-3 text-slate-400 hover:text-brand-600 bg-slate-50 hover:bg-brand-50 rounded-full transition-colors shrink-0 mb-0.5">
               <Smile class="w-5 h-5" />
             </button>
 
-            <button type="button" @click="triggerFileInput" class="p-3 text-slate-400 hover:text-brand-600 bg-slate-50 hover:bg-brand-50 rounded-full transition-colors shrink-0 mb-0.5">
+            <button v-if="!isRecording" type="button" @click="triggerFileInput" class="p-3 text-slate-400 hover:text-brand-600 bg-slate-50 hover:bg-brand-50 rounded-full transition-colors shrink-0 mb-0.5">
               <Paperclip class="w-5 h-5" />
             </button>
-            <button type="button" @click="startCamera" class="p-3 text-slate-400 hover:text-brand-600 bg-slate-50 hover:bg-brand-50 rounded-full transition-colors shrink-0 mb-0.5" :disabled="isUploading">
+            <button v-if="!isRecording" type="button" @click="startCamera" class="p-3 text-slate-400 hover:text-brand-600 bg-slate-50 hover:bg-brand-50 rounded-full transition-colors shrink-0 mb-0.5" :disabled="isUploading">
               <Camera class="w-5 h-5" />
             </button>
             <input type="file" ref="fileInput" @change="handleFile" accept="image/*" class="hidden" />
 
-            <div class="flex-1 bg-slate-50 border border-slate-200 rounded-2xl flex items-center min-h-[48px] focus-within:border-brand-500 transition-colors">
+            <!-- While Recording: Voice Bar -->
+            <div v-if="isRecording" class="flex-1 bg-red-50 border border-red-200 rounded-2xl flex items-center justify-between px-4 py-2 min-h-[48px] animate-pulse">
+              <div class="flex items-center gap-2 text-red-600 font-bold text-xs sm:text-sm">
+                <span class="w-3 h-3 rounded-full bg-red-600 animate-ping shrink-0"></span>
+                <span>Recording Voice Note... {{ formatRecordingTime(recordingSeconds) }}</span>
+              </div>
+              <button type="button" @click="cancelRecording" class="text-xs font-bold text-slate-500 hover:text-slate-800 px-2.5 py-1 bg-white rounded-lg border border-slate-200 hover:bg-slate-100 transition-colors">
+                Cancel
+              </button>
+            </div>
+
+            <!-- Normal Input Area -->
+            <div v-else class="flex-1 bg-slate-50 border border-slate-200 rounded-2xl flex items-center min-h-[48px] focus-within:border-brand-500 transition-colors">
               <textarea 
                 v-model="newMessage" 
                 placeholder="Type a message..." 
@@ -179,14 +204,21 @@
               ></textarea>
             </div>
             
-            <button v-if="newMessage.trim() || pendingAsset" type="submit" :disabled="isUploading || sending" class="w-12 h-12 bg-brand-600 hover:bg-brand-700 disabled:opacity-50 disabled:cursor-not-allowed rounded-full flex items-center justify-center text-white transition-colors shrink-0 shadow-sm mb-0.5">
+            <!-- Stop & Send Voice Note Button -->
+            <button v-if="isRecording" type="button" @click="stopRecording" :disabled="isUploading" class="w-12 h-12 bg-red-600 hover:bg-red-700 disabled:opacity-50 text-white rounded-full flex items-center justify-center transition-all shadow-md shrink-0 mb-0.5" title="Send Voice Note">
+              <Send v-if="!isUploading" class="w-5 h-5 ml-0.5" />
+              <Loader2 v-else class="w-5 h-5 animate-spin" />
+            </button>
+
+            <!-- Send Text/Image Message Button -->
+            <button v-else-if="newMessage.trim() || pendingAsset" type="submit" :disabled="isUploading || sending" class="w-12 h-12 bg-brand-600 hover:bg-brand-700 disabled:opacity-50 disabled:cursor-not-allowed rounded-full flex items-center justify-center text-white transition-colors shrink-0 shadow-sm mb-0.5">
               <Send v-if="!isUploading && !sending" class="w-5 h-5 ml-1" />
               <Loader2 v-else class="w-5 h-5 animate-spin" />
             </button>
             
-            <button v-else type="button" @mousedown="startRecording" @mouseup="stopRecording" @mouseleave="stopRecording" @touchstart.prevent="startRecording" @touchend.prevent="stopRecording" :class="isRecording ? 'bg-red-500 hover:bg-red-600 animate-pulse shadow-red-500/30' : 'bg-brand-100 hover:bg-brand-200 text-brand-600'" class="w-12 h-12 rounded-full flex items-center justify-center transition-all shrink-0 shadow-sm mb-0.5 relative">
-              <Mic class="w-5 h-5" :class="isRecording ? 'text-white' : ''" />
-              <span v-if="isRecording" class="absolute -top-8 left-1/2 -translate-x-1/2 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full whitespace-nowrap">Recording...</span>
+            <!-- Start Voice Recording Mic Button -->
+            <button v-else type="button" @click="startRecording" class="w-12 h-12 rounded-full flex items-center justify-center transition-all shrink-0 shadow-sm mb-0.5 bg-brand-100 hover:bg-brand-200 text-brand-600" title="Record Voice Note">
+              <Mic class="w-5 h-5" />
             </button>
 
           </form>
@@ -281,8 +313,11 @@ const config = { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] }
 
 const popularEmojis = ['😀','😂','🥰','😎','🥺','😭','🙏','👍','🔥','✨','❤️','🎉']
 
+const recordingSeconds = ref(0)
+let recordingTimer = null
 let mediaRecorder = null
 let audioChunks = []
+let mediaStreamRef = null
 
 const activeChat = computed(() => chats.value.find(c => String(c._id) === String(activeChatId.value)) || null)
 const headerTitle = computed(() => (activeChat.value ? chatTitle(activeChat.value) : 'Secure Chat'))
@@ -353,6 +388,8 @@ onMounted(async () => {
 
 onUnmounted(() => {
   stopCamera()
+  if (recordingTimer) clearInterval(recordingTimer)
+  if (mediaStreamRef) mediaStreamRef.getTracks().forEach((track) => track.stop())
   const s = socket.value
   if (s) {
     s.off('call-offer')
@@ -465,19 +502,93 @@ const cancelAttachment = () => {
   pendingFile.value = null
 }
 
+const formatRecordingTime = (secs) => {
+  const m = Math.floor(secs / 60)
+  const s = secs % 60
+  return `${m}:${s < 10 ? '0' : ''}${s}`
+}
+
+const cancelRecording = () => {
+  if (recordingTimer) {
+    clearInterval(recordingTimer)
+    recordingTimer = null
+  }
+  isRecording.value = false
+  recordingSeconds.value = 0
+  if (mediaRecorder) {
+    mediaRecorder.onstop = null
+    try {
+      if (mediaRecorder.state !== 'inactive') mediaRecorder.stop()
+    } catch {}
+  }
+  if (mediaStreamRef) {
+    mediaStreamRef.getTracks().forEach((track) => track.stop())
+    mediaStreamRef = null
+  }
+  audioChunks = []
+  showToast({
+    title: 'Cancelled',
+    message: 'Voice note cancelled.',
+    toastType: 'info'
+  })
+}
+
 const startRecording = async () => {
-  if (!activeChatId.value || isUploading.value) return
+  if (!activeChatId.value || isUploading.value || isRecording.value) return
   try {
     const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
-    mediaRecorder = new MediaRecorder(stream)
-    audioChunks = []
-    mediaRecorder.ondataavailable = (e) => {
-      if (e.data && e.data.size) audioChunks.push(e.data)
+    mediaStreamRef = stream
+
+    // Choose supported MIME type cross-browser (Chrome, Safari, Firefox, Edge, iOS)
+    const mimeCandidates = [
+      'audio/webm;codecs=opus',
+      'audio/webm',
+      'audio/mp4',
+      'audio/aac',
+      'audio/ogg'
+    ]
+    let selectedMime = ''
+    if (typeof MediaRecorder !== 'undefined') {
+      selectedMime = mimeCandidates.find((m) => MediaRecorder.isTypeSupported(m)) || ''
     }
+
+    mediaRecorder = selectedMime ? new MediaRecorder(stream, { mimeType: selectedMime }) : new MediaRecorder(stream)
+    audioChunks = []
+
+    mediaRecorder.ondataavailable = (e) => {
+      if (e.data && e.data.size > 0) {
+        audioChunks.push(e.data)
+      }
+    }
+
     mediaRecorder.onstop = async () => {
-      const audioBlob = new Blob(audioChunks, { type: 'audio/webm' })
+      if (mediaStreamRef) {
+        mediaStreamRef.getTracks().forEach((track) => track.stop())
+        mediaStreamRef = null
+      }
+      if (recordingTimer) {
+        clearInterval(recordingTimer)
+        recordingTimer = null
+      }
+
+      if (!activeChatId.value || !audioChunks.length) {
+        recordingSeconds.value = 0
+        return
+      }
+
+      const mimeType = mediaRecorder?.mimeType || selectedMime || 'audio/webm'
+      const audioBlob = new Blob(audioChunks, { type: mimeType })
       audioChunks = []
-      if (!activeChatId.value) return
+      recordingSeconds.value = 0
+
+      if (audioBlob.size < 200) {
+        showToast({
+          title: 'Too short',
+          message: 'Voice note was too short to send.',
+          toastType: 'warning'
+        })
+        return
+      }
 
       isUploading.value = true
       try {
@@ -496,18 +607,38 @@ const startRecording = async () => {
         isUploading.value = false
       }
     }
-    mediaRecorder.start()
+
+    // 250ms chunk timeslice for immediate availability
+    mediaRecorder.start(250)
     isRecording.value = true
+    recordingSeconds.value = 0
+    recordingTimer = setInterval(() => {
+      recordingSeconds.value++
+    }, 1000)
   } catch (err) {
-    showToast({ title: 'Notice', message: "Microphone access denied.", toastType: "error" })
+    console.error('Mic access error', err)
+    showToast({
+      title: 'Microphone permission needed',
+      message: 'Please allow microphone access in your browser to record voice notes.',
+      toastType: 'error'
+    })
   }
 }
 
 const stopRecording = () => {
+  if (recordingTimer) {
+    clearInterval(recordingTimer)
+    recordingTimer = null
+  }
   if (mediaRecorder && isRecording.value) {
-    mediaRecorder.stop()
     isRecording.value = false
-    mediaRecorder.stream.getTracks().forEach(track => track.stop())
+    try {
+      if (mediaRecorder.state !== 'inactive') {
+        mediaRecorder.stop()
+      }
+    } catch (err) {
+      console.warn('Error stopping media recorder', err)
+    }
   }
 }
 
@@ -539,6 +670,18 @@ const sendMessage = async (e) => {
 
   const content = newMessage.value.trim()
   const replyTo = replyingTo.value?._id
+
+  // Warn student if message appears to bypass escrow with phone numbers or direct bank transfers
+  const nigerianPhoneRegex = /(?:0[789][01]\d{8}|\+?234\s?[789][01]\d{8})/
+  const offPlatformKeywords = /(?:whatsapp|dm on ig|transfer to my account|pay outside|send account number|pay to my opay|pay cash)/i
+  if (nigerianPhoneRegex.test(content) || offPlatformKeywords.test(content)) {
+    showToast({
+      title: '🛡️ Safety Reminder',
+      message: 'Never pay directly or share payment details outside Decluttered. Pay through Escrow so your money is 100% protected!',
+      toastType: 'warning',
+      duration: 6000
+    })
+  }
 
   newMessage.value = ''
   cancelAttachment()

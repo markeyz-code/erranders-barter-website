@@ -57,6 +57,7 @@ export interface Booking {
   commitmentFeePaid?: boolean;
   remainingBalancePaid?: boolean;
   paymentStatus?: 'unpaid' | 'commitment_paid' | 'fully_paid';
+  paymentReference?: string;
   payoutReleased?: boolean;
   status: BookingStatus;
   notes?: string;
@@ -74,6 +75,7 @@ export interface CreateBookingPayload {
   startTime: string;
   durationMinutes?: number;
   notes?: string;
+  paymentReference?: string;
 }
 
 export interface RescheduleBookingPayload {

@@ -63,11 +63,16 @@
             <span class="px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider" 
                   :class="{
                     'bg-yellow-50 text-yellow-600': offer.status === 'pending', 
+                    'bg-amber-50 text-amber-700 border border-amber-200': offer.status === 'accepted_by_receiver',
                     'bg-emerald-50 text-emerald-600': offer.status === 'accepted', 
                     'bg-red-50 text-red-600': offer.status === 'declined',
                     'bg-blue-50 text-blue-600': offer.status === 'countered'
                   }">
-              {{ offer.status === 'accepted' ? '🤝 DEAL AGREED' : offer.status }}
+              <template v-if="offer.status === 'accepted'">🤝 DEAL AGREED</template>
+              <template v-else-if="offer.status === 'accepted_by_receiver'">
+                {{ activeTab === 'sent' ? '🔔 REVIEW & CONFIRM SWAP' : '⏳ AWAITING INITIATOR CONFIRMATION' }}
+              </template>
+              <template v-else>{{ offer.status }}</template>
             </span>
             <span class="text-xs font-bold text-slate-400">{{ new Date(offer.createdAt).toLocaleDateString() }}</span>
           </div>
@@ -106,17 +111,65 @@
             </button>
           </div>
 
+          <!-- Receiver's Item Swap Details Display -->
+          <div v-if="offer.receiverSwapDetails" class="mt-3.5 p-3 bg-slate-50 border border-slate-200/90 rounded-xl relative z-20 text-left">
+            <div class="flex items-center gap-1.5 text-xs font-bold text-slate-900 mb-1">
+              <Repeat class="w-3.5 h-3.5 text-brand-600" />
+              <span>Receiver's Agreed Item Details:</span>
+            </div>
+            <p class="text-xs text-slate-700 whitespace-pre-line leading-relaxed font-medium bg-white p-2.5 rounded-lg border border-slate-100">
+              {{ offer.receiverSwapDetails }}
+            </p>
+            <p v-if="offer.receiverHandoverNotes" class="text-[11px] text-slate-500 font-semibold mt-1.5 flex items-center gap-1">
+              <MapPin class="w-3 h-3 text-brand-500" /> Handover Note: {{ offer.receiverHandoverNotes }}
+            </p>
+          </div>
+
+          <!-- Initiator Review & Confirmation Callout (Sent Tab) -->
+          <div v-if="activeTab === 'sent' && offer.status === 'accepted_by_receiver'" class="mt-3 p-3.5 bg-amber-50 border border-amber-200 rounded-xl relative z-20 space-y-2 text-left">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-1.5 text-xs font-black text-amber-900">
+                <Sparkles class="w-4 h-4 text-amber-600" />
+                <span>Receiver Accepted! Please Review Details & Confirm</span>
+              </div>
+            </div>
+            <p class="text-[11px] text-amber-800 leading-normal">
+              The receiver provided their item details above. Once you confirm, the swap is finalized and both items are reserved.
+            </p>
+            <div class="flex items-center justify-end gap-2 pt-1">
+              <button
+                @click="openDeclineModal(offer._id)"
+                class="px-3.5 py-1.5 text-xs font-bold text-red-600 hover:bg-red-50 rounded-lg border border-red-200 transition-colors"
+              >
+                Decline
+              </button>
+              <button
+                @click="confirmSwapAsInitiator(offer._id)"
+                :disabled="confirmSubmittingId === offer._id"
+                class="px-4 py-2 text-xs font-black text-white bg-emerald-600 hover:bg-emerald-700 rounded-lg transition-colors flex items-center gap-1.5 shadow-xs"
+              >
+                <Loader2 v-if="confirmSubmittingId === offer._id" class="w-3.5 h-3.5 animate-spin" />
+                <Check v-else class="w-3.5 h-3.5 stroke-[3]" />
+                <span>{{ confirmSubmittingId === offer._id ? 'Confirming...' : 'Confirm Swap & Finalize' }}</span>
+              </button>
+            </div>
+          </div>
+
           <!-- Actions -->
           <div class="mt-4 pt-4 border-t border-slate-100 flex flex-wrap items-center justify-end gap-2 relative z-20">
+            <!-- Received Tab & Pending: Accept Swap with Modal -->
             <template v-if="activeTab === 'received' && offer.status === 'pending'">
               <button @click="openDeclineModal(offer._id)" class="px-4 py-2 text-sm bg-red-50 text-red-600 hover:bg-red-100 font-bold rounded-lg transition-colors border border-red-100">
                 Decline
               </button>
-              <button @click="updateStatus(offer._id, 'accepted')" class="px-4 py-2 text-sm bg-brand-600 text-white hover:bg-brand-700 font-bold rounded-lg transition-colors">
-                Accept Deal
+              <button @click="openAcceptModal(offer)" class="px-4 py-2 text-sm bg-brand-600 text-white hover:bg-brand-700 font-bold rounded-lg transition-colors flex items-center gap-1.5 shadow-sm">
+                <Repeat class="w-4 h-4" />
+                <span>Accept Swap</span>
               </button>
             </template>
-            <template v-else-if="offer.status === 'accepted' || offer.status === 'pending'">
+
+            <!-- Communication Buttons -->
+            <template v-if="offer.status === 'accepted' || offer.status === 'accepted_by_receiver' || offer.status === 'pending'">
               <button @click="startChat(offer, 'chat')" class="px-3 py-1.5 text-xs bg-brand-50 text-brand-600 hover:bg-brand-100 font-bold rounded-lg transition-colors flex items-center gap-1.5">
                 <MessageCircle class="w-3.5 h-3.5" /> Chat
               </button>
@@ -228,21 +281,114 @@
       @close="declineModalOpen = false"
       @confirm="confirmDecline"
     />
+
+    <!-- Accept Swap Modal (Receiver inputs item details) -->
+    <div v-if="isAcceptModalOpen" class="fixed inset-0 z-[110] flex items-center justify-center bg-black/60 backdrop-blur-xs p-4">
+      <div class="bg-white w-full max-w-lg rounded-3xl border border-slate-200 shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200">
+        <!-- Header -->
+        <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50">
+          <div class="flex items-center gap-2.5">
+            <div class="w-8 h-8 rounded-full bg-brand-100 text-brand-600 flex items-center justify-center">
+              <Repeat class="w-4 h-4" />
+            </div>
+            <div>
+              <h3 class="text-base font-black text-slate-900">Accept Swap Offer</h3>
+              <p class="text-xs text-slate-500">Specify details of the item you want to swap</p>
+            </div>
+          </div>
+          <button @click="closeAcceptModal" class="p-2 text-slate-400 hover:text-slate-600 rounded-full hover:bg-slate-200 transition-colors">
+            <X class="w-5 h-5" />
+          </button>
+        </div>
+
+        <!-- Body -->
+        <div class="p-6 space-y-4">
+          <!-- Item Offered by Initiator -->
+          <div class="bg-slate-50 border border-slate-200 rounded-2xl p-3.5 flex items-center gap-3">
+            <img :src="acceptingOffer?.offeredItemId?.images?.[0] || '/no-image.png'" class="w-14 h-14 object-cover rounded-xl border border-slate-200 shrink-0" />
+            <div class="min-w-0 flex-1">
+              <span class="text-[10px] font-black uppercase tracking-wider text-brand-600">Offered by Initiator</span>
+              <h4 class="font-bold text-sm text-slate-900 truncate">{{ acceptingOffer?.offeredItemId?.title }}</h4>
+              <p class="text-xs text-slate-500 font-semibold mt-0.5">
+                Valuation: ₦{{ Number(acceptingOffer?.offeredItemId?.price || 0).toLocaleString() }}
+                <span v-if="acceptingOffer?.cashTopUp" class="ml-2 font-black text-emerald-600">
+                  ({{ acceptingOffer.cashTopUp > 0 ? '+₦' + acceptingOffer.cashTopUp.toLocaleString() + ' Cash' : '-₦' + Math.abs(acceptingOffer.cashTopUp).toLocaleString() + ' Cash' }})
+                </span>
+              </p>
+            </div>
+          </div>
+
+          <!-- Area to input item swap details -->
+          <div>
+            <label class="block text-xs font-black text-slate-800 mb-1.5 uppercase tracking-wide">
+              Details of the item you want to swap <span class="text-red-500">*</span>
+            </label>
+            <textarea
+              v-model="receiverSwapDetails"
+              rows="3"
+              placeholder="Describe condition, exact model, accessories included (e.g. In working condition with original power cord and remote. Minor scratches on side)..."
+              class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-xs text-slate-800 focus:outline-none focus:bg-white focus:border-brand-600 focus:ring-2 focus:ring-brand-600/10 resize-none transition-all"
+            />
+          </div>
+
+          <div>
+            <label class="block text-xs font-black text-slate-800 mb-1.5 uppercase tracking-wide">
+              Handover / Pickup Note (Optional)
+            </label>
+            <input
+              v-model="receiverHandoverNotes"
+              type="text"
+              placeholder="e.g. Available for inspection and swap at Block 3 common room every evening"
+              class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-800 focus:outline-none focus:bg-white focus:border-brand-600 focus:ring-2 focus:ring-brand-600/10 transition-all"
+            />
+          </div>
+
+          <!-- Notice -->
+          <div class="bg-blue-50 border border-blue-200/80 rounded-xl p-3 flex items-start gap-2.5 text-xs text-blue-800">
+            <Sparkles class="w-4 h-4 text-blue-600 shrink-0 mt-0.5" />
+            <p class="text-[11px] leading-relaxed">
+              Once submitted, the initiator will receive an instant notification to review your item details and give final confirmation before the swap occurs.
+            </p>
+          </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="px-6 py-4 bg-slate-50 border-t border-slate-100 flex items-center justify-end gap-3">
+          <button
+            type="button"
+            @click="closeAcceptModal"
+            class="px-4 py-2 text-xs font-bold text-slate-600 hover:bg-slate-200 rounded-xl transition-colors"
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            @click="submitAcceptSwap"
+            :disabled="!receiverSwapDetails.trim() || acceptSubmitting"
+            class="px-5 py-2.5 text-xs font-black bg-brand-600 text-white rounded-xl hover:bg-brand-700 disabled:opacity-50 transition-colors flex items-center gap-2 shadow-xs"
+          >
+            <Loader2 v-if="acceptSubmitting" class="w-4 h-4 animate-spin" />
+            <span>{{ acceptSubmitting ? 'Submitting...' : 'Accept Swap & Send for Review' }}</span>
+          </button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
 <script setup>
 import { useCustomToast } from '@/composables/core/useCustomToast';
-import { Repeat, MessageCircle, Phone, Video, X, MapPin, PlayCircle } from 'lucide-vue-next'
+import { Repeat, MessageCircle, Phone, Video, X, MapPin, PlayCircle, Sparkles, Check, Loader2 } from 'lucide-vue-next'
 import { ref, onMounted, computed, watch } from 'vue'
 import { offersApi } from '~/composables/useApi'
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 import ConfirmActionModal from '~/components/ConfirmActionModal.vue'
 
 definePageMeta({ layout: 'dashboard' })
 
 const router = useRouter()
-const activeTab = ref('received')
+const route = useRoute()
+const activeTab = ref(route.query.tab === 'sent' ? 'sent' : 'received')
 const loading = ref(true)
 
 const receivedOffers = ref([])
@@ -250,6 +396,14 @@ const sentOffers = ref([])
 const error = ref('')
 
 const justAcceptedId = ref(null)
+
+// Accept Swap Modal State (Receiver item input)
+const isAcceptModalOpen = ref(false)
+const acceptingOffer = ref(null)
+const receiverSwapDetails = ref('')
+const receiverHandoverNotes = ref('')
+const acceptSubmitting = ref(false)
+const confirmSubmittingId = ref(null)
 
 // Custom Decline Modal State
 const declineModalOpen = ref(false)
@@ -338,6 +492,70 @@ const confirmDecline = async () => {
     useCustomToast().showToast({ title: 'Notice', message: 'Failed to decline offer', toastType: "error" })
   } finally {
     declineSubmitting.value = false
+  }
+}
+
+const openAcceptModal = (offer) => {
+  acceptingOffer.value = offer
+  receiverSwapDetails.value = ''
+  receiverHandoverNotes.value = ''
+  isAcceptModalOpen.value = true
+}
+
+const closeAcceptModal = () => {
+  isAcceptModalOpen.value = false
+  acceptingOffer.value = null
+}
+
+const submitAcceptSwap = async () => {
+  if (!acceptingOffer.value || !receiverSwapDetails.value.trim()) return
+  acceptSubmitting.value = true
+  try {
+    await offersApi.updateStatus(acceptingOffer.value._id, {
+      status: 'accepted_by_receiver',
+      receiverSwapDetails: receiverSwapDetails.value.trim(),
+      receiverHandoverNotes: receiverHandoverNotes.value.trim(),
+    })
+    useCustomToast().showToast({
+      title: 'Swap Accepted! 🤝',
+      message: 'Item details submitted. The initiator has received a notification to review and confirm.',
+      toastType: 'success',
+    })
+    closeAcceptModal()
+    await fetchOffers()
+  } catch (err) {
+    useCustomToast().showToast({
+      title: 'Action Failed',
+      message: err?.response?.data?.message || 'Could not submit swap acceptance.',
+      toastType: 'error',
+    })
+  } finally {
+    acceptSubmitting.value = false
+  }
+}
+
+const confirmSwapAsInitiator = async (offerId) => {
+  confirmSubmittingId.value = offerId
+  try {
+    await offersApi.updateStatus(offerId, 'accepted')
+    justAcceptedId.value = offerId
+    useCustomToast().showToast({
+      title: 'Swap Finalized! 🎉🤝',
+      message: 'Deal confirmed! Both items are reserved. You can now chat or call to exchange.',
+      toastType: 'success',
+    })
+    await fetchOffers()
+    setTimeout(() => {
+      justAcceptedId.value = null
+    }, 3000)
+  } catch (err) {
+    useCustomToast().showToast({
+      title: 'Confirmation Failed',
+      message: err?.response?.data?.message || 'Could not confirm swap.',
+      toastType: 'error',
+    })
+  } finally {
+    confirmSubmittingId.value = null
   }
 }
 

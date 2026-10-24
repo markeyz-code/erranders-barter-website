@@ -14,14 +14,33 @@
 
       <!-- Content -->
       <div class="p-4 sm:p-6 overflow-y-auto flex-1">
-        <div class="mb-6 bg-slate-50 border border-slate-200 rounded-2xl p-4 flex gap-4">
-          <img :src="targetItem?.images?.[0] || '/no-image.png'" class="w-20 h-20 object-cover rounded-xl border border-slate-200" />
-          <div class="flex-1 overflow-hidden flex flex-col justify-center">
-            <h3 class="font-black text-slate-900 text-base truncate">{{ targetItem?.title }}</h3>
-            <p class="text-xs text-slate-500 line-clamp-1 mt-1">{{ targetItem?.description || 'No description available.' }}</p>
-            <div class="flex items-center gap-3 mt-2 text-[11px] font-bold text-slate-500">
-              <span class="flex items-center gap-1"><MapPin class="w-3 h-3" /> {{ targetItem?.location || 'No location' }}</span>
-              <span v-if="targetItem?.sellerId?.firstName" class="flex items-center gap-1"><UserIcon class="w-3 h-3" /> {{ targetItem.sellerId.firstName }}</span>
+        <div class="mb-6 bg-slate-50 border border-slate-200 rounded-2xl p-4">
+          <div class="flex gap-4">
+            <img :src="targetItem?.images?.[0] || '/no-image.png'" class="w-20 h-20 object-cover rounded-xl border border-slate-200 shrink-0" />
+            <div class="flex-1 overflow-hidden flex flex-col justify-center">
+              <h3 class="font-black text-slate-900 text-base truncate">{{ targetItem?.title }}</h3>
+              <p class="text-xs text-slate-500 line-clamp-1 mt-0.5">{{ targetItem?.description || 'No description available.' }}</p>
+              <div class="flex items-center gap-3 mt-1.5 text-[11px] font-bold text-slate-500">
+                <span class="flex items-center gap-1"><MapPin class="w-3 h-3 text-brand-600" /> {{ targetItem?.location || 'No location' }}</span>
+                <span v-if="targetItem?.sellerId?.firstName" class="flex items-center gap-1"><UserIcon class="w-3 h-3 text-brand-600" /> {{ targetItem.sellerId.firstName }}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- What it is looking to be swapped with -->
+          <div class="mt-3 pt-3 border-t border-slate-200/80 bg-white rounded-xl p-3 border border-slate-200/90 flex items-start gap-2.5 shadow-xs">
+            <div class="w-7 h-7 rounded-lg bg-brand-50 text-brand-600 flex items-center justify-center shrink-0 mt-0.5 border border-brand-100">
+              <Repeat class="w-4 h-4 text-brand-600" />
+            </div>
+            <div class="min-w-0 flex-1">
+              <span class="text-[10px] font-black uppercase tracking-wider text-brand-600 block">Looking to swap with:</span>
+              <p class="text-xs font-black text-slate-900 mt-0.5 leading-snug break-words">
+                {{ targetItem?.swapPreference || targetItem?.description || 'Open to fair items & reasonable trade offers' }}
+              </p>
+              <div v-if="targetItem?.price" class="mt-1 flex items-center gap-2 text-[11px] font-bold text-slate-400">
+                <span>Benchmark Valuation:</span>
+                <span class="font-black text-brand-600">₦{{ Number(targetItem.price).toLocaleString() }}</span>
+              </div>
             </div>
           </div>
         </div>
@@ -116,6 +135,13 @@
               {{ fairnessBadge.text }}
             </span>
           </div>
+        <!-- Swap Protection & Escrow Fee Note -->
+        <div class="mt-4 bg-emerald-50/70 p-3 rounded-xl border border-emerald-200/80 flex items-center justify-between text-xs" v-if="selectedItemId">
+          <div class="flex items-center gap-2 text-emerald-900 font-medium">
+            <ShieldCheck class="w-4 h-4 text-emerald-600 shrink-0" />
+            <span>Student Swap Protection & Verification</span>
+          </div>
+          <span class="font-extrabold text-emerald-800">₦250 <span class="text-[10px] font-normal text-emerald-600">(Escrow Safe)</span></span>
         </div>
 
       </div>
@@ -142,7 +168,7 @@
 
 <script setup>
 import { useCustomToast } from '@/composables/core/useCustomToast';
-import { X, Check, Repeat, Loader2, ArrowRightLeft, ThumbsUp, AlertTriangle, Sparkles, MapPin, User as UserIcon } from 'lucide-vue-next'
+import { X, Check, Repeat, Loader2, ArrowRightLeft, ThumbsUp, AlertTriangle, Sparkles, MapPin, User as UserIcon, ShieldCheck } from 'lucide-vue-next'
 import CustomSelect from '~/components/CustomSelect.vue'
 import { ref, watch, computed } from 'vue'
 import { itemsApi, offersApi } from '~/composables/useApi'

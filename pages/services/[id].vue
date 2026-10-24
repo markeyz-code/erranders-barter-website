@@ -314,10 +314,24 @@
               </div>
               <div class="flex items-center justify-between text-xs pt-1.5 border-t border-brand-100">
                 <div>
-                  <span class="font-black text-brand-800">Commitment Deposit (Pay Now)</span>
-                  <p class="text-[10px] text-brand-600 font-medium">Secures appointment & prevents no-shows</p>
+                  <span class="font-bold text-slate-700">Commitment Deposit</span>
+                  <p class="text-[10px] text-slate-500 font-medium">Secures appointment & provider slot</p>
                 </div>
-                <span class="font-black text-brand-700 text-sm">₦{{ calculatedCommitmentFee.toLocaleString() }}</span>
+                <span class="font-bold text-slate-800 text-xs">₦{{ calculatedCommitmentFee.toLocaleString() }}</span>
+              </div>
+              <div class="flex items-center justify-between text-xs pt-1.5 border-t border-brand-100">
+                <div>
+                  <span class="font-bold text-slate-700">Student Booking & Escrow Fee</span>
+                  <p class="text-[10px] text-brand-600 font-medium">3% escrow protection & dispute mediation</p>
+                </div>
+                <span class="font-bold text-brand-700 text-xs">₦{{ calculatedServiceFee.toLocaleString() }}</span>
+              </div>
+              <div class="flex items-center justify-between text-xs pt-1.5 border-t border-brand-200">
+                <div>
+                  <span class="font-black text-brand-900">Total to Pay Now</span>
+                  <p class="text-[10px] text-brand-700 font-medium">Held securely until service is completed</p>
+                </div>
+                <span class="font-black text-brand-700 text-sm">₦{{ totalPayNow.toLocaleString() }}</span>
               </div>
               <div v-if="calculatedRemainingBalance > 0" class="flex items-center justify-between text-xs pt-1.5 border-t border-brand-100/70">
                 <div>
@@ -342,7 +356,7 @@
               @click="submit"
             >
               <span v-if="submitting" class="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
-              <span>{{ submitting ? 'Securing Booking…' : (startTime ? (calculatedCommitmentFee > 0 ? `Pay Commitment (₦${calculatedCommitmentFee.toLocaleString()}) & Book` : 'Confirm & Request Booking') : 'Select a Time Slot Above') }}</span>
+              <span>{{ submitting ? 'Securing Booking…' : (startTime ? (totalPayNow > 0 ? `Pay ₦${totalPayNow.toLocaleString()} & Book` : 'Confirm & Request Booking') : 'Select a Time Slot Above') }}</span>
             </button>
 
             <!-- Price & Escrow terms notice -->
@@ -407,8 +421,15 @@
               <div>
                 <span class="text-[11px] font-black text-brand-800">Commitment Fee (Paid)</span>
                 <p class="text-[10px] text-brand-600 font-medium">Secured in Erranders escrow</p>
+                <p v-if="confirmed.paymentReference" class="text-[9px] text-brand-500 font-mono mt-0.5 font-bold">
+                  Ref: {{ confirmed.paymentReference }}
+                </p>
               </div>
               <span class="font-black text-brand-700 text-sm">₦{{ Number(confirmed.commitmentFee ?? confirmed.amount ?? 0).toLocaleString() }}</span>
+            </div>
+            <div v-if="confirmed.paymentReference" class="flex items-center justify-between text-xs px-1 text-slate-500">
+              <span class="text-[10px] uppercase font-bold text-slate-400">Payment Reference</span>
+              <span class="font-mono text-[11px] text-slate-700 font-bold">{{ confirmed.paymentReference }}</span>
             </div>
             <div v-if="Number(confirmed.remainingBalance || 0) > 0" class="flex items-center justify-between text-xs px-1 text-slate-600">
               <span class="text-[11px] font-semibold">Due at Completion</span>
@@ -469,6 +490,7 @@ import {
 definePageMeta({ layout: 'default' });
 
 const route = useRoute();
+const { user, isLoggedIn, isGlobalAuthModalOpen } = useAuth();
 const serviceId = computed(() => String(route.params.id || ''));
 
 const service = ref<Service | null>(null);
@@ -507,6 +529,12 @@ const calculatedTotal = computed(() => {
   );
 });
 
+const calculatedServiceFee = computed(() => {
+  const total = calculatedTotal.value;
+  if (!total || total <= 0) return 0;
+  return Math.min(800, Math.max(150, Math.round(total * 0.03)));
+});
+
 const calculatedCommitmentFee = computed(() => {
   const total = calculatedTotal.value;
   if (!total || total <= 0) return 0;
@@ -514,6 +542,10 @@ const calculatedCommitmentFee = computed(() => {
   // 30% commitment fee rounded to nearest 50, minimum 1,000
   const rawFee = Math.max(1000, Math.round((total * 0.3) / 50) * 50);
   return Math.min(rawFee, total);
+});
+
+const totalPayNow = computed(() => {
+  return calculatedCommitmentFee.value + calculatedServiceFee.value;
 });
 
 const calculatedRemainingBalance = computed(() => {
@@ -565,8 +597,117 @@ const load = async () => {
   }
 };
 
+const ensurePaystackLoaded = (): Promise<void> => {
+  return new Promise((resolve, reject) => {
+    if (typeof window !== 'undefined' && (window as any).PaystackPop) {
+      return resolve();
+    }
+    if (typeof document === 'undefined') {
+      return reject(new Error('Window not available'));
+    }
+    const existing = document.querySelector('script[src="https://js.paystack.co/v1/inline.js"]');
+    if (existing) {
+      if ((window as any).PaystackPop) return resolve();
+      existing.addEventListener('load', () => resolve());
+      existing.addEventListener('error', () => reject(new Error('Failed to load Paystack')));
+      return;
+    }
+    const script = document.createElement('script');
+    script.src = 'https://js.paystack.co/v1/inline.js';
+    script.async = true;
+    script.onload = () => resolve();
+    script.onerror = () => reject(new Error('Failed to load Paystack payment library'));
+    document.head.appendChild(script);
+  });
+};
+
 const submit = async () => {
   if (!canSubmit.value) return;
+
+  if (!isLoggedIn.value) {
+    isGlobalAuthModalOpen.value = true;
+    return;
+  }
+
+  const fee = totalPayNow.value;
+
+  if (fee > 0) {
+    submitting.value = true;
+    bookingError.value = '';
+
+    try {
+      await ensurePaystackLoaded();
+      if (!(window as any).PaystackPop) {
+        throw new Error('Paystack payment gateway is not loaded. Please check your internet connection.');
+      }
+
+      const runtimeConfig = useRuntimeConfig();
+      const paystackKey =
+        runtimeConfig.public.paystackPublicKey ||
+        'pk_test_e3bcb144aaf2804f21581969dffaa563ae467ed4';
+      const paymentRef = `BK_ESCROW_${Date.now()}_${Math.floor(Math.random() * 1000000)}`;
+
+      const handler = (window as any).PaystackPop.setup({
+        key: paystackKey,
+        email: user.value?.email || 'customer@erranders.org',
+        amount: Math.round(fee * 100), // kobo
+        currency: 'NGN',
+        ref: paymentRef,
+        metadata: {
+          custom_fields: [
+            {
+              display_name: 'Service',
+              variable_name: 'service_title',
+              value: service.value?.title || 'Service',
+            },
+            {
+              display_name: 'Booking Date',
+              variable_name: 'booking_date',
+              value: date.value,
+            },
+            {
+              display_name: 'Time Slot',
+              variable_name: 'time_slot',
+              value: `${startTime.value} (${durationMinutes.value} mins)`,
+            },
+          ],
+        },
+        callback: async (response: { reference: string }) => {
+          try {
+            const { data } = await bookingsApi.create({
+              serviceId: serviceId.value,
+              date: date.value,
+              startTime: startTime.value,
+              durationMinutes: durationMinutes.value,
+              notes: notes.value.trim() || undefined,
+              paymentReference: response.reference,
+            });
+            confirmed.value = data;
+          } catch (err) {
+            const info = getApiError(err);
+            bookingError.value =
+              info.status === 409
+                ? `That slot was just taken. Please contact support with payment reference: ${response.reference}`
+                : (info.message || 'Payment received but failed to create booking.');
+            if (info.status === 409) startTime.value = '';
+          } finally {
+            submitting.value = false;
+          }
+        },
+        onClose: () => {
+          submitting.value = false;
+        },
+      });
+
+      handler.openIframe();
+    } catch (err: any) {
+      submitting.value = false;
+      bookingError.value = err?.message || 'Failed to initiate Paystack payment. Please try again.';
+    }
+    return;
+  }
+
+  // Commitment fee is 0 (e.g. negotiable or free consultation)
   submitting.value = true;
   bookingError.value = '';
   try {
@@ -595,5 +736,13 @@ useSeoMeta({
   description: computed(() => service.value?.description?.slice(0, 160) || 'Book campus skills and services on Decluttered.'),
 });
 
-onMounted(load);
+onMounted(() => {
+  load();
+  if (typeof window !== 'undefined' && !(window as any).PaystackPop) {
+    const script = document.createElement('script');
+    script.src = 'https://js.paystack.co/v1/inline.js';
+    script.async = true;
+    document.head.appendChild(script);
+  }
+});
 </script>

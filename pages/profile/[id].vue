@@ -146,7 +146,7 @@
         <!-- Bio & Campus Details -->
         <div class="mt-5 text-center max-w-md space-y-1.5">
           <p class="text-xs sm:text-sm font-semibold text-slate-200 flex items-center justify-center gap-1.5 flex-wrap">
-            <span>📍 {{ profileUser?.hostel || 'Hostel Campus' }}</span>
+            <span>📍 {{ isCurrentUserProfile ? (profileUser?.hostel || 'Campus Hostel') : 'Campus Verified' }}</span>
             <span class="text-slate-500">•</span>
             <span>{{ profileUser?.university || 'UNILAG' }}</span>
             <span v-if="profileUser?.level" class="text-slate-500">•</span>
@@ -312,6 +312,7 @@ const router = useRouter();
 const { user: currentUser } = useAuth();
 
 const userId = computed(() => String(route.params.id || ''));
+const isCurrentUserProfile = computed(() => currentUser.value?._id && String(currentUser.value._id) === String(userId.value));
 
 const profileUser = ref<any | null>(null);
 const userItems = ref<any[]>([]);
@@ -419,26 +420,11 @@ const loadProfileData = async () => {
 
   try {
     // 1. Fetch user public profile
-    let fetchedUser: any = null;
-    try {
-      const userRes = await usersApi.getPublicProfile(id);
-      fetchedUser = userRes?.data?.data || userRes?.data;
-    } catch {
-      // Fallback for mock IDs or when backend endpoint is not yet reachable
-      fetchedUser = {
-        _id: id,
-        firstName: id.includes('mover') ? 'Campus' : (id.includes('fumigat') ? 'Decluttered' : 'Bob'),
-        lastName: id.includes('mover') ? 'Movers' : (id.includes('fumigat') ? 'Pest Lab' : 'B.'),
-        hostel: id.includes('mover') ? 'Moremi Hall' : 'Mariere Hall, Room 310',
-        university: 'UNILAG',
-        level: '400',
-        rating: 5.0,
-        totalTrades: 18,
-        isVerified: true,
-        isMover: id.includes('mover'),
-        isFumigationCrew: id.includes('fumigat'),
-        bio: 'Graduating senior clearing room essentials! All sales escrow protected via Decluttered. Tested working with sound.',
-      };
+    const userRes = await usersApi.getPublicProfile(id);
+    const fetchedUser = userRes?.data?.data || userRes?.data;
+    if (!fetchedUser || !fetchedUser._id) {
+      errorState.value = true;
+      return;
     }
     profileUser.value = fetchedUser;
 
@@ -446,63 +432,8 @@ const loadProfileData = async () => {
     try {
       const itemsRes = await itemsApi.list({ sellerId: id, limit: 30 });
       const itemsData = itemsRes?.data?.data || itemsRes?.data || [];
-      if (Array.isArray(itemsData) && itemsData.length > 0) {
-        userItems.value = itemsData;
-      } else {
-        // Fallback: If no listings found directly for sellerId, fetch sample listings
-        userItems.value = [
-          {
-            _id: id + '-item-1',
-            title: 'Kenwood 2-in-1 Heavy Duty Blender + 2L Kettle',
-            price: 38000,
-            images: ['https://images.unsplash.com/photo-1586023492125-27b2c045efd7?auto=format&fit=crop&q=80&w=600'],
-            likesCount: 312,
-            category: 'Kitchen & Appliances',
-          },
-          {
-            _id: id + '-item-2',
-            title: 'Rechargeable LED Study Lamp with USB Port',
-            price: 8500,
-            images: ['https://images.unsplash.com/photo-1507473885765-e6ed057f782c?auto=format&fit=crop&q=80&w=600'],
-            likesCount: 170,
-            category: 'Study Essentials',
-          },
-          {
-            _id: id + '-item-3',
-            title: 'Orthopedic Single Bed Mattress (4x6)',
-            price: 45000,
-            images: ['https://images.unsplash.com/photo-1631049307264-da0ec9d70304?auto=format&fit=crop&q=80&w=600'],
-            likesCount: 310,
-            category: 'Hostel Furniture',
-          },
-          {
-            _id: id + '-item-4',
-            title: 'Mini Bedside Refrigerator 90L',
-            price: 65000,
-            images: ['https://images.unsplash.com/photo-1584992236310-6edddc08acff?auto=format&fit=crop&q=80&w=600'],
-            likesCount: 641,
-            category: 'Electronics',
-          },
-          {
-            _id: id + '-item-5',
-            title: 'Haier Thermocool Electric Hot Plate',
-            price: 15000,
-            images: ['https://images.unsplash.com/photo-1556911220-e15b29be8c8f?auto=format&fit=crop&q=80&w=600'],
-            likesCount: 448,
-            category: 'Kitchen & Appliances',
-          },
-          {
-            _id: id + '-item-6',
-            title: 'Noise Cancelling Wireless Bluetooth Headphones',
-            price: 22000,
-            images: ['https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&q=80&w=600'],
-            likesCount: 118,
-            category: 'Electronics',
-          },
-        ];
-      }
+      userItems.value = Array.isArray(itemsData) ? itemsData : [];
     } catch {
-      // Keep fallback items
       userItems.value = [];
     }
 

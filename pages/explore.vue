@@ -721,7 +721,7 @@
                 </button>
 
                 <NuxtLink 
-                  :to="selectedBatchGroup.items[0] ? '/checkout?itemId=' + selectedBatchGroup.items[0]._id : '/explore'"
+                  :to="selectedBatchGroup?.batchId ? ('/checkout?batchId=' + selectedBatchGroup.batchId) : (selectedBatchGroup?.items?.[0] ? ('/checkout?itemId=' + selectedBatchGroup.items[0]._id) : '/explore')"
                   class="px-5 py-2.5 rounded-xl bg-brand-600 hover:bg-brand-500 text-white font-black text-xs sm:text-sm transition-colors shadow-lg shadow-brand-600/30 flex items-center gap-1.5"
                 >
                   <span>Buy Room Bundle 🚀</span>
@@ -1192,102 +1192,6 @@ const batchGroups = computed(() => {
   })
 
   const list = Array.from(map.values())
-
-  // Default campus room declutter groups if none yet loaded
-  if (list.length === 0 && (route.query.declutter || selectedType.value === 'declutter')) {
-    return [
-      {
-        batchId: 'BATCH_ROOM_434',
-        groupName: 'Room 434 Declutter Sale 📦',
-        hostel: 'Moremi Hall, Room 434',
-        bundleDiscountPercent: 20,
-        seller: { firstName: 'Chidinma', lastName: 'O.' },
-        items: [
-          {
-            _id: 'sample-1',
-            title: 'Tabletop Compact Mini-Fridge (Low Power)',
-            price: 38000,
-            category: 'Appliances',
-            condition: 'Like New',
-            images: ['https://images.unsplash.com/photo-1584992236310-6edddc08acff?auto=format&fit=crop&q=80&w=800'],
-          },
-          {
-            _id: 'sample-2',
-            title: 'Orthopedic Single Bed Mattress (4x6)',
-            price: 16000,
-            category: 'Furniture',
-            condition: 'Good Condition',
-            images: ['https://images.unsplash.com/photo-1584100936595-c0654b55a2e2?auto=format&fit=crop&q=80&w=800'],
-          },
-          {
-            _id: 'sample-3',
-            title: 'Rechargeable Dual-Speed Standing Fan',
-            price: 14000,
-            category: 'Appliances',
-            condition: 'Good Condition',
-            images: ['https://images.unsplash.com/photo-1585338107529-13afc5f02586?auto=format&fit=crop&q=80&w=800'],
-          },
-          {
-            _id: 'sample-4',
-            title: 'Metal 4-Tier Shoe Rack & Organizer',
-            price: 4500,
-            category: 'Household',
-            condition: 'Good Condition',
-            images: ['https://images.unsplash.com/photo-1586023492125-27b2c045efd7?auto=format&fit=crop&q=80&w=800'],
-          },
-        ],
-        totalPrice: 72500,
-        discountedPrice: 58000,
-        images: [
-          'https://images.unsplash.com/photo-1584992236310-6edddc08acff?auto=format&fit=crop&q=80&w=800',
-          'https://images.unsplash.com/photo-1584100936595-c0654b55a2e2?auto=format&fit=crop&q=80&w=800',
-          'https://images.unsplash.com/photo-1585338107529-13afc5f02586?auto=format&fit=crop&q=80&w=800',
-          'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?auto=format&fit=crop&q=80&w=800',
-        ],
-      },
-      {
-        batchId: 'BATCH_ROOM_204',
-        groupName: 'Moremi Hall Room 204 Clearance 🎓',
-        hostel: 'Moremi Hall, Block B',
-        bundleDiscountPercent: 15,
-        seller: { firstName: 'Boluwatife', lastName: 'A.' },
-        items: [
-          {
-            _id: 'sample-5',
-            title: 'Oxford 18-inch High Velocity Fan',
-            price: 13500,
-            category: 'Appliances',
-            condition: 'Good Condition',
-            images: ['https://images.unsplash.com/photo-1585338107529-13afc5f02586?auto=format&fit=crop&q=80&w=800'],
-          },
-          {
-            _id: 'sample-6',
-            title: 'Wooden Study Table with Drawer Unit',
-            price: 11000,
-            category: 'Furniture',
-            condition: 'Good Condition',
-            images: ['https://images.unsplash.com/photo-1518455027359-f3f8164ba6bd?auto=format&fit=crop&q=80&w=800'],
-          },
-          {
-            _id: 'sample-7',
-            title: 'Electric Hot Plate Cooker (1500W)',
-            price: 6500,
-            category: 'Appliances',
-            condition: 'Working',
-            images: ['https://images.unsplash.com/photo-1584269600464-37b1b58a9fe7?auto=format&fit=crop&q=80&w=800'],
-          },
-        ],
-        totalPrice: 31000,
-        discountedPrice: 26350,
-        images: [
-          'https://images.unsplash.com/photo-1585338107529-13afc5f02586?auto=format&fit=crop&q=80&w=800',
-          'https://images.unsplash.com/photo-1518455027359-f3f8164ba6bd?auto=format&fit=crop&q=80&w=800',
-          'https://images.unsplash.com/photo-1584269600464-37b1b58a9fe7?auto=format&fit=crop&q=80&w=800',
-        ],
-      },
-    ]
-  }
-
   return list
 })
 

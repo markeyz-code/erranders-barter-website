@@ -11,47 +11,6 @@
       <div class="absolute -top-24 -left-24 w-96 h-96 bg-brand-500/10 rounded-full blur-3xl pointer-events-none"></div>
       <div class="absolute -bottom-24 -right-24 w-96 h-96 bg-amber-400/10 rounded-full blur-3xl pointer-events-none"></div>
 
-      <!-- ═══ DESKTOP-ONLY FLOATING ORGANIC HERO IMAGES (Strictly hidden on Mobile) ═══ -->
-      <!-- Card 1: Top Right Floating Photo (Students decluttering fridge and books) -->
-      <div class="hidden lg:block absolute top-10 right-4 xl:right-12 z-20 group cursor-pointer transition-all duration-500 hover:scale-105">
-        <div class="relative w-44 h-44 xl:w-52 xl:h-52 drop-shadow-2xl">
-          <div class="w-full h-full overflow-hidden rounded-[2.5rem] border-4 border-white shadow-xl bg-slate-100">
-            <img
-              src="/img/hero_declutter_room.jpg"
-              alt="Students decluttering hostel room on campus"
-              class="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-115"
-            />
-          </div>
-          <!-- Cute Top Badge -->
-          <div class="absolute -top-3 -right-2 px-2.5 py-1 rounded-full bg-emerald-500 text-white text-[10px] font-black shadow-md flex items-center gap-1">
-            <span>✨</span> Verified Deal
-          </div>
-          <!-- Micro Caption Pill -->
-          <div class="absolute -bottom-3 left-1/2 -translate-x-1/2 whitespace-nowrap px-3.5 py-1.5 bg-white/95 backdrop-blur-md rounded-full border border-slate-200/90 shadow-md text-xs font-black text-slate-800 flex items-center gap-1.5 transition-transform group-hover:scale-105">
-            <span class="w-2 h-2 rounded-full bg-brand-500 animate-pulse"></span>
-            <span>📦 Hostel Clearance Cashout</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- Card 2: Bottom Left Floating Photo (Instant Escrow Deals) -->
-      <div class="hidden lg:block absolute bottom-8 left-4 xl:left-12 z-20 group cursor-pointer transition-all duration-500 hover:scale-105">
-        <div class="relative w-36 h-36 xl:w-44 xl:h-44 drop-shadow-xl">
-          <div class="w-full h-full overflow-hidden rounded-[2.2rem] border-3 border-white shadow-lg bg-slate-100">
-            <img
-              src="/img/hero_declutter_room.jpg"
-              alt="Declutter appliances and books"
-              class="w-full h-full object-cover object-bottom transition-transform duration-700 ease-out group-hover:scale-110"
-            />
-          </div>
-          <!-- Micro Caption Pill -->
-          <div class="absolute -bottom-3 left-1/2 -translate-x-1/2 whitespace-nowrap px-3 py-1 bg-white/95 backdrop-blur-md rounded-full border border-slate-200/90 shadow-md text-[11px] font-black text-slate-800 flex items-center gap-1.5">
-            <span class="text-amber-500">💰</span>
-            <span>Instant Escrow Payout</span>
-          </div>
-        </div>
-      </div>
-
       <div class="max-w-5xl mx-auto relative z-10 space-y-6">
         <!-- Top Eyebrow Badge & Language Switcher -->
         <div class="flex flex-col sm:flex-row items-center justify-center gap-3">
@@ -160,39 +119,169 @@
               Search
             </button>
           </form>
+        </div>
+      </div>
+    </section>
 
-          <!-- Quick Discovery Pills (Fumigation removed) -->
-          <div class="mt-4 flex items-center justify-center gap-2 overflow-x-auto pb-1 no-scrollbar">
-            <span class="text-xs font-bold text-slate-400 uppercase tracking-wider shrink-0 mr-1">Popular:</span>
+    <!-- ── SECTION: 1-CLICK CAMPUS ROOM DECLUTTER SYSTEM ── -->
+    <section id="declutter-section" class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-16">
+      <!-- Section Header -->
+      <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
+        <div>
+          <div class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-brand-50 border border-brand-200 text-brand-700 text-xs font-black uppercase tracking-wider mb-2">
+            <Sparkles class="w-3.5 h-3.5 text-brand-600" />
+            <span>Automated Campus Clearance Engine</span>
+          </div>
+          <h2 class="text-2xl sm:text-4xl font-black text-slate-900 tracking-tight">
+            1-Click Room Declutter System
+          </h2>
+          <p class="text-xs sm:text-sm text-slate-500 font-medium max-w-2xl mt-1.5 leading-relaxed">
+            Graduating, moving hostels, or clearing room gear? Map your entire hostel room in 2 minutes. Get instant campus valuation benchmarks, automated bundle discounts, and fast liquidation with verified moving porters.
+          </p>
+        </div>
+
+        <div class="flex items-center gap-2.5 shrink-0">
+          <NuxtLink
+            to="/declutter"
+            class="px-5 py-3 rounded-2xl bg-brand-600 hover:bg-brand-500 text-white font-black text-xs sm:text-sm transition-all shadow-md shadow-brand-600/25 active:scale-95 flex items-center gap-2"
+          >
+            <Package class="w-4 h-4" />
+            <span>Launch 1-Click Declutter</span>
+            <ArrowRight class="w-4 h-4" />
+          </NuxtLink>
+          <NuxtLink
+            to="/explore?declutter=true"
+            class="px-4 py-3 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs sm:text-sm transition-colors border border-slate-200 flex items-center gap-1.5"
+          >
+            <span>Explore Room Boxes</span>
+          </NuxtLink>
+        </div>
+      </div>
+
+      <!-- 4-Step Clearly Mapped Declutter Workflow Grid -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-10">
+        <!-- Step 1 -->
+        <div class="relative bg-gradient-to-br from-white to-slate-50/70 p-5 rounded-3xl border border-slate-200/90 shadow-xs hover:border-brand-300 transition-all group">
+          <div class="w-10 h-10 rounded-2xl bg-brand-50 text-brand-600 flex items-center justify-center font-black text-sm mb-3.5 border border-brand-200 group-hover:scale-110 transition-transform">
+            1
+          </div>
+          <h3 class="font-black text-slate-900 text-sm sm:text-base mb-1">
+            Check Off Inventory
+          </h3>
+          <p class="text-xs text-slate-500 font-medium leading-relaxed">
+            Select common hostel room essentials (mattress, mini-fridge, speed fan, study desk, hot plate) with 1 tap.
+          </p>
+          <div class="mt-3 flex items-center gap-1.5 text-[11px] font-bold text-brand-600">
+            <span>2-Minute Checklist</span>
+            <span>→</span>
+          </div>
+        </div>
+
+        <!-- Step 2 -->
+        <div class="relative bg-gradient-to-br from-white to-slate-50/70 p-5 rounded-3xl border border-slate-200/90 shadow-xs hover:border-amber-300 transition-all group">
+          <div class="w-10 h-10 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center font-black text-sm mb-3.5 border border-amber-200 group-hover:scale-110 transition-transform">
+            2
+          </div>
+          <h3 class="font-black text-slate-900 text-sm sm:text-base mb-1">
+            Live Campus Valuation
+          </h3>
+          <p class="text-xs text-slate-500 font-medium leading-relaxed">
+            Instant valuation benchmarks calculated against real campus student transactions. No guesswork.
+          </p>
+          <div class="mt-3 flex items-center gap-1.5 text-[11px] font-bold text-amber-600">
+            <span>Fair Student Benchmark</span>
+            <span>→</span>
+          </div>
+        </div>
+
+        <!-- Step 3 -->
+        <div class="relative bg-gradient-to-br from-white to-slate-50/70 p-5 rounded-3xl border border-slate-200/90 shadow-xs hover:border-emerald-300 transition-all group">
+          <div class="w-10 h-10 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center font-black text-sm mb-3.5 border border-emerald-200 group-hover:scale-110 transition-transform">
+            3
+          </div>
+          <h3 class="font-black text-slate-900 text-sm sm:text-base mb-1">
+            Fast-Clearance Discount
+          </h3>
+          <p class="text-xs text-slate-500 font-medium leading-relaxed">
+            Apply 10%–20% bundle discounts and optional automated 10% daily price drops for rapid liquidation.
+          </p>
+          <div class="mt-3 flex items-center gap-1.5 text-[11px] font-bold text-emerald-600">
+            <span>Roommate Box Deals</span>
+            <span>→</span>
+          </div>
+        </div>
+
+        <!-- Step 4 -->
+        <div class="relative bg-gradient-to-br from-white to-slate-50/70 p-5 rounded-3xl border border-slate-200/90 shadow-xs hover:border-blue-300 transition-all group">
+          <div class="w-10 h-10 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center font-black text-sm mb-3.5 border border-blue-200 group-hover:scale-110 transition-transform">
+            4
+          </div>
+          <h3 class="font-black text-slate-900 text-sm sm:text-base mb-1">
+            Mover Porter & Escrow
+          </h3>
+          <p class="text-xs text-slate-500 font-medium leading-relaxed">
+            Dispatch verified campus movers to carry trunks down hostel stairs. 100% Escrow security until delivery.
+          </p>
+          <div class="mt-3 flex items-center gap-1.5 text-[11px] font-bold text-blue-600">
+            <span>1-Click Live Broadcast</span>
+            <span>→</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Interactive Quick Declutter Valuation Simulator Card -->
+      <div class="bg-gradient-to-br from-slate-900 via-slate-900 to-slate-800 text-white rounded-3xl p-6 sm:p-8 shadow-xl border border-slate-800 flex flex-col lg:flex-row items-center justify-between gap-8">
+        <div class="space-y-4 max-w-xl">
+          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-500/20 text-brand-400 text-xs font-black uppercase tracking-wider border border-brand-500/30">
+            <span>⚡ Interactive Declutter Calculator</span>
+          </div>
+          <h3 class="text-xl sm:text-3xl font-black tracking-tight leading-snug">
+            Calculate your hostel room cashout in real-time.
+          </h3>
+          <p class="text-xs sm:text-sm text-slate-400 font-medium leading-relaxed">
+            Tap common hostel room gear below to preview estimated clearance cashout with automatic bundle discount applied:
+          </p>
+
+          <!-- Interactive Pills to toggle items -->
+          <div class="flex flex-wrap gap-2 pt-1">
             <button
-              v-for="pill in popularSearches"
-              :key="pill"
-              @click="quickSearch(pill)"
-              class="px-3 py-1 rounded-full bg-slate-100 hover:bg-brand-50 text-slate-700 hover:text-brand-700 text-xs font-bold transition-colors whitespace-nowrap border border-slate-200/60"
+              v-for="preset in declutterSimulatorPresets"
+              :key="preset.id"
+              type="button"
+              @click="toggleSimulatorItem(preset)"
+              class="px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 border"
+              :class="isSimulatorSelected(preset.id)
+                ? 'bg-brand-600 text-white border-brand-500 shadow-sm'
+                : 'bg-slate-800/80 text-slate-300 border-slate-700 hover:bg-slate-800'"
             >
-              {{ pill }}
+              <span>{{ preset.icon }}</span>
+              <span>{{ preset.name }}</span>
+              <span class="opacity-80">₦{{ (preset.price / 1000).toFixed(0) }}k</span>
             </button>
           </div>
         </div>
 
-        <!-- Social Proof & Trust Strip -->
-        <div class="mt-10 pt-8 border-t border-slate-200/80 max-w-4xl mx-auto grid grid-cols-2 sm:grid-cols-4 gap-4 text-center">
-          <div class="p-2">
-            <p class="text-xl sm:text-2xl font-black text-slate-900 font-mono tracking-tight">₦4.8M+</p>
-            <p class="text-[10px] sm:text-[11px] font-bold text-slate-500 uppercase tracking-wider mt-0.5">Cashed Out by Students</p>
+        <!-- Valuation Recap Callout -->
+        <div class="bg-white/10 backdrop-blur-md rounded-2xl p-5 sm:p-6 border border-white/15 w-full lg:w-80 shrink-0 text-center space-y-3">
+          <span class="text-[10px] font-black uppercase tracking-widest text-slate-300 block">Estimated Room Valuation</span>
+          <div>
+            <div class="text-2xl sm:text-3xl font-black text-brand-400">
+              ₦{{ simulatorNetTotal.toLocaleString() }}
+            </div>
+            <p v-if="simulatorSelected.length > 0" class="text-[11px] text-emerald-400 font-bold mt-0.5">
+              Includes 15% Clearance Bundle Discount
+            </p>
+            <p v-else class="text-[11px] text-slate-400 font-medium mt-0.5">
+              Select items to calculate
+            </p>
           </div>
-          <div class="p-2">
-            <p class="text-xl sm:text-2xl font-black text-slate-900 font-mono tracking-tight">1,950+</p>
-            <p class="text-[10px] sm:text-[11px] font-bold text-slate-500 uppercase tracking-wider mt-0.5">Room Items Traded</p>
-          </div>
-          <div class="p-2">
-            <p class="text-xl sm:text-2xl font-black text-emerald-600 font-mono tracking-tight">100%</p>
-            <p class="text-[10px] sm:text-[11px] font-bold text-slate-500 uppercase tracking-wider mt-0.5">Escrow Safe (No Stories)</p>
-          </div>
-          <div class="p-2">
-            <p class="text-xl sm:text-2xl font-black text-brand-600 font-mono tracking-tight">&lt; 2 Hours</p>
-            <p class="text-[10px] sm:text-[11px] font-bold text-slate-500 uppercase tracking-wider mt-0.5">Average Deal Speed</p>
-          </div>
+
+          <NuxtLink
+            to="/declutter"
+            class="block w-full py-3 rounded-xl bg-brand-600 hover:bg-brand-500 text-white font-black text-xs sm:text-sm text-center transition-all shadow-md shadow-brand-600/30 active:scale-95"
+          >
+            Clear My Room in 1-Click 🚀
+          </NuxtLink>
         </div>
       </div>
     </section>
@@ -699,9 +788,45 @@ const campusStats = ref({
   tradesToday: 38,
 });
 
-const popularSearches = [
-  'Hostel Movers', 'Hostel Electrician', 'Room Painter', 'Mini Fridge', 'Standing Fan', 'Study Desk', 'Hot Plate', 'Gas Cylinder', 'Mattress'
+interface SimulatorPreset {
+  id: string;
+  name: string;
+  price: number;
+  icon: string;
+}
+
+const declutterSimulatorPresets: SimulatorPreset[] = [
+  { id: 'mattress', name: 'Student Mattress', price: 18000, icon: '🛏️' },
+  { id: 'fridge', name: 'Tabletop Mini-Fridge', price: 45000, icon: '🧊' },
+  { id: 'fan', name: 'Speed Standing Fan', price: 16000, icon: '💨' },
+  { id: 'desk', name: 'Study Desk & Chair', price: 12000, icon: '🪑' },
+  { id: 'cooker', name: 'Hot Plate Cooker', price: 7000, icon: '🍳' },
 ];
+
+const simulatorSelected = ref<string[]>(['mattress', 'fridge', 'fan']);
+
+const toggleSimulatorItem = (preset: SimulatorPreset) => {
+  const idx = simulatorSelected.value.indexOf(preset.id);
+  if (idx > -1) {
+    simulatorSelected.value.splice(idx, 1);
+  } else {
+    simulatorSelected.value.push(preset.id);
+  }
+};
+
+const isSimulatorSelected = (id: string) => simulatorSelected.value.includes(id);
+
+const simulatorGrossTotal = computed(() => {
+  return declutterSimulatorPresets
+    .filter((p) => simulatorSelected.value.includes(p.id))
+    .reduce((sum, p) => sum + p.price, 0);
+});
+
+const simulatorNetTotal = computed(() => {
+  const gross = simulatorGrossTotal.value;
+  if (!gross) return 0;
+  return Math.round(gross * 0.85); // 15% clearance bundle discount
+});
 
 interface MultilingualPhrase {
   text: string;
