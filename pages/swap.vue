@@ -170,21 +170,21 @@
               </p>
 
               <!-- Media Upload Grid: 3 Cards -->
-              <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+              <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5 sm:gap-3">
                 
                 <!-- 1. Photos Card (Compulsory) -->
-                <div class="bg-slate-50/70 border-2 rounded-2xl p-3.5 flex flex-col justify-between transition-all"
+                <div class="bg-slate-50/70 border-2 rounded-2xl p-3 sm:p-3.5 flex flex-col justify-between transition-all overflow-hidden"
                      :class="form.images.length > 0 ? 'border-emerald-300 bg-emerald-50/30' : 'border-slate-200 hover:border-slate-300'">
                   <div>
-                    <div class="flex items-center justify-between mb-2">
-                      <span class="text-[11px] font-black uppercase tracking-wider text-slate-700 flex items-center gap-1">
-                        <Camera class="w-3.5 h-3.5 text-brand-600" />
-                        Photos
+                    <div class="flex items-start justify-between gap-1.5 mb-2">
+                      <span class="text-[11px] font-black uppercase tracking-wider text-slate-700 flex items-start gap-1 min-w-0">
+                        <Camera class="w-3.5 h-3.5 text-brand-600 shrink-0 mt-0.5" />
+                        <span class="leading-tight">Photos</span>
                       </span>
-                      <span v-if="form.images.length > 0" class="text-[10px] font-black text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-md flex items-center gap-1">
+                      <span v-if="form.images.length > 0" class="text-[10px] font-black text-emerald-700 bg-emerald-100 px-1.5 sm:px-2 py-0.5 rounded-md flex items-center gap-1 shrink-0 whitespace-nowrap">
                         <Check class="w-3 h-3 stroke-[3]" /> {{ form.images.length }}/6
                       </span>
-                      <span v-else class="text-[10px] font-black text-red-600 bg-red-100 px-2 py-0.5 rounded-md">
+                      <span v-else class="text-[10px] font-black text-red-600 bg-red-100 px-1.5 sm:px-2 py-0.5 rounded-md shrink-0 whitespace-nowrap">
                         Required
                       </span>
                     </div>
@@ -217,18 +217,18 @@
                 </div>
 
                 <!-- 2. Product Video Card (Compulsory) -->
-                <div class="bg-slate-50/70 border-2 rounded-2xl p-3.5 flex flex-col justify-between transition-all"
+                <div class="bg-slate-50/70 border-2 rounded-2xl p-3 sm:p-3.5 flex flex-col justify-between transition-all overflow-hidden"
                      :class="form.video ? 'border-emerald-300 bg-emerald-50/30' : 'border-slate-200 hover:border-slate-300'">
                   <div>
-                    <div class="flex items-center justify-between mb-2">
-                      <span class="text-[11px] font-black uppercase tracking-wider text-slate-700 flex items-center gap-1">
-                        <Video class="w-3.5 h-3.5 text-brand-600" />
-                        Working Video
+                    <div class="flex items-start justify-between gap-1.5 mb-2">
+                      <span class="text-[11px] font-black uppercase tracking-wider text-slate-700 flex items-start gap-1 min-w-0">
+                        <Video class="w-3.5 h-3.5 text-brand-600 shrink-0 mt-0.5" />
+                        <span class="leading-tight">Working Video</span>
                       </span>
-                      <span v-if="form.video" class="text-[10px] font-black text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-md flex items-center gap-1">
+                      <span v-if="form.video" class="text-[10px] font-black text-emerald-700 bg-emerald-100 px-1.5 sm:px-2 py-0.5 rounded-md flex items-center gap-1 shrink-0 whitespace-nowrap">
                         <Check class="w-3 h-3 stroke-[3]" /> Added
                       </span>
-                      <span v-else class="text-[10px] font-black text-red-600 bg-red-100 px-2 py-0.5 rounded-md">
+                      <span v-else class="text-[10px] font-black text-red-600 bg-red-100 px-1.5 sm:px-2 py-0.5 rounded-md shrink-0 whitespace-nowrap">
                         Required
                       </span>
                     </div>
@@ -260,19 +260,19 @@
                 </div>
 
                 <!-- 3. 360° Walkaround Video Card (Compulsory) -->
-                <div class="bg-slate-50/70 border-2 rounded-2xl p-3.5 flex flex-col justify-between transition-all"
+                <div class="bg-slate-50/70 border-2 rounded-2xl p-3 sm:p-3.5 flex flex-col justify-between transition-all overflow-hidden"
                      :class="form.video360 ? 'border-emerald-300 bg-emerald-50/30' : 'border-slate-200 hover:border-slate-300'">
                   <div>
-                    <div class="flex items-center justify-between mb-2">
-                      <span class="text-[11px] font-black uppercase tracking-wider text-slate-700 flex items-center gap-1">
-                        <RotateCcw class="w-3.5 h-3.5 text-brand-600" />
-                        360° Walkaround
+                    <div class="flex items-start justify-between gap-1.5 mb-2">
+                      <span class="text-[11px] font-black uppercase tracking-wider text-slate-700 flex items-start gap-1 min-w-0">
+                        <RotateCcw class="w-3.5 h-3.5 text-brand-600 shrink-0 mt-0.5" />
+                        <span class="leading-tight">360° Walkaround</span>
                       </span>
-                      <span v-if="form.video360" class="text-[10px] font-black text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-md flex items-center gap-1">
+                      <span v-if="form.video360" class="text-[10px] font-black text-emerald-700 bg-emerald-100 px-1.5 sm:px-2 py-0.5 rounded-md flex items-center gap-1 shrink-0 whitespace-nowrap">
                         <Check class="w-3 h-3 stroke-[3]" /> Verified
                       </span>
-                      <span v-else class="text-[10px] font-black text-red-600 bg-red-100 px-2 py-0.5 rounded-md">
-                        Compulsory
+                      <span v-else class="text-[10px] font-black text-red-600 bg-red-100 px-1.5 sm:px-2 py-0.5 rounded-md shrink-0 whitespace-nowrap">
+                        Required
                       </span>
                     </div>
                     <p class="text-[11px] text-slate-500 font-medium leading-snug mb-3">
