@@ -428,7 +428,8 @@ const latestMessage = ref(null)
 // Notifications state
 const isNotificationsOpen = ref(false)
 const notifications = ref([])
-const unreadNotificationsCount = ref(0)
+// -1 until the first fetch, so an existing badge count never reads as 'new'.
+const unreadNotificationsCount = ref(-1)
 const notificationsLoading = ref(false)
 
 let socket = null
@@ -453,7 +454,12 @@ const loadNotifications = async () => {
     const res = await notificationsApi.list(15)
     notifications.value = res.data?.data || []
     const newCount = Number(res.data?.unreadCount || 0)
-    if (newCount > unreadNotificationsCount.value && unreadNotificationsCount.value >= 0) {
+
+    // Only chime for notifications that arrived *while the page was open*. The previous
+    // guard compared against a counter starting at 0, so a refresh with 3 unread read as
+    // "3 > 0" and played the chime on every load.
+    const hadPreviousValue = unreadNotificationsCount.value >= 0
+    if (hadPreviousValue && newCount > unreadNotificationsCount.value) {
       playNotificationSound()
     }
     unreadNotificationsCount.value = newCount

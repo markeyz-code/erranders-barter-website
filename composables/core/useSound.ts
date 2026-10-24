@@ -159,48 +159,71 @@ const ensureAudioElements = () => {
  */
 export const initAudioUnlock = () => {
   if (typeof window === 'undefined') return
+  if (isUnlocked) return
   ensureAudioElements()
+
+  /**
+   * Bless the audio elements inside a user gesture so iOS Safari permits later playback
+   * from a WebSocket event.
+   *
+   * It used to call play() on the ringtone, ringback and notification elements at their
+   * normal volume, on touchstart, touchend *and* click, with the listeners never removed.
+   * That meant every tap on the site played three sounds — the "noise on load" people
+   * heard was the first click after a refresh.
+   *
+   * Now the elements are played muted once, and the listeners are removed afterwards.
+   */
+  const silentPlay = (el: HTMLAudioElement | null) => {
+    if (!el) return
+    try {
+      const previousVolume = el.volume
+      el.muted = true
+      el.volume = 0
+      el.currentTime = 0
+      el.play()
+        .then(() => {
+          el.pause()
+          el.currentTime = 0
+          el.muted = false
+          el.volume = previousVolume
+        })
+        .catch(() => {
+          el.muted = false
+          el.volume = previousVolume
+        })
+    } catch {
+      el.muted = false
+    }
+  }
 
   const unlock = () => {
     try {
       const ctx = getAudioContext()
-      if (ctx && ctx.state === 'suspended') {
-        void ctx.resume()
-      }
+      if (ctx && ctx.state === 'suspended') void ctx.resume()
     } catch {}
 
-    // Bless HTML5 audio elements on iOS Safari
-    if (ringAudio && !isRingtoneActive) {
-      ringAudio.play().then(() => {
-        if (!isRingtoneActive) {
-          ringAudio?.pause()
-          if (ringAudio) ringAudio.currentTime = 0
-        }
-      }).catch(() => {})
+    // Never touch the elements that are legitimately playing.
+    if (!isRingtoneActive && !isRingbackActive) {
+      silentPlay(ringAudio)
+      silentPlay(ringbackAudio)
     }
-
-    if (ringbackAudio && !isRingbackActive) {
-      ringbackAudio.play().then(() => {
-        if (!isRingbackActive) {
-          ringbackAudio?.pause()
-          if (ringbackAudio) ringbackAudio.currentTime = 0
-        }
-      }).catch(() => {})
-    }
-
-    if (notificationAudio) {
-      notificationAudio.play().then(() => {
-        notificationAudio?.pause()
-        if (notificationAudio) notificationAudio.currentTime = 0
-      }).catch(() => {})
-    }
+    silentPlay(notificationAudio)
 
     isUnlocked = true
+    removeListeners()
   }
 
-  window.addEventListener('touchstart', unlock, { passive: true, once: false })
-  window.addEventListener('touchend', unlock, { passive: true, once: false })
-  window.addEventListener('click', unlock, { passive: true, once: false })
+  const removeListeners = () => {
+    window.removeEventListener('touchstart', unlock)
+    window.removeEventListener('touchend', unlock)
+    window.removeEventListener('pointerdown', unlock)
+    window.removeEventListener('click', unlock)
+  }
+
+  window.addEventListener('touchstart', unlock, { passive: true })
+  window.addEventListener('touchend', unlock, { passive: true })
+  window.addEventListener('pointerdown', unlock, { passive: true })
+  window.addEventListener('click', unlock, { passive: true })
 }
 
 const getAudioContext = (): AudioContext | null => {
