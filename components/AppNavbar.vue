@@ -1,6 +1,13 @@
 <template>
   <div class="fixed top-4 sm:top-5 left-0 w-full z-[100] px-4 pointer-events-none">
-    <div class="max-w-6xl mx-auto bg-white/95 backdrop-blur-md border border-slate-200/90 rounded-2xl sm:rounded-full h-16 flex items-center justify-between px-4 sm:px-6 pointer-events-auto relative shadow-sm">
+    <div
+      class="max-w-6xl mx-auto rounded-2xl sm:rounded-full h-16 flex items-center justify-between px-4 sm:px-6 pointer-events-auto relative transition-all duration-300"
+      :class="[
+        isScrolled
+          ? 'bg-white/90 backdrop-blur-xl border border-slate-200/90 shadow-sm'
+          : 'bg-white/60 backdrop-blur-md border border-slate-200/60 shadow-xs hover:bg-white/75'
+      ]"
+    >
       
       <!-- Logo -->
       <a href="/" class="flex items-center gap-2.5 shrink-0 group">
@@ -369,6 +376,13 @@ const { user, token } = useAuth()
 const router = useRouter()
 const route = useRoute()
 const isMobileMenuOpen = ref(false)
+const isScrolled = ref(false)
+
+const handleScroll = () => {
+  if (typeof window !== 'undefined') {
+    isScrolled.value = window.scrollY > 20
+  }
+}
 
 const isRouteActive = (target) => {
   const currentPath = route.path
@@ -488,6 +502,11 @@ const navigateToChat = () => {
 }
 
 onMounted(() => {
+  if (process.client) {
+    window.addEventListener('scroll', handleScroll, { passive: true })
+    handleScroll()
+  }
+
   if (user.value) {
     loadNotifications()
     notificationPollTimer = setInterval(loadNotifications, 60000)
@@ -519,6 +538,9 @@ onMounted(() => {
 })
 
 onUnmounted(() => {
+  if (process.client) {
+    window.removeEventListener('scroll', handleScroll)
+  }
   if (socket) socket.disconnect()
   if (notificationPollTimer) clearInterval(notificationPollTimer)
 })

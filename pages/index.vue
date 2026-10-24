@@ -2,7 +2,7 @@
   <div class="min-h-screen bg-white font-sans text-slate-900 pb-20 selection:bg-brand-500 selection:text-white">
     
     <!-- ── Dynamic Hero: Exciting Multilingual Typewriting Design (Pidgin, Yorùbá, Igbo, Hausa) ── -->
-    <section class="relative bg-gradient-to-b from-slate-50/70 via-white to-white border-b border-slate-100 py-14 sm:py-20 md:py-24 px-4 sm:px-6 lg:px-8 overflow-hidden text-center">
+    <section class="relative bg-gradient-to-b from-slate-50/70 via-white to-white border-b border-slate-100 pt-28 sm:pt-32 md:pt-36 pb-14 sm:pb-20 md:pb-24 px-4 sm:px-6 lg:px-8 overflow-hidden text-center">
       <!-- Soft dot background grid & organic ambient blooms -->
       <div class="absolute inset-0 bg-[radial-gradient(#e2e8f0_1.5px,transparent_1.5px)] [background-size:24px_24px] opacity-75 pointer-events-none"></div>
       <div class="absolute -top-24 -left-24 w-96 h-96 bg-brand-500/10 rounded-full blur-3xl pointer-events-none"></div>
