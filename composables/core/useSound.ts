@@ -175,8 +175,12 @@ export const initAudioUnlock = () => {
    */
   const silentPlay = (el: HTMLAudioElement | null) => {
     if (!el) return
+    const previousVolume = el.volume
+    const restore = () => {
+      el.muted = false
+      el.volume = previousVolume || 1
+    }
     try {
-      const previousVolume = el.volume
       el.muted = true
       el.volume = 0
       el.currentTime = 0
@@ -184,15 +188,15 @@ export const initAudioUnlock = () => {
         .then(() => {
           el.pause()
           el.currentTime = 0
-          el.muted = false
-          el.volume = previousVolume
+          restore()
         })
-        .catch(() => {
-          el.muted = false
-          el.volume = previousVolume
-        })
+        .catch(restore)
     } catch {
-      el.muted = false
+      restore()
+    } finally {
+      // Belt and braces: whatever happens to that promise, the element must not stay
+      // muted, or the ringtone is silent for the rest of the session.
+      window.setTimeout(restore, 400)
     }
   }
 
@@ -311,6 +315,10 @@ export const startRingtone = () => {
   if (ringAudio) {
     try {
       ringAudio.loop = true
+      // A silent element is indistinguishable from a broken feature, so never inherit
+      // whatever mute state an earlier unlock attempt left behind.
+      ringAudio.muted = false
+      ringAudio.volume = 1
       ringAudio.currentTime = 0
       const promise = ringAudio.play()
       if (promise !== undefined) {
@@ -325,7 +333,8 @@ export const startRingtone = () => {
   const playWebAudioCycle = () => {
     try {
       const ctx = getAudioContext()
-      if (!ctx || ctx.state === 'suspended') return
+      if (!ctx) return
+      if (ctx.state === 'suspended') void ctx.resume()
       const now = ctx.currentTime
       const notes = [659.25, 830.61, 987.77, 1318.51]
 
@@ -392,6 +401,8 @@ export const startRingbackTone = () => {
   if (ringbackAudio) {
     try {
       ringbackAudio.loop = true
+      ringbackAudio.muted = false
+      ringbackAudio.volume = 1
       ringbackAudio.currentTime = 0
       ringbackAudio.play().catch(() => {})
     } catch {}
