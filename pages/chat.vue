@@ -72,8 +72,8 @@
 
         <!-- Floating Top Status Pill (No Dark Full-Width Overlay) -->
         <div class="fixed top-5 left-1/2 -translate-x-1/2 z-30 flex items-center gap-2.5 px-4 py-2 rounded-full bg-black/60 backdrop-blur-md text-white text-xs font-bold border border-white/20 shadow-2xl">
-          <span class="w-2.5 h-2.5 rounded-full" :class="callStatus === 'Connected' ? 'bg-emerald-400 animate-pulse shadow-sm shadow-emerald-400' : 'bg-amber-400 animate-ping'"></span>
-          <span v-if="callStatus === 'Connected'" class="font-mono text-xs sm:text-sm tracking-wider font-extrabold text-emerald-300">
+          <span class="w-2.5 h-2.5 rounded-full" :class="isCallConnected ? 'bg-emerald-400 animate-pulse shadow-sm shadow-emerald-400' : 'bg-amber-400 animate-ping'"></span>
+          <span v-if="isCallConnected" class="font-mono text-xs sm:text-sm tracking-wider font-extrabold text-emerald-300">
             {{ formattedCallDuration }}
           </span>
           <span v-else>{{ callStatus }}</span>
@@ -107,10 +107,10 @@
 
           <!-- Incoming Call Answer Button -->
           <button
-            v-if="callStatus === 'Incoming Call...'"
+            v-if="!callInitiator && !isCallAnswered"
             type="button"
             @click.stop="answerCall"
-            class="w-14 h-14 bg-green-500 hover:bg-green-600 rounded-full flex items-center justify-center text-white transition-all shadow-lg shadow-green-500/30 active:scale-95 animate-bounce cursor-pointer"
+            class="w-14 h-14 bg-green-500 hover:bg-green-600 rounded-full flex items-center justify-center text-white transition-all shadow-lg shadow-green-500/40 active:scale-95 animate-bounce cursor-pointer z-50 ring-4 ring-green-400/30"
             title="Answer call"
           >
             <Phone class="w-6 h-6" />
@@ -134,8 +134,8 @@
         
         <!-- Top Status -->
         <div class="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full bg-white/10 backdrop-blur-md text-white text-xs font-bold border border-white/10 mt-6 shadow-lg">
-          <span class="w-2.5 h-2.5 rounded-full" :class="callStatus === 'Connected' ? 'bg-emerald-400 animate-pulse shadow-sm shadow-emerald-400' : 'bg-amber-400 animate-ping'"></span>
-          <span v-if="callStatus === 'Connected'" class="font-mono text-sm tracking-wider font-extrabold text-emerald-300">
+          <span class="w-2.5 h-2.5 rounded-full" :class="isCallConnected ? 'bg-emerald-400 animate-pulse shadow-sm shadow-emerald-400' : 'bg-amber-400 animate-ping'"></span>
+          <span v-if="isCallConnected" class="font-mono text-sm tracking-wider font-extrabold text-emerald-300">
             Connected • {{ formattedCallDuration }}
           </span>
           <span v-else>{{ callStatus }}</span>
@@ -151,12 +151,19 @@
           </div>
           <div>
             <h2 class="text-2xl sm:text-3xl font-black text-white tracking-tight">{{ headerTitle }}</h2>
-            <div v-if="callStatus === 'Connected'" class="mt-2 flex items-center justify-center gap-2">
+            <div v-if="isCallConnected" class="mt-2 flex items-center justify-center gap-2">
               <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
               <span class="font-mono text-xl sm:text-2xl font-black text-emerald-400 tracking-widest">{{ formattedCallDuration }}</span>
             </div>
+            <div v-else-if="!callInitiator && !isCallAnswered" class="mt-3 flex flex-col items-center gap-1.5">
+              <p class="text-sm sm:text-base font-extrabold text-emerald-400 animate-pulse flex items-center gap-2">
+                <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping"></span>
+                Incoming Voice Call...
+              </p>
+              <p class="text-xs text-slate-300 font-semibold">Tap the green button below to answer</p>
+            </div>
             <p v-else class="text-xs sm:text-sm font-semibold text-slate-400 mt-1">
-              {{ callStatus === 'Calling...' ? 'Calling out...' : callStatus === 'Incoming Call...' ? 'Incoming Call...' : 'Decluttered Escrow Voice Call' }}
+              {{ callStatus === 'Calling...' ? 'Calling out...' : 'Decluttered Escrow Voice Call' }}
             </p>
           </div>
         </div>
@@ -175,12 +182,12 @@
             <Mic v-else class="w-6 h-6" />
           </button>
 
-          <!-- Incoming Answer -->
+          <!-- Incoming Answer (Always rendered when call is incoming and not yet answered) -->
           <button
-            v-if="callStatus === 'Incoming Call...'"
+            v-if="!callInitiator && !isCallAnswered"
             type="button"
             @click.stop="answerCall"
-            class="w-16 h-16 bg-green-500 hover:bg-green-600 rounded-full flex items-center justify-center text-white transition-all shadow-lg shadow-green-500/30 active:scale-95 animate-bounce cursor-pointer"
+            class="w-16 h-16 bg-green-500 hover:bg-green-600 rounded-full flex items-center justify-center text-white transition-all shadow-lg shadow-green-500/40 active:scale-95 animate-bounce cursor-pointer ring-4 ring-green-400/30"
             title="Answer call"
           >
             <Phone class="w-7 h-7" />
@@ -736,6 +743,7 @@ const richEmojis = [
 
 const activeCall = ref(null)
 const currentCallChatId = ref(null)
+const isCallAnswered = ref(false)
 const peerConnection = ref(null)
 const localStream = ref(null)
 const remoteStream = ref(null)
@@ -762,6 +770,10 @@ const callDurationSeconds = ref(0)
 let callTimerInterval = null
 const hasLoggedCall = ref(false)
 const callInitiator = ref(false)
+
+const isCallConnected = computed(() => {
+  return callStatus.value === 'Connected' && (callInitiator.value || isCallAnswered.value)
+})
 
 let iceCandidateQueue = []
 const drainIceCandidateQueue = async () => {
@@ -808,7 +820,17 @@ const stopCallTimer = () => {
 const setupPeerConnection = (pc, type) => {
   pc.ontrack = (event) => {
     remoteStream.value = event.streams[0]
-    // The moment remote media arrives, stop any ringing immediately!
+    if (type === 'video') {
+      nextTick(() => {
+        if (remoteVideo.value) remoteVideo.value.srcObject = remoteStream.value
+      })
+    }
+
+    // CRITICAL: If this client is the receiver and has NOT answered yet, DO NOT auto-answer or change status!
+    if (!callInitiator.value && !isCallAnswered.value) {
+      return
+    }
+
     stopRingtone()
     stopRingbackTone()
     if (callStatus.value !== 'Connected') {
@@ -818,11 +840,6 @@ const setupPeerConnection = (pc, type) => {
       callStartTime.value = Date.now()
     }
     startCallTimer()
-    if (type === 'video') {
-      nextTick(() => {
-        if (remoteVideo.value) remoteVideo.value.srcObject = remoteStream.value
-      })
-    }
     nextTick(() => {
       if (remoteAudio.value) {
         remoteAudio.value.srcObject = remoteStream.value
@@ -834,6 +851,9 @@ const setupPeerConnection = (pc, type) => {
   }
 
   pc.onconnectionstatechange = () => {
+    // If receiver has not answered yet, do not mark connected
+    if (!callInitiator.value && !isCallAnswered.value) return
+
     if (pc.connectionState === 'connected') {
       stopRingtone()
       stopRingbackTone()
@@ -846,6 +866,9 @@ const setupPeerConnection = (pc, type) => {
   }
 
   pc.oniceconnectionstatechange = () => {
+    // If receiver has not answered yet, do not mark connected
+    if (!callInitiator.value && !isCallAnswered.value) return
+
     if (pc.iceConnectionState === 'connected' || pc.iceConnectionState === 'completed') {
       stopRingtone()
       stopRingbackTone()
@@ -1042,7 +1065,6 @@ const checkPendingCall = async () => {
   activeCall.value = true
   isRemoteMain.value = true
   isAudioMuted.value = false
-  callStatus.value = 'Connecting...'
   callInitiator.value = false
   hasLoggedCall.value = false
 
@@ -1052,7 +1074,14 @@ const checkPendingCall = async () => {
     if (pending.offer) {
       await peerConnection.value.setRemoteDescription(new RTCSessionDescription(pending.offer))
       await drainIceCandidateQueue()
-      await answerCall()
+      // Only auto-answer if the user explicitly clicked Answer on GlobalIncomingCallModal
+      if (pending.autoAnswer === true) {
+        await answerCall()
+      } else {
+        callStatus.value = 'Incoming Call...'
+        isCallAnswered.value = false
+        startRingtone()
+      }
     }
   } catch (err) {
     console.error('Failed to answer pending incoming call', err)
@@ -1107,6 +1136,7 @@ const attachCallListeners = () => {
     callDurationSeconds.value = 0
     hasLoggedCall.value = false
     callInitiator.value = false
+    isCallAnswered.value = false
 
     // Ring out audibly with melodic chime and vibration
     startRingtone()
@@ -1123,6 +1153,11 @@ const attachCallListeners = () => {
   })
 
   s.on('call-answer', async (data) => {
+    // CRITICAL: Only the caller who placed the call should process call-answer!
+    if (!callInitiator.value) {
+      return
+    }
+
     // If we have already connected and settled in stable state, ignore duplicate answer packets
     if (peerConnection.value?.signalingState === 'stable') {
       stopRingtone()
@@ -1140,6 +1175,7 @@ const attachCallListeners = () => {
     stopRingbackTone()
 
     // Transition directly to connected and immediately begin counting
+    isCallAnswered.value = true
     callStatus.value = 'Connected'
     if (!callStartTime.value) {
       callStartTime.value = Date.now()
@@ -1531,6 +1567,7 @@ const startCall = async (type) => {
   callDurationSeconds.value = 0
   hasLoggedCall.value = false
   callInitiator.value = true
+  isCallAnswered.value = false
   iceCandidateQueue = []
 
   // Auto-timeout if call is not answered within 35 seconds
@@ -1575,6 +1612,7 @@ const answerCall = async () => {
     clearTimeout(callTimeoutTimer)
     callTimeoutTimer = null
   }
+  isCallAnswered.value = true
   stopRingtone()
   stopRingbackTone()
   callStatus.value = 'Connecting...'
@@ -1632,6 +1670,8 @@ const cleanupCall = () => {
   stopRingbackTone()
   stopCallTimer()
   activeCall.value = false
+  isCallAnswered.value = false
+  callInitiator.value = false
   callStatus.value = ''
   currentCallChatId.value = null
   callDurationSeconds.value = 0
