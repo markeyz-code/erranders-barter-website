@@ -735,6 +735,7 @@ const richEmojis = [
 ]
 
 const activeCall = ref(null)
+const currentCallChatId = ref(null)
 const peerConnection = ref(null)
 const localStream = ref(null)
 const remoteStream = ref(null)
@@ -744,7 +745,17 @@ const remoteVideo = ref(null)
 const localVideo = ref(null)
 const remoteAudio = ref(null)
 let callTimeoutTimer = null
-const config = { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] }
+const config = {
+  iceServers: [
+    { urls: 'stun:stun.l.google.com:19302' },
+    { urls: 'stun:stun1.l.google.com:19302' },
+    { urls: 'stun:stun2.l.google.com:19302' },
+    { urls: 'stun:stun3.l.google.com:19302' },
+    { urls: 'stun:stun4.l.google.com:19302' },
+    { urls: 'stun:global.stun.twilio.com:3478' }
+  ],
+  iceCandidatePoolSize: 10
+}
 
 const callStartTime = ref(null)
 const callDurationSeconds = ref(0)
@@ -799,14 +810,24 @@ const setupPeerConnection = (pc, type) => {
     remoteStream.value = event.streams[0]
     // The moment remote media arrives, stop any ringing immediately!
     stopRingtone()
+    stopRingbackTone()
     if (callStatus.value !== 'Connected') {
       callStatus.value = 'Connected'
-      startCallTimer()
     }
-    if (type === 'video') nextTick(() => { if (remoteVideo.value) remoteVideo.value.srcObject = remoteStream.value })
+    if (!callStartTime.value) {
+      callStartTime.value = Date.now()
+    }
+    startCallTimer()
+    if (type === 'video') {
+      nextTick(() => {
+        if (remoteVideo.value) remoteVideo.value.srcObject = remoteStream.value
+      })
+    }
     nextTick(() => {
       if (remoteAudio.value) {
         remoteAudio.value.srcObject = remoteStream.value
+        remoteAudio.value.muted = false
+        remoteAudio.value.volume = 1
         remoteAudio.value.play().catch(() => {})
       }
     })
@@ -815,7 +836,11 @@ const setupPeerConnection = (pc, type) => {
   pc.onconnectionstatechange = () => {
     if (pc.connectionState === 'connected') {
       stopRingtone()
+      stopRingbackTone()
       callStatus.value = 'Connected'
+      if (!callStartTime.value) {
+        callStartTime.value = Date.now()
+      }
       startCallTimer()
     }
   }
@@ -823,14 +848,19 @@ const setupPeerConnection = (pc, type) => {
   pc.oniceconnectionstatechange = () => {
     if (pc.iceConnectionState === 'connected' || pc.iceConnectionState === 'completed') {
       stopRingtone()
+      stopRingbackTone()
       callStatus.value = 'Connected'
+      if (!callStartTime.value) {
+        callStartTime.value = Date.now()
+      }
       startCallTimer()
     }
   }
 
   pc.onicecandidate = (event) => {
-    if (event.candidate && socket.value && activeChatId.value) {
-      socket.value.emit('call-ice-candidate', { chatId: activeChatId.value, candidate: event.candidate })
+    const targetChatId = currentCallChatId.value || activeChatId.value
+    if (event.candidate && socket.value && targetChatId) {
+      socket.value.emit('call-ice-candidate', { chatId: targetChatId, candidate: event.candidate })
     }
   }
 }
@@ -936,6 +966,11 @@ onMounted(async () => {
   attachCallListeners()
   initAudioUnlock()
 
+  // If answering an incoming call from GlobalIncomingCallModal, trigger WebRTC connection immediately!
+  if (route.query.autoAnswer === 'true' || (typeof window !== 'undefined' && (window as any).__PENDING_CALL_OFFER__)) {
+    void checkPendingCall()
+  }
+
   try {
     await ensureMyUserId()
     if (chatIdFromQuery) {
@@ -959,7 +994,7 @@ onMounted(async () => {
     scrollToBottom()
   }
 
-  // Check for pending incoming call answered from GlobalIncomingCallModal
+  // Double check pending call after conversation is selected
   await checkPendingCall()
 
   if (route.query.call === 'voice' || route.query.call === 'video') {
@@ -981,15 +1016,26 @@ watch(
 )
 
 const checkPendingCall = async () => {
-  const pending = typeof window !== 'undefined' ? window.__PENDING_CALL_OFFER__ : null
+  const pending = typeof window !== 'undefined' ? (window as any).__PENDING_CALL_OFFER__ : null
   if (!pending) return
   const targetChatId = String(pending.chatId)
+  currentCallChatId.value = targetChatId
   if (typeof window !== 'undefined') {
-    delete window.__PENDING_CALL_OFFER__
+    delete (window as any).__PENDING_CALL_OFFER__
+  }
+
+  // Load buffered ICE candidates from modal if any arrived while ringing
+  if (Array.isArray(pending.candidates)) {
+    iceCandidateQueue.push(...pending.candidates)
+  }
+  if (typeof window !== 'undefined' && Array.isArray((window as any).__PENDING_ICE_CANDIDATES__)) {
+    iceCandidateQueue.push(...(window as any).__PENDING_ICE_CANDIDATES__)
+    delete (window as any).__PENDING_ICE_CANDIDATES__
   }
 
   if (!activeChatId.value || String(activeChatId.value) !== targetChatId) {
-    await openChat(targetChatId)
+    activeChatId.value = targetChatId
+    void openChat(targetChatId)
   }
 
   callType.value = pending.type
@@ -1016,6 +1062,7 @@ const checkPendingCall = async () => {
 
 onUnmounted(() => {
   stopRingtone()
+  stopRingbackTone()
   stopCallTimer()
   stopCamera()
   if (recordingTimer) clearInterval(recordingTimer)
@@ -1046,12 +1093,18 @@ const attachCallListeners = () => {
   s.off('call-end')
 
   s.on('call-offer', async (data) => {
+    currentCallChatId.value = String(data.chatId || '')
+    if (!activeChatId.value && data.chatId) {
+      activeChatId.value = String(data.chatId)
+    }
+
     callType.value = data.type
     activeCall.value = true
     isRemoteMain.value = true
     isAudioMuted.value = false
     callStatus.value = 'Incoming Call...'
     callStartTime.value = null
+    callDurationSeconds.value = 0
     hasLoggedCall.value = false
     callInitiator.value = false
 
@@ -1070,18 +1123,34 @@ const attachCallListeners = () => {
   })
 
   s.on('call-answer', async (data) => {
+    // If we have already connected and settled in stable state, ignore duplicate answer packets
+    if (peerConnection.value?.signalingState === 'stable') {
+      stopRingtone()
+      stopRingbackTone()
+      return
+    }
+
     if (callTimeoutTimer) {
       clearTimeout(callTimeoutTimer)
       callTimeoutTimer = null
     }
-    // STOP RINGING IMMEDIATELY ON CALLER END!
+
+    // STOP RINGING & RINGBACK IMMEDIATELY ON CALLER END!
     stopRingtone()
+    stopRingbackTone()
+
+    // Transition directly to connected and immediately begin counting
     callStatus.value = 'Connected'
-    callStartTime.value = Date.now()
+    if (!callStartTime.value) {
+      callStartTime.value = Date.now()
+    }
     startCallTimer()
+
     try {
-      await peerConnection.value.setRemoteDescription(new RTCSessionDescription(data.answer))
-      await drainIceCandidateQueue()
+      if (peerConnection.value && data?.answer) {
+        await peerConnection.value.setRemoteDescription(new RTCSessionDescription(data.answer))
+        await drainIceCandidateQueue()
+      }
     } catch (err) {
       console.debug('Failed to set remote description for answer', err)
     }
@@ -1107,6 +1176,7 @@ const attachCallListeners = () => {
       callTimeoutTimer = null
     }
     stopRingtone()
+    stopRingbackTone()
     stopCallTimer()
     if (callInitiator.value && !hasLoggedCall.value) {
       recordCallEvent()
@@ -1441,6 +1511,13 @@ const startCall = async (type) => {
     showToast({ title: 'Notice', message: 'Still connecting to chat. Please try again in a moment.', toastType: 'error' })
     return
   }
+  const targetChatId = currentCallChatId.value || activeChatId.value
+  if (!targetChatId) {
+    showToast({ title: 'Notice', message: 'Please select a conversation first.', toastType: 'error' })
+    return
+  }
+  currentCallChatId.value = String(targetChatId)
+
   // Synchronously unlock audio and start ringback tone inside user touch/click gesture
   initAudioUnlock()
   startRingbackTone()
@@ -1451,6 +1528,7 @@ const startCall = async (type) => {
   isAudioMuted.value = false
   callStatus.value = 'Calling...'
   callStartTime.value = null
+  callDurationSeconds.value = 0
   hasLoggedCall.value = false
   callInitiator.value = true
   iceCandidateQueue = []
@@ -1475,7 +1553,7 @@ const startCall = async (type) => {
     const offer = await peerConnection.value.createOffer()
     await peerConnection.value.setLocalDescription(offer)
     socket.value.emit('call-offer', {
-      chatId: activeChatId.value,
+      chatId: currentCallChatId.value,
       offer,
       type,
       callerName: activeChat.value ? (otherParticipant(activeChat.value)?.firstName || 'Trader') : 'Trader'
@@ -1486,6 +1564,7 @@ const startCall = async (type) => {
       callTimeoutTimer = null
     }
     stopRingtone()
+    stopRingbackTone()
     showToast({ title: 'Notice', message: "Camera/Microphone permissions denied.", toastType: "error" })
     cleanupCall()
   }
@@ -1497,9 +1576,12 @@ const answerCall = async () => {
     callTimeoutTimer = null
   }
   stopRingtone()
+  stopRingbackTone()
   callStatus.value = 'Connecting...'
   isRemoteMain.value = true
   isAudioMuted.value = false
+  const targetChatId = currentCallChatId.value || activeChatId.value
+
   try {
     localStream.value = await navigator.mediaDevices.getUserMedia({ video: callType.value === 'video', audio: true })
     if (callType.value === 'video') nextTick(() => { if (localVideo.value) localVideo.value.srcObject = localStream.value })
@@ -1508,13 +1590,16 @@ const answerCall = async () => {
     
     const answer = await peerConnection.value.createAnswer()
     await peerConnection.value.setLocalDescription(answer)
-    socket.value.emit('call-answer', { chatId: activeChatId.value, answer })
+    socket.value.emit('call-answer', { chatId: targetChatId, answer })
     callStatus.value = 'Connected'
-    callStartTime.value = Date.now()
+    if (!callStartTime.value) {
+      callStartTime.value = Date.now()
+    }
     startCallTimer()
     await drainIceCandidateQueue()
   } catch (err) {
     stopRingtone()
+    stopRingbackTone()
     showToast({ title: 'Notice', message: "Camera/Microphone permissions denied.", toastType: "error" })
     endCall()
   }
@@ -1526,8 +1611,9 @@ const endCall = () => {
     callTimeoutTimer = null
   }
   stopRingtone()
+  stopRingbackTone()
   stopCallTimer()
-  const currentChatId = activeChatId.value
+  const currentChatId = currentCallChatId.value || activeChatId.value
   if (socket.value && currentChatId) {
     socket.value.emit('call-end', { chatId: currentChatId })
   }
@@ -1543,9 +1629,11 @@ const cleanupCall = () => {
     callTimeoutTimer = null
   }
   stopRingtone()
+  stopRingbackTone()
   stopCallTimer()
   activeCall.value = false
   callStatus.value = ''
+  currentCallChatId.value = null
   callDurationSeconds.value = 0
   isRemoteMain.value = true
   isAudioMuted.value = false

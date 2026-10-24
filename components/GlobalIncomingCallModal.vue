@@ -89,6 +89,7 @@ const { socket, connectSocket, activeChatId } = useChat()
 
 const incomingCall = ref<IncomingCallPayload | null>(null)
 let ringTimeout: any = null
+const pendingCandidates: any[] = []
 
 const handleUserTouchRing = () => {
   if (incomingCall.value) {
@@ -104,8 +105,10 @@ const declineCall = () => {
   }
   const chatId = incomingCall.value?.chatId
   incomingCall.value = null
+  pendingCandidates.length = 0
   if (typeof window !== 'undefined') {
     delete (window as any).__PENDING_CALL_OFFER__
+    delete (window as any).__PENDING_ICE_CANDIDATES__
   }
   if (socket.value && chatId) {
     socket.value.emit('call-end', { chatId })
@@ -128,9 +131,11 @@ const acceptCall = () => {
       type: callData.type,
       offer: callData.offer,
       callerName: callData.callerName,
+      candidates: [...pendingCandidates],
       autoAnswer: true
     }
   }
+  pendingCandidates.length = 0
 
   // Route directly to chat with autoAnswer parameter and timestamp for reactivity
   router.push(`/chat?chatId=${callData.chatId}&call=${callData.type}&autoAnswer=true&ts=${Date.now()}`)
@@ -140,13 +145,15 @@ const attachSocketListeners = (s: any) => {
   if (!s) return
   s.off('incoming-call')
   s.off('call-end')
+  s.off('call-ice-candidate')
 
   s.on('incoming-call', (data: any) => {
-    // If user is already on chat page in active conversation with this chatId, let chat.vue handle it
+    // If user is already on chat page in active conversation with this chatId, let chat.vue handle it directly
     if (route.path === '/chat' && activeChatId.value && String(data?.chatId || '') === String(activeChatId.value)) {
       return
     }
 
+    pendingCandidates.length = 0
     const callerName = data.callerName || 'Declutter Trader'
     incomingCall.value = {
       chatId: String(data.chatId),
@@ -166,6 +173,17 @@ const attachSocketListeners = (s: any) => {
     }, 35000)
   })
 
+  s.on('call-ice-candidate', (data: any) => {
+    if (incomingCall.value && String(data?.chatId || '') === String(incomingCall.value.chatId)) {
+      if (data?.candidate) {
+        pendingCandidates.push(data.candidate)
+        if (typeof window !== 'undefined') {
+          (window as any).__PENDING_ICE_CANDIDATES__ = [...pendingCandidates]
+        }
+      }
+    }
+  })
+
   s.on('call-end', (data: any) => {
     // Unconditionally dismiss modal and silence ringtone on any call-end
     stopRingtone()
@@ -174,8 +192,10 @@ const attachSocketListeners = (s: any) => {
       ringTimeout = null
     }
     incomingCall.value = null
+    pendingCandidates.length = 0
     if (typeof window !== 'undefined') {
       delete (window as any).__PENDING_CALL_OFFER__
+      delete (window as any).__PENDING_ICE_CANDIDATES__
     }
   })
 }
@@ -202,6 +222,7 @@ onUnmounted(() => {
   if (s) {
     s.off('incoming-call')
     s.off('call-end')
+    s.off('call-ice-candidate')
   }
 })
 </script>

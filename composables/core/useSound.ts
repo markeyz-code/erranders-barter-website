@@ -1,6 +1,6 @@
 /**
  * High-reliability audio and ringtone synthesizer with dual-engine architecture:
- * 1. HTML5 Audio with in-memory synthesized WAV blobs (bypasses iOS Safari Web Audio suspension)
+ * 1. HTML5 Audio with in-memory synthesized WAV blobs attached to DOM (bypasses iOS Safari Web Audio suspension & headless restrictions)
  * 2. Web Audio API synthesizer for rich layered harmonics
  * Works 100% offline, zero network requests, zero external MP3 dependencies, and works reliably on iPhone / iOS Safari and Android.
  */
@@ -21,12 +21,12 @@ let isRingtoneActive = false
 let isRingbackActive = false
 
 /**
- * Synthesizes a clean 16-bit PCM WAV in memory and returns a Blob URL.
+ * Synthesizes a clean 16-bit PCM WAV in memory at standard 44.1kHz for universal mobile DAC compatibility.
  */
 const createWavBlobUrl = (type: 'ringtone' | 'ringback' | 'notification'): string | null => {
   if (typeof window === 'undefined') return null
   try {
-    const sampleRate = 22050
+    const sampleRate = 44100
     const duration = type === 'ringtone' ? 2.4 : type === 'ringback' ? 2.4 : 0.45
     const numSamples = Math.floor(sampleRate * duration)
     const buffer = new ArrayBuffer(44 + numSamples * 2)
@@ -46,7 +46,7 @@ const createWavBlobUrl = (type: 'ringtone' | 'ringback' | 'notification'): strin
     view.setUint32(16, 16, true) // subchunk1size (16 for PCM)
     view.setUint16(20, 1, true) // PCM format
     view.setUint16(22, 1, true) // mono channel
-    view.setUint32(24, sampleRate, true) // sample rate
+    view.setUint32(24, sampleRate, true) // sample rate (44.1kHz)
     view.setUint32(28, sampleRate * 2, true) // byte rate
     view.setUint16(32, 2, true) // block align
     view.setUint16(34, 16, true) // bits per sample
@@ -67,8 +67,8 @@ const createWavBlobUrl = (type: 'ringtone' | 'ringback' | 'notification'): strin
             if (t >= noteStart && t < noteStart + 0.35) {
               const nt = t - noteStart
               const env = Math.exp(-nt * 9)
-              sample += Math.sin(2 * Math.PI * freq * nt) * env * 0.4
-              sample += Math.sin(2 * Math.PI * freq * 2 * nt) * env * 0.12
+              sample += Math.sin(2 * Math.PI * freq * nt) * env * 0.45
+              sample += Math.sin(2 * Math.PI * freq * 2 * nt) * env * 0.15
             }
           })
         }
@@ -81,8 +81,8 @@ const createWavBlobUrl = (type: 'ringtone' | 'ringback' | 'notification'): strin
             if (t2 >= noteStart && t2 < noteStart + 0.3) {
               const nt = t2 - noteStart
               const env = Math.exp(-nt * 10)
-              sample += Math.sin(2 * Math.PI * freq * nt) * env * 0.42
-              sample += Math.sin(2 * Math.PI * freq * 2 * nt) * env * 0.14
+              sample += Math.sin(2 * Math.PI * freq * nt) * env * 0.45
+              sample += Math.sin(2 * Math.PI * freq * 2 * nt) * env * 0.15
             }
           })
         }
@@ -96,7 +96,7 @@ const createWavBlobUrl = (type: 'ringtone' | 'ringback' | 'notification'): strin
         const t = i / sampleRate
         let sample = 0
         if (t < 1.2) {
-          sample = (Math.sin(2 * Math.PI * 440 * t) + Math.sin(2 * Math.PI * 480 * t)) * 0.28
+          sample = (Math.sin(2 * Math.PI * 440 * t) + Math.sin(2 * Math.PI * 480 * t)) * 0.32
         }
         const val = Math.max(-1, Math.min(1, sample))
         view.setInt16(44 + i * 2, val < 0 ? val * 32768 : val * 32767, true)
@@ -125,6 +125,27 @@ const createWavBlobUrl = (type: 'ringtone' | 'ringback' | 'notification'): strin
   }
 }
 
+/**
+ * Attaches audio element to DOM so iOS Safari WebKit and Android do not throttle or mute it as headless.
+ */
+const mountAudioElement = (audio: HTMLAudioElement) => {
+  if (typeof document === 'undefined') return
+  try {
+    audio.setAttribute('playsinline', 'true')
+    audio.setAttribute('webkit-playsinline', 'true')
+    audio.style.position = 'fixed'
+    audio.style.top = '-9999px'
+    audio.style.left = '-9999px'
+    audio.style.width = '1px'
+    audio.style.height = '1px'
+    audio.style.opacity = '0'
+    audio.style.pointerEvents = 'none'
+    if (!audio.parentNode && document.body) {
+      document.body.appendChild(audio)
+    }
+  } catch {}
+}
+
 const ensureAudioElements = () => {
   if (typeof window === 'undefined') return
   if (!ringAudio) {
@@ -133,7 +154,7 @@ const ensureAudioElements = () => {
       ringAudio = new Audio(url)
       ringAudio.loop = true
       ringAudio.preload = 'auto'
-      ;(ringAudio as any).playsInline = true
+      mountAudioElement(ringAudio)
     }
   }
   if (!ringbackAudio) {
@@ -142,7 +163,7 @@ const ensureAudioElements = () => {
       ringbackAudio = new Audio(url)
       ringbackAudio.loop = true
       ringbackAudio.preload = 'auto'
-      ;(ringbackAudio as any).playsInline = true
+      mountAudioElement(ringbackAudio)
     }
   }
   if (!notificationAudio) {
@@ -150,7 +171,7 @@ const ensureAudioElements = () => {
     if (url) {
       notificationAudio = new Audio(url)
       notificationAudio.preload = 'auto'
-      ;(notificationAudio as any).playsInline = true
+      mountAudioElement(notificationAudio)
     }
   }
 }
@@ -313,10 +334,22 @@ export const startRingtone = () => {
     try {
       const ctx = getAudioContext()
       if (!ctx) return
-      if (ctx.state === 'suspended') void ctx.resume()
+      if (ctx.state === 'suspended') {
+        ctx.resume().then(() => {
+          if (isRingtoneActive) scheduleRingtoneOscillators(ctx)
+        }).catch(() => {})
+      } else {
+        scheduleRingtoneOscillators(ctx)
+      }
+    } catch (e) {}
+  }
 
+  const scheduleRingtoneOscillators = (ctx: AudioContext) => {
+    if (!isRingtoneActive) return
+    try {
       if (!ringtoneGainNode) {
         ringtoneGainNode = ctx.createGain()
+        ringtoneGainNode.gain.cancelScheduledValues(0)
         ringtoneGainNode.gain.setValueAtTime(0.35, ctx.currentTime)
         ringtoneGainNode.connect(ctx.destination)
       }
@@ -383,7 +416,7 @@ export const startRingbackTone = () => {
   stopRingtone()
   isRingbackActive = true
 
-  // 1. Primary Engine: HTML5 Audio Loop
+  // 1. Primary Engine: HTML5 Audio Loop (with unmuted volume reset)
   ensureAudioElements()
   if (ringbackAudio) {
     try {
@@ -406,10 +439,22 @@ export const startRingbackTone = () => {
     try {
       const ctx = getAudioContext()
       if (!ctx) return
-      if (ctx.state === 'suspended') void ctx.resume()
+      if (ctx.state === 'suspended') {
+        ctx.resume().then(() => {
+          if (isRingbackActive) scheduleRingbackOscillators(ctx)
+        }).catch(() => {})
+      } else {
+        scheduleRingbackOscillators(ctx)
+      }
+    } catch {}
+  }
 
+  const scheduleRingbackOscillators = (ctx: AudioContext) => {
+    if (!isRingbackActive) return
+    try {
       if (!ringbackGainNode) {
         ringbackGainNode = ctx.createGain()
+        ringbackGainNode.gain.cancelScheduledValues(0)
         ringbackGainNode.gain.setValueAtTime(0.22, ctx.currentTime)
         ringbackGainNode.connect(ctx.destination)
       }
@@ -452,7 +497,7 @@ export const startRingbackTone = () => {
 
 /**
  * Stops all active ringtones, ringback tones, and vibrations immediately.
- * Bulletproof: cuts master gain nodes in 0ms, stops HTML5 audio, cancels intervals.
+ * Bulletproof: cuts master gain nodes in 0ms, mutes and pauses HTML5 audio, cancels intervals.
  */
 export const stopRingtone = () => {
   isRingtoneActive = false
@@ -461,23 +506,27 @@ export const stopRingtone = () => {
   // 1. Immediately mute and disconnect master gains for 0ms cutoff
   if (ringtoneGainNode) {
     try {
-      ringtoneGainNode.gain.setValueAtTime(0, audioCtx ? audioCtx.currentTime : 0)
+      ringtoneGainNode.gain.cancelScheduledValues(0)
+      ringtoneGainNode.gain.setValueAtTime(0, 0)
       ringtoneGainNode.disconnect()
     } catch {}
     ringtoneGainNode = null
   }
   if (ringbackGainNode) {
     try {
-      ringbackGainNode.gain.setValueAtTime(0, audioCtx ? audioCtx.currentTime : 0)
+      ringbackGainNode.gain.cancelScheduledValues(0)
+      ringbackGainNode.gain.setValueAtTime(0, 0)
       ringbackGainNode.disconnect()
     } catch {}
     ringbackGainNode = null
   }
 
-  // 2. Stop HTML5 Audio Elements
+  // 2. Stop HTML5 Audio Elements (mute and zero volume first so pending play promises produce zero sound)
   if (ringAudio) {
     try {
       ringAudio.loop = false
+      ringAudio.muted = true
+      ringAudio.volume = 0
       ringAudio.pause()
       ringAudio.currentTime = 0
     } catch {}
@@ -485,6 +534,8 @@ export const stopRingtone = () => {
   if (ringbackAudio) {
     try {
       ringbackAudio.loop = false
+      ringbackAudio.muted = true
+      ringbackAudio.volume = 0
       ringbackAudio.pause()
       ringbackAudio.currentTime = 0
     } catch {}
