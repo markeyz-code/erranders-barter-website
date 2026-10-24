@@ -39,3 +39,19 @@
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05) !important;
 }
 
+/* ── Mobile Input Anti-Zoom Across Board (iOS WebKit requires >=16px font-size to prevent zooming) ── */
+@media screen and (max-width: 768px) {
+  input,
+  textarea,
+  select {
+    font-size: 16px !important;
+  }
+}
+
+input,
+textarea,
+select {
+  -webkit-text-size-adjust: 100%;
+  touch-action: manipulation;
+}
+

@@ -1,5 +1,5 @@
 <template>
-  <main class="h-[calc(100vh-80px)] bg-white flex flex-col overflow-hidden relative">
+  <main class="h-screen h-[100dvh] max-h-[100dvh] w-full bg-white flex flex-col overflow-hidden relative">
     
     <!-- Call Overlay -->
     <div v-if="activeCall" class="fixed inset-0 bg-slate-900 z-[100] flex flex-col items-center justify-center text-white">
@@ -77,7 +77,7 @@
         </div>
         
         <!-- Chat Area -->
-        <div class="flex-1 p-4 overflow-y-auto bg-slate-50 flex flex-col gap-4 relative" ref="chatContainer" @click="showEmojis = false">
+        <div class="flex-1 p-3 sm:p-4 overflow-y-auto bg-slate-50 flex flex-col gap-3 sm:gap-4 relative" ref="chatContainer" @click="showActionTray = false; showEmojis = false">
           <!-- No conversation resolved from the URL -->
           <div v-if="conversationUnavailable" class="flex-1 flex flex-col items-center justify-center text-center gap-4">
             <div class="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center">
@@ -155,69 +155,157 @@
           <button @click="cancelAttachment" class="text-slate-400 hover:text-slate-600"><X class="w-4 h-4"/></button>
         </div>
         
-        <!-- Emoji Picker Popover -->
-        <div v-if="showEmojis" class="absolute bottom-[76px] left-4 bg-white border border-slate-200 shadow-xl rounded-2xl p-4 w-[280px] z-20">
-          <div class="grid grid-cols-6 gap-2">
-            <button v-for="emoji in popularEmojis" :key="emoji" @click="appendEmoji(emoji)" class="text-2xl hover:bg-slate-100 rounded-lg p-1 transition-colors">
-              {{ emoji }}
-            </button>
+        <!-- Plus Action Tray (Preview option for Camera, File Upload, Emojis, Voice Note) -->
+        <Transition name="tray-slide">
+          <div
+            v-if="showActionTray"
+            class="bg-white border-t border-slate-200/90 shadow-2xl p-3 sm:p-5 z-20 backdrop-blur-md"
+          >
+            <div class="max-w-md mx-auto">
+              <div class="flex items-center justify-between mb-2.5 px-1">
+                <span class="text-[11px] font-black uppercase tracking-wider text-slate-400">Share Media & Quick Actions</span>
+                <button
+                  type="button"
+                  @click="showActionTray = false"
+                  class="text-xs font-bold text-slate-400 hover:text-slate-700 p-1 rounded-full hover:bg-slate-100 transition-colors"
+                >
+                  <X class="w-4 h-4" />
+                </button>
+              </div>
+
+              <div class="grid grid-cols-4 gap-2 sm:gap-4 text-center">
+                <!-- 1. Take Photo / Camera -->
+                <button
+                  type="button"
+                  @click="triggerCameraAction"
+                  class="flex flex-col items-center gap-1.5 p-2 rounded-2xl hover:bg-slate-50 active:scale-95 transition-all group cursor-pointer"
+                >
+                  <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-indigo-50 border border-indigo-200/80 text-indigo-600 flex items-center justify-center shadow-xs group-hover:bg-indigo-600 group-hover:text-white transition-colors">
+                    <Camera class="w-5 h-5 sm:w-6 sm:h-6" />
+                  </div>
+                  <span class="text-xs font-bold text-slate-800">Camera</span>
+                  <span class="text-[10px] text-slate-400 -mt-1 font-medium">Take photo</span>
+                </button>
+
+                <!-- 2. Upload File / Gallery -->
+                <button
+                  type="button"
+                  @click="triggerUploadAction"
+                  class="flex flex-col items-center gap-1.5 p-2 rounded-2xl hover:bg-slate-50 active:scale-95 transition-all group cursor-pointer"
+                >
+                  <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-emerald-50 border border-emerald-200/80 text-emerald-600 flex items-center justify-center shadow-xs group-hover:bg-emerald-600 group-hover:text-white transition-colors">
+                    <Paperclip class="w-5 h-5 sm:w-6 sm:h-6" />
+                  </div>
+                  <span class="text-xs font-bold text-slate-800">Upload</span>
+                  <span class="text-[10px] text-slate-400 -mt-1 font-medium">Photo / file</span>
+                </button>
+
+                <!-- 3. Emojis -->
+                <button
+                  type="button"
+                  @click="triggerEmojiAction"
+                  class="flex flex-col items-center gap-1.5 p-2 rounded-2xl hover:bg-slate-50 active:scale-95 transition-all group cursor-pointer"
+                  :class="{ 'bg-amber-50/70 ring-1 ring-amber-300': showEmojis }"
+                >
+                  <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-amber-50 border border-amber-200/80 text-amber-600 flex items-center justify-center shadow-xs group-hover:bg-amber-500 group-hover:text-white transition-colors">
+                    <Smile class="w-5 h-5 sm:w-6 sm:h-6" />
+                  </div>
+                  <span class="text-xs font-bold text-slate-800">Emojis</span>
+                  <span class="text-[10px] text-slate-400 -mt-1 font-medium">Stickers</span>
+                </button>
+
+                <!-- 4. Voice Note -->
+                <button
+                  type="button"
+                  @click="triggerVoiceNoteAction"
+                  class="flex flex-col items-center gap-1.5 p-2 rounded-2xl hover:bg-slate-50 active:scale-95 transition-all group cursor-pointer"
+                >
+                  <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-rose-50 border border-rose-200/80 text-rose-600 flex items-center justify-center shadow-xs group-hover:bg-rose-600 group-hover:text-white transition-colors">
+                    <Mic class="w-5 h-5 sm:w-6 sm:h-6" />
+                  </div>
+                  <span class="text-xs font-bold text-slate-800">Voice Note</span>
+                  <span class="text-[10px] text-slate-400 -mt-1 font-medium">Record mic</span>
+                </button>
+              </div>
+
+              <!-- Expanded Emoji Tray if opened -->
+              <div v-if="showEmojis" class="mt-3 pt-3 border-t border-slate-100">
+                <div class="flex items-center justify-between mb-2 px-1">
+                  <span class="text-[11px] font-bold text-slate-500">Tap to insert emoji</span>
+                </div>
+                <div class="grid grid-cols-8 sm:grid-cols-10 gap-1.5 max-h-36 overflow-y-auto no-scrollbar p-1">
+                  <button
+                    v-for="emoji in richEmojis"
+                    :key="emoji"
+                    type="button"
+                    @click="appendEmoji(emoji)"
+                    class="text-2xl hover:bg-slate-100 rounded-xl p-1.5 transition-transform hover:scale-125 active:scale-95 flex items-center justify-center cursor-pointer"
+                  >
+                    {{ emoji }}
+                  </button>
+                </div>
+              </div>
+            </div>
           </div>
-        </div>
+        </Transition>
 
-        <!-- Input Area -->
-        <div v-if="!conversationUnavailable" class="p-3 bg-white border-t border-slate-100 relative">
-          <form @submit.prevent="sendMessage" class="flex items-end gap-2">
+        <!-- Input Area (Clutter-Free, Wide Input, Anti-Zoom Font Size, Safe Area Padding) -->
+        <div v-if="!conversationUnavailable" class="p-2 sm:p-3 bg-white border-t border-slate-100 relative pb-[max(env(safe-area-inset-bottom),0.75rem)]">
+          <form @submit.prevent="sendMessage" class="flex items-end gap-2 max-w-4xl mx-auto">
             
-            <button v-if="!isRecording" type="button" @click="showEmojis = !showEmojis" class="p-3 text-slate-400 hover:text-brand-600 bg-slate-50 hover:bg-brand-50 rounded-full transition-colors shrink-0 mb-0.5">
-              <Smile class="w-5 h-5" />
-            </button>
-
-            <button v-if="!isRecording" type="button" @click="triggerFileInput" class="p-3 text-slate-400 hover:text-brand-600 bg-slate-50 hover:bg-brand-50 rounded-full transition-colors shrink-0 mb-0.5">
-              <Paperclip class="w-5 h-5" />
-            </button>
-            <button v-if="!isRecording" type="button" @click="startCamera" class="p-3 text-slate-400 hover:text-brand-600 bg-slate-50 hover:bg-brand-50 rounded-full transition-colors shrink-0 mb-0.5" :disabled="isUploading">
-              <Camera class="w-5 h-5" />
+            <!-- Plus Action Toggle Button -->
+            <button
+              v-if="!isRecording"
+              type="button"
+              @click="toggleActionTray"
+              class="w-10 h-10 sm:w-11 sm:h-11 rounded-full flex items-center justify-center transition-all shrink-0 mb-0.5 border cursor-pointer active:scale-95"
+              :class="showActionTray
+                ? 'bg-slate-900 text-white border-slate-900 shadow-sm'
+                : 'bg-slate-100 hover:bg-brand-50 text-slate-600 hover:text-brand-600 border-slate-200/80'"
+              title="Share photo, file, emoji, or voice note"
+            >
+              <Plus class="w-5 h-5 transition-transform duration-200" :class="{ 'rotate-45': showActionTray }" />
             </button>
             <input type="file" ref="fileInput" @change="handleFile" accept="image/*" class="hidden" />
 
             <!-- While Recording: Voice Bar -->
-            <div v-if="isRecording" class="flex-1 bg-red-50 border border-red-200 rounded-2xl flex items-center justify-between px-4 py-2 min-h-[48px] animate-pulse">
+            <div v-if="isRecording" class="flex-1 bg-red-50 border border-red-200 rounded-2xl flex items-center justify-between px-3 sm:px-4 py-2 min-h-[44px] animate-pulse">
               <div class="flex items-center gap-2 text-red-600 font-bold text-xs sm:text-sm">
-                <span class="w-3 h-3 rounded-full bg-red-600 animate-ping shrink-0"></span>
-                <span>Recording Voice Note... {{ formatRecordingTime(recordingSeconds) }}</span>
+                <span class="w-2.5 h-2.5 rounded-full bg-red-600 animate-ping shrink-0"></span>
+                <span>Recording... {{ formatRecordingTime(recordingSeconds) }}</span>
               </div>
               <button type="button" @click="cancelRecording" class="text-xs font-bold text-slate-500 hover:text-slate-800 px-2.5 py-1 bg-white rounded-lg border border-slate-200 hover:bg-slate-100 transition-colors">
                 Cancel
               </button>
             </div>
 
-            <!-- Normal Input Area -->
-            <div v-else class="flex-1 bg-slate-50 border border-slate-200 rounded-2xl flex items-center min-h-[48px] focus-within:border-brand-500 transition-colors">
+            <!-- Normal Input Area (Generous width, anti-zoom 16px font-size) -->
+            <div v-else class="flex-1 bg-slate-50 border border-slate-200/90 rounded-2xl flex items-center min-h-[44px] focus-within:border-brand-500 focus-within:bg-white transition-all px-3 py-1">
               <textarea 
                 v-model="newMessage" 
                 placeholder="Type a message..." 
-                class="w-full bg-transparent p-3 text-sm outline-none resize-none max-h-32"
+                class="w-full bg-transparent text-[16px] sm:text-sm text-slate-900 placeholder:text-slate-400 outline-none resize-none max-h-32 py-1 leading-relaxed"
                 rows="1"
                 @input="resizeTextarea"
-                @keydown.enter.prevent="sendMessage"
+                @keydown.enter.exact.prevent="sendMessage"
                 ref="messageInput"
               ></textarea>
             </div>
             
             <!-- Stop & Send Voice Note Button -->
-            <button v-if="isRecording" type="button" @click="stopRecording" :disabled="isUploading" class="w-12 h-12 bg-red-600 hover:bg-red-700 disabled:opacity-50 text-white rounded-full flex items-center justify-center transition-all shadow-md shrink-0 mb-0.5" title="Send Voice Note">
-              <Send v-if="!isUploading" class="w-5 h-5 ml-0.5" />
-              <Loader2 v-else class="w-5 h-5 animate-spin" />
+            <button v-if="isRecording" type="button" @click="stopRecording" :disabled="isUploading" class="w-10 h-10 sm:w-11 sm:h-11 bg-red-600 hover:bg-red-700 disabled:opacity-50 text-white rounded-full flex items-center justify-center transition-all shadow-md shrink-0 mb-0.5 active:scale-95" title="Send Voice Note">
+              <Send v-if="!isUploading" class="w-4 h-4 ml-0.5" />
+              <Loader2 v-else class="w-4 h-4 animate-spin" />
             </button>
 
             <!-- Send Text/Image Message Button -->
-            <button v-else-if="newMessage.trim() || pendingAsset" type="submit" :disabled="isUploading || sending" class="w-12 h-12 bg-brand-600 hover:bg-brand-700 disabled:opacity-50 disabled:cursor-not-allowed rounded-full flex items-center justify-center text-white transition-colors shrink-0 shadow-sm mb-0.5">
-              <Send v-if="!isUploading && !sending" class="w-5 h-5 ml-1" />
-              <Loader2 v-else class="w-5 h-5 animate-spin" />
+            <button v-else-if="newMessage.trim() || pendingAsset" type="submit" :disabled="isUploading || sending" class="w-10 h-10 sm:w-11 sm:h-11 bg-brand-600 hover:bg-brand-700 disabled:opacity-50 disabled:cursor-not-allowed rounded-full flex items-center justify-center text-white transition-colors shrink-0 shadow-md shadow-brand-600/25 mb-0.5 active:scale-95" title="Send Message">
+              <Send v-if="!isUploading && !sending" class="w-4 h-4 ml-0.5" />
+              <Loader2 v-else class="w-4 h-4 animate-spin" />
             </button>
             
             <!-- Start Voice Recording Mic Button -->
-            <button v-else type="button" @click="startRecording" class="w-12 h-12 rounded-full flex items-center justify-center transition-all shrink-0 shadow-sm mb-0.5 bg-brand-100 hover:bg-brand-200 text-brand-600" title="Record Voice Note">
+            <button v-else type="button" @click="startRecording" class="w-10 h-10 sm:w-11 sm:h-11 rounded-full flex items-center justify-center transition-all shrink-0 mb-0.5 bg-brand-50 hover:bg-brand-100 text-brand-600 active:scale-95 cursor-pointer" title="Record Voice Note">
               <Mic class="w-5 h-5" />
             </button>
 
@@ -253,7 +341,7 @@
 
 <script setup>
 import { useCustomToast } from '@/composables/core/useCustomToast';
-import { ArrowLeft, Send, Paperclip, Mic, X, Reply, Phone, Video, Smile, Loader2, PhoneOff, Camera, RefreshCw, MessageSquare } from 'lucide-vue-next'
+import { ArrowLeft, Send, Paperclip, Mic, X, Reply, Phone, Video, Smile, Loader2, PhoneOff, Camera, RefreshCw, MessageSquare, Plus } from 'lucide-vue-next'
 import { ref, computed, watch, onMounted, onUnmounted, nextTick } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useAuth } from '~/composables/useAuth'
@@ -298,8 +386,40 @@ const fileInput = ref(null)
 const isRecording = ref(false)
 const isUploading = ref(false)
 const showEmojis = ref(false)
+const showActionTray = ref(false)
 const loadingConversation = ref(true)
 const conversationUnavailable = ref(false)
+
+const toggleActionTray = () => {
+  showActionTray.value = !showActionTray.value
+  if (!showActionTray.value) showEmojis.value = false
+}
+
+const triggerCameraAction = () => {
+  showActionTray.value = false
+  startCamera()
+}
+
+const triggerUploadAction = () => {
+  showActionTray.value = false
+  triggerFileInput()
+}
+
+const triggerEmojiAction = () => {
+  showEmojis.value = !showEmojis.value
+}
+
+const triggerVoiceNoteAction = () => {
+  showActionTray.value = false
+  startRecording()
+}
+
+const richEmojis = [
+  '😀','😂','🥰','😍','😎','🤝','🔥','✨','❤️','👍',
+  '🙌','🎉','💸','💰','📦','🚚','🚀','💯','⚡','🛒',
+  '😊','😅','😋','🤗','🤔','😏','😌','😴','🥺','😭',
+  '👏','💪','🙏','✌️','👌','🤙','👀','💡','🛡️','⭐'
+]
 
 const activeCall = ref(null)
 const peerConnection = ref(null)
@@ -310,8 +430,6 @@ const callType = ref('voice')
 const remoteVideo = ref(null)
 const localVideo = ref(null)
 const config = { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] }
-
-const popularEmojis = ['😀','😂','🥰','😎','🥺','😭','🙏','👍','🔥','✨','❤️','🎉']
 
 const recordingSeconds = ref(0)
 let recordingTimer = null
@@ -855,3 +973,16 @@ const capturePhoto = async () => {
 // Keep the view pinned to the newest message.
 watch(messages, async () => { await nextTick(); scrollToBottom() }, { deep: true })
 </script>
+
+<style scoped>
+/* Tray Slide Animation */
+.tray-slide-enter-active,
+.tray-slide-leave-active {
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.tray-slide-enter-from,
+.tray-slide-leave-to {
+  opacity: 0;
+  transform: translateY(16px);
+}
+</style>
