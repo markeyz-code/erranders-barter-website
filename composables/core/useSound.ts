@@ -215,30 +215,7 @@ export const initAudioUnlock = () => {
       }
     } catch {}
 
-    // Momentary inaudible unmuted playback unlocks HTML5 Audio on Safari without staying muted
-    if (!isUnlocked) {
-      const prime = (el: HTMLAudioElement | null) => {
-        if (!el) return
-        try {
-          el.muted = false
-          el.volume = 0.001
-          const p = el.play()
-          if (p !== undefined) {
-            p.then(() => {
-              el.pause()
-              el.currentTime = 0
-              el.volume = 1
-            }).catch(() => {})
-          }
-        } catch {}
-      }
-      if (!isRingtoneActive && !isRingbackActive) {
-        prime(ringAudio)
-        prime(ringbackAudio)
-      }
-      prime(notificationAudio)
-      isUnlocked = true
-    }
+    isUnlocked = true
   }
 
   window.addEventListener('touchstart', unlockContext, { passive: true })

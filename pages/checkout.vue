@@ -705,14 +705,16 @@ const handleDirectPaystackCheckout = () => {
 
 const initiateEscrow = async (paymentRef) => {
   try {
+    const isErrander = deliveryMethod.value === 'errander'
+    const fee = isErrander ? (currentConcludedFee.value || customErranderFee.value || 500) : 0
     const payload = {
       sellerId: item.value.sellerId?._id || item.value.sellerId,
       itemId: item.value._id,
       batchId: route.query.batchId ? String(route.query.batchId) : undefined,
       amount: totalAmount.value,
-      deliveryMethod: 'pickup',
-      deliveryAddress: 'Self Pickup on Campus',
-      deliveryFee: 0,
+      deliveryMethod: isErrander ? 'errander' : 'pickup',
+      deliveryAddress: isErrander ? (deliveryAddress.value.trim() || 'Campus Delivery') : 'Self Pickup on Campus',
+      deliveryFee: fee,
       notes: deliveryNotes.value || undefined,
       paymentReference: paymentRef
     }
@@ -725,7 +727,9 @@ const initiateEscrow = async (paymentRef) => {
     } else {
       useCustomToast().showToast({
         title: 'Payment Confirmed! 🚀',
-        message: 'Payment held safely in Escrow. Contact seller for campus pickup.',
+        message: isErrander
+          ? 'Payment held safely in Escrow. Errand Ninja delivery dispatched!'
+          : 'Payment held safely in Escrow. Contact seller for campus pickup.',
         toastType: 'success'
       })
       router.push('/escrow')

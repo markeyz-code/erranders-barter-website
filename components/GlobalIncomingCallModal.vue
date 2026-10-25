@@ -148,8 +148,8 @@ const attachSocketListeners = (s: any) => {
   s.off('call-ice-candidate')
 
   s.on('incoming-call', (data: any) => {
-    // If user is already on chat page in active conversation with this chatId, let chat.vue handle it directly
-    if (route.path === '/chat' && activeChatId.value && String(data?.chatId || '') === String(activeChatId.value)) {
+    // If user is already on chat page, let chat.vue handle it directly
+    if (route.path === '/chat') {
       return
     }
 
