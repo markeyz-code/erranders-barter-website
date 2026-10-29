@@ -239,7 +239,7 @@
                 </div>
 
                 <!-- Ninja's counter-offer received -->
-                <div v-if="activeNegotiationTx.proposedDeliveryFee && activeNegotiationTx.proposedDeliveryFee !== customErranderFee" class="p-3.5 bg-white rounded-xl border border-amber-300 shadow-xs space-y-2">
+                <div v-if="activeNegotiationTx.proposedDeliveryFee" class="p-3.5 bg-white rounded-xl border border-amber-300 shadow-xs space-y-2">
                   <div class="flex justify-between items-center">
                     <span class="text-xs font-bold text-slate-700">Ninja's Proposed Delivery Fee:</span>
                     <span class="text-base font-black text-brand-600">₦{{ activeNegotiationTx.proposedDeliveryFee.toLocaleString() }}</span>

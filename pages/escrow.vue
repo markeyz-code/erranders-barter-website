@@ -273,7 +273,7 @@ const fetchTransactions = async () => {
     }
     const { data, error } = await escrowApi.myTransactions()
     if (!error) {
-       transactions.value = data
+       transactions.value = Array.isArray(data) ? data : (data?.data || [])
     }
   } catch (err) {
     console.error(err)
