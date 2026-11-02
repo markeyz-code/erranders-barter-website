@@ -208,6 +208,15 @@
       </div>
 
       <!-- Google Photos Album-Style Grouped Room Boxes (2 cols mobile, 4 cols desktop) -->
+      <SectionEmptyState
+        v-else-if="!batchGroups.length"
+        :icon="PackageOpen"
+        title="No room clearances yet"
+        message="When students post a room clearance, the boxes show up here first — often at a fraction of what the items cost new."
+        cta-label="List a room clearance"
+        cta-to="/sell"
+      />
+
       <div v-else class="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
         <div
           v-for="group in batchGroups"
@@ -334,6 +343,15 @@
       </div>
 
       <!-- 4 Items Max: 2 cols on mobile, 4 cols on desktop -->
+      <SectionEmptyState
+        v-else-if="!displayToBuy.length"
+        :icon="ShoppingBag"
+        title="Nothing listed right now"
+        message="The marketplace is empty at the moment. Post something you no longer need and it will appear here for students nearby."
+        cta-label="Post an item"
+        cta-to="/sell"
+      />
+
       <div v-else class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-6">
         <NuxtLink
           v-for="item in displayToBuy"
@@ -421,8 +439,17 @@
           </NuxtLink>
         </div>
 
+        <SectionEmptyState
+          v-if="!displayJustSold.length"
+          :icon="Flame"
+          title="Nothing sold yet today"
+          message="When a student snaps something up it appears here. It is the fastest way to see what your campus is buying."
+          cta-label="Sell something"
+          cta-to="/sell"
+        />
+
         <!-- Sold Items Horizontal Carousel -->
-        <div class="flex gap-4 overflow-x-auto pb-3 pt-1 no-scrollbar snap-x">
+        <div v-else class="flex gap-4 overflow-x-auto pb-3 pt-1 no-scrollbar snap-x">
           <div
             v-for="item in displayJustSold"
             :key="item._id"
@@ -482,8 +509,17 @@
         </NuxtLink>
       </div>
 
+      <SectionEmptyState
+        v-if="!displayToSwap.length"
+        :icon="ArrowLeftRight"
+        title="No swaps on offer"
+        message="Nobody is trading right now. Offer an item you no longer use and see what comes back."
+        cta-label="Offer a swap"
+        cta-to="/swap"
+      />
+
       <!-- Swap Cards Grid -->
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+      <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
         <NuxtLink
           v-for="swap in displayToSwap"
           :key="swap._id"
@@ -560,8 +596,17 @@
           </NuxtLink>
         </div>
 
+        <SectionEmptyState
+          v-if="!displayReels.length"
+          :icon="PlayCircle"
+          title="No reels to watch"
+          message="Students post short videos of what they are selling. Record one and buyers can see the item in motion before they pay."
+          cta-label="Record a reel"
+          cta-to="/reels"
+        />
+
         <!-- Vertical Reels Cards Grid / Slider -->
-        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
+        <div v-else class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
           <NuxtLink
             v-for="reel in displayReels"
             :key="reel._id"
@@ -649,8 +694,17 @@
         </NuxtLink>
       </div>
 
+      <SectionEmptyState
+        v-if="!displayServices.length"
+        :icon="Wrench"
+        title="No services listed yet"
+        message="Hostel movers, barbers, tutors and repairers will appear here. If you offer a skill on campus, list it and students can book you directly."
+        cta-label="Offer a service"
+        cta-to="/services"
+      />
+
       <!-- Services Cards Grid -->
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
+      <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
         <NuxtLink
           v-for="service in displayServices"
           :key="service._id"
@@ -1033,7 +1087,8 @@ import { onMounted, onUnmounted, reactive, ref, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import {
   Search, ShoppingBag, Tag, Package, ShieldCheck, MapPin, Clock, ArrowRight, ArrowRightLeft,
-  Flame, Play as PlayIcon, Wrench, CheckCircle2, ExternalLink, Heart, Sparkles, Zap, Folder, Share2, X, ChevronDown
+  Flame, Play as PlayIcon, Wrench, CheckCircle2, ExternalLink, Heart, Sparkles, Zap, Folder, Share2, X, ChevronDown,
+  PackageOpen, PlayCircle
 } from 'lucide-vue-next';
 import { itemsApi } from '@/api_factory/modules/items';
 import { servicesApi, type Service } from '@/api_factory/modules/services';
