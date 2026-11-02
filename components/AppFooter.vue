@@ -58,7 +58,10 @@
 
       <!-- Bottom Bar -->
       <div class="flex flex-col sm:flex-row items-center justify-between pt-6 border-t border-slate-200 text-sm font-bold uppercase text-slate-500">
-        <p>© 2026 ERRANDERS COMPANY LIMITED. Decluttered by Erranders. All rights reserved.</p>
+        <div class="space-y-1">
+          <p>Declutter is a product of Erranders Company Limited.</p>
+          <p class="text-xs normal-case font-medium text-slate-400">© 2026 Erranders Company Limited. All rights reserved.</p>
+        </div>
         <div class="flex gap-4 mt-4 sm:mt-0">
           <a href="#" class="hover:text-brand-600 transition-colors">Twitter</a>
           <a href="#" class="hover:text-brand-600 transition-colors">Instagram</a>
